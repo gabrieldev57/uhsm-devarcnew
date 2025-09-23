@@ -1,0 +1,14 @@
+<template>
+    <template if:false={isLoaded}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    <template if:true={plans}>
+        <template for:each={plans} for:item="plan">
+            <c-a-r-c_360-plan-details-button key={plan.Id}
+                class="nds-p-horizontal_x-small slds-p-horizontal_x-small" product={plan} dependents={dependents}
+                root-channel={rootChannel} theme={theme}></c-a-r-c_360-plan-details-button>
+        </template>
+    </template>
+    
+    <c-arc_-ins-os-grid-product-modal theme={theme} root-channel={rootChannel}></c-arc_-ins-os-grid-product-modal>
+</template>

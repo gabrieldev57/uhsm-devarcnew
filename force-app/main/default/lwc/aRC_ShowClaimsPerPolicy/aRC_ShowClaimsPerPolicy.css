@@ -1,0 +1,12 @@
+.header{
+    display: flex;
+    align-items: middle;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-select{
+    flex: 1;
+    width: 100%;
+}

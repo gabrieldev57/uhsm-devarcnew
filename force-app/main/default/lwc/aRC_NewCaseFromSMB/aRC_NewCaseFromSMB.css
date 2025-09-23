@@ -1,0 +1,9 @@
+.flex-row-center{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+lightning-button{
+    margin: 0px 5px;
+}

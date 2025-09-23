@@ -1,0 +1,71 @@
+/* Inputs */
+.form_inputs{
+    border: none;
+}
+/* Input Containers */
+.slds-box {
+    background-color: white;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
+/* Login Button */
+.slds-button.loginButton{
+    border: none;
+    height: 46px;
+    background-color: var(--button-primary-color-background,#2C2B2C);
+    color: var(--lwc-colorTextButtonBrand,#FFFFFF);
+}
+.slds-button.loginButton:hover{
+    background-color: var(--lwc-colorBackgroundButtonBrand,rgb(242, 188, 48));
+    color: var(--lwc-colorTextButtonBrand,#FFFFFF);
+    border: none;
+}
+
+/* Button Pages */
+.redirectPagesContainer{
+    margin-top: 12px;
+}
+.buttonPages{
+    color: var(--button-primary-color-background,#2C2B2C);
+    font-weight: 700;
+    font-size: 16px;
+}
+.buttonPages:hover{
+    color: var(--lwc-colorBackgroundButtonBrand,rgb(242, 188, 48));
+    font-weight: 700;
+    border: none;
+}
+
+/* Error Message */
+.errorMessage{
+    font-size: 16px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    text-align: center;
+    color: var(--lwc-ErrorTextColor,#ff9e9e);
+}
+
+.spinner{
+    position: relative;
+    display: inline-block;
+    width: 40px;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .loginButton {
+        width: 100%; 
+    }
+}
+
+@media screen and (min-width: 1721px) {
+    .loginButton {
+        width: 100%; 
+    }
+    .redirectPagesContainer{
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}

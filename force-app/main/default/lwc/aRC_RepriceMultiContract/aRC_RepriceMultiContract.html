@@ -1,0 +1,8 @@
+<template>
+    <p style="display: none">Loading</p>
+    <template if:true={isLoading}>
+        <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+        </div>
+    </template>
+</template>

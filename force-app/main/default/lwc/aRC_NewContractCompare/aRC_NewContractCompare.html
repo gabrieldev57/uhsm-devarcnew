@@ -1,0 +1,229 @@
+<template>
+    <template if:true={newContract}>
+        <template if:true={newContract.vlocity_ins__ExpiredContractId__c}>
+            <article class="slds-card">
+                <div class="slds-card__header slds-grid slds-m-bottom_large">
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate justify-center">
+                        <p class="slds-text-heading_medium">
+                            <b>New Contract Reason:</b> {contReason}
+                        </p>
+                    </header>
+                </div>
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-2">
+                        <header
+                            class="slds-media slds-media_center slds-has-flexi-truncate justify-center padding-bottom">
+                            <h2 class="slds-text-heading_medium">
+                                Old Contract
+                            </h2>
+                        </header>
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <colgroup>
+                                <col style="width: 33%;">
+                                <col style="width: 33%;">
+                                <col style="width: 34%;">
+                            </colgroup>
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Old Contract Number">Contract Number</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Old Effective Date">Effective Date</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Old Paid Through Date">Paid Through Date</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="slds-hint-parent">
+                                    <th data-label="Contract Number" scope="row">
+                                        <div data-id={newContract.vlocity_ins__ExpiredContractId__c}
+                                            class="slds-truncate" title="PrevContractNumber">
+                                            <a data-id={newContract.vlocity_ins__ExpiredContractId__c}
+                                                onclick={handleContractNavigate} class="slds-text-link">
+                                                {newContract.vlocity_ins__ExpiredContractId__r.ContractNumber}
+                                            </a>
+                                        </div>
+                                    </th>
+                                    <td>
+                                        <div class="slds-truncate">{formatedOldEffDate}</div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">{formatedOldPTDate}</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <colgroup>
+                                <col style="width: 33%;">
+                                <col style="width: 33%;">
+                                <col style="width: 34%;">
+                            </colgroup>
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Plan">Plan</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Type">Type</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Price">Price</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={oldContractLineItems} for:item="program">
+                                    <tr key={program.Id} class="slds-hint-parent min-height">
+                                        <th scope="row" data-id={program.Id} data-label="Plan">
+                                            <div data-id={program.Id} class="slds-truncate" title={program.Name}>
+                                                <a data-id={program.Id} onclick={handlePlanNavigate}
+                                                    class="slds-text-link">
+                                                    {program.Name}
+                                                </a>
+                                            </div>
+
+                                        </th>
+                                        <td>
+                                            <div class="slds-truncate">{program.vlocity_ins__ProductType__c}</div>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate">{program.vlocity_ins__UnitPrice__c}</div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Plan">Members</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={oldMembers} for:item="member">
+                                    <tr key={member.Id} class="slds-hint-parent" data-id={member.Id}
+                                        onclick={handleMemberNavigate}>
+                                        <td>
+                                            <div class="slds-truncate">{member.Name}</div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <header
+                            class="slds-media slds-media_center slds-has-flexi-truncate justify-center padding-bottom">
+                            <h2 class="slds-text-heading_medium">
+                                New Contract
+                            </h2>
+                        </header>
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <colgroup>
+                                <col style="width: 33%;">
+                                <col style="width: 33%;">
+                                <col style="width: 34%;">
+                            </colgroup>
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="New Contract Number">Contract Number</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="New Effective Date">Effective Date</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="New Paid Through Date">Paid Through Date</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="slds-hint-parent">
+                                    <th data-label="New Contract Number" scope="row">
+                                        <div data-id={newContract.Id} class="slds-truncate" title="PrevContractNumber">
+                                            <a data-id={newContract.Id} onclick={handleContractNavigate}
+                                                class="slds-text-link">
+                                                {newContract.ContractNumber}
+                                            </a>
+                                        </div>
+                                    </th>
+                                    <td>
+                                        <div class="slds-truncate">{formatedNewEffDate}</div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">{formatedNewPTDate}</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <colgroup>
+                                <col style="width: 33%;">
+                                <col style="width: 33%;">
+                                <col style="width: 34%;">
+                            </colgroup>
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Plan">Plan</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Type">Type</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Price">Price</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={newContractLineItems} for:item="program">
+                                    <tr key={program.Id} class="slds-hint-parent min-height">
+                                        <th scope="row" data-id={program.Id} data-label="Plan">
+
+                                            <div data-id={program.Id} class="slds-truncate" title={program.Name}>
+                                                <a data-id={program.Id} onclick={handlePlanNavigate}
+                                                    class="slds-text-link">
+                                                    {program.Name}
+                                                </a>
+                                            </div>
+                                        </th>
+                                        <td>
+                                            <div class="slds-truncate">{program.vlocity_ins__ProductType__c}</div>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate">{program.vlocity_ins__UnitPrice__c}</div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Plan">Members</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={newMembers} for:item="member">
+                                    <tr key={member.Id} class="slds-hint-parent" data-id={member.Id}>
+                                        <td>
+                                            <div class="slds-truncate">{member.Name}</div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </article>
+        </template>
+    </template>
+</template>

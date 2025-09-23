@@ -1,0 +1,76 @@
+<template>
+    <div class="table-container">
+
+        <div class="shareElements">
+            <vlocity_ins-input class="shareCheckboxes" theme="nds" type="checkbox" label="Share SMART Program" name="shareSmart"  checked={shareSmart.value} disabled={shareSmart.disabled} onchange={handleShareCheckbox}></vlocity_ins-input>
+            <vlocity_ins-input class="shareCheckboxes" theme="nds" type="checkbox" label="Share AIDD Program" name="shareAidd" checked={shareAidd.value} disabled={shareAidd.disabled} onchange={handleShareCheckbox}></vlocity_ins-input>
+        </div>
+
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr>
+                    <th>MEMBER</th>
+                    <th>RELATIONSHIP</th>
+                    <th>MEDICAL</th>
+                    <th>SMART</th>
+                    <th>AIDD</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={members} for:item="member">
+                    <tr key={member.id}>
+                        <td>{member.name}</td>
+                        <td>{member.relationship}</td>
+                        <td >{member.medicalProduct.name}</td>
+                        <td>
+                            <template if:true={member.isChild}>
+                                <select name="childParentProgram" data-member-id={member.id} data-member-name={member.name} onchange={handleSelection} value={member.selectedParent.value}>
+                                    <template for:each={member.selectedParent.options} for:item="option">
+                                        <option key={option.value} value={option.value} selected={option.selected} option-label={option.label}>{option.label}</option>
+                                    </template>
+                                </select>
+                            </template>
+                            <template if:false={member.isChild}>
+                                <select name="smart" data-member-id={member.id} data-member-name={member.name} onchange={handleSelection} value={member.smartProduct.value}>
+                                    <template for:each={member.smartProduct.options} for:item="option">
+                                      <option key={option.value} value={option.value} selected={option.selected} option-label={option.label}>
+                                        {option.label}
+                                      </option>
+                                    </template>
+                                  </select>
+
+                            </template>
+                        </td>
+                        <td>
+                            <template if:true={member.isChild}>
+                                <span>{member.ancillaryProductsToString}</span>
+                            </template>
+                            <template if:false={member.isChild}>
+
+                                <select name="aidd" data-member-id={member.id} data-member-name={member.name} onchange={handleSelection} value={member.aiddProduct.value}>
+                                    <template for:each={member.aiddProduct.options} for:item="option">
+                                        <option key={option.value} value={option.value} selected={option.selected} option-label={option.label}>
+                                        {option.label}
+                                        </option>
+                                    </template>
+                                    </select>
+
+                            </template>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
+        <div class="nds-grid nds-grid_align-center nds-wrap nds-button-group-row nds-size_1-of-1 nds-medium-size_12-of-12 nds-p-horizontal_medium">
+            <div class="omniscript-btn-next nds-size_12-of-12 nds-m-bottom_x-small nds-medium-size_3-of-12">
+                <button type="button" aria-label="Next Step" onclick={handleNext} class="vlocity-btn nds-button nds-button_brand nds-button_stretch nds-p-around_xx-small nds-size_1-of-1" if:true={allSelected}>
+                    <span class="btnLabel">Next</span>
+                </button>
+                <button type="button" aria-label="Next Step" style="background-color: #2c2b2c87; pointer-events: none; border-color: #2c2b2c87;" class="vlocity-btn nds-button nds-button_brand nds-button_stretch nds-p-around_xx-small nds-size_1-of-1" if:false={allSelected}>
+                    <span class="btnLabel">Next</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>

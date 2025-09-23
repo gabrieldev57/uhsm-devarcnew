@@ -1,0 +1,21 @@
+.vlc-separator[vlocity_ins-omniscriptStep_omniscriptStep]{
+    border-top: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.omniscript-body[data-stepborder='right'][c-docuSignUnderwritingCaseEnglish_docuSignUnderwritingCaseEnglish]{
+    border-right: 0px;
+}
+
+.omniscript-step__body[vlocity_ins-omniscriptStep_omniscriptStep]{
+    height: 30px !important;
+    min-height: 0px !important;
+    padding-top: 0px !important;
+    /* padding-bottom: 0px !important; */
+}
+
+.os-step-label[vlocity_ins-omniscriptStep_omniscriptStep]{
+    margin-top: 0px;
+}
+

@@ -1,0 +1,137 @@
+<template>
+
+    <vlocity_ins-button theme={theme} variant="brand" if:true={showActivateOld} icon-fill="#ffffff"
+        label="Use Active Products" onclick={useOldProducts}>
+    </vlocity_ins-button>
+    <vlocity_ins-button theme={theme} variant="brand" if:true={showDeactivateOld} icon-fill="#ffffff"
+        label="Remove Active Products" onclick={removeOldProducts}>
+    </vlocity_ins-button>
+
+    <vlocity_ins-button theme={theme} variant="brand" icon-name="utility:refresh" if:true={nowOnSet} icon-fill="#ffffff"
+        icon-position="left" label="Refresh Prices" onclick={refreshProds}>
+    </vlocity_ins-button>
+    <div if:false={isLoaded}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </div>
+    <template if:true={products}>
+        <div
+            class="slds-grid slds-grid_align-end slds-m-vertical_medium nds-grid nds-grid_align-end nds-m-vertical_medium">
+
+            <!-- Temporary hide Brochure Infomation button as per US 1813 -->
+            <!-- <div if:true={hasBrochures} class="slds-m-left_medium nds-m-left_medium">
+                <vlocity_ins-button theme={theme} variant="brand" icon-name="utility:multi_picklist" icon-fill="#ffffff"
+                    icon-position="left" label="Brochure information" onclick={openBrochure}>
+                </vlocity_ins-button>
+            </div> -->
+
+
+            <template if:false={compareBar}>
+                <div if:true={showCompareBtn} class="slds-m-left_medium nds-m-left_medium">
+                    <vlocity_ins-button theme={theme} variant="brand" icon-name="utility:multi_picklist"
+                        icon-fill="#ffffff" icon-position="left" label={labels.InsCompare} onclick={openCompareModal}>
+                    </vlocity_ins-button>
+                </div>
+            </template>
+            <div if:true={productCount} class="slds-m-left_medium nds-m-left_medium">
+                <vlocity_ins-button theme={theme} variant="brand" icon-name="utility:cart" icon-fill="#ffffff"
+                    icon-position="left" label={cartLabel} onclick={openCartModal}></vlocity_ins-button>
+            </div>
+        </div>
+        <div class="slds-grid nds-grid">
+            <div class="vloc-serv-filters-container">
+                <template if:true={serviceFilters}>
+                    <template for:each={serviceFilters} for:item="serviceFilter" for:index="index">l
+                        <vlocity_ins-combobox options={serviceFilter.listOfValues} theme={theme}
+                            name={serviceFilter.attributeName} value={serviceFilter.filterSelection}
+                            key={serviceFilter.attributeName} label={serviceFilter.attributeLabel}
+                            class="slds-m-right_small nds-m-right_small" onchange={serviceFilterChange}>
+                        </vlocity_ins-combobox>
+                    </template>
+                </template>
+                <template if:true={displayApplyFilterButton}>
+                    <vlocity_ins-button theme={theme} variant="brand" onclick={applyServiceFilters}
+                        label={labels.InsApply}
+                        class="slds-p-horizontal_large slds-m-left_medium nds-p-horizontal_large nds-m-left_medium">
+                    </vlocity_ins-button>
+                </template>
+            </div>
+            <div class="vloc-ins-inline-filters-container">
+                <template if:true={inlineFilters}>
+                    <template for:each={inlineFilters} for:item="inlineFilter" for:index="index">
+                        <div key={inlineFilter.filterKey}
+                            class="slds-m-left_small slds-text-align_center nds-m-left_small nds-text-align_center">
+                            <vlocity_ins-combobox options={inlineFilter.optsMap} theme={theme}
+                                name={inlineFilter.filterKey} value={inlineFilter.filterSelection}
+                                disabled={inlineFilter.disabled} label={inlineFilter.filterLabel}
+                                class="slds-text-align_left nds-text-align_left" onchange={selectedInlineFilter}>
+                            </vlocity_ins-combobox>
+                            <template if:true={inlineFilter.filterSelection}>
+                                <div class="slds-pill nds-pill">
+                                    <span class="slds-pill__label nds-pill__label">{inlineFilter.filterSelection}</span>
+                                    <span
+                                        class="slds-icon_container slds-pill__remove nds-icon_container nds-pill__remove">
+                                        <vlocity_ins-button theme={theme} variant="icon" icon-name="utility:close"
+                                            data-value={inlineFilter.filterKey} onclick={removeInlineFilterSelection}>
+                                        </vlocity_ins-button>
+                                    </span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+        <template if:false={emptyPlans}>
+            <div class="slds-grid nds-grid slds-m-top_small nds-m-top_small">
+                <div class="slds-size_1-of-2 nds-size_1-of-2 vloc-ins-align-end">
+                    <span class="vloc-ins-bold-heading">{labels.Results}</span>
+                </div>
+                <div class="slds-size_1-of-2 nds-size_1-of-2">
+                    <div if:true={sortCombo} class="slds-grid slds-grid_align-end nds-grid nds-grid_align-end">
+                        <span class="vloc-ins-bold-heading">{labels.SortBy}:</span>
+                        <vlocity_ins-combobox options={sortCombo.optsMap} theme={theme} disabled={disableSortSelect}
+                            name={sortCombo.sortKey} label={sortCombo.sortLabel} value={sortValue}
+                            class="vloc-ins-sort-combo slds-m-left_small nds-m-left_small" onchange={sortComboChange}>
+                        </vlocity_ins-combobox>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-m-vertical_medium nds-m-vertical_medium">
+                <c-arc_-ins-os-grid-products onsenddata={handleDataFromChild} products={filteredProducts}
+                    filtered-attributes={filteredAttributes} show-product-tile={showProductTile}
+                    show-config-inline={showConfigInline} theme={theme} root-channel={rootChannel}
+                    onexpand={expandProduct} reprice-action={repriceActionFn}>
+                </c-arc_-ins-os-grid-products>
+                <div if:true={isProductsLoading} class="slds-is-relative nds-is-relative vloc-ins-products-spinner">
+                    <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                </div>
+            </div>
+        </template>
+        <div if:true={isProductsLoading} class="vloc-ins-products-spinner" style="opacity: 0.5;">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+        <template if:true={emptyPlans}>
+            <div class="noPlan">
+                <lightning-icon class="iconNoPlan" size="large" icon-name="utility:error" alternative-text="Error"
+                    title="Error"></lightning-icon>
+                <h1>There are no plans available for your Change Reason</h1>
+            </div>
+        </template>
+    </template>
+
+
+    <!--c-arc_-pdf-modal theme={theme} brochures={brochures}>
+    </c-arc_-pdf-modal-->
+    <!-- vlocity_ins-ins-os-grid-product-modal theme={theme} root-channel={rootChannel}>
+    </vlocity_ins-ins-os-grid-product-modal-->
+    <c-arc_-ins-os-grid-product-modal theme={theme} root-channel={rootChannel}
+        last-medical-selection-id={lastMedicalSelectionId} medical-warning={warningForMedicalWrongSelection}
+        smart-warning={warningForSMARTWrongSelection} aidd-warning={warningForAIDDWrongSelection}>
+    </c-arc_-ins-os-grid-product-modal>
+
+    <vlocity_ins-ins-os-grid-cart-modal theme={theme} root-channel={rootChannel} step-name={stepName}>
+    </vlocity_ins-ins-os-grid-cart-modal>
+
+    <c-arc_ins-os-grid-product-config-modal if:false={showInlineConfiguration} theme={theme} root-channel={rootChannel}
+        reprice-action={repriceActionFn}></c-arc_ins-os-grid-product-config-modal>
+</template>

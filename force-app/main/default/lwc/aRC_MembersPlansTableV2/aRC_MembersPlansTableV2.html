@@ -1,0 +1,100 @@
+<template>
+	<div class="container forceRelatedListSingleContainer" data-aura-rendered-by="2665:0"
+		data-aura-class="forceRelatedListSingleContainer"
+		style="border-radius: 0.25rem; border: rgb(201, 201, 201); border-style: solid; border-width: 0.03rem;">
+		<!-- HEADER -->
+		<div class="slds-grid slds-page-header forceRelatedListCardHeader" data-aura-rendered-by="2693:0"
+			data-aura-class="forceRelatedListCardHeader">
+			<header class="slds-media slds-media--center slds-has-flexi-truncate" data-aura-rendered-by="2694:0">
+				<div>
+					<lightning-icon icon-name="standard:team_member" alternative-text="Members" title="Members"
+						style="margin-right: 0.5rem"></lightning-icon>
+				</div>
+				<div class="slds-media__body" data-aura-rendered-by="2696:0">
+					<h2 id="header_2677:0" class="slds-card__header-title" data-aura-rendered-by="2697:0">Members</h2>
+				</div>
+			</header>
+		</div>
+		<!-- TABLE -->
+		<table class="resizable-active-table">
+			<!-- HEADERS -->
+			<thead>
+				<tr style="width:100%;">
+					<th for:each={headers} for:item="header" key={header.fieldName} for:index="index" data-index={index}
+						data-resizable-column-id={header.fieldName}>
+						{header.label}
+					</th>
+				</tr>
+			</thead>
+			<!-- BODY -->
+			<!-- ACTIVE MEMBERS AND PLANS -->
+			<tbody>
+				<template for:each={activeMemberList} for:item="row">
+					<tr class={row.activeClass} lwc:if={row.display} key={row}>
+						<td>
+							<lightning-icon class="arrow-down" title="Active" lwc:if={row.isMember} size="xx-small"
+								icon-name="utility:switch" alternative-text="Active" data-id={row.Id}
+								data-label="activeMemberList" onclick={handleDropdown}>
+							</lightning-icon>
+							<a data-id={row.Id} onclick={navigateToRecordPage}>{row.FullName}</a>
+						</td>
+						<td>{row.PlanName}</td>
+						<td>{row.MemberStartDate}</td>
+						<td>{row.MemberEndDate}</td>
+						<td>{row.Relationship}</td>
+						<td>{row.Email}</td>
+						<td>{row.SSN}</td>
+						<td>{row.DOB}</td>
+						<td>{row.Age}</td>
+						<td>
+							<lightning-icon lwc:if={row.isActive} size="x-small" class={row.activeClass}
+								icon-name="utility:check" alternative-text="Active" title="Active"></lightning-icon>
+						</td>
+						<!-- <td>
+							<lightning-icon lwc:if={row.TemporaryNewBorn} size="x-small" class={row.activeClass}
+								icon-name="utility:check" alternative-text="Active" title="Active"></lightning-icon>
+					
+						</td> -->
+					</tr>
+				</template>
+			</tbody>
+		</table>
+
+
+		<div class="active-inactive-divider" lwc:if={displayInactiveSection}>
+			<p>Inactive Members</p>
+		</div>
+		<table class="resizable-inactive-table">
+			<template for:each={inactiveMemberList} for:item="row">
+				<tr class={row.activeClass} lwc:if={row.display} key={row} style="width: 100%;">
+					<td>
+						<lightning-icon
+							class="arrow-down"
+							title="Active"
+							lwc:if={row.isMember}
+							size="xx-small"
+							icon-name="utility:switch"
+							alternative-text="Active"
+							data-id={row.Id}
+							data-label="inactiveMemberList"
+							onclick={handleDropdown}
+							>
+						</lightning-icon>
+						<a data-id={row.Id} onclick={navigateToRecordPage}>{row.FullName}</a>
+					</td>
+					<td>{row.PlanName}</td>
+					<td>{row.MemberStartDate}</td>
+					<td>{row.MemberEndDate}</td>
+					<td>{row.Relationship}</td>
+					<td>{row.Email}</td>
+					<td>{row.SSN}</td>
+					<td>{row.DOB}</td>
+					<td>{row.Age}</td>
+					<td>
+						<lightning-icon lwc:if={row.isActive} size="x-small" class={row.activeClass} icon-name="utility:check" alternative-text="Active" title="Active"></lightning-icon>
+					</td>
+				</tr>
+			</template>
+		</table>
+	</div>
+</template>

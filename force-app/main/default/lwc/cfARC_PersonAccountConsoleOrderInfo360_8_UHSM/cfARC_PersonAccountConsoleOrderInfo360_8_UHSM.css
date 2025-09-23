@@ -1,0 +1,10 @@
+.blk__transaction-details {
+    border-left: 1px solid rgb(204, 204, 204);
+}
+
+@media (max-width: 767px) {
+    .blk__transaction-details {
+        border-top: 1px solid rgb(204, 204, 204);
+        border-left: unset;
+    }
+}

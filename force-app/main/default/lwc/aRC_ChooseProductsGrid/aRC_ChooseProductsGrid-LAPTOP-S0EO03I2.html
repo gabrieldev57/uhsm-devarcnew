@@ -1,0 +1,66 @@
+<template>
+	<table class="customers">
+		<tr>
+			<th>Member</th>
+			<th>Medical</th>
+			<th>SMART</th>
+			<th>AIDD</th>
+		</tr>
+		<tr for:each={inputmember} for:item="member" key={member.CensusMemberId}>
+			<td if:true={member.isPrimary}>
+				<lightning-input class="lightning-inpt" value={member.CensusMemberName} readonly></lightning-input>
+			</td>
+			<td key={member.Id} if:true={member.isPrimary}>
+				<lightning-combobox class="lightning-cbx" options={optionsCoreProduct} value={onlyProduct} disabled={lockedproduct}
+					onchange={handleChangeCoverage}></lightning-combobox>
+			</td>
+			<td key={member.Id} if:true={member.isPrimary}>
+				<lightning-combobox class="lightning-cbx" placeholder="Select your coverage" options={optionsSmartProduct} value={smartValue}
+					onchange={handleChangeCoverage} data-id={member.CensusMemberId}
+					data-relationship={member.CensusMemberRelationship} data-name={member.CensusMemberName}
+					data-protype="SMART" data-idpro={member.memberIdSMART} disabled={disPrimarySmart}></lightning-combobox>
+			</td>
+			<td key={member.Id} if:true={member.isPrimary}>
+				<lightning-combobox class="lightning-cbx" placeholder="Select your coverage" options={optionsAiddProduct} value={aiddValue}
+					onchange={handleChangeCoverage} disabled={primaryAiddDisabled} data-id={member.CensusMemberId}
+					data-relationship={member.CensusMemberRelationship} data-name={member.CensusMemberName}
+					data-protype="AIDD" data-idpro={member.memberIdAIDD} data-aidd="primary"></lightning-combobox>
+			</td>
+			<td if:true={member.isSpouse}>
+				<lightning-input class="lightning-inpt" value={member.CensusMemberName} readonly></lightning-input>
+			</td>
+			<td key={member.Id} if:true={member.isSpouse}>
+				<lightning-combobox class="lightning-cbx" options={optionsCoreProduct} value={onlyProduct} disabled={lockedproduct}
+					onchange={handleChangeCoverage}></lightning-combobox>
+			</td>
+			<td key={member.Id} if:true={member.isSpouse}>
+				<lightning-combobox class="lightning-cbx" placeholder="Select your coverage" options={optionsSmartProductSpouse}
+					value={smartValueSpouse} onchange={handleChangeCoverage} data-id={member.CensusMemberId}
+					data-relationship={member.CensusMemberRelationship} data-name={member.CensusMemberName}
+					data-protype="SMART" disabled={disSpouseSmart}></lightning-combobox>
+			</td>
+			<td key={member.Id} if:true={member.isSpouse}>
+				<lightning-combobox class="lightning-cbx" placeholder="Select your coverage" options={optionsAiddProductSpouse}
+					value={aiddValueSpouse} onchange={handleChangeCoverage} disabled={spouseAiddDisabled}
+					data-id={member.CensusMemberId} data-relationship={member.CensusMemberRelationship}
+					data-name={member.CensusMemberName} data-protype="AIDD" data-aidd="spouse"></lightning-combobox>
+			</td>
+			<td if:true={member.isDependent}>
+				<lightning-input class="lightning-inpt" value={member.CensusMemberName} readonly></lightning-input>
+			</td>
+			<td key={member.Id} if:true={member.isDependent}>
+				<lightning-combobox class="lightning-cbx" options={optionsCoreProduct} value={onlyProduct} disabled={lockedproduct}
+					onchange={handleChangeCoverage}></lightning-combobox>
+			</td>
+			<td key={member.Id} if:true={member.isDependent}>
+				<lightning-combobox class="lightning-cbx" placeholder="Select Primary or Spouse" options={optionDependents}
+					value={valueDependents} onchange={handleSelectDepProgram} disabled={depDisabled}
+					data-id={member.CensusMemberId} data-iddep={member.CensusMemberId} data-parent="parent"></lightning-combobox>
+			</td>
+			<td key={member.Id} if:true={member.isDependent} class="depSummary">
+					<h1 data-idprod={member.memberIdSMART}></h1>
+					<h1 data-idprod={member.memberIdAIDD}></h1>
+			</td>
+		</tr>
+	</table>
+</template>

@@ -1,0 +1,3 @@
+let styleDefinition =
+      {"state0element0block_element5":[{"conditions":"default","styleObject":{"class":"nds-col  condition-element  nds-size_2-of-12  ","style":"","styleProperties":""}}],"state0element0block_element6":[{"conditions":"default","styleObject":{"class":"nds-col  condition-element  nds-size_2-of-12  ","style":"      \n         ","styleProperties":{}}}]};
+  export default styleDefinition

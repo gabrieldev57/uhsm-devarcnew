@@ -1,0 +1,199 @@
+div.arc-styles{
+    border-radius: var(--border-radius-medium) !important;
+}
+
+/***************** Custom FlexCards *****************/
+
+/* Community Quick Actions */
+div.arc-styles.quick-actions-flexcard{
+    justify-content: center;
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block{
+    z-index: 4;
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-container{
+    width: 180px;
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-container .block-container>div>div>slot>div{
+    justify-content: center;
+    align-items: center;
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-icon-container{
+    background-color: var(--color-primary);
+    width: 100px;
+    height: 100px;
+    flex: unset;
+    max-width: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--quick-actions-button-border-radius);
+    position: relative;
+    transition: all .3s ease-out;
+    box-shadow: var(--shadow-light);
+    -webkit-box-shadow: var(--shadow-light);
+    -moz-box-shadow: var(--shadow-light);
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-icon-container img{
+    width: 70px;
+    height: 70px;
+    filter: var(--arc-filter-white);
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-menu:hover+.quick-action-button-icon-container,
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-menu:focus+.quick-action-button-icon-container,
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-icon-container:hover,
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-icon-container:focus{
+    background-color: var(--color-primary-1);
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-menu:active+.quick-action-button-icon-container,
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-icon-container:active{
+    background-color: var(--color-primary-2);
+}
+div.arc-styles.quick-actions-flexcard.quick-actions-flexcard-inverted .quick-actions-block .quick-action-button-icon-container{
+    background-color: var(--color-background);
+    border-radius: 50%;
+}
+div.arc-styles.quick-actions-flexcard.quick-actions-flexcard-inverted .quick-actions-block .quick-action-button-icon-container img{
+    filter: var(--arc-filter-primary);
+    width: 60px;
+    height: 60px;
+}
+div.arc-styles.quick-actions-flexcard.quick-actions-flexcard-inverted .quick-actions-block .quick-action-button-menu:hover+.quick-action-button-icon-container,
+div.arc-styles.quick-actions-flexcard.quick-actions-flexcard-inverted .quick-actions-block .quick-action-button-menu:focus+.quick-action-button-icon-container,
+div.arc-styles.quick-actions-flexcard.quick-actions-flexcard-inverted .quick-actions-block .quick-action-button-icon-container:hover,
+div.arc-styles.quick-actions-flexcard.quick-actions-flexcard-inverted .quick-actions-block .quick-action-button-icon-container:focus{
+    background-color: var(--color-background-1);
+}
+div.arc-styles.quick-actions-flexcard.quick-actions-flexcard-inverted .quick-actions-block .quick-action-button-menu:active+.quick-action-button-icon-container,
+div.arc-styles.quick-actions-flexcard.quick-actions-flexcard-inverted .quick-actions-block .quick-action-button-icon-container:active{
+    background-color: var(--color-background-2);
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-container>vlocity_ins-block{
+    position: relative;
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-menu{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-menu .nds-dropdown-trigger,
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-menu button{
+    width: 100%;
+    height: 100%;
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-menu+.quick-action-button-icon-container{
+    pointer-events: none;
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-menu button.nds-button:focus{
+    box-shadow: none;
+}
+div.arc-styles.quick-actions-flexcard .quick-actions-block .quick-action-button-menu .nds-dropdown_bottom{
+    top: unset;
+    bottom: auto;
+}
+/* Community Quick Actions V4 */
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button{
+    background-color: var(--color-background);
+    box-shadow: var(--shadow-light);
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button,
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button img,
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button span,
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button strong{
+    transition: all .2s ease;
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button:hover,
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button:focus{
+    background-color: var(--color-primary);
+    transform: translateY(-2px);
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button:hover span,
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button:focus span,
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button:hover strong,
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button:focus strong{
+    color: var(--color-overlay-text);
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button:hover img,
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .quick-action-button:focus img{
+    filter: var(--arc-filter-white);
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-container>*,
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-container>*>*,
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-container>*>*>*,
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-container>*>*>*>*,
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-container>*>*>*>*>*,
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-container>*>*>*>*>*>*{
+    width: 100%;
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-container>*>*>*>*>*>*>*{
+    width: calc(100% - 4px);
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-button-content,
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-button-text,
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-button-icon{
+    width: auto;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    max-width: unset;
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-button-icon{
+    width: 50px;
+    height: 50px;
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-button-icon+.quick-action-button-text{
+    margin-left: 7px;
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-action-button-text .nds-text-title_caps{
+    color: var(--color-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+div.arc-styles.quick-actions-flexcard-v4 .quick-actions-block .block-container>div>div>slot>div{
+    justify-content: center;
+}
+
+/* Profile Details */
+.arc-styles.profile-details button svg{
+    margin: 0 4px;
+    fill: var(--color-text, initial) !important;
+}
+.arc-styles.profile-details button:focus svg,
+.arc-styles.profile-details button:hover svg{
+    fill: var(--color-link, initial) !important;
+}
+
+/* Census Member Relationship */
+.arc-styles.census-member-relationship.slds-card{
+    border: none;
+    padding: 0;
+}
+
+/* Account Home */
+.arc-styles.account-home{
+    box-shadow: var(--card-box-shadow);
+}
+.arc-styles.account-home a,
+.arc-styles.account-home a span{
+    color: var(--color-link, initial) !important;
+}
+
+
+/* Census Member Relationship */
+.census-employee-type .slds-grid.slds-wrap {
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+.census-employee-type .block-container>div .slds-grid.slds-wrap > * {
+    width: auto;
+}
+@media only screen and (min-width: 768px) {
+    .census-employee-type .slds-grid.slds-wrap {
+        flex-flow: row;
+    }
+}

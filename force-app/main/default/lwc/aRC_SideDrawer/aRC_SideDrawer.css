@@ -1,0 +1,52 @@
+/* Drawer */
+.si-drawer{
+    position: absolute;
+    width: 100%;
+    top: 0;
+    right: 0;
+}
+.si-drawer-body{
+    position: absolute;
+    top: var(--topbar-offset-responsive);
+    left: 100%;
+    background-color: var(--topbar-background);
+    width: 100%;
+    height: calc(100vh - var(--topbar-offset-responsive)) !important;
+    transition: all .6s ease-out;
+	overflow-y: scroll;
+	z-index: 1000;
+}
+.drawer-open .si-drawer-body{
+    transform: translateX(-100%);
+}
+@media screen and (min-width: 64em) {
+	.si-drawer-body{
+		width: 400px;
+        top: var(--topbar-offset);
+        height: calc(100vh - var(--topbar-offset)) !important;
+	}
+}
+
+/* Overlay */
+.si-drawer-overlay{
+    position: absolute;
+    top: var(--topbar-offset-responsive);
+    right: 0;
+    width: 100vw;
+    height: calc(100vh - var(--topbar-offset-responsive)) !important;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .6s ease-out;
+    z-index: 999;
+}
+.drawer-open .si-drawer-overlay{
+    pointer-events: all;
+    opacity: .4;
+}
+@media screen and (min-width: 64em) {
+	.si-drawer-overlay{
+        top: var(--topbar-offset);
+        height: calc(100vh - var(--topbar-offset)) !important;
+	}
+}

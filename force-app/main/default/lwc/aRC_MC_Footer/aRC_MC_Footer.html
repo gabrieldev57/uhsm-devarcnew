@@ -1,0 +1,74 @@
+<template>
+	<div class="spk-lwc spk-fullwidth spk-no-spacing footer text-white">
+		<div class="footer-component spk-body-limit wbench-select">
+			<div class="top-container">
+				<!-- LINKS -->
+				<div class="">
+					<ul class="footer-links footer-a">
+						<li for:each={home.links} for:item="link" key={link.id}>
+							<a href={link.url}>
+								{link.label}
+							</a>
+						</li>
+					</ul>
+				</div>
+				<!-- LOGO WESHARE -->
+				<div class="img-container">
+					<img class="footer-logo" src={image} />
+				</div>
+
+			</div>
+			<div class="fc">
+				<div class="footer-separator"></div>
+				<!-- SOCIAL MEDIA ICONS -->
+				<ul class="footer-links footer-social">
+					<li>
+						<a onclick={handleNavigate} data-externalurl="https://www.facebook.com/wesharebyuhsm"
+							target="_blank">
+							<svg xmlns="http://www.w3.org/2000/svg">
+								<use fill="#302c2c" xlink:href={iconFacebook}></use>
+							</svg>
+						</a>
+					</li>
+					<li>
+						<a onclick={handleNavigate} data-externalurl="https://twitter.com/weshare_by_uhsm"
+							target="_blank">
+							<svg xmlns="http://www.w3.org/2000/svg">
+								<use fill="#302c2c" xlink:href={iconTwitter}></use>
+							</svg>
+						</a>
+					</li>
+					<li>
+						<a onclick={handleNavigate} data-externalurl="https://www.instagram.com/weshare_by_uhsm/"
+							target="_blank">
+							<svg xmlns="http://www.w3.org/2000/svg">
+								<use fill="#302c2c" xlink:href={iconInstagram}></use>
+							</svg>
+						</a>
+					</li>
+					<li>
+						<a onclick={handleNavigate} data-externalurl="https://www.linkedin.com/company/wesharebyuhsm/"
+							target="_blank">
+							<svg xmlns="http://www.w3.org/2000/svg">
+								<use fill="#302c2c" xlink:href={iconLinkedin}></use>
+							</svg>
+						</a>
+					</li>
+					<li>
+						<a onclick={handleNavigate} data-externalurl="https://www.tiktok.com/@weshare_by_uhsm"
+							target="_blank">
+							<svg xmlns="http://www.w3.org/2000/svg">
+								<use fill="#302c2c" xlink:href={iconTikTok}></use>
+							</svg>
+						</a>
+					</li>
+				</ul>
+			</div>
+			<!-- Footer Legal Text -->
+			<div class="bottom-container uhsm-responsive-margin">
+				<lightning-formatted-rich-text class="footer-text"
+					value={home.description}></lightning-formatted-rich-text>
+			</div>
+		</div>
+	</div>
+</template>

@@ -1,0 +1,77 @@
+<template>
+    <template if:true={isReadonly}>
+        <vlocity_ins-input read-only required={field.isRequired} label={field.label} value={value} type="text" theme={theme}>
+        </vlocity_ins-input>
+    </template>
+    <template if:false={isReadonly}>
+        <template if:true={isText}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+                type="text" theme={theme} onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+      
+        <template if:true={isCheckbox}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} checked={value}
+                type="checkbox" theme={theme} onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+
+        <template if:true={isPercent}>
+            <div class="slds-grid slds-grid_vertical-align-end nds-grid nds-grid_vertical-align-end">
+                <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+                    type="number" theme={theme} onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+                <span class="slds-p-bottom_x-small nds-p-bottom_x-small">%</span>
+            </div>
+        </template>
+        <template if:true={isCurrency}>
+            <vlocity_ins-masked-input type="currency" currency={currency.code} theme={theme} required={field.isRequired} 
+                disabled={field.isDisabled} label={field.label} value={value} onblur={handleValueChange}
+                placeholder={field.placeholder}></vlocity_ins-masked-input>
+        </template>
+        <template if:true={isEmail}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+                type="email" theme={theme} onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+        <template if:true={isPhone}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+                type="tel" theme={theme} onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+        <template if:true={isUrl}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+                type="url" theme={theme} onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+        <template if:true={isDropdown}>
+            <vlocity_ins-combobox required={field.isRequired} disabled={field.isDisabled} label={field.label} options={options}
+                value={value} theme={theme} onchange={handleValueChange}></vlocity_ins-combobox>
+        </template>
+        <template if:true={isPassword}>
+            <!-- <lightning-input  minlength="11" label={field.label} class="ssnClass" maxlength="11" required={field.isRequired} disabled={field.isDisabled} value={value}
+                type="text" theme={theme} onchange={handleValueChange2} onblur={handleValueChange} ></lightning-input> -->
+                <vlocity_ins-input  id="ssn" minlength="9" label={field.label} class="ssnClass" maxlength="9" required={field.isRequired} disabled={field.isDisabled} value={value}
+                type="password" theme={theme} onchange={handleValueChange}  placeholder="SSN"></vlocity_ins-input> 
+        </template>
+        <template if:true={isMultiPicklist}>
+            <lightning-dual-listbox
+                label={field.label}
+                source-label={labels.InsProductAvailable}
+                selected-label={labels.Selected}
+                required={field.isRequired}
+                value={value}
+                disabled={field.isDisabled}
+                options={options}
+                onchange={handleValueChange}>
+            </lightning-dual-listbox>
+        </template>
+
+        <lightning-record-edit-form  if:true={isLookUp} object-api-name={field.objectApiName}>
+                <vlocity_ins-input id="lookupfield" required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+                field-name={field.fieldName} type="date" format={dateFormat} output-format={dateOutputFormat} theme={theme}
+                onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </lightning-record-edit-form>
+
+        <!-- <div if:true={isLookUp}>
+            <c-a-r-c_-date-of-birth
+            jsondata={jsondata}
+            ondatechanged={dateChanged}
+            ></c-a-r-c_-date-of-birth>
+        </div> -->
+    </template>
+</template>

@@ -1,0 +1,101 @@
+<template>
+    <div if:false={isLoaded}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </div>
+    <template if:true={products}>
+        <div
+            class="slds-grid slds-grid_align-end slds-m-vertical_medium nds-grid nds-grid_align-end nds-m-vertical_medium">
+            <template if:false={compareBar}>
+                <div if:true={showCompareBtn} class="slds-m-left_medium nds-m-left_medium">
+                    <vlocity_ins-button theme={theme} variant="brand" icon-name="utility:multi_picklist"
+                        icon-fill="#ffffff" icon-position="left" label={labels.InsCompare} onclick={openCompareModal}>
+                    </vlocity_ins-button>
+                </div>
+            </template>
+            <div if:true={productCount} class="slds-m-left_medium nds-m-left_medium">
+                <vlocity_ins-button theme={theme} variant="brand" icon-name="utility:cart" icon-fill="#ffffff"
+                    icon-position="left" label={cartLabel} onclick={openCartModal}></vlocity_ins-button>
+            </div>
+            <div class="slds-m-left_medium nds-m-left_medium">
+                <vlocity_ins-button theme={theme} variant="brand" icon-name="utility:cart" icon-fill="#ffffff"
+                    icon-position="left" label={brochureLabel} onclick={openBrochureModal}></vlocity_ins-button>
+            </div>
+        </div>
+        <div class="slds-grid nds-grid">
+            <div class="vloc-serv-filters-container">
+                <template if:true={serviceFilters}>
+                    <template for:each={serviceFilters} for:item="serviceFilter" for:index="index">
+                        <vlocity_ins-combobox options={serviceFilter.listOfValues} theme={theme}
+                            name={serviceFilter.attributeName} value={serviceFilter.filterSelection}
+                            key={serviceFilter.attributeName} label={serviceFilter.attributeLabel}
+                            class="slds-m-right_small nds-m-right_small" onchange={serviceFilterChange}>
+                        </vlocity_ins-combobox>
+                    </template>
+                </template>
+                <template if:true={displayApplyFilterButton}>
+                    <vlocity_ins-button theme={theme} variant="brand" onclick={applyServiceFilters}
+                        label={labels.InsApply}
+                        class="slds-p-horizontal_large slds-m-left_medium nds-p-horizontal_large nds-m-left_medium">
+                    </vlocity_ins-button>
+                </template>
+            </div>
+            <div class="vloc-ins-inline-filters-container">
+                <template if:true={inlineFilters}>
+                    <template for:each={inlineFilters} for:item="inlineFilter" for:index="index">
+                        <div key={inlineFilter.filterKey}
+                            class="slds-m-left_small slds-text-align_center nds-m-left_small nds-text-align_center">
+                            <vlocity_ins-combobox options={inlineFilter.optsMap} theme={theme}
+                                name={inlineFilter.filterKey} value={inlineFilter.filterSelection}
+                                disabled={inlineFilter.disabled} label={inlineFilter.filterLabel}
+                                class="slds-text-align_left nds-text-align_left" onchange={selectedInlineFilter}>
+                            </vlocity_ins-combobox>
+                            <template if:true={inlineFilter.filterSelection}>
+                                <div class="slds-pill nds-pill">
+                                    <span class="slds-pill__label nds-pill__label">{inlineFilter.filterSelection}</span>
+                                    <span
+                                        class="slds-icon_container slds-pill__remove nds-icon_container nds-pill__remove">
+                                        <vlocity_ins-button theme={theme} variant="icon" icon-name="utility:close"
+                                            data-value={inlineFilter.filterKey} onclick={removeInlineFilterSelection}>
+                                        </vlocity_ins-button>
+                                    </span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+        <div class="slds-grid nds-grid slds-m-top_small nds-m-top_small">
+            <div class="slds-size_1-of-2 nds-size_1-of-2 vloc-ins-align-end">
+                <span class="vloc-ins-bold-heading">{labels.Results}</span>
+            </div>
+            <div class="slds-size_1-of-2 nds-size_1-of-2">
+                <div if:true={sortCombo} class="slds-grid slds-grid_align-end nds-grid nds-grid_align-end">
+                    <span class="vloc-ins-bold-heading">{labels.SortBy}:</span>
+                    <vlocity_ins-combobox options={sortCombo.optsMap} theme={theme} disabled={disableSortSelect}
+                        name={sortCombo.sortKey} label={sortCombo.sortLabel} value={sortValue}
+                        class="vloc-ins-sort-combo slds-m-left_small nds-m-left_small" onchange={sortComboChange}>
+                    </vlocity_ins-combobox>
+                </div>
+            </div>
+        </div>
+        <div class="slds-text-align_center slds-text-heading_medium nds-text-align_center nds-text-heading_medium">
+            <h2>{availableProductsLabel}</h2>
+        </div>
+        <div class="slds-m-vertical_medium nds-m-vertical_medium">
+            <c-arc_-ins-os-grid-products products={filteredProducts} show-product-tile={showProductTile}
+                show-config-inline={showConfigInline} theme={theme} root-channel={rootChannel} onexpand={expandProduct}
+                reprice-action={repriceActionFn}>
+            </c-arc_-ins-os-grid-products>
+            <div if:true={isProductsLoading} class="slds-is-relative nds-is-relative vloc-ins-products-spinner">
+                <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+            </div>
+        </div>
+    </template>
+    <vlocity_ins-ins-os-grid-product-modal theme={theme} root-channel={rootChannel}>
+    </vlocity_ins-ins-os-grid-product-modal>
+    <vlocity_ins-ins-os-grid-cart-modal theme={theme} root-channel={rootChannel} step-name={stepName}>
+    </vlocity_ins-ins-os-grid-cart-modal>
+    <vlocity_ins-ins-os-grid-product-config-modal if:false={showInlineConfiguration} theme={theme}
+        root-channel={rootChannel} reprice-action={repriceActionFn}></vlocity_ins-ins-os-grid-product-config-modal>
+</template>

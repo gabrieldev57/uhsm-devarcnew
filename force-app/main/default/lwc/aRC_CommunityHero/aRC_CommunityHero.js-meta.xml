@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>ARC Hero</masterLabel>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__Tab</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="caption" label="Tagline" type="String" default="Hero Tagline"></property>
+            <property name="captionColor" label="Tagline Color" type="Color" default="rgba(30, 30, 30, 1)" />
+            <property name="title" label="Title" type="String" default="Hero Title"></property>
+            <property name="titleColor" label="Title Color" type="Color" default="rgba(30, 30, 30, 1)" />
+            <property name="subtitle" label="Subtitle" type="String" default="Subtitle text that is longer than the title text"></property>
+            <property name="subtitleColor" label="Subtitle Color" type="Color" default="rgba(30, 30, 30, 1)" />
+            <!-- <property name="alignment" type="HorizontalAlignment" default="center" /> -->
+            <property name="height" label="Hero Height" default="500px" placeholder="500px" type="String"></property>
+            <property name="removeMargin" label="Remove Margin" default="false" type="Boolean" description="Negates the component top margin to be tangent with the above component."></property>
+            <property name="contentWidth" label="Content Width" type="String" default="1080px" placeholder="1080px" description="Width of Hero"></property>
+            <property name="contentBoxWidth" label="Content Box Width" type="String" default="600px" placeholder="600px" description="Width of Hero content box"></property>
+            <property name="contentBoxHeight" label="Content Box Height" type="String" placeholder="500px" description="Height of Hero content box"></property>
+            <property name="contentContentsWidth" label="Contents Width" type="String" default="400px" placeholder="400px" description="Max width of Hero contents (Text and Buttons)"></property>
+            <property name="contentContentsPosition" label="Contents Alignment" type="String" default="center" datasource="center,left,right" description="Alignment of Hero contents (Text and Buttons)"></property>
+            <property name="contentVertical" label="Content Vertical Position" type="String" default="50%" placeholder="50%" description="Vertical positioning of Hero content ('50%' being absolute center)"></property>
+            <property name="contentHorizontal" label="Content Horizontal Position" type="String" default="center" datasource="center,left,right" description="Horizontal positioning of Hero content"></property>
+            <property name="contentTextAlignment" label="Content Text Alignment" type="String" default="center" datasource="center,left,right" description="Text alignment of Hero content"></property>
+            <property name="contentBackgroundColor" label="Content Background Color" type="Color"  default="rgba(255, 255, 255, 0.2)"></property>
+            <property name="contentAnimation" label="Content Box Animation" type="String" default="None" description="Animation applied to the content when the component reaches the viewport" datasource="None,Fade,Fade from Top,Fade from Bottom,Fade from Left,Fade from Right, Fade/Scale, Fade/Scale from Top,Fade/Scale from Bottom,Fade/Scale from Left,Fade/Scale from Right,Slide from Left, Slide from Right"></property>
+            <property name="contentAnimationDelay" label="Content Box Animation Delay" type="String" default="None" description="Delay applied to the animation when executed" datasource="None,0.5s,1s,1.5s,2s,2.5s,3s,3.5s,4s"></property>
+            <property name="heroAnimation" label="Hero Animation" type="String" default="None" description="Animation applied to component when it reaches the viewport" datasource="None,Fade,Fade from Top,Fade from Bottom,Fade from Left,Fade from Right, Fade/Scale, Fade/Scale from Top,Fade/Scale from Bottom,Fade/Scale from Left,Fade/Scale from Right,Slide from Left, Slide from Right"></property>
+            <property name="heroAnimationDelay" label="Hero Animation Delay" type="String" default="None" description="Delay applied to the animation when executed" datasource="None,0.5s,1s,1.5s,2s,2.5s,3s,3.5s,4s"></property>
+            <property name="background" label="Background URL" placeholder="background.jpg" description="Can be a static resource (image.png) which will direct to ARC_CommunityHeroResources/image.png or an external source if it includes an '/' within. Make sure to add the external resource site to the trusted CSP sites." type="String"></property>
+            <!-- <property name="contentId" type="ContentReference" filter="cms_image, cms_video" /> -->
+            <property name="backgroundSize" label="Background Size" type="String" default="cover" datasource="cover,contain,fill"></property>
+            <property name="backgroundColor" label="Background Color" type="Color" default="rgba(240, 240, 240, 1)"></property>
+            <property name="backgroundVignette" label="Background Vignette" type="Boolean" default="true" description="Adds shadows around the edges of the Hero component"></property>
+            <property name="filter" label="Background Filter" placeholder="blur(6px) brigthness(.8)" default="none" description="It will apply a backdrop-filter CSS property to an element above the background, use it to apply color-correction and other filters." type="String"></property>
+            <property name="heroStyle" label="Style" type="String" default="Normal" datasource="Normal,Header" description="Block alignment of Hero content"></property>
+            <property name="parallax" label="Parallax" default="false" type="Boolean" description="The background will scroll a little with the rest of a page"></property>
+            <property name="buttonLabel" label="Button Label" default="Visit" placeholder="Visit" type="String" description="Label for the button. If empty, button isn't displayed"></property>
+            <property name="buttonURL" label="Button URL" default="Home" placeholder="Home" type="String"></property>
+            <property name="buttonVariant" label="Button Variant" type="String" default="brand" datasource="brand,brand-outline,destructive,destructive-text,success,base"></property>
+            <property name="buttonLabel2" label="Button Label 2" placeholder="More Info" type="String" description="Label for the button. If empty, button isn't displayed"></property>
+            <property name="buttonURL2" label="Button URL 2" placeholder="MoreInfo" type="String"></property>
+            <property name="buttonVariant2" label="Button Variant 2" type="String" default="brand-outline" datasource="brand,brand-outline,destructive,destructive-text,success,base"></property>
+            <property name="buttonLabel3" label="Button Label 3" placeholder="Contact" type="String" description="Label for the button. If empty, button isn't displayed"></property>
+            <property name="buttonURL3" label="Button URL 3" placeholder="Contact" type="String"></property>
+            <property name="buttonVariant3" label="Button Variant 3" type="String" default="brand-outline" datasource="brand,brand-outline,destructive,destructive-text,success,base"></property>
+            <property name="scrollButton" label="Scroll Button" default="false" type="Boolean" description="Will scroll down on click"></property>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

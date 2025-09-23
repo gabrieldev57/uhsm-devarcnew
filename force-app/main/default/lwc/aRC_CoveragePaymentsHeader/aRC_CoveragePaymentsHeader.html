@@ -1,0 +1,274 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="spinnerDiv">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+    </template>
+
+    <div if:true={modalpopup}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-05" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- modal header start -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={hideModalBox}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-05" class="slds-text-heading_medium slds-hyphenate">SMB Details</h2>
+                </header>
+                <!-- modal body start -->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                    <div if:true={showDuplicate}>
+                        <h3>This SMB is a potential duplicate. Please select Go Back and review the duplicate SMB. If
+                            after review you&rsquo;d like to continue with this SMB, please click the Duplicate
+                            Detection button again and select Move Ahead.</h3>
+                    </div>
+                    <div if:true={showPartialDuplicate}>
+                        <h3>This SMB is a potential duplicate. Please select Go Back and review the duplicate SMB. If
+                            after review you&rsquo;d like to continue with this SMB, please click the Duplicate
+                            Detection button again and select Move Ahead.</h3>
+                        <!-- <a onclick={handleClose} class="close">&times;</a> -->
+                    </div>
+                    <div if:false={showDuplicate}>
+                        <div if:false={showPartialDuplicate}>
+                            <h3>This SMB does not have a duplicate.
+                            </h3>
+
+                            <!-- <a onclick={handleClose} class="close">&times;</a> -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- modal footer start-->
+                <footer class="slds-modal__footer">
+                    <div if:true={onlyone}>
+                        <button class="slds-button slds-button_neutral" onclick={closeModal}>Go Back</button>
+                        <button class="slds-button slds-button_neutral" onclick={aheadModel}>Move Ahead</button>
+                    </div>
+                    <div if:false={onlyone}>
+                        <button class="slds-button slds-button_neutral" onclick={closeModal}>Go Back</button>
+                        <button class="slds-button slds-button_brand" onclick={aheadModel}>Move Ahead</button>
+                    </div>
+                </footer>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    <template if:false={isLoading}>
+        <lightning-messages></lightning-messages>
+        <div class="header1">
+            <lightning-button variant="destructive-text" class="btn1" label="Duplicate Detection"
+                onclick={checkDuplicates} disabled={disDuplicate}></lightning-button>
+            <lightning-button label="Create Item" onclick={handleManageModal} data-id="open"></lightning-button>
+        </div>
+        <div class="headers-container">
+            <div class="header2">
+                <lightning-combobox label="Status" value={valueStatus} placeholder="Select Status"
+                    options={optionsStatus} onchange={handleChangeStatus}>
+                </lightning-combobox>
+                <div class="dropdown">
+                    <lightning-input label="Reason" placeholder="Select Reason" onfocus={handleManageModalCode}
+                        onblur={handleManageModalCode} onchange={filterItems} class="dropbtn" disabled={disCode}
+                        data-id="field"></lightning-input>
+                    <div style="margin: 10px 17px;">
+                        <div for:each={reasonCodeList} for:item="code" key={code.id}>
+                            <div class="codeContainer">
+                                <p>{code.code}</p>
+                                <lightning-button-icon variant="base" size="xx-small" icon-name="utility:clear"
+                                    onclick={handleDeleteCode} data-code={code.id}></lightning-button-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <div data-id="myDropdown" class="dropdown-content">
+                        <a for:each={arrToFilter} for:item="opt" key={opt.value} onclick={handleSelectCode}
+                            data-id={opt.value}>{opt.label}</a>
+                    </div>
+                </div>
+                <lightning-button label="Apply" variant="brand" class="applyBtn btnHeader mgbt-10"
+                    onclick={handleUpdate} disabled={disApplyBtn}></lightning-button>
+                <lightning-button-icon icon-name="utility:refresh" variant="border-filled" title="Refresh"
+                    onclick={clearAllData} class="btnHeader mgbt-10"></lightning-button-icon>
+                <!--Under Development-->
+                <template if:true={onlyone}>
+                    <lightning-button class="btnPay mgbt-10" label="Commit" onclick={getItemsFromChild}
+                        disabled={disPayBtn}></lightning-button>
+                </template>
+                <div class="btnPay right-align mgbt-10">
+                    <lightning-button onclick={handleDeleteItems} label="Delete" alternative-text="Delete" title="Delete" disabled={disDeleteItems}>
+                        </lightning-button>
+                        <lightning-button variant="destructive" label="Reset Items"
+                            onclick={handleManageModalUncommit} disabled={disResetBtn} data-action="open"></lightning-button>
+                </div>
+            </div>
+        </div>
+        <hr style="margin: 20px 10px 12px;">
+    </template>
+    <c-a-r-c_-coverage-payments-table record-id={recordId} oncheckboxchange={handleChangeCheckbox}
+        onpaymentitems={validateItemPayment} onedititem={handleGetModItems}
+        onrefreshitems={clearAllData}></c-a-r-c_-coverage-payments-table>
+    <template if:true={isCreateCovPayment}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" style="max-width: 80%;">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={handleManageModal} data-id="close">
+                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Create a SMB Item</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <lightning-spinner if:true={loadingItemCreation} style="background: none;"
+                        alternative-text="Loading" size="medium"></lightning-spinner>
+                    <lightning-record-edit-form if:false={loadingItemCreation}
+                        object-api-name="ClaimCoveragePaymentDetail" onsuccess={successCreateCovPayment}
+                        onerror={errorCreateCovPayment}>
+                        <div class="slds-grid">
+                            <!-- HIDDEN FIELDS  -->
+                            <lightning-input-field field-name="Name" value={nextItem}
+                                style="display: none;"></lightning-input-field>
+                            <lightning-input-field field-name="ARC_Claim__c" value={recordId}
+                                style="display: none;"></lightning-input-field>
+                            <lightning-input-field field-name="RecordTypeId" value={itemTypeId}
+                                style="display: none;"></lightning-input-field>
+                            <lightning-input-field field-name="ClaimCoverageId" value={valueCoverage}
+                                style="display: none;"></lightning-input-field>
+                            <lightning-input-field field-name="Status" value="New"
+                                style="display: none;"></lightning-input-field>
+
+                            <div class="modal-container">
+                                <!-- PROFESSIONAL TEMPLATE -->
+                                <template if:true={profItem}>
+                                    <h1 class="modal-title">Information</h1>
+                                    <div class="slds-grid">
+                                        <lightning-input-field field-name="ARC_DateOfService__c" value={clmDOSFrom}
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                        <lightning-input-field field-name="ARC_FreqType__c"
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    </div>
+                                    <div class="slds-grid">
+                                        <lightning-input-field field-name="ARC_PlaceofService__c"
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    </div>
+                                    <h2 class="modal-title">Codes</h2>
+                                    <div class="slds-grid">
+                                        <lightning-input-field field-name="ARC_ProcedureCode__c"
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                        <lightning-input-field field-name="ICD_Codes__c"
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    </div>
+                                </template>
+                                <!-- INSITUTIONAL TEMPLATE -->
+                                <template if:true={instItem}>
+                                    <h1 class="modal-title">Information</h1>
+                                    <div class="slds-grid">
+                                        <lightning-input-field field-name="ARC_DOSFrom__c" value={clmDOSFrom}
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                        <lightning-input-field field-name="ARC_DOSTo__c" value={clmDOSTo}
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    </div>
+                                    <div class="slds-grid">
+                                        <lightning-input-field field-name="ARC_PlaceofService__c"
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                        <lightning-input-field field-name="ARC_FreqType__c"
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    </div>
+                                    <h2 class="modal-title">Codes</h2>
+                                    <div class="slds-grid">
+                                        <lightning-input-field field-name="ARC_ProcedureCode__c"
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                        <lightning-input-field field-name="ARC_RevenueCode__c"
+                                            class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    </div>
+                                </template>
+                                <h2 class="modal-title">Aggregators</h2>
+                                <div class="slds-grid">
+                                    <lightning-input-field field-name="ClaimedAmount"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    <lightning-input-field field-name="AdjustedAmount"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                </div>
+                                <div class="slds-grid">
+                                    <lightning-input-field field-name="ARC_Copay__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    <lightning-input-field field-name="ARC_Deductible__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                </div>
+                                <div class="slds-grid">
+                                    <lightning-input-field field-name="ARC_Medical_Visit_Reason__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    <lightning-input-field field-name="ARC_Pre_Existing_Condition__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                </div>
+                                <div class="slds-grid">
+                                    <lightning-input-field field-name="ARC_PrimaryPaid__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    <lightning-input-field field-name="ARC_Coinsurance__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                </div>
+                                <div class="slds-grid">
+                                    <lightning-input-field field-name="ARC_MBRLiability__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    <lightning-input-field field-name="ARC_Allowed__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                </div>
+                                <div class="slds-grid">
+                                    <lightning-input-field field-name="ARC_Mod1__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    <lightning-input-field field-name="ARC_Mod2__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                </div>
+                                <div class="slds-grid">
+                                    <lightning-input-field field-name="ARC_Mod3__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    <lightning-input-field field-name="ARC_Mod4__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                </div>
+                                <div class="slds-grid">
+                                    <lightning-input-field field-name="ARC_Quantity__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    <div class="slds-col slds-size_1-of-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-modal__footer">
+                            <button class="slds-button slds-button_neutral" onclick={handleManageModal}
+                                data-id="close">Cancel</button>
+                            <button onclick={handleSubmitItem} class="slds-button slds-button_brand">Create</button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+    <template if:true={isUncommiting}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={handleManageModalUncommit} data-action="close">
+                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">Are you sure you want to
+                        revert all the changes to the selected items?</h2>
+                </header>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={handleManageModalUncommit}
+                        data-action="close">Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick={handleUncommit}>Confirm</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

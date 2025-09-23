@@ -1,0 +1,3118 @@
+
+/*/////////////////////////////// Variables ///////////////////////////////*/
+.omniscript-article{
+    /******************* Global Variables *******************/
+    /* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¼ Used by every element of the community ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¼ !DONT DARE TOUCH */
+    /* Community Branding Palette Colors */
+    --color-text:  var(--lwc-dxpGRootContrast,rgba(0, 0, 0, 0.8));
+    --color-text-1: rgba(0, 0, 0, 0.8);
+    --color-text-2: rgba(0, 0, 0, 0.8);
+    --color-text-3: rgba(0, 0, 0, 0.8);
+    --color-detail-text: rgba(0, 0, 0, 0.6);
+    --color-action: #2C2B2C;
+    --color-loading: #F2BC30;
+    --color-action-1: #F2BC30;
+    --color-action-2: rgb(149 104 7);
+    --color-action-3: rgb(33 23 2);
+    --color-link: rgb(211 145 3);
+    --color-overlay-text: rgb(255, 255, 255);
+    --color-border: rgb(212, 212, 212);
+    --color-page-background: rgb(255, 255, 255);
+    --color-page-background-1: rgb(235 235 235);
+    --color-page-background-2: rgb(194 194 194);
+    --color-page-background-3: rgb(133 133 133);
+    --color-header-background: rgb(255, 255, 255);
+    --color-navigation-background: rgb(169, 169, 169);
+    --color-navigation-text: var(--color-text);
+
+    --color-primary: var(--color-action);
+    --color-primary-1: var(--color-action-1);
+    --color-primary-2: var(--color-action-2);
+    --color-primary-3: var(--color-action-3);
+    --color-secondary: #eee809;
+    --color-three: #053635;
+    --color-four: #38CFCE;
+    --color-five: #A59A21;
+    --color-background: var(--color-page-background);
+    --color-background-1: var(--color-page-background-1);
+    --color-background-2: var(--color-page-background-2);
+    --color-background-3: var(--color-page-background-3);
+
+    /* Community Fonts */
+    --font-family-header: var(--dxp-g-heading-font-family);
+    --font-family-text: var(--dxp-g-root-font-family);
+
+    /* END OF: Community Branding Palette Colors  */
+
+    /* YOU CAN TOUCH BELOW HERE */
+
+    /*/////////////////////////////////////////////////////////////////////////////*/
+
+
+    /* Spacing Settings */
+    --component-vertical-spacing: 50px; /* Spacing between components */
+    --section-vertical-spacing: 100px; /* Spacing between Flexible Sections */
+    --section-colored-vertical-spacing: 70px; /* Spacing between Flexible Sections w/background */
+    --section-horizontal-spacing-s: 20px; /* Spacing at the sides of Sections - Mobile */
+    --section-horizontal-spacing-l: 50px; /* Spacing at the sides of Sections - Tablet*/
+    --section-horizontal-spacing-xl: 16px; /* Spacing at the sides of Sections - Desktop */
+
+    --arc-font-quote: 'Glegoo', var(--font-family-text);
+    --arc-font-cta: 'Josefin', var(--font-family-text);
+
+
+    /* Button Settings */
+    --button-base-border-radius: 0px;
+    --button-big-border-radius: 24px;
+    --button-base-transition: all .15s linear;
+    /* --button-all-padding: 0 var(--sds-c-button-brand-spacing-inline-start, var(--lwc-spacingMedium,1rem)); */
+    --button-base-padding: 4px 20px;
+    --button-big-padding: 10px 30px;
+    --button-primary-color-text: var(--color-overlay-text);
+    --button-primary-color-background: var(--color-primary);
+    --button-primary-hover-color-background: var(--color-primary-1);
+    --button-primary-active-color-background: var(--color-primary-2);
+    --button-primary-disabled-color-background: var(--color-background-2);
+    --button-primary-disabled-color-text: var(--color-detail-text);
+    --button-primary-disabled-border: 1px solid var(--color-background-2);
+    --button-primary-focus-outline: var(--color-primary-1);
+    --button-primary-color-border: var(--color-primary);
+    --button-primary-border: 1px solid var(--button-primary-color-border);
+    --button-primary-border-hover: 1px solid var(--color-primary-1);
+    --button-primary-border-active: 1px solid var(--color-primary-2);
+    --button-primary-border-radius: var(--button-base-border-radius);
+    --button-primary-transition: var(--button-base-transition);
+    --button-secondary-color-text: var(--color-text);
+    --button-secondary-color-background: var(--color-background);
+    --button-secondary-hover-color-background: var(--color-background-1);
+    --button-secondary-active-color-background: var(--color-background-2);
+    --button-secondary-disabled-color-background: var(--color-background-2);
+    --button-secondary-disabled-color-text: var(--color-detail-text);
+    --button-secondary-disabled-border: 1px solid var(--color-background-2);
+    --button-secondary-focus-outline: var(--color-text);
+    --button-secondary-color-border: var(--color-background-2);
+    --button-secondary-width-border: 1px;
+    --button-secondary-border: 1px solid var(--button-secondary-color-border);
+    --button-secondary-border-hover: 1px solid var(--color-background-2);
+    --button-secondary-border-active: 1px solid var(--color-background-2);
+    --button-secondary-border-thicc: 2px solid var(--color-primary);
+    --button-secondary-border-radius: var(--button-base-border-radius);
+    --button-secondary-transition: var(--button-base-transition);
+    --button-secondary-box-shadow: none;
+    --button-secondary-small-color-border: transparent;
+
+    --community-quick-actions-color: var(--color-primary); /* Color of quick action flexcard buttons */
+
+
+    /*///////////////// OTHER SETTINGS //////////////////////*/
+
+
+    /* Dark Theme */
+    /* Special settings for Dark Theme to be applied to the topbar */
+    --color-dark-topbar-text: var(--color-text);
+    --color-dark-topbar-background: var(--color-background);
+    --color-dark-topbar-background-1: var(--color-background-1);
+    --color-dark-topbar-icon-color: var(--color-text);
+    --color-dark-search-bar-background: rgba(255,255,255,.2);
+    --color-dark-topbar-bottom-border-color: transparent;
+
+    /* Community Topbar */
+    --topbar-logo-width: 140px; /* Width of tobar logo */
+    --topbar-max-width: 1920px; /* Not Jepson */
+    --search-max-width: 600px; /* Max-Width of expanded search bar */
+    --topbar-elements-horizontal-margin: 40px; /* Horizontal margin of topbar elements */
+
+    /* Community Footer */
+    --community-footer-color-font: var(--color-text); /* Footer text color */
+    --community-footer-color-background: var(--color-background-1); /* Footer background color */
+    --community-footer-max-width: var(--community-body-max-width); /* Footer max-width */
+
+    /* Community Tooltip */
+    --community-tooltip-color-text: var(--color-overlay-text); /* Color of Tooltip contents */
+    --community-tooltip-color-background: var(--color-primary-3); /* Background for tooltips */
+
+    /* Salesforce Card Sections */
+    --border-radius-medium: 4px; /* border radius of card sections */
+    --card-box-shadow: 0px 6px 5px -5px rgba(0,0,0,0.2); /* box-shadow of card sections */
+    --shadow-light: 0 0.5rem 1rem rgb(0 0 0 / 15%); /* lighter box-shadow of card sections */
+
+    /* Other */
+    --community-body-max-width: 1080px; /* Useful for pages not using Flexible layout */
+
+    /* SVG IMG Filter */
+    --arc-filter-primary: invert(42%) sepia(35%) saturate(900%) hue-rotate(130deg) brightness(92%) contrast(92%);
+    --arc-filter-secondary: invert(81%) sepia(97%) saturate(471%) hue-rotate(355deg) brightness(94%) contrast(98%);;
+    --arc-filter-white: invert(86%) sepia(93%) saturate(0%) hue-rotate(305deg) brightness(108%) contrast(110%);
+    --multiple-select-filter: var(--arc-filter-primary);
+   
+
+
+    /* Salesforce Lightning Root Variables */
+    --lwc-colorTextDefault: var(--color-text) !important;
+    --lwc-shadowButtonFocus: var(--button-secondary-small-color-border) !important;
+    --lwc-buttonColorBorderPrimary: var(--button-secondary-small-color-border) !important;
+
+    --lwc-prmHeaderPlaceholderTextColor: var(--color-detail-text) !important;
+    --lwc-colorTextButtonDefaultDisabled: var(--color-detail-text) !important;
+
+    --lwc-buttonBorderRadius: var(--button-all-border-radius) !important;
+
+    --lwc-colorBorderInputActive: var(--color-primary) !important;
+    --lwc-colorBackgroundInputCheckboxSelected: var(--color-primary) !important;
+    --lwc-colorBorderBrandPrimary: var(--color-primary) !important;
+
+    --lwc-colorTextIconDefault: var(--color-text) !important;
+
+    --lwc-colorBorderInput: var(--color-border) !important;
+
+    --lwc-colorBackgroundTempModalTintAlt: var(--color-background) !important;
+    --lwc-colorBackground: var(--color-background) !important;
+    --lwc-colorForegroundPrimary: var(--color-background) !important;
+    --lwc-colorBackgroundAlt: var(--color-background) !important;
+    --lwc-colorBackgroundInput: var(--color-background) !important;
+    --lwc-colorBackgroundModal: var(--color-background) !important;
+    --lwc-pageHeaderColorBackground: var(--color-background) !important;
+    --lwc-cardColorBackground: var(--color-background) !important;
+    --lwc-colorBackgroundInputCheckbox: var(--color-background) !important;
+    --lwc-colorBackgroundAnchor: var(--color-background) !important;
+    --lwc-colorBackgroundNotification: var(--color-background) !important;
+    --lwc-colorBackgroundAlt2: var(--color-background) !important;
+    --lwc-colorBackgroundNotificationNew: var(--color-background) !important;
+    --lwc-colorBackgroundInputActive: var(--color-background) !important;
+
+    --lwc-colorBorderPrimary: var(--button-secondary-small-color-border) !important;
+    --lwc-buttonColorBackgroundPrimary: var(--button-secondary-color-background) !important;
+    --lwc-colorBackgroundRowHover: var(--color-background-1) !important;
+
+    --lwc-pageHeaderColorBackgroundAlt: var(--color-background-1) !important;
+    --lwc-colorBackgroundButtonDefaultDisabled: var(--color-background-1) !important;
+    --lwc-tableColorBackgroundHeader: var(--color-background-1) !important;
+    --lwc-tableColorBackgroundHeaderHover: var(--color-background-1) !important;
+    --sds-c-badge-color-background: var(--color-background-1) !important;
+    --lwc-colorBackgroundDark: var(--color-background-1) !important;
+    --lwc-colorBackgroundAltInverse: var(--color-background-1) !important;
+
+    /* --lwc-colorBackgroundButtonDefaultActive: var(--color-background-1) !important; */
+    --lwc-colorBackgroundHighlight: var(--color-background-2) !important;
+    --lwc-colorBackgroundInputDisabled: var(--color-background-2) !important;
+
+    --lwc-brandDisabled: var(--button-primary-disabled-color-background) !important;
+    
+    --lwc-borderRadiusMedium: var(--border-radius-medium) !important;
+
+    --lwc-layoutVerticalPadding: var(--component-vertical-spacing) !important;
+    --lwc-uiWidgetMarginBottom: var(--component-vertical-spacing) !important;
+
+    --lwc-colorBackgroundFeaturedBrandHover: transparent !important;
+
+    /* OmniScript Root Variables*/
+    --lwc-fontFamilyHeader: var(--font-family-header) !important;
+
+
+    /* Added for JEPSON */
+    --lwc-colorBackgroundButtonDefaultHover: var(--color-background-1) !important;
+
+    /* Product Selection LWC */
+    --product-color-nds: var(--color-primary-1) !important;
+    --renewal-bg-color: var(--color-primary) !important;
+    --action-bg-color: var(--color-page-background) !important;
+    --bg-color: var(--color-page-background) !important;
+
+
+    /******************* OmniScript Variables ********************/
+    /* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¼ Used only inside OmniScripts ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¼ */
+
+    /* Omniscript Basic Settings */
+    --omniscript-margin: var(--component-vertical-padding);
+    --omniscript-step-width: 90%;
+
+    /* Omniscript Step Settings */
+    --omniscript-step-title-color: var(--color-three);
+    --omniscript-step-title-padding-bottom: 1rem;
+    --omniscript-chart-active-button-color: var(--color-primary);
+    --omniscript-chart-active-line-color: var(--color-link);
+    --omniscript-chart-tooltip-background-color: var(--color-primary);
+    --omniscript-chart-tooltip-text-color: var(--color-overlay-text);
+
+    /* Omniscript Modal Settings */
+    --omniscript-modal-header-background-color: var(--color-primary);
+
+    /* Omniscript Block Settings */
+    --omniscript-block-title-color: var(--color-text);
+
+    /* Omniscript Text Block Settings */
+    --omniscript-text-block-font-color: var(--color-text);
+    --omniscript-text-block-link-color: var(--color-link);
+
+    /* Omniscript Input Settings */
+    --omniscript-input-button-color: var(--color-primary);
+    --omniscript-input-border-color: var(--color-primary);
+    --omniscript-input-border-read-only-color: var(--color-detail-text); 
+
+    /* Omniscript Radio Settings */
+    --omniscript-radio-color: var(--color-primary);
+    --omniscript-checkbox-color: var(--color-primary);
+
+}
+
+@media screen and (min-width: 1px) {
+    .omniscript-article{
+        /* Typography Settings */
+        --ty-h1-size: 48px;
+        --ty-h1-weight: 400;
+        --ty-h1-spacing: initial;
+        --ty-h1-mbottom: 1rem;
+        --ty-h2-size: 34px;
+        --ty-h2-weight: 400;
+        --ty-h2-spacing: .25px;
+        --ty-h2-mbottom: 1.25rem;
+        --ty-h3-size: 24px;
+        --ty-h3-weight: 400;
+        --ty-h3-spacing: initial;
+        --ty-h3-mbottom: 1.5rem;
+        --ty-h4-size: 20px;
+        --ty-h4-weight: 500;
+        --ty-h4-spacing: .15px;
+        --ty-h4-mbottom: 1.5rem;
+        --ty-h5-size: 18px;
+        --ty-h5-weight: 500;
+        --ty-h5-spacing: .15px;
+        --ty-h6-size: 16px;
+        --ty-h6-weight: 500;
+        --ty-h6-spacing: .15px;
+        --ty-small-opacity: .7;
+        --ty-body-size: 16px;
+        --ty-button-size: 14px;
+        --ty-button-weight: 500;
+        --ty-button-spacing: 1.25px;
+        --ty-button-transform: uppercase;
+        --ty-caption-size: 12px;
+        --ty-caption-weight: 400;
+        --ty-caption-spacing: .4px;
+        --ty-caption-color: var(--color-detail-text);
+    }
+}
+@media screen and (min-width: 768px) {
+    .omniscript-article{
+        --ty-h1-size: 60px;
+        --ty-h1-weight: 100;
+        --ty-h1-spacing: -.5px;
+        --ty-h1-mbottom: .75rem;
+        --ty-h2-size: 48px;
+        --ty-h2-weight: 400;
+        --ty-h2-spacing: initial;
+        --ty-h2-mbottom: 1rem;
+        --ty-h3-size: 34px;
+        --ty-h3-weight: 400;
+        --ty-h3-spacing: .25px;
+        --ty-h3-mbottom: 1.25rem;
+        --ty-h4-size: 24px;
+        --ty-h4-weight: 400;
+        --ty-h4-spacing: initial;
+        --ty-h4-mbottom: 1.5rem;
+        --ty-h5-size: 20px;
+        --ty-h5-weight: 500;
+        --ty-h5-spacing: .15px;
+        --ty-h5-mbottom: 1.5rem;
+        --ty-h6-size: 18px;
+        --ty-h6-weight: 500;
+        --ty-h6-spacing: .15px;
+        --ty-small-opacity: .7;
+        --ty-body-size: 16px;
+        --ty-button-size: 14px;
+        --ty-button-weight: 500;
+        --ty-button-spacing: 1.25px;
+        --ty-button-transform: uppercase;
+        --ty-caption-size: 12px;
+        --ty-caption-weight: 400;
+        --ty-caption-spacing: .4px;
+        --ty-caption-color: var(--color-detail-text);
+    }
+}
+@media screen and (min-width: 1024px) {
+    .omniscript-article{
+        --ty-h1-size: 70px;
+        --ty-h1-weight: 400;
+        --ty-h1-spacing: -1.5px;
+        --ty-h1-mbottom: .5rem;
+        --ty-h2-size: 60px;
+        --ty-h2-weight: 100;
+        --ty-h2-spacing: -.5px;
+        --ty-h2-mbottom: .75rem;
+        --ty-h3-size: 48px;
+        --ty-h3-weight: 400;
+        --ty-h3-spacing: initial;
+        --ty-h3-mbottom: 1rem;
+        --ty-h4-size: 34px;
+        --ty-h4-weight: 400;
+        --ty-h4-spacing: .25px;
+        --ty-h4-mbottom: 1.25rem;
+        --ty-h5-size: 24px;
+        --ty-h5-weight: 400;
+        --ty-h5-spacing: initial;
+        --ty-h5-mbottom: 1.5rem;
+        --ty-h6-size: 20px;
+        --ty-h6-weight: 500;
+        --ty-h6-spacing: .15px;
+        --ty-small-opacity: .7;
+        --ty-body-size: 18px;
+        --ty-button-size: 14px;
+        --ty-button-weight: 500;
+        --ty-button-spacing: 1.25px;
+        --ty-button-transform: uppercase;
+        --ty-caption-size: 12px;
+        --ty-caption-weight: 400;
+        --ty-caption-spacing: .4px;
+        --ty-caption-color: var(--color-detail-text);
+    }
+}
+/*/////////////////////////////// Styles ///////////////////////////////*/
+
+/*              TYPOGRAPHIES FILE               */
+.omniscript-article,
+.omniscript-article .nds-text-block{
+    font-family: var(--font-family-text);
+}
+
+.omniscript-article .ui-widget h1,
+.omniscript-article .ui-widget .h1,
+.omniscript-article .ui-widget h1 *:not(small),
+.omniscript-article .ui-widget .h1 *:not(small),
+.omniscript-article div.forceCommunityRichText h1{
+    font-size: var(--ty-h1-size);
+    font-weight: var(--ty-h1-weight);
+    letter-spacing: var(--ty-h1-spacing);
+    margin-bottom: var(--ty-h1-mbottom);
+}
+
+.omniscript-article .ui-widget h2,
+.omniscript-article .ui-widget .h2,
+.omniscript-article .ui-widget h2 *:not(small),
+.omniscript-article .ui-widget .h2 *:not(small),
+.omniscript-article div.forceCommunityRichText h2{
+    font-size: var(--ty-h2-size);
+    font-weight: var(--ty-h2-weight);
+    letter-spacing: var(--ty-h2-spacing);
+    margin-bottom: var(--ty-h2-mbottom);
+}
+
+.omniscript-article .ui-widget h3,
+.omniscript-article .ui-widget .h3,
+.omniscript-article .ui-widget h3 *:not(small),
+.omniscript-article .ui-widget .h3 *:not(small),
+.omniscript-article div.forceCommunityRichText h3{
+    font-size: var(--ty-h3-size);
+    font-weight: var(--ty-h3-weight);
+    letter-spacing: var(--ty-h3-spacing);
+    margin-bottom: var(--ty-h3-mbottom);
+}
+
+.omniscript-article .ui-widget h4,
+.omniscript-article .ui-widget .h4,
+.omniscript-article .ui-widget h4 *:not(small),
+.omniscript-article .ui-widget .h4 *:not(small),
+.omniscript-article div.forceCommunityRichText h4{
+    font-size: var(--ty-h4-size);
+    font-weight: var(--ty-h4-weight);
+    letter-spacing: var(--ty-h4-spacing);
+    margin-bottom: var(--ty-h4-mbottom);
+}
+
+.omniscript-article .ui-widget h5,
+.omniscript-article .ui-widget .h5,
+.omniscript-article .ui-widget h5 *:not(small),
+.omniscript-article .ui-widget .h5 *:not(small),
+.omniscript-article div.forceCommunityRichText h5{
+    font-size: var(--ty-h5-size);
+    font-weight: var(--ty-h5-weight);
+    letter-spacing: var(--ty-h5-spacing);
+    margin-bottom: var(--ty-h5-mbottom);
+}
+
+.omniscript-article .ui-widget h6,
+.omniscript-article .ui-widget .h6,
+.omniscript-article .ui-widget h6 *:not(small),
+.omniscript-article .ui-widget .h6 *:not(small),
+.omniscript-article div.forceCommunityRichText h6{
+    font-size: var(--ty-h6-size);
+    font-weight: var(--ty-h6-weight);
+    letter-spacing: var(--ty-h6-spacing);
+}
+
+.omniscript-article .ui-widget h1 small, .omniscript-article .ui-widget h1 .small, .omniscript-article .ui-widget .h1 small, .omniscript-article .ui-widget .h1 .small{
+    font-size: var(--ty-h3-size);
+}
+.omniscript-article .ui-widget h2 small, .omniscript-article .ui-widget h2 .small, .omniscript-article .ui-widget .h2 small, .omniscript-article .ui-widget .h2 .small{
+    font-size: var(--ty-h4-size);
+}
+.omniscript-article .ui-widget h3 small, .omniscript-article .ui-widget h3 .small, .omniscript-article .ui-widget .h3 small, .omniscript-article .ui-widget .h3 .small{
+    font-size: var(--ty-h5-size)
+}
+.omniscript-article .ui-widget h4 small, .omniscript-article .ui-widget h4 .small, .omniscript-article .ui-widget .h4 small, .omniscript-article .ui-widget .h4 .small{
+    font-size: var(--ty-h6-size)
+}
+.omniscript-article .ui-widget h5 small, .omniscript-article .ui-widget h5 .small, .omniscript-article .ui-widget .h5 small, .omniscript-article .ui-widget .h5 .small{
+    font-size: var(--ty-body-size)
+}
+.omniscript-article .ui-widget h6 small, .omniscript-article .ui-widget h6 .small, .omniscript-article .ui-widget .h6 small, .omniscript-article .ui-widget .h6 .small{
+    font-size: var(--ty-caption-size);
+}
+.omniscript-article h1 small, .omniscript-article h1 .small,
+.omniscript-article h2 small, .omniscript-article h2 .small,
+.omniscript-article h3 small, .omniscript-article h3 .small,
+.omniscript-article h4 small, .omniscript-article h4 .small,
+.omniscript-article h5 small, .omniscript-article h5 .small,
+.omniscript-article h6 small, .omniscript-article h6 .small{
+    display: block;
+    opacity: var(--ty-small-opacity);
+}
+
+
+.omniscript-articlediv.siteforceContentArea,
+.omniscript-articlediv.forceCommunityRichText li,
+.omniscript-articlediv.forceCommunityRichText p{
+    font-size: var(--ty-body-size);
+}
+/* We don't want newport css styles interfering with slds inside salesforce */
+/* .omniscript-article button.nds-button,
+.omniscript-article button.nds-button *,
+.omniscript-article button.slds-button,
+.omniscript-article button.slds-button *{
+    font-size: var(--ty-button-size);
+    font-weight: var(--ty-button-weight);
+    letter-spacing: var(--ty-button-spacing);
+    text-transform: var(--ty-button-transform);
+} */
+.omniscript-article caption, .omniscript-article .caption{
+    font-size: var(--ty-caption-size);
+    font-weight: var(--ty-caption-weight);
+    letter-spacing: var(--ty-caption-spacing);
+    color: var(--ty-caption-color);
+}
+
+.omniscript-article h1:last-child,
+.omniscript-article h1:last-child *,
+.omniscript-article h2:last-child,
+.omniscript-article h2:last-child *,
+.omniscript-article h3:last-child,
+.omniscript-article h3:last-child *,
+.omniscript-article h4:last-child,
+.omniscript-article h4:last-child *,
+.omniscript-article h5:last-child,
+.omniscript-article h5:last-child *,
+.omniscript-article h6:last-child,
+.omniscript-article h6:last-child *{
+    --ty-h1-mbottom: 0;
+    --ty-h2-mbottom: 0;
+    --ty-h3-mbottom: 0;
+    --ty-h4-mbottom: 0;
+    --ty-h5-mbottom: 0;
+}
+
+
+
+/***************** Community Elements *****************/
+
+/* Community Basic */
+.omniscript-article .themeLayoutStarterWrapper{
+    overflow: hidden;
+}
+.omniscript-article .siteforceContentArea .comm-content-header.comm-layout-column .ui-widget:not(:last-child){
+    margin-bottom: 0;
+}
+.via-nds .omniscript-article div.body{
+    min-height: 64vh;
+}
+.omniscript-article .omniscript-article .nds-box{
+    border-radius: var(--border-radius-medium);
+}
+.via-nds .omniscript-article .arc-body-limiter{
+    max-width: var(--community-body-max-width);
+}
+/* Flexible Layout */
+.omniscript-article .cb-section_column{
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+@media (min-width: 48em) and (max-width: 1023px){
+    .omniscript-article div.forceCommunitySection .cb-section_column:first-child,
+    .omniscript-article div.forceCommunitySection .cb-section_column,
+    .omniscript-article div.forceCommunitySection .cb-section_column:last-child {
+        padding: 16px;
+    }
+}
+.via-nds .omniscript-article div.forceCommunitySection .cb-section_column{
+    padding-left: var(--section-horizontal-spacing-s);
+    padding-right: var(--section-horizontal-spacing-s);
+}
+.via-nds .omniscript-article div.forceCommunitySection .cb-section_column:last-child{
+    padding-right: var(--section-horizontal-spacing-s);
+    padding-left: var(--section-horizontal-spacing-s);
+}
+.via-nds .omniscript-article div.forceCommunitySection .cb-section_column:first-child{
+    padding-right: var(--section-horizontal-spacing-s);
+    padding-left: var(--section-horizontal-spacing-s);
+}
+.via-nds .omniscript-article div.forceCommunitySection .cb-section_column:only-child {
+    padding-left: var(--section-horizontal-spacing-s);
+    padding-right: var(--section-horizontal-spacing-s);
+}
+@media screen and (min-width: 768px) {
+    .omniscript-article div.forceCommunitySection .cb-section_column{
+        padding-left: var(--section-horizontal-spacing-l);
+        padding-right: var(--section-horizontal-spacing-l);
+    }
+    .omniscript-article div.forceCommunitySection .cb-section_column:last-child{
+        padding-right: var(--section-horizontal-spacing-l);
+        padding-left: var(--section-horizontal-spacing-l);
+    }
+    .omniscript-article div.forceCommunitySection .cb-section_column:first-child{
+        padding-right: var(--section-horizontal-spacing-l);
+        padding-left: var(--section-horizontal-spacing-l);
+    }
+    .omniscript-article div.forceCommunitySection .cb-section_column:only-child {
+        padding-left: var(--section-horizontal-spacing-l);
+        padding-right: var(--section-horizontal-spacing-l);
+    }
+}
+@media screen and (min-width: 1024px) {
+    .omniscript-article div.forceCommunitySection .cb-section_column{
+        padding-left: var(--section-horizontal-spacing-xl);
+        padding-right: var(--section-horizontal-spacing-xl);
+    }
+    .omniscript-article div.forceCommunitySection .cb-section_column:last-child{
+        padding-right: var(--section-horizontal-spacing-xl);
+        padding-left: calc(var(--section-horizontal-spacing-xl)/2);
+    }
+    .omniscript-article div.forceCommunitySection .cb-section_column:first-child{
+        padding-right: calc(var(--section-horizontal-spacing-xl)/2);
+        padding-left: var(--section-horizontal-spacing-xl);
+    }
+    .omniscript-article div.forceCommunitySection .cb-section_column:only-child {
+        padding-left: var(--section-horizontal-spacing-xl);
+        padding-right: var(--section-horizontal-spacing-xl);
+    }
+}
+/* Turn Flexible Layout Section Backgrounds to 100vw */
+.omniscript-article .forceCommunitySection div.cb-section_background,
+.omniscript-article .forceCommunitySection div.cb-section_backgroundOverlay{
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Community Topbar */
+.omniscript-article .forceSearchInputDesktop div.contentWrapper.focused{
+    border: 1px solid var(--color-primary);
+    box-shadow: 0 0 3px var(--color-primary);
+}
+.omniscript-article .selfServiceProfileMenuTrigger a.trigger-link:focus{
+    border: none;
+    box-shadow: none;
+}
+.omniscript-article .siteforcePrmBody .cHeader .selfServiceProfileMenuTrigger a.trigger-link{
+    color: var(--color-detail-text);
+}
+@media only screen and (min-width: 768px) {
+    .omniscript-article nav .comm-navigation__list svg{
+        width: 12px;
+        height: 12px;
+    }
+}
+@media only screen and (min-width: 1024px) {
+    .omniscript-article .cHeaderTopInternalWrapper.slds-grid.slds-is-relative.slds-container--fluid.slds-grid--vertical-align-center{
+        max-width: var(--topbar-max-width);
+    }
+    .omniscript-article .cSearchContainer.slds-container--fluid.slds-grid{
+        max-width: var(--search-max-width);
+        margin: auto;
+    }
+    .omniscript-article .cLogo+.slds-col_bump-left{
+        display: none;
+    }
+    .omniscript-article .siteforcePrmBody .cHeader a.cBrandingLogo{
+        width: var(--topbar-logo-width);
+        margin: 0 var(--topbar-elements-horizontal-margin);
+    }
+    .omniscript-article .selfServiceProfileMenuTrigger a.trigger-link{
+        margin: 0 var(--topbar-elements-horizontal-margin);
+    }
+}
+
+/* Community Header */
+.omniscript-article .community-header div{
+    width: 100%;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    padding: 70px 20px;
+    background-size: cover;
+    background-position: center;
+}
+.omniscript-article .community-header div h2{
+    width: 100%;
+    font-size: 21px;
+    font-weight: bold;
+    line-height: 120%;
+}
+@media only screen and (min-width: 768px) {
+    .omniscript-article .community-header div{
+        min-height: 300px;
+        padding: 200px 40px;
+    }
+    .omniscript-article .community-header div h2{
+        width: 60%;
+    }
+}
+@media only screen and (min-width: 1024px) {
+    .omniscript-article .community-header div{
+        min-height: 500px;
+        padding: 200px 10vw;
+    }
+    .omniscript-article .community-header div h2{
+        width: 60%;
+    }
+}
+
+/* Community Footer */
+.via-nds .omniscript-article div.community-footer{
+    background-color: var(--community-footer-color-background) !important;
+}
+.via-nds .omniscript-article div.community-footer.nds-m-top_xx-large{
+    margin-top: 7rem;
+}
+.via-nds .omniscript-article div.community-footer.nds-p-around_xx-large{
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+}
+.via-nds .omniscript-article div.community-footer .community-footer-header .nds-grid.nds-wrap{
+    align-items: center;
+}
+.via-nds .omniscript-article div.community-footer .arc-body-limiter{
+    max-width: var(--community-footer-max-width);
+    margin: auto;
+}
+.via-nds .omniscript-article div.community-footer .community-footer-links-container a:hover,
+.via-nds .omniscript-article div.community-footer .community-footer-links-container a:focus{
+    text-decoration: none;
+}
+.via-nds .omniscript-article div.community-footer .community-footer-links-container a:hover span,
+.via-nds .omniscript-article div.community-footer .community-footer-links-container a:focus span{
+    text-decoration: underline;
+}
+.via-nds .omniscript-article div.community-footer .community-footer-links-container .nds-col.nds-size_12-of-12{
+    flex: unset;
+    width: auto;
+}
+.via-nds .omniscript-article div.community-footer .community-footer-links-container .nds-grid{
+    flex-flow: column;
+}
+.via-nds .omniscript-article div.community-footer .nds-image.nds-align_absolute-center {
+    justify-content: flex-start;
+}
+/* div.community-footer{
+    border-top: 6px solid var(--color-secondary);
+    box-shadow: 0px 30px 10px -30px rgb(0 0 0 / 25%) inset;
+    -webkit-box-shadow: 0px 30px 10px -30px rgb(0 0 0 / 25%) inset;
+    -moz-box-shadow: 0px 30px 10px -30px rgb(0 0 0 / 25%) inset;
+} */
+
+@media only screen and (max-width: 480px) {
+    .via-nds .omniscript-article div.community-footer.nds-p-around_xx-large{
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .via-nds .omniscript-article div.community-footer .nds-p-around_x-large{
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+@media only screen and (max-width: 768px) {
+    .omniscript-article div.community-footer .nds-image.nds-align_absolute-center {
+        justify-content: center;
+    }
+    .omniscript-article div.community-footer .nds-action .action-template{
+        display: flex;
+        justify-content: center;
+    }
+    .omniscript-article div.community-footer div{
+        text-align: center;
+    }
+    .omniscript-article div.community-footer .arc-body-limiter>vlocity_ins-block>.block-container>div>div>slot>div>div{
+        margin-top: 30px;
+    }
+    .omniscript-article div.community-footer .community-footer-links-container .nds-grid{
+        align-items: center;
+    }
+}
+.omniscript-article .footer .nds-spinner_container{
+    display: none;
+}
+
+/* Community Tooltip */
+.omniscript-article .tooltip.uiTooltipAdvanced .tooltip-body{
+    color: var(--community-tooltip-color-text);
+    background-color: var(--community-tooltip-color-background);
+}
+.omniscript-article .tooltip.uiTooltipAdvanced .pointer.pointer-advanced{
+    border-top-color: var(--community-tooltip-color-background);
+    /* border-left-color: var(--community-tooltip-color-background);
+    border-right-color: var(--community-tooltip-color-background); */
+    border-bottom-color: var(--community-tooltip-color-background);
+}
+
+/* Community Commons */
+.omniscript-article .siteforceContentArea .comm-layout-column .ui-widget:first-child{
+    margin-top: var(--component-vertical-spacing);
+}
+.omniscript-article .cb-section{
+    padding: calc(var(--section-vertical-spacing) / 2) 0;
+}
+/* .ui-sortable-handle:first-child .cb-section,
+.omniscript-article .ui-widget:first-child .cb-section{
+    margin-top: 0;
+    padding-top: 0;
+} */
+.via-nds .omniscript-article div.body div.siteforceContentArea div.comm-layout-column{
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: var(--lwc-layoutVerticalPadding,0.75rem);
+    margin-bottom: var(--lwc-layoutVerticalPadding,0.75rem);
+}
+
+.via-nds .omniscript-article div.body div.siteforceContentArea>div,
+.via-nds .omniscript-article div.body div.siteforceContentArea>div.comm-layout-column{
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.omniscript-article .omniscript-article,
+.omniscript-article ul.oneActionsRibbon li.slds-button--neutral>a,
+.omniscript-article ul.oneActionsRibbon li.slds-button--neutral:focus>a,
+.omniscript-article ul.oneActionsRibbon li.slds-button--neutral:hover>a,
+.via-nds .omniscript-article div.forceActionsDropDownMenuList .forceActionLink,
+.via-nds .omniscript-article article.nds-theme_default,
+.via-nds .omniscript-article div.nds-dropdown_actions a,
+.omniscript-article .slds-navigation-list--vertical .slds-is-active a.slds-navigation-list--vertical__action:focus,
+.omniscript-article .slds-popover_tooltip div.slds-popover__body,
+.via-nds .omniscript-article div[role="menu"] .slds-dropdown__item>a:focus,
+.via-nds .omniscript-article div[role="menu"] .slds-dropdown__item>a:hover,
+.omniscript-article a[role="menuitem"]:focus,
+.omniscript-article a[role="menuitem"]:hover,
+.omniscript-article a[role="menuitemcheckbox"]:focus,
+.omniscript-article a[role="menuitemcheckbox"]:hover,
+.omniscript-article a[role="option"]:focus,
+.omniscript-article a[role="option"]:hover,
+.omniscript-article li.forceChatterTopicSuggestionAutoComplete .cuf-autocompleteClass .forceChatterSelectTopicSuggestionOption .highlighted,
+.omniscript-article li.forceChatterTopicSuggestionAutoComplete .cuf-autocompleteClass .highlighted a{
+    color: var(--color-text);
+}
+.via-nds .omniscript-article article.nds-theme_default{
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+}
+.via-nds .omniscript-article select.nds-select,
+.via-nds .omniscript-article select.nds-select:focus,
+.via-nds .omniscript-article select.nds-select:hover,
+.via-nds .omniscript-article select.nds-select:active,
+.omniscript-article li.forceContentVirtualRelatedListStencil,
+.via-nds .omniscript-article div.uiMenuList--default.uiMenuList,
+.via-nds .omniscript-article div.forceCommunityUserPreviewStencilNapili>div{
+    background-color: var(--color-background);
+}
+.via-nds .omniscript-article div.uiMenuList--default.uiMenuList{
+    border: 1px solid transparent;
+}
+.via-nds .omniscript-article div.nds-dropdown__item>a:hover,
+.via-nds .omniscript-article div.nds-dropdown__item>a:focus,
+.via-nds .omniscript-article div.uiMenuList--default .uiMenuItem>a:hover,
+.via-nds .omniscript-article div.uiMenuList--default .uiMenuItem>a:focus,
+.omniscript-article a.slds-navigation-list--vertical__action:active,
+.omniscript-article .forceContentFilePicker li.forceContentVirtualRelatedListStencil:focus,
+.omniscript-article .forceContentFilePicker li.forceContentVirtualRelatedListStencil:hover,
+.omniscript-article .forceContentFilePicker li.forceContentVirtualRelatedListStencil.selectedRecord,
+.omniscript-article .forceContentFilePicker li.forceContentVirtualRelatedListStencil.selectedRecord:focus,
+.omniscript-article .forceContentFilePicker li.forceContentVirtualRelatedListStencil.selectedRecord:hover,
+.omniscript-article .forceContentFilePicker li.forceContentVirtualRelatedListStencil.selectedRecord.itemFocused{
+    background-color: var(--color-background-1);
+}
+.omniscript-article .forceListViewManagerGrid .slds-is-resizable div.slds-cell-fixed:hover,
+.via-nds .omniscript-article div.forceRecordEditActions.button-container{
+    background: var(--color-page-background-1);
+}
+.omniscript-article .forceListViewManagerGrid .slds-has-focus.slds-is-resizable div.slds-cell-fixed,
+.omniscript-article .forceListViewManagerGrid .slds-has-focus.slds-is-resizable div.slds-cell-fixed:focus,
+.omniscript-article .forceListViewManagerGrid .slds-has-focus.slds-is-resizable div.slds-cell-fixed:hover,
+.omniscript-article .forceListViewManagerGrid .slds-has-focus.slds-is-resizable div.slds-cell-fixed:focus:hover{
+    background-color: var(--color-page-background-2);
+}
+.omniscript-article .slds-section__title button.slds-button.test-id__section-header-button.slds-section__title-action{
+    box-shadow: none;
+    background: none;
+}
+.omniscript-article .forceTopicPublisherTopicsWidget .forceChatterPillContainer ol.orderedList{
+    background-color: var(--color-background);
+}
+.via-nds .omniscript-article div.slds-page-header.slds-page-header_record-home.forceHighlightsStencilDesktop.forceRecordLayout{
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+.omniscript-article li feeds_emoji-category.selected[feeds_emoji-categorySelector_categorySelector]{
+    border-top: .125rem solid var(--color-primary);
+}
+.omniscript-article [feeds_emoji-category_category-host].selected button[feeds_emoji-category_category].slds-button--icon-bare,
+.omniscript-article [feeds_emoji-category_category-host] button:hover[feeds_emoji-category_category].slds-button--icon-bare,
+.omniscript-article [feeds_emoji-category_category-host] button:focus[feeds_emoji-category_category].slds-button--icon-bare,
+.omniscript-article [feeds_emoji-category_category-host]:not(.selected):hover button[feeds_emoji-category_category].slds-button--icon-bare,
+.omniscript-article [feeds_emoji-category_category-host]:not(.selected):focus button[feeds_emoji-category_category].slds-button--icon-bare{
+    color: var(--color-primary);
+}
+.omniscript-article button:focus[feeds_emoji-category_category].slds-button--icon-bare{
+    background-color: transparent;
+}
+.via-nds .omniscript-article div.small.roundedSquare.forceEntityIcon{
+    background-color: var(--color-primary) !important;
+}
+.omniscript-article ul.slds-form.slds-form_stacked.slds-grid.slds-page-header__detail-row{
+    background-color: transparent;
+}
+.omniscript-article ul.slds-form.slds-form_stacked.slds-grid.slds-page-header__detail-row::before{
+    content: "";
+    background-color: var(--lwc-pageHeaderColorBackgroundAlt);
+    opacity: .6;
+    border-radius: 0 0 var(--lwc-pageHeaderBorderRadius,0) var(--lwc-pageHeaderBorderRadius,0);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.via-nds .omniscript-article div.uiPanel{
+    background-color: var(--color-background);
+    border-color: var(--color-border);
+    border-radius: 8px;
+}
+.via-nds .omniscript-article div.uiPanel>div.pointer{
+    background: var(--color-background);
+    border-top-color: var(--color-border);
+    border-bottom-color: var(--color-border);
+}
+.via-nds .omniscript-article div.uiPanel .unsNotificationsListRow:first-child{
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+.via-nds .omniscript-article div.uiPanel .titleContainer{
+    border-bottom: none;
+}
+.via-nds .omniscript-article div.slds-page-header{
+    border-radius: var(--border-radius-medium) !important;
+}
+.omniscript-article lightning-icon.slds-icon-standard-account{
+    background-color: var(--color-primary) !important;
+}
+.omniscript-article .uiTabset--base section{
+    margin-top: 20px;
+}
+.omniscript-article .recordHomeSecondaryContent .uiTabset--base section{
+    margin-top: 0;
+}
+.via-nds .omniscript-article div.nds-image:focus,
+.via-nds .omniscript-article div.nds-image:hover{
+    border: none;
+    box-shadow: none;
+}
+
+/* Community Buttons */
+.omniscript-article button.slds-button:focus{
+    box-shadow: 0 0 3px var(--color-primary);
+}
+.omniscript-article .slds-button svg.slds-button__icon,
+.omniscript-article .forceIcon.slds-button__icon svg.slds-icon,
+.omniscript-article .forceIcon.slds-button__icon:hover svg.slds-icon,
+.omniscript-article .forceIcon.slds-button__icon:focus svg.slds-icon{
+    fill: var(--color-text);
+}
+.omniscript-article .forceCommunityCreateRecordButton .forceIcon.slds-button__icon:hover svg.slds-icon,
+.omniscript-article .forceCommunityCreateRecordButton .forceIcon.slds-button__icon:focus svg.slds-icon,
+.omniscript-article button.slds-button_brand svg.slds-button__icon,
+.omniscript-article button.slds-button_brand:hover svg.slds-button__icon,
+.omniscript-article button.slds-button_brand:focus svg.slds-button__icon{
+    fill: var(--color-overlay-text);
+}
+.omniscript-article .slds-button:hover svg.slds-button__icon,
+.omniscript-article .slds-button:focus svg.slds-button__icon,
+.omniscript-article .slds-button:active svg.slds-button__icon{
+    fill: var(--color-text);
+}
+.omniscript-article .slds-button[disabled] svg.slds-button__icon,
+.omniscript-article .slds-button[disabled]:hover svg.slds-button__icon,
+.omniscript-article .slds-button[disabled]:focus svg.slds-button__icon,
+.omniscript-article .slds-button[disabled]:active svg.slds-button__icon{
+    fill: var(--color-detail-text) !important;
+}
+
+.omniscript-article .forceListViewManager .lvmTooltipButton button.slds-button{
+    background-color: var(--color-background-1);
+}
+.omniscript-article .forceCommunityCreateRecordButton a.triggerLink svg.slds-icon{
+    fill: var(--lwc-colorTextButtonBrand);
+}
+.omniscript-article a.slds-grid.slds-grid--vertical-align-center.slds-grid--align-center.sldsButtonHeightFix{
+    width: 30px;
+}
+
+/* button.slds-button_icon lightning-primitive-icon svg.slds-button__icon{
+    fill: var(--color-text);
+} */
+/* button.slds-button_icon:focus lightning-primitive-icon svg.slds-button__icon,
+.omniscript-article button.slds-button_icon:hover lightning-primitive-icon svg.slds-button__icon{
+    fill: var(--color-link);
+} */
+
+/* Community Inputs*/
+.omniscript-article .forceSearchInputLookupDesktop div.contentWrapper.focused,
+.omniscript-article input.slds-input:focus,
+.omniscript-article input.uiInput--input.input:focus,
+.omniscript-article input.uiInput--input.input:active,
+.via-nds .omniscript-article div.uiInput--input.input:focus,
+.via-nds .omniscript-article div.uiInput--input .input:focus,
+.via-nds .omniscript-article div.uiInput--input .input:active,
+.omniscript-article .forceSearchInputLookupDesktop div.uiPillContainer .pillContainerListItem a:focus,
+.via-nds .omniscript-article div.uiInput--textarea .textarea:active,
+.via-nds .omniscript-article div.uiInput--textarea .textarea:focus,
+.via-nds .omniscript-article div.uiInput--select .uiPopupTrigger a:focus{
+    border-color: var(--color-primary);
+    box-shadow: 0 0 3px var(--color-primary);
+}
+.omniscript-article input,
+.omniscript-article a.uiPill--default:hover{
+    background-color: var(--color-background);
+}
+.omniscript-article input[aria-readonly=true][lightning-baseCombobox_baseCombobox]{
+    cursor: pointer;
+}
+
+/* Community Spinner */
+.via-nds .omniscript-article div.nds-spinner_container[vlocity_ins-spinner_spinner_nds]{
+    background-color: var(--color-background);
+}
+.via-nds .omniscript-article div.loadingOverla{
+    background-color: var(--color-background);
+}
+.via-nds .omniscript-article div.slds-spinner--brand .slds-spinner__dot-a:before,
+.via-nds .omniscript-article div.slds-spinner--brand .slds-spinner__dot-a:after{
+    background-color: var(--color-primary);
+}
+.omniscript-article .omniscript-article button.slds-button.test-id__section-header-button.slds-section__title-action{
+    box-shadow: none;
+}
+
+.omniscript-article .omniscript-article .slds-spinner_container{
+    background-color: transparent;
+}
+.omniscript-article .omniscript-article .slds-spinner_container:before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-background);
+    opacity: .8
+}
+.via-nds .omniscript-article div.siteforceSpinnerManager .mask{
+    margin-left: 0;
+    background-color: var(--color-background);
+    opacity: .6;
+    position: fixed;
+}
+.via-nds .omniscript-article div.siteforceLoadingBalls.global{
+    background-color: var(--color-background-1);
+}
+.via-nds .omniscript-article div.siteforceLoadingBalls .loadingBall{
+    background-color: var(--color-primary);
+}
+.via-nds .omniscript-article div.themeHeader .vloc-loader_override{
+    display: none;
+}
+.via-nds .omniscript-article div.body div[data-region-name="header"] .vloc-loader_override{
+    display: none;
+}
+.omniscript-article .ui-widget .vloc-loader_override{
+    background: transparent !important;
+}
+
+/* Community Tabs */
+.via-nds .omniscript-article div.uiTabset--base ul .tabs__item>a{
+    position: relative;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+}
+.via-nds .omniscript-article div.uiTabset--base ul .tabs__item>a,
+.via-nds .omniscript-article div.uiTabset--base ul .tabs__item>a:hover,
+.via-nds .omniscript-article div.uiTabset--base ul .tabs__item>a:focus{
+    box-shadow: none;
+    border-bottom: 2px solid transparent;
+}
+.via-nds .omniscript-article div.uiTabset--base ul .tabs__item>a:before{
+    background-color: var(--color-primary);
+    content: "";
+    width: 0;
+    height: 2px;
+    position: absolute;
+    bottom: -2px;
+    transition: width .15s ease;
+}
+.via-nds .omniscript-article div.uiTabset--base ul .tabs__item>a[aria-selected="true"]:before{
+    transition: none;
+    width: 100%;
+}
+.via-nds .omniscript-article div.uiTabset--base ul .tabs__item>a:hover:before,
+.via-nds .omniscript-article div.uiTabset--base ul .tabs__item>a:focus:before{
+    width: 100%;
+}
+.via-nds .omniscript-article div.forceCommunityFeedPublisher .oneActionsComposer .uiTabBar .uiTabItem.active .tabHeader,
+.via-nds .omniscript-article div.forceCommunityFeedPublisher .oneActionsComposer .uiTabBar .uiTabItem.active .tabHeader:focus,
+.via-nds .omniscript-article div.forceCommunityFeedPublisher .oneActionsComposer .uiTabBar .uiTabItem.active .tabHeader:hover,
+.via-nds .omniscript-article div.forceCommunityFeedPublisher .oneActionsComposer .uiTabBar .uiTabItem.active .tabHeader:active{
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+/* Community Tables */
+.omniscript-article table.slds-table{
+    border: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,#D4D4D4);
+    border-top: none;
+    border-right: none;
+}
+.omniscript-article table.slds-table button.slds-button:focus,
+.omniscript-article table.slds-table button.slds-button:active{
+    box-shadow: none;
+}
+.omniscript-article table.slds-table tbody tr:hover > th{
+    background-color: var(--lwc-tableColorBackgroundHeader);
+}
+.omniscript-article table.slds-table tr:not(:hover) th:focus,
+.omniscript-article table.slds-table tr:not(:hover) th.slds-has-focus,
+.omniscript-article table.slds-table tr:not(:hover) [role=gridcell]:focus,
+.omniscript-article table.slds-table tr:not(:hover) [role=gridcell].slds-has-focus{
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
+.omniscript-article table.slds-table th:focus,
+.omniscript-article table.slds-table th.slds-has-focus,
+.omniscript-article table.slds-table:not(.slds-no-row-hover) tbody tr:hover > th:not(.slds-has-focus),
+.omniscript-article table.slds-table:not(.slds-no-row-hover) tbody tr:hover > td:not(.slds-has-focus),
+.omniscript-article table.slds-table [role=gridcell]:focus,
+.omniscript-article table.slds-table [role=gridcell].slds-has-focus,
+.omniscript-article table.slds-table tbody tr:hover>*{
+    box-shadow: 0px -20px 200px -200px var(--color-primary) inset;
+    -webkit-box-shadow: 0px -20px 200px -200px var(--color-primary) inset;
+    -moz-box-shadow: 0px -20px 200px -200px var(--color-primary) inset;
+}
+.omniscript-article table.slds-table tbody tr[aria-level]>*,
+.omniscript-article table.slds-table tbody tr[aria-level]:first-child>*{
+    border-top: none;
+}
+.omniscript-article table.slds-table tbody tr[aria-posinset="1"]>*,
+.omniscript-article table.slds-table tbody tr[aria-level="1"]>*{
+    border-top: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,#D4D4D4);
+}
+.omniscript-article table.slds-table thead tr th[scope="col"] .slds-cell-fixed{
+    background-color: var(--color-background);
+    box-shadow: 200px 200px 0px 200px rgba(0,0,0,0.03) inset;
+    -webkit-box-shadow: 200px 200px 0px 200px rgba(0,0,0,0.03) inset;
+    -moz-box-shadow: 200px 200px 0px 200px rgba(0,0,0,0.03) inset;
+}
+.omniscript-article table.slds-table thead tr th[scope="col"] .slds-cell-fixed a{
+    border-top: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,#D4D4D4);
+}
+.omniscript-article .slds-table .slds-dropdown .slds-dropdown__item>a:hover,
+.omniscript-article .slds-table.slds-dropdown .slds-dropdown__item>a:focus{
+    background-color: var(--color-background-1);
+}
+
+/* Community Default Components */
+.via-nds .omniscript-article div.forceCommunityHomeTabs div.forceTopicFeaturedTopics a.topicLink{
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 1);
+}
+@media only screen and (min-width: 48em) and (min-aspect-ratio: 4 / 3), only screen and (min-width: 64.0625em){
+    .omniscript-article div.forceCommunityHomeTabs div.forceTopicFeaturedTopics a.topicLink .topicImage{
+        transition: all .4s ease-out;
+    }
+    .omniscript-article div.forceCommunityHomeTabs div.forceTopicFeaturedTopics a.topicLink:focus .topicImage,
+    .omniscript-article div.forceCommunityHomeTabs div.forceTopicFeaturedTopics a.topicLink:hover .topicImage{
+        transform: scale(1.04);
+    }
+}
+
+
+/***************** OmniScripts *****************/
+
+
+/* OmniScript Spinner */
+.via-nds .omniscript-article div.nds-spinner_brand[vlocity_ins-spinner_spinner_nds]>div[vlocity_ins-spinner_spinner_nds]{
+    background-color: var(--color-loading);
+}
+.via-nds .omniscript-article div.nds-grid.nds-grid_align-center.nds-media_center.nds-spinner_content_container div.nds-spinner_brand.nds-spinner.nds-is-absolute svg circle{
+    fill: var(--color-primary);
+}
+
+/* OmniScript Basic */
+/* article.omniscript-article{
+    margin-top: var(--omniscript-margin);
+} */
+.omniscript-article article.omniscript-article{
+    overflow: hidden;
+}
+.via-nds .omniscript-article h1.nds-p-vertical_large{
+    padding-bottom: var(--omniscript-step-title-padding-bottom);
+    color: var(--color-text);
+}
+.via-nds .omniscript-article h1.nds-p-vertical_large:empty{
+    padding-top: 0;
+}
+
+/* OmniScript Modals */
+.omniscript-article .omniscript-article .nds-modal .nds-modal__container .nds-theme_info{
+    background-color: var(--omniscript-modal-header-background-color);
+}
+.omniscript-article .omniscript-article .nds-modal .nds-modal__container footer ul button{
+    color: var(--color-text);
+}
+
+/* OmniScript Steps */
+.via-nds .omniscript-article article.omniscript-article vlocity_ins-omniscript-step>*{
+    width: var(--omniscript-step-width);
+    -ms-flex: 0 0 var(--omniscript-step-width);
+    flex: 0 0 var(--omniscript-step-width);
+    max-width: var(--omniscript-step-width);
+}
+.via-nds .omniscript-article .nds-progress__item button.nds-progress__marker{
+    border-color: var(--color-background);
+}
+.via-nds .omniscript-article .nds-progress__item.nds-is-completed button.nds-progress__marker{
+    color: var(--omniscript-chart-active-button-color);
+    border-color: var(--color-background);
+    background: var(--color-background);
+}
+.via-nds .omniscript-article .nds-progress__item.nds-is-active button.nds-progress__marker{
+    border-color: var(--omniscript-chart-active-button-color);
+    box-shadow: var(--color-background) 0 0 0 4px;
+    background: var(--color-background);
+}
+.via-nds .omniscript-article .nds-progress__item.nds-is-nonpristine button.nds-progress__marker{
+    background: var(--omniscript-chart-active-button-color);
+    border-color: var(--color-background);
+}
+.via-nds .omniscript-article span.nds-progress-bar__value{
+    background: var(--omniscript-chart-active-line-color);
+}
+.via-nds .omniscript-article div.nds-popover_tooltip,
+.via-nds .omniscript-article div.nds-popover_tooltip:before,
+.via-nds .omniscript-article div.nds-popover_tooltip:after{
+    background-color: var(--omniscript-chart-tooltip-background-color);
+}
+.via-nds .omniscript-article div.nds-popover_tooltip .nds-popover__body{
+    color: var(--omniscript-chart-tooltip-text-color);
+    font-weight: 400;
+}
+.omniscript-article .omniscript-article .nds-progress__item .nds-button__icon{
+    fill: var(--color-primary);
+}
+.omniscript-article .omniscript-article .nds-progress .nds-progress-bar{
+    left: 0;
+}
+/* .omniscript-article .nds-progress-bar{
+    display: none;
+} */
+.omniscript-article .omniscript-article .nds-progress-bar_x-small{
+    height: .1rem;
+}
+.via-nds .omniscript-article div.vlc-separator[vlocity_ins-omniscriptStep_omniscriptStep]{
+    border-color: var(--color-primary);
+}
+/* OmniScript Header */
+.via-nds .omniscript-article .arc-flow-header{
+    margin-top: 20px;
+}
+.via-nds .omniscript-article .arc-flow-header div{
+    position: relative;
+    height: 80px;
+}
+.via-nds .omniscript-article .arc-flow-header div > *{
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.via-nds .omniscript-article .arc-flow-header .arc-flow-header-icon{
+    padding-bottom: 10px;
+}
+.via-nds .omniscript-article .arc-flow-header svg.arc-flow-header-icon{
+    transform: translate(-50%,-3px);
+}
+.via-nds .omniscript-article .arc-flow-header >*> svg:nth-child(1),
+.via-nds .omniscript-article .arc-flow-header >*> svg:nth-child(2){
+    width: 100%;
+    bottom: -14px;
+}
+.omniscript-article .arc-flow-header+.arc-flow-header{
+    transform: translateY(-131px);
+}
+@media screen and (max-width: 1024px){
+    .via-nds .omniscript-article .arc-flow-header div .arc-flow-header-primary,
+    .via-nds .omniscript-article .arc-flow-header div .arc-flow-header-secondary{
+        width: calc(100vw - 44px);
+        max-width: unset;
+    }
+}
+
+/* OmniScript Element Commons */
+.via-nds .omniscript-article div.nds-form-element__label,
+.via-nds .omniscript-article .nds-form-element__label span,
+/* .via-nds .omniscript-article .nds-form-element__label div, */
+.via-nds .omniscript-article span.nds-form-element__label,
+.via-nds .omniscript-article div.nds-element_text-font,
+.via-nds .omniscript-article .nds-radio span.nds-form-element__label{
+    color: var(--color-text);
+}
+.via-nds .omniscript-article .nds-form-element input,
+.via-nds .omniscript-article div.nds-form-element__control.nds-form-element__control-animated-label label,
+.omniscript-article input.vlocity-input.nds-input_mask.nds-input.nds-not-empty,
+.omniscript-article input.vlocity-input.nds-input_mask.nds-input.nds-not-empty:focus,
+.omniscript-article input.vlocity-input.nds-input_mask.nds-input,
+.omniscript-article input.vlocity-input.nds-input_mask.nds-input:focus{
+    color: var(--color-text)
+}
+.via-nds .omniscript-article .nds-has-error input.nds-input,
+.via-nds .omniscript-article input.nds-input,
+.via-nds .omniscript-article textarea.nds-input,
+.via-nds .omniscript-article div[role=combobox] input[readonly],
+.via-nds .omniscript-article div[role=combobox] input.nds-listbox__option-text_entity[readonly],
+.via-nds .omniscript-article .nds-file-custom-selector div.nds-file-selector__dropzone,
+.via-nds .omniscript-article .nds-file-custom-selector ul.nds-file-list li,
+.via-nds .omniscript-article div.nds-dropdown,
+.via-nds .omniscript-article textarea.nds-textarea,
+.via-nds .omniscript-article ul.nds-dropdown{
+    background-color: var(--color-background);
+}
+.via-nds .omniscript-article div.nds-table,
+.via-nds .omniscript-article div.slds-table,
+.via-nds .omniscript-article input.nds-input:focus,
+.via-nds .omniscript-article input.nds-input:active,
+.via-nds .omniscript-article textarea.nds-input:focus,
+.via-nds .omniscript-article textarea.nds-input:active,
+.via-nds .omniscript-article textarea.nds-textarea:focus,
+.via-nds .omniscript-article textarea.nds-textarea:active,
+.via-nds .omniscript-article div[role=combobox] input.nds-listbox__option-text_entity[readonly]:focus,
+.via-nds .omniscript-article div[role=combobox] input.nds-listbox__option-text_entity[readonly]:active{
+    background-color: var(--color-background);
+}
+.omniscript-article a,
+.omniscript-article a:hover,
+.omniscript-article a:focus,
+.omniscript-article a:active,
+.omniscript-article .nds-text-link,
+.omniscript-article .nds-text-link:hover,
+.omniscript-article .nds-text-link:focus,
+.omniscript-article .nds-text-link:active{
+    color: var(--color-link);
+}
+.omniscript-article .nds-popover{
+    background-color: var(--color-primary);
+    border: none;
+    box-shadow: none;
+    width: 300px !important;
+}
+.omniscript-article .nds-popover .nds-popover__body div{
+    color: var(--color-overlay-text);
+}
+.omniscript-article .nds-nubbin_bottom-left:after{
+    box-shadow: none;
+}
+
+/* OmniScript Blocks */
+.via-nds .omniscript-article .nds-block_container>label div.nds-form-element__label_toggle-text{
+    color: var(--omniscript-block-title-color);
+}
+.via-nds .omniscript-article .nds-block_container .nds-form-element__label svg.nds-icon{
+    fill: var(--omniscript-block-title-color);
+}
+
+/* OmniScript Button */
+.via-nds .omniscript-article button.nds-button{
+    color: var(--color-primary);
+}
+.via-nds .omniscript-article button.nds-button:focus,
+.via-nds .omniscript-article button.nds-button:hover,
+.via-nds .omniscript-article button.nds-button:active{
+    color: var(--color-primary-1);
+}
+.via-nds .omniscript-article button.nds-button:focus{
+    box-shadow: 0 0 3px var(--color-primary);
+}
+
+/* OmniScript Buttons: Primary Buttons (Next) */
+.omniscript-article button.slds-button--neutral.uiButton--brand,
+.via-nds .omniscript-article button.nds-button_brand{
+    color: var(--button-primary-color-text);
+    border-radius: var(--button-primary-border-radius);
+    border: var(--button-primary-border);
+    transition: .1s ease-out;
+}
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus,
+.via-nds .omniscript-article button.nds-button_brand:focus{
+    box-shadow: 0 0 3px var(--button-primary-focus-outline);
+}
+/* we don't want newport css styles to interfere with slds inside salesforce */
+/* .omniscript-article button.slds-button_brand,
+.omniscript-article button.slds-button_brand:hover,
+.omniscript-article button.slds-button_brand:focus,
+.omniscript-article button.slds-button_brand:active,
+.omniscript-article .via-slds button.slds-button_brand,
+.omniscript-article .via-slds button.slds-button_brand:hover,
+.omniscript-article .via-slds button.slds-button_brand:focus,
+.omniscript-article .via-slds button.slds-button_brand:active,
+.omniscript-article button.slds-button--neutral.uiButton--brand,
+.omniscript-article button.slds-button--neutral.uiButton--brand:hover,
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus,
+.omniscript-article button.slds-button--neutral.uiButton--brand:active, */
+.via-nds .omniscript-article button.nds-button_brand,
+.via-nds .omniscript-article button.nds-button_brand:hover,
+.via-nds .omniscript-article button.nds-button_brand:focus,
+.via-nds .omniscript-article button.nds-button_brand:active,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:hover,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:focus,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:active,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:focus,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:hover,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:active{
+    color: var(--button-primary-color-text);
+    background-color: var(--button-primary-color-background);
+    border: var(--button-primary-border);
+    transition: var(--button-primary-transition);
+    padding: var(--button-base-padding);
+    border-radius: var(--button-primary-border-radius);
+}
+/* we don't want newport css styles to interfere with slds inside salesforce */
+/* .omniscript-article button.slds-button--neutral.uiButton--brand,
+.omniscript-article button.slds-button--neutral.uiButton--brand:hover,
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus,
+.omniscript-article button.slds-button--neutral.uiButton--brand:active,
+.omniscript-article button.slds-button_brand svg,
+.omniscript-article button.slds-button_brand:hover svg,
+.omniscript-article button.slds-button_brand:focus svg,
+.omniscript-article button.slds-button_brand:active svg, */
+.via-nds .omniscript-article button.nds-button_brand svg,
+.via-nds .omniscript-article button.nds-button_brand:hover svg,
+.via-nds .omniscript-article button.nds-button_brand:focus svg,
+.via-nds .omniscript-article button.nds-button_brand:active svg{
+    fill: var(--button-primary-color-text) !important;
+}
+/* we don't want newport css styles to interfere with slds inside salesforce */
+/* .omniscript-article button.slds-button_brand:hover,
+.omniscript-article button.slds-button_brand:focus,
+.omniscript-article button.slds-button--neutral.uiButton--brand:hover,
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus, */
+.via-nds .omniscript-article button.nds-button_brand:hover,
+.via-nds .omniscript-article button.nds-button_brand:focus,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:focus,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:hover,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:hover,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:focus{
+    background-color: var(--button-primary-hover-color-background);
+    border: var(--button-primary-border-hover);
+}
+/* we don't want newport css styles to interfere with slds inside salesforce */
+/* .omniscript-article button.slds-button_brand:active,
+.omniscript-article button.slds-button--neutral.uiButton--brand:active, */
+.via-nds .omniscript-article button.nds-button_brand:active,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:active,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:hover{
+    background-color: var(--button-primary-active-color-background);
+    border: var(--button-primary-border-active);
+}
+/* we don't want newport css styles to interfere with slds inside salesforce */
+/* .omniscript-article button.slds-button_brand:disabled,
+.omniscript-article button.slds-button_brand:hover:disabled,
+.omniscript-article button.slds-button_brand:focus:disabled,
+.omniscript-article button.slds-button_brand:active:disabled,
+.omniscript-article button[disabled].slds-button_brand,
+.omniscript-article button.slds-button--neutral.uiButton--brand:disabled,
+.omniscript-article button.slds-button--neutral.uiButton--brand:hover:disabled,
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus:disabled,
+.omniscript-article button.slds-button--neutral.uiButton--brand:active:disabled, */
+.via-nds .omniscript-article button.nds-button_brand:disabled,
+.via-nds .omniscript-article button.nds-button_brand:hover:disabled,
+.via-nds .omniscript-article button.nds-button_brand:focus:disabled,
+.via-nds .omniscript-article button.nds-button_brand:active:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:hover:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:focus:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:active:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:focus:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:hover:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:active:disabled{
+    background-color: var(--button-primary-disabled-color-background);
+    border: var(--button-primary-disabled-border);
+    color: var(--button-primary-disabled-color-text);
+}
+
+/* OmniScript Buttons: Secondary Buttons (Previous) */
+.omniscript-article li.slds-button.slds-button--neutral,
+.omniscript-article button.slds-button--neutral,
+.omniscript-article span.slds-button--neutral{
+    cursor: pointer;
+}
+.via-nds .omniscript-article span.nds-button,
+.omniscript-article .slds-button-group li.slds-button:only-child,
+.omniscript-article li.slds-button.slds-button--neutral,
+.omniscript-article li.slds-button.slds-button--neutral,
+.via-nds .omniscript-article button.nds-button_neutral,
+.omniscript-article button.slds-button--neutral,
+.omniscript-article button.slds-button_neutral,
+.omniscript-article span.slds-button--neutral{
+    color: var(--button-secondary-color-text);
+    border-radius: var(--button-secondary-border-radius);
+    transition: .1s ease-out;
+}
+.via-nds .omniscript-article span.nds-button:focus,
+.via-nds .omniscript-article span.nds-button:hover,
+.via-nds .omniscript-article span.nds-button:active,
+.omniscript-article li.slds-button.slds-button--neutral:focus,
+.omniscript-article li.slds-button.slds-button--neutral:hover,
+.omniscript-article li.slds-button.slds-button--neutral:active,
+.via-nds .omniscript-article button.nds-button_neutral:focus,
+.omniscript-article button.slds-button_neutral:focus,
+.omniscript-article button.slds-button--neutral:focus,
+.omniscript-article span.slds-button--neutral:focus{
+    box-shadow: var(--button-secondary-box-shadow);
+}
+
+.omniscript-article button.slds-button_neutral,
+.omniscript-article button.slds-button_neutral:hover,
+.omniscript-article button.slds-button_neutral:focus,
+.omniscript-article button.slds-button_neutral:active,
+.omniscript-article .via-slds button.slds-button_neutral,
+.omniscript-article .via-slds button.slds-button_neutral:hover,
+.omniscript-article .via-slds button.slds-button_neutral:focus,
+.omniscript-article .via-slds button.slds-button_neutral:active,
+.via-nds .omniscript-article span.nds-button,
+.via-nds .omniscript-article span.nds-button:focus,
+.via-nds .omniscript-article span.nds-button:hover,
+.via-nds .omniscript-article span.nds-button:active,
+.omniscript-article li.slds-button.slds-button--neutral,
+.omniscript-article li.slds-button.slds-button--neutral:hover,
+.omniscript-article li.slds-button.slds-button--neutral:focus,
+.via-nds .omniscript-article button.nds-button_neutral,
+.via-nds .omniscript-article button.nds-button_neutral:hover,
+.via-nds .omniscript-article button.nds-button_neutral:focus,
+.via-nds .omniscript-article button.nds-button_neutral:active,
+.omniscript-article span.slds-button--neutral,
+.omniscript-article span.slds-button--neutral:hover,
+.omniscript-article span.slds-button--neutral:focus,
+.omniscript-article span.slds-button--neutral:active,
+.omniscript-article button.slds-button_neutral,
+.omniscript-article button.slds-button_neutral:hover,
+.omniscript-article button.slds-button_neutral:focus,
+.omniscript-article button.slds-button_neutral:active,
+.omniscript-article button.slds-button--neutral,
+.omniscript-article button.slds-button--neutral:hover,
+.omniscript-article button.slds-button--neutral:focus,
+.omniscript-article button.slds-button--neutral:active,
+.omniscript-article button.slds-button_outline-brand,
+.omniscript-article button.slds-button_outline-brand:hover,
+.omniscript-article button.slds-button_outline-brand:focus,
+.omniscript-article button.slds-button_outline-brand:active,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:focus,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:hover,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:active,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:focus,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:hover,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:active,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:focus,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:hover,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:active{
+    color: var(--button-secondary-color-text);
+    background-color: var(--button-secondary-color-background);
+    border: var(--button-secondary-border);
+    transition: var(--button-secondary-transition);
+    padding: var(--button-base-padding);
+    border-radius: var(--button-secondary-border-radius);
+}
+.omniscript-article ul.oneActionsRibbon li.slds-button--neutral:active svg,
+.omniscript-article li.slds-button.slds-button--neutral svg,
+.omniscript-article li.slds-button.slds-button--neutral:hover svg,
+.omniscript-article li.slds-button.slds-button--neutral:focus svg,
+.omniscript-article li.slds-button.slds-button--neutral:active svg,
+.via-nds .omniscript-article button.nds-button_neutral svg,
+.via-nds .omniscript-article button.nds-button_neutral:hover svg,
+.via-nds .omniscript-article button.nds-button_neutral:focus svg,
+.via-nds .omniscript-article button.nds-button_neutral:active svg,
+.omniscript-article span.slds-button--neutral svg,
+.omniscript-article span.slds-button--neutral:hover svg,
+.omniscript-article span.slds-button--neutral:focus svg,
+.omniscript-article span.slds-button--neutral:active svg,
+.omniscript-article button.slds-button--neutral svg,
+.omniscript-article button.slds-button--neutral:hover svg,
+.omniscript-article button.slds-button--neutral:focus svg,
+.omniscript-article button.slds-button--neutral:active svg,
+.omniscript-article button.slds-button_neutral svg,
+.omniscript-article button.slds-button_neutral:hover svg,
+.omniscript-article button.slds-button_neutral:focus svg,
+.omniscript-article button.slds-button_neutral:active svg{
+    fill: var(--button-secondary-color-text) !important;
+}
+.via-nds .omniscript-article span.nds-button:focus,
+.via-nds .omniscript-article span.nds-button:hover,
+.omniscript-article li.slds-button.slds-button--neutral:hover,
+.omniscript-article li.slds-button.slds-button--neutral:focus,
+.via-nds .omniscript-article button.nds-button_neutral:hover,
+.via-nds .omniscript-article button.nds-button_neutral:focus,
+.omniscript-article span.slds-button--neutral:hover,
+.omniscript-article span.slds-button--neutral:focus,
+.omniscript-article button.slds-button_neutral:focus,
+.omniscript-article button.slds-button_neutral:hover,
+.omniscript-article button.slds-button--neutral:hover,
+.omniscript-article button.slds-button--neutral:focus,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:focus,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:hover,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:focus,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:hover,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:focus,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:hover{
+    background-color: var(--button-secondary-hover-color-background);
+    border: var(--button-secondary-border-hover);
+    box-shadow: var(--button-secondary-box-shadow);
+}
+.via-nds .omniscript-article span.nds-button:active,
+.omniscript-article ul.branding-actions li.slds-button.slds-button--neutral:active,
+.omniscript-article ul.oneActionsRibbon li.slds-button--neutral>a:active
+.omniscript-article ul.oneActionsRibbon li.slds-button--neutral:active,
+.omniscript-article li.slds-button.slds-button--neutral:active,
+.via-nds .omniscript-article button.nds-button_neutral:active,
+.omniscript-article span.slds-button--neutral:active,
+.omniscript-article button.slds-button--neutral:active,
+.omniscript-article button.slds-button_neutral:active,
+.omniscript-article .oneActionsRibbon li.slds-button--neutral:active
+.omniscript-article span.slds-file-selector__button.slds-button.slds-button_neutral:active,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:active,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:active,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:hover{
+    background-color: var(--button-secondary-active-color-background);
+    border: var(--button-secondary-border-active);
+}
+.omniscript-article ul.oneActionsRibbon li.slds-button--neutral>a:focus,
+.omniscript-article ul.oneActionsRibbon li.slds-button--neutral>a:hover{
+    background-color: transparent;
+}
+.via-nds .omniscript-article .slds-file-selector__input~.slds-file-selector__body>.slds-file-selector__button{
+    border: var(--button-secondary-border);
+}
+.via-nds .omniscript-article .slds-file-selector__input:hover~.slds-file-selector__body>.slds-file-selector__button,
+.via-nds .omniscript-article .slds-file-selector__input:focus~.slds-file-selector__body>.slds-file-selector__button{
+    box-shadow: none;
+    border: var(--button-secondary-border-hover);
+}
+.via-nds .omniscript-article .slds-file-selector__input:active~.slds-file-selector__body>.slds-file-selector__button{
+    box-shadow: none;
+    border: var(--button-secondary-border-active);
+}
+.omniscript-article button.slds-button--neutral.uiButton--brand[disabled],
+.via-nds .omniscript-article .slds-file-selector__input[disabled]~.slds-file-selector__body>.slds-file-selector__button{
+    color: var(--button-secondary-disabled-color-text);
+    border: var(--button-secondary-disabled-border);
+    background-color: var(--button-secondary-disabled-color-background);
+}
+.omniscript-article li.slds-button--icon-border-filled{
+    border: var(--button-secondary-border);
+}
+.omniscript-article li.slds-button--icon-border-filled:hover,
+.omniscript-article li.slds-button--icon-border-filled:focus{
+    background-color: var(--button-secondary-hover-color-background);
+    box-shadow: var(--button-secondary-box-shadow);
+    border: var(--button-secondary-border-hover);
+}
+.omniscript-article li.slds-button--icon-border-filled:active{
+    background-color: var(--button-secondary-active-color-background);
+    box-shadow: var(--button-secondary-box-shadow);
+    border: var(--button-secondary-border-active);
+}
+.via-nds .omniscript-article span.nds-button:disabled,
+.via-nds .omniscript-article span.nds-button:focus:disabled,
+.via-nds .omniscript-article span.nds-button:hover:disabled,
+.via-nds .omniscript-article span.nds-button:active:disabled,
+.omniscript-article li.slds-button.slds-button--neutral:disabled,
+.omniscript-article li.slds-button.slds-button--neutral:hover:disabled,
+.omniscript-article li.slds-button.slds-button--neutral:focus:disabled,
+.via-nds .omniscript-article button.nds-button_neutral:disabled,
+.via-nds .omniscript-article button.nds-button_neutral:hover:disabled,
+.via-nds .omniscript-article button.nds-button_neutral:focus:disabled,
+.via-nds .omniscript-article button.nds-button_neutral:active:disabled,
+.omniscript-article span.slds-button--neutral:disabled,
+.omniscript-article span.slds-button--neutral:hover:disabled,
+.omniscript-article span.slds-button--neutral:focus:disabled,
+.omniscript-article span.slds-button--neutral:active:disabled,
+.omniscript-article button.slds-button_neutral:disabled,
+.omniscript-article button.slds-button_neutral:hover:disabled,
+.omniscript-article button.slds-button_neutral:focus:disabled,
+.omniscript-article button.slds-button_neutral:active:disabled,
+.omniscript-article button.slds-button--neutral:disabled,
+.omniscript-article button.slds-button--neutral:hover:disabled,
+.omniscript-article button.slds-button--neutral:focus:disabled,
+.omniscript-article button.slds-button--neutral:active:disabled,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:disabled,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:focus:disabled,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:hover:disabled,
+.omniscript-article button.slds-button.slds-button--neutral.cuf-publisherCancelButton.uiButton--default.uiButton--brand:active:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:focus:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:hover:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:first-child button:active:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:focus:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:hover:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:first-child button:active:disabled{
+    color: var(--button-secondary-disabled-color-text);
+    border: var(--button-secondary-disabled-border);
+    background-color: var(--button-secondary-disabled-color-background);
+}
+/* Omniscript Specific Buttons */
+/* Plain */
+.via-nds .omniscript-article .omniscript-btn-save-for-later button.nds-button{
+    color: var(--color-primary-2);
+}
+.via-nds .omniscript-article .omniscript-btn-save-for-later button.nds-button:hover,
+.via-nds .omniscript-article .omniscript-btn-save-for-later button.nds-button:focus,
+.via-nds .omniscript-article .omniscript-btn-save-for-later button.nds-button:active{
+    color: var(--color-primary-1);
+}
+/* Product Selected */
+.via-nds .omniscript-article .vloc-ins-product-actions button.nds-button_brand.nds-is-selected{
+    background-color: transparent !important;
+    color: var(--color-text) !important;
+}
+.via-nds .omniscript-article .vloc-ins-product-actions button.nds-button_brand.nds-is-selected svg{
+    fill: var(--color-text) !important;
+}
+
+/* OmniScript Text Blocks */
+.via-nds .omniscript-article div.nds-text-block span,
+.via-nds .omniscript-article div.nds-text-block p{
+    color: var(--omniscript-text-block-font-color);
+    font-size: 1rem;
+}
+.via-nds .omniscript-article div.nds-text-block a,
+.via-nds .omniscript-article div.nds-text-block a:hover,
+.via-nds .omniscript-article div.nds-text-block a:focus{
+    color: var(--omniscript-text-block-link-color);
+}
+.via-nds .omniscript-article div.nds-text-block mark{
+    color: var(--omniscript-text-block-font-color);
+}
+
+/* Omniscript SVG Images */
+/* TODO: Commented for SVGInjector */
+/* .nds-checkbox .nds-img-item_select-container img{
+    filter: var(--multiple-select-filter);
+} */
+
+/* OmniScript Inputs */
+.via-nds .omniscript-article div.nds-input-has-icon .nds-icon_container{
+    pointer-events: none;
+}
+.via-nds .omniscript-article div.nds-form-element__control.nds-input-has-icon svg.nds-icon{
+    fill: var(--omniscript-input-button-color);
+}
+.via-nds .omniscript-article input.nds-input:focus,
+.via-nds .omniscript-article input.nds-input[readonly]:focus{
+    border-color: var(--omniscript-input-border-color);
+}
+.via-nds .omniscript-article div[role=combobox] input[readonly]:focus{
+    border-color: var(--omniscript-input-border-read-only-color);
+}
+
+/* OmniScript Text Area */
+.via-nds .omniscript-article textarea.nds-textarea:focus{
+    border-color: var(--omniscript-input-border-color);
+}
+
+/* OmniScript Select */
+.via-nds .omniscript-article div[role=combobox] input.nds-listbox__option-text_entity[readonly]:focus{
+    border-color: var(--omniscript-input-border-color);
+}
+.via-nds .omniscript-article .nds-listbox_vertical li.nds-listbox__option:hover,
+.via-nds .omniscript-article .nds-listbox_vertical li.nds-listbox__option.nds-has-focus,
+.via-nds .omniscript-article .nds-listbox_vertical div.nds-listbox__option.nds-has-focus{
+    background-color: var(--color-background-1);
+}
+
+/* OmniScript Radio */
+.via-nds .omniscript-article .nds-radio [type=radio]:checked+.nds-radio__label span.nds-radio_faux,
+.via-nds .omniscript-article label.nds-radio [type=radio]:checked+.nds-radio--faux{
+    border-color: var(--omniscript-radio-color);
+    background: var(--color-background);
+}
+.via-nds .omniscript-article .nds-radio [type=radio]:checked+.nds-radio__label span.nds-radio_faux:after,
+.via-nds .omniscript-article label.nds-radio [type=radio]:checked+.nds-radio--faux:after{
+    background: var(--omniscript-radio-color);
+}
+
+/* Omniscript Radio Buttons */
+.omniscript-article .nds-radio_button [type=radio]:focus+.nds-radio_button__label{
+    box-shadow: 0 0 3px 2px var(--color-primary);
+}
+.omniscript-article .nds-radio_button [type=radio]:focus+.nds-radio_button__label .nds-radio_faux{
+    color: var(--color-text);
+}
+.omniscript-article .nds-radio_button [type=radio]:checked+.nds-radio_button__label .nds-radio-overlay{
+    border: 2px solid var(--color-primary);
+}
+.omniscript-article .nds-radio_button [type=radio]+.nds-radio_button__label{
+    background-color: transparent;
+}
+
+/* Omniscript Radio Button Group */
+.omniscript-article .nds-radio_button [type=radio]:checked+.nds-radio_button__label{
+    background-color: transparent;
+}
+.omniscript-article .nds-radio_button-group .nds-radio_button [type=radio]:focus+.nds-radio_button__label{
+    box-shadow: none;
+}
+
+/* OmniScript Checkbox */
+.via-nds .omniscript-article .nds-checkbox span.nds-checkbox_faux,
+.via-nds .omniscript-article .nds-checkbox [type=checkbox]:focus+.nds-checkbox__label span.nds-checkbox_faux{
+    background: var(--color-background);
+}
+.via-nds .omniscript-article .nds-checkbox [type=checkbox]:focus+.nds-checkbox__label span.nds-checkbox_faux{
+    border-color: var(--omniscript-checkbox-color);
+    box-shadow: 0 0 3px 2px var(--omniscript-checkbox-color);
+}
+.via-nds .omniscript-article .nds-checkbox [type=checkbox]:checked+.nds-checkbox__label span.nds-checkbox_faux{
+    background: var(--omniscript-checkbox-color) !important;
+}
+
+/* OmniScript Range */
+/* .via-nds input.nds-slider__range[type=range]::-webkit-slider-thumb {
+    border: 1px solid var(--color-primary);
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]::-moz-range-thumb {
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]::-ms-thumb {
+    border: 1px solid var(--color-primary);
+    background: var(--color-primary);
+} */
+
+/* EDIT BLOCK Members to Spin off */
+/* DISPLAY NONE CHECKBOX OF PRIMARY MEMBER IN SPIN OFF */
+[data-omni-key='EDITBLK_membersToSpinOff']:first-of-type div div div div .nds-p-around_small.nds-truncate.nds-size_2-of-12.nds-grid.nds-grid_align-center div {
+    display: none !important;
+}
+
+[data-omni-key='EDITBLK_membersToSpinOff'] div.nds-size_12-of-12 {
+    text-align: center !important;
+} 
+
+/* Removes the extra column displayed in the block */
+[data-omni-key="EDITBLK_membersToSpinOff"] div.nds-size_1-of-12.nds-grid.nds-grid--vertical-align-center {
+    display: none;
+}
+ /* Adjust the width of all the content of the table inside the block */
+ [data-omni-key="EDITBLK_membersToSpinOff"] div.nds-size_11-of-12 {
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+    justify-content: space-around;
+    text-align: center;
+}
+
+/* This is to catch Age field*/
+ [data-omni-key="EDITBLK_membersToSpinOff"] div.nds-size_11-of-12 > div:nth-child(4){
+    text-align: center !important;
+ }
+
+
+.via-nds .omniscript-article input.nds-slider__range[type=range] {
+    -webkit-appearance: none;
+    margin: 10px 0;
+    width: 100%;
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]:focus {
+    outline: none;
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 3px;
+    cursor: pointer;
+    box-shadow: 0px 0px 0px #000000;
+    background: var(--color-primary);
+    border-radius: 6px;
+    border: 0px solid #000000;
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]::-webkit-slider-thumb {
+    box-shadow: 0px 0px 1px #000000;
+    border: 1px solid #000000;
+    height: 20px;
+    width: 20px;
+    border-radius: 50px;
+    background: #FFFFFF;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -9px;
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]:focus::-webkit-slider-runnable-track {
+    background: var(--color-primary);
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]::-moz-range-track {
+    width: 100%;
+    height: 3px;
+    cursor: pointer;
+    box-shadow: 0px 0px 0px #000000;
+    background: var(--color-primary);
+    border-radius: 6px;
+    border: 0px solid #000000;
+    }
+    .via-nds .omniscript-article input.nds-slider__range[type=range]::-moz-range-thumb {
+    box-shadow: 0px 0px 1px #000000;
+    border: 1px solid #000000;
+    height: 20px;
+    width: 20px;
+    border-radius: 50px;
+    background: #FFFFFF;
+    cursor: pointer;
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]::-ms-track {
+    width: 100%;
+    height: 3px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]::-ms-fill-lower {
+    background: var(--color-primary);
+    border: 0px solid #000000;
+    border-radius: 12px;
+    box-shadow: 0px 0px 0px #000000;
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]::-ms-fill-upper {
+    background: var(--color-primary);
+    border: 0px solid #000000;
+    border-radius: 12px;
+    box-shadow: 0px 0px 0px #000000;
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]::-ms-thumb {
+    box-shadow: 0px 0px 1px #000000;
+    border: 1px solid #000000;
+    height: 20px;
+    width: 20px;
+    border-radius: 50px;
+    background: #FFFFFF;
+    cursor: pointer;
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]:focus::-ms-fill-lower {
+    background: var(--color-primary);
+}
+.via-nds .omniscript-article input.nds-slider__range[type=range]:focus::-ms-fill-upper {
+    background: var(--color-primary);
+}
+
+/* OmniScript File Upload */
+.via-nds .omniscript-article svg.nds-icon.nds-button__icon.nds-icon-text-default.nds-icon_x-small.nds-icon_left{
+    fill: var(--color-primary);
+}
+
+
+/* OmniScript Datepicker */
+.via-nds .omniscript-article div.nds-datepicker td.nds-is-selected:not(.nds-is-today)>.nds-day{
+    background: var(--color-primary);
+    box-shadow: none;
+
+}
+
+
+.via-nds .omniscript-article div.nds-datepicker td:focus:not(.nds-disabled-text)>.nds-day,
+.via-nds .omniscript-article div.nds-datepicker td:hover:not(.nds-disabled-text)>.nds-day,
+.via-nds .omniscript-article div.nds-datepicker td.nds-is-today>.nds-day,
+.via-nds .omniscript-article div.nds-datepicker td:focus>.nds-day{
+    box-shadow: none;
+    background: var(--color-background-1);
+}
+.via-nds .omniscript-article div.nds-datepicker h2{
+    font-size: 18px;
+    font-weight: 400;
+}
+
+/* OmniScript Multiple Selection */
+.via-nds .omniscript-article div.nds-checkbox_custom-group input[type=checkbox]:active+.nds-img_select-cont .nds-img-item_select-container,
+.via-nds .omniscript-article div.nds-checkbox_custom-group input[type=checkbox]:focus+.nds-img_select-cont .nds-img-item_select-container{
+    box-shadow: 0 0 3px 2px var(--color-primary);
+}
+.via-nds .omniscript-article div.nds-checkbox_custom-group input[type=checkbox]:checked+.nds-img_select-cont .nds-img-item_select-container{
+    border: var(--button-secondary-border-thicc);
+}
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox_custom-group .nds-img_no-width-height,
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox label{
+    margin-right: 0;
+    margin-left: 1.25rem;
+}
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox.nds-size_1-of-1 label{
+    margin-left: 0;
+}
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox.nds-size_1-of-2:nth-child(2n-1) .nds-checkbox__label,
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox.nds-size_1-of-3:nth-child(3n-2) .nds-checkbox__label,
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox.nds-size_1-of-4:nth-child(4n-3) .nds-checkbox__label,
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox.nds-size_1-of-5:nth-child(5n-4) .nds-checkbox__label,
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox.nds-size_1-of-6:nth-child(6n-5) .nds-checkbox__label{
+    margin-left: 0;
+}
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox .nds-img-item_select-container svg,
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-checkbox .nds-img-item_select-container img{
+    max-height: 65%;
+}
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-caption-out_cont{
+    margin-top: 4px;
+}
+.via-nds .omniscript-article vlocity_ins-omniscript-multiselect .nds-form-element__label{
+    margin: 0;
+}
+/* OmniScript Edit Block */
+.via-nds .omniscript-article .omni-edit-block vlocity_ins-omniscript-edit-block:last-child .omni-editblock-table-row{
+    border-bottom: 1px solid var(--color-border);
+}
+
+
+
+/***************** LWC *****************/
+.omniscript-article .lwc-card-list .slds-card{
+    border-width: 0;
+    border-style: solid;
+    border-color: transparent;
+    border-radius: 0;
+}
+.omniscript-article .lwc-card-list .slds-card__header{
+    display: none;
+}
+
+.omniscript-article .lwc-card-list .actions a svg{
+    fill: var(--color-text, initial);
+}
+.omniscript-article .lwc-card-list .actions a:hover svg,
+.omniscript-article .lwc-card-list .actions a:focus svg{
+    fill: var(--color-link, initial);
+}
+@media only screen and (min-width: 48em){
+    .omniscript-article .omniscript-article c-a-r-c_-dinamic-table .slds-scrollable_x,
+    .omniscript-article .omniscript-article c-arc_-community-dynamic-table .slds-scrollable_x{
+        overflow-x: hidden !important;
+    }
+}
+
+/* Product Selection */
+.plan-selection-table td,th{
+    padding: 8px !important;
+}
+
+.omniscript-article [c-arc_InsOsGridProductRow_arc_InsOsGridProductRow-host],
+.omniscript-article [c-arc_ProductRow_arc_ProductRow_tile-host],
+.omniscript-article [vlocity_ins-insOsGridProductRow_insOsGridProductRow_tile-host]{
+    --product-color-nds: var(--color-primary-2) !important;
+    --renewal-bg-color: var(--color-primary) !important;
+    --action-bg-color: var(--color-page-background) !important;
+    --bg-color: var(--color-page-background) !important;
+}
+.omniscript-article .via-nds .vloc-ins-prod-value[vlocity_ins-insOsGridProductAttribute_insOsGridProductAttribute]{
+    color: var(--color-text);
+}
+.omniscript-article .via-nds .vloc-ins-prod-label[vlocity_ins-insOsGridProductAttribute_insOsGridProductAttribute]{
+    color: var(--color-detail-text);
+}
+.omniscript-article .via-nds .vloc-ins-product-info button.nds-button{
+    color: var(--color-link);
+}
+.omniscript-article .via-nds .vloc-ins-product-info button.nds-button:hover,
+.omniscript-article .via-nds .vloc-ins-product-info button.nds-button:focus,
+.omniscript-article .via-nds .vloc-ins-product-info button.nds-button:active{
+    text-decoration: underline;
+}
+.omniscript-article .via-nds .vloc-ins-product-info svg.nds-button__icon{
+    fill: var(--color-link);
+}
+.via-nds .nds-progress__item .nds-button__icon{
+    fill: var(--color-link);
+}
+.omniscript-article .via-nds .vloc-ins-row-detail[vlocity_ins-insProductMatrix_insProductMatrix]{
+    background: var(--color-background);
+}
+.omniscript-article .via-nds .vloc-ins-cart-empty[vlocity_ins-insOsGridCart_insOsGridCart]{
+    background: var(--color-background);
+    color: var(--color-detail-text);
+}
+.omniscript-article .via-nds .vloc-ins-product-price[vlocity_ins-insOsGridProductRow_insOsGridProductRow_compact],
+.omniscript-article .via-nds .vloc-ins-admin-text[vlocity_ins-insAttribute_insAttribute]{
+    color: var(--color-detail-text);
+}
+.omniscript-article .via-nds button.nds-button_icon-border-filled.nds-is-selected{
+    background-color: var(--button-primary-color-text);
+    /* background-color: var(--button-primary-color-background); */
+    border-color: var(--button-primary-color-background);
+    color: var(----button-primary-color-background);
+    /* color: var(--button-primary-color-text); */
+}
+
+.omniscript-article .via-nds button.nds-button_icon-border-filled.nds-is-selected svg{
+    fill: var(--button-primary-color-background) !important;
+}
+
+
+.omniscript-article .via-nds button.nds-button_icon-border-filled.nds-is-selected:hover,
+.omniscript-article .via-nds button.nds-button_icon-border-filled.nds-is-selected:focus{
+    background-color: var(--button-primary-hover-color-background);
+    border-color: var(--button-primary-hover-color-background);
+
+
+}
+.omniscript-article .via-nds button.nds-button_icon-border-filled.nds-is-selected:active{
+    background-color: var(--button-primary-active-color-background);
+    border-color: var(--button-primary-active-color-background);
+}
+.omniscript-article .via-nds button.nds-button_icon-border-filled.nds-is-selected .nds-button__icon{
+    fill: var(--button-primary-color-text) !important;
+}
+div.via-nds .vloc-ins-orange[vlocity_ins-insOsEnrolleeBenefitsSummaryRow_insOsEnrolleeBenefitsSummaryRow]{
+    color: var(--product-color-nds);
+}
+
+div[vlocity_ins-insOsEnrolleeBenefitsSummaryRow_insOsEnrolleeBenefitsSummaryRow].vloc-ins-product-card{
+    background-color: var(--color-background-1);
+}
+
+div[vlocity_ins-insOsEnrolleeBenefitsSummaryRow_insOsEnrolleeBenefitsSummaryRow] div,div[vlocity_ins-insOsEnrolleeBenefitsSummaryRow_insOsEnrolleeBenefitsSummaryRow] p{
+    /*background-color: red;*/
+    color: var(--color-action) !important;
+}
+
+
+div.via-nds .vloc-ins-product-actions{
+    width: 80%;
+}
+.omniscript-article .vloc-ins-product-matrix h2,
+.omniscript-article .vloc-ins-product-matrix h2 *{
+    font-size: 24px !important;
+    font-weight: 500 !important;
+    letter-spacing: .5px !important;
+    margin-bottom: 0 !important;
+}
+
+.compare-checkbox span{
+    margin-right: 0 !important;
+}
+
+.compare-checkbox div{
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+
+}
+
+.program-details-button *{
+    text-transform:uppercase;
+}
+.program-details-button{
+    display: inline-block;
+}
+
+.program-details-button>button{
+    display: flex !important;
+    align-items: center !important;
+
+}
+
+
+
+.program-details-button svg{
+    height:1.3rem !important;
+    width:1.3rem !important;
+    margin-right: 1px !important;
+}
+
+.add-to-cart-button svg{
+    margin-right: 0 !important
+}
+
+.add-to-cart-button button{
+    padding: 14px !important;
+    /* padding-bottom: 20px !important; */
+}
+.add-to-cart-button c-icon{
+    display: flex;
+    justify-content: center;
+}
+
+/* .add-to-cart-button button.vlocity-btn.nds-button.nds-button_brand.nds-button_stretch.nds-button_stateful.nds-is-selected:hover{
+    background-color: var(--button-primary-color-background) !important;
+}
+.add-to-cart-button button.vlocity-btn.nds-button.nds-button_brand.nds-button_stretch.nds-button_stateful.nds-is-selected:hover svg{
+    fill: var(--button-primary-color-text) !important;
+} */
+
+.add-to-cart-button button.vlocity-btn.nds-button.nds-button_brand.nds-button_stretch.nds-button_stateful.nds-is-selected{
+    background-color: transparent !important;
+}
+.add-to-cart-button button.vlocity-btn.nds-button.nds-button_brand.nds-button_stretch.nds-button_stateful.nds-is-selected svg{
+    fill: var(--button-primary-color-background) !important;
+}
+
+
+
+
+
+
+/* TODO: ADDED FOR DEMO */
+.omniscript-article .via-nds .vloc-ins-product-actions button[label^='Configure']{
+    display: none !important;
+}
+
+/* Census */
+div.via-nds .nds-accordion__section button span{
+    margin-left: 10px;
+    font-size: 20px;
+}
+div.via-nds .nds-block .nds-block_container>label~.nds-block_body,
+div.via-nds .nds-accordion__section button span{
+    color: var(--color-text);
+}
+div.via-nds .vloc-ins-employee-active{
+    position: relative;
+    background-color: transparent;
+}
+div.via-nds .vloc-ins-employee-active>vlocity_ins-layout{
+    z-index: 1;
+}
+div.via-nds .vloc-ins-employee-active:before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-primary);
+    z-index: 0;
+    opacity: .15;
+    border-top-left-radius: var(--border-radius-medium);
+    border-top-right-radius: var(--border-radius-medium);
+}
+div.via-nds svg.nds-button__icon{
+    fill: var(--color-link);
+}
+div.via-nds .vloc-ins-delete-census svg.nds-button__icon{
+    fill: var(--color-link) !important;
+}
+div.via-nds .nds-block .nds-block_container>label~.nds-block_body[id^=content]{
+    padding: 0;
+}
+/* Added for Test Census */
+div.via-nds .vloc-ins-employee-name-block,
+div.via-nds .vloc-ins-members-wrapper>div>vlocity_ins-layout>div{
+    display: flex;
+    align-items: center;
+}
+div.via-nds .vloc-ins-members-wrapper a.slds-tabs_default__link,
+div.via-nds .slds-tabs_default__item.slds-is-active .slds-tabs_default__link:hover{
+    color: var(--color-text);
+    text-decoration: none;
+}
+div.via-nds .vloc-ins-members-wrapper .slds-tabs_default__item:after{
+    background-color: var(--color-primary);
+    width: 0;
+    margin: auto;
+    height: 2px;
+    transition: width .15s ease;
+}
+div.via-nds .vloc-ins-members-wrapper .slds-tabs_default__item.slds-is-active:after,
+div.via-nds .vloc-ins-members-wrapper .slds-tabs_default__item:hover:after{
+    width: 100%;
+    height: 2px;
+}
+div.via-nds .census-search .slds-input{
+    border-radius: 0;
+}
+div.via-nds .census-search>div{
+    border-radius: 0;
+}
+div.via-nds .census-search>div>li{
+    border-radius: 0;
+    line-height: 2;
+}
+div.via-nds .census-search>div>li:hover,
+div.via-nds .census-search>div>li:focus{
+    background-color: var(--color-background-1);
+}
+div.via-nds .census-save-button button{
+    display: flex;
+    align-items: center;
+}
+div.via-nds .census-save-button button span{
+    margin-left: 6px;
+}
+
+
+/* User Picture */
+.omniscript-article .footer[aria-hidden="true"] .user-profile-initials{
+    visibility: hidden;
+}
+
+
+/* Hero */
+.omniscript-article .siteforceDesignTimeSection:first-child .ui-widget:first-child .community-hero,
+.omniscript-article .ui-widget:first-child .ui-widget:first-child .community-hero{
+    margin-top: calc(var(--community-body-content-margin-top) * -1);
+}
+.omniscript-article .comm-content-header .community-hero{
+    margin-top: calc(var(--community-body-content-margin-top) * -1);
+}
+.omniscript-article .siteforceDesignTimeSection:first-child .cb-section:first-child .ui-widget:first-child .community-hero,
+.omniscript-article .ui-widget:first-child .cb-section:first-child .ui-widget:first-child .community-hero{
+    margin-top: calc(var(--section-vertical-spacing) * -.5);
+}
+.omniscript-article .community-hero .slds-button.slds-button_outline-brand,
+.omniscript-article .community-hero .slds-button.slds-button_outline-brand:hover,
+.omniscript-article .community-hero .slds-button.slds-button_outline-brand:focus,
+.omniscript-article .community-hero .slds-button.slds-button_outline-brand:active,
+.omniscript-article .community-hero .slds-button.slds-button_neutral,
+.omniscript-article .community-hero .slds-button.slds-button_neutral:hover,
+.omniscript-article .community-hero .slds-button.slds-button_neutral:focus,
+.omniscript-article .community-hero .slds-button.slds-button_neutral:active{
+    background-color: transparent;
+    color: inherit;
+    border-color: inherit;
+}
+
+/* Map Data (Temp) */
+.omniscript-article .component-map-data .map-data-value-number *:last-child{
+    opacity: 0;transition: opacity .6s ease-in;
+}
+.omniscript-article .component-map-data .map-data-value-number .arc-scrollanim-in+*{
+    opacity: 1;
+}
+
+/* Call To Action */
+.omniscript-article .arc-cta{
+    min-height: 300px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none !important;
+    margin-bottom: 16px;
+    background-color: var(--color-primary);
+}
+.omniscript-article .arc-cta *{
+    color: #fff;
+    font-family: var(--arc-font-cta);
+}
+.omniscript-article .arc-cta-inner{
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    padding: 20px;
+    z-index: 1;
+}
+@media screen and (min-width:1024px) {
+    .omniscript-article .arc-cta-inner{
+        padding: 40px;
+    }
+}
+.omniscript-article .arc-cta-bg{
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    transition: all .5s ease;
+}
+.omniscript-article .arc-cta:hover .arc-cta-bg{
+    transform: translate(-50%,-50%) scale(1.02);
+}
+.omniscript-article .arc-cta-title, .arc-cta-title *{
+    font-size: 28px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+}
+.omniscript-article .arc-cta-text{
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+.omniscript-article .arc-cta-arrow{
+    display: inline-block;
+    transition: all .5s ease;
+}
+.omniscript-article .arc-cta:hover .arc-cta-arrow{
+    transform: translateX(10px);
+}
+.omniscript-article .arc-cta:hover .arc-cta-arrow-back{
+    transform: translateX(-10px);
+}
+.omniscript-article .arc-cta-button{
+    margin-top: 20px;
+    font-size: 16px;
+    padding: 10px 30px !important;
+}
+
+/* CTA Card */
+.omniscript-article .arc-cta-card .arc-cta-bg{
+    width: auto;
+    height: unset;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    transform: none;
+}
+.omniscript-article .arc-cta-card:focus .arc-cta-bg,
+.omniscript-article .arc-cta-card:hover .arc-cta-bg{
+    transform: none;
+}
+.omniscript-article .arc-cta-card .arc-cta-title{
+    font-size: 16px !important;
+    text-transform: uppercase;
+}
+.omniscript-article .arc-cta-card>*:first-child{
+    opacity: .1 !important;
+}
+
+/* Quote Slider */
+.omniscript-article .arc-quotes{
+    position: relative;
+}
+.omniscript-article .arc-quotes .swiper-wrapper{
+    z-index: 0;
+}
+.omniscript-article .arc-quotes .arc-slider-box{
+    margin: auto;
+    border: 4px solid var(--color-border);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.omniscript-article .arc-quotes.arc-quotes-borders{
+    padding: 40px 0;
+}
+.omniscript-article .arc-quotes.arc-quotes-borders,
+.omniscript-article .arc-quotes.arc-quotes-fade .arc-slider-box{
+    border: none;
+    border-top: 4px solid var(--color-border);
+    border-bottom: 4px solid var(--color-border);
+}
+.omniscript-article .arc-quotes .arc-slider-box .before{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: calc(-100% - 4px);
+    background: var(--color-background);
+}
+.omniscript-article .arc-quotes .arc-slider-box .after{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: calc(-100% - 4px);
+    background: var(--color-background);
+}
+.omniscript-article .arc-quotes.arc-quotes-fade .arc-slider-box .before{
+    left: -100%;
+    background: linear-gradient(90deg, var(--color-background) 94%, transparent 100%);
+}
+.omniscript-article .arc-quotes.arc-quotes-fade .arc-slider-box .after{
+    right: -100%;
+    background: linear-gradient(270deg, var(--color-background) 94%, transparent 100%);
+}
+.omniscript-article .arc-quotes .swiper-slide{
+    padding: 50px 40px;
+}
+.omniscript-article .arc-quotes blockquote{
+    margin: 0;
+    font-family: var(--arc-font-quote);
+}
+.omniscript-article .arc-quotes blockquote p{
+    font-size: 48px;
+    line-height: 56px;
+    text-align: center;
+}
+
+.omniscript-article .arc-quotes blockquote p:before {
+    content:"\201C";
+}
+.omniscript-article .arc-quotes blockquote p:after {
+    content:"\201D";
+}
+.omniscript-article .arc-quotes blockquote + p{
+    text-align: right;
+    margin-top: 20px;
+    font-size: 24px;
+    line-height: 40px;
+    text-transform: uppercase;
+}
+.omniscript-article .arc-quotes .swiper-pagination{
+    transform: translateY(8px);
+    margin-top: 0;
+}
+.omniscript-article .arc-quotes .swiper-pagination .swiper-pagination-bullet{
+    position: relative;
+    opacity: 1;
+}
+.omniscript-article .arc-quotes .swiper-pagination .swiper-pagination-bullet::before{
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    padding: 8px 30px;
+    background-color: var(--color-background);
+    z-index: -1;
+}
+
+/* LWC */
+.omniscript-article .C-A-R-C_-BACKGROUND,
+.omniscript-article .C-A-R-C_-SPACER{
+    margin: 0 !important;
+}
+
+/***************** LWC Siblings *****************/
+
+
+/*                 SPECIALS FOR OUTSIDE COMM                     */
+
+.arc-filter-primary, .arc-filter-secondary{
+    filter: invert(88%) sepia(14%) saturate(6266%) hue-rotate(340deg) brightness(98%) contrast(95%);
+}
+
+.omniscript-article [data-omni-key*="Census"] .slds-spinner_container{
+    opacity: .7;
+}
+
+.omniscript-article [data-omni-key*="ProductSelection"] .slds-spinner_container{
+    opacity: .7;
+}
+
+/*                  HIDE ADD ON MEDICAL QUESTION                        */
+[data-omni-key^="EditBlock"] .nds-button-group{
+    display: none 
+}
+
+/* OmniScript Edit Block */
+
+.nds-block_container .nds-is-absolute.nds-button-group {
+    display: none;
+}
+
+/* Combobox input */
+/* 
+[data-omni-key='LWC_SelectCensusMember'] .slds-combobox__input, .slds-input_faux > .slds-truncate{
+    padding: 6px !important;
+} */
+
+/* Edit block modal */
+
+.comm-page-custom-ifp-enrollment > .nds-modal__container > .nds-modal__content, .nds-p-around_medium{
+    height: auto !important;
+    overflow: hidden;
+}
+
+/* Edit blocks Buttons */
+.via-nds .nds-modal_custom .nds-modal .nds-modal__container .nds-modal__footer .nds-button_neutral{
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+
+.via-nds .nds-modal_custom .nds-modal .nds-modal__container .nds-modal__footer .nds-button_neutral:nth-child(2){
+    background-color: var(--color-primary);
+    border: var(--color-primary);
+    color: white;
+}
+
+.via-nds .nds-modal_custom .nds-modal .nds-modal__container .nds-modal__footer .nds-button_neutral:nth-child(2):hover{
+    background-color: var(--button-primary-hover-color-background);
+    border: var(--button-primary-border-hover);
+}
+
+.via-nds .nds-edit-block_longcards {
+    cursor: pointer;
+    height: auto;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(116, 116, 116);
+    border-image: initial;
+    border-radius: 5px;
+}
+
+
+/* PRODUCT SUMMARY */
+
+/* [data-omni-key='BLK_ProductSummary'] .via-nds .nds-medium-size--5-of-12, .via-nds .nds-medium-size_5-of-12 {
+    width: 41.6666666667%;
+    -ms-flex: 0 0 41.6666666667%;
+    flex: 0 0 41.6666666667%;
+    max-width: 41.6666666667%;
+    margin-bottom: 50px;
+    position: relative;
+    left: 75%; 
+} */
+                     
+[data-omni-key='BLK_ProductSummary'] .via-nds .nds-size_12-of-12, .via-nds .nds-medium-size_7-of-12 {
+    /* margin-bottom: 50px !important; */
+    /* position: relative !important;
+    left: 60% !important;  */
+}
+
+[data-omni-key='BLK_ProductSummary'] .nds-form-container {
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+}
+
+[data-omni-key='BLK_ProductSummary'] .nds-form-container .nds-form-element__control-animated-label {
+    width: auto !important;
+    padding: 0 !important;
+}
+
+[data-omni-key='BLK_ProductSummary'] hr {
+    display: block !important;
+    margin: 0.5rem 0 !important;
+    border-top: 0.18rem solid #000000 !important;
+    height: 1px !important; 
+    margin-right: 35% !important;
+
+}
+
+[data-omni-key='BLK_ProductSummary']  .via-nds input[type=text].nds-input_mask.nds-input.nds-not-empty {
+    opacity: 1 !important;
+    font-size: 13px !important;
+    font-weight: bold !important;
+    text-align: left !important;
+    border: none !important;
+}
+
+
+
+
+
+
+
+[data-omni-key="TXT_ChangeFeeAddMemText"] slot c-input div div input, [data-omni-key="TXT_ChangeFeeProUpdate"] slot c-input div div input{
+    font-weight: bold !important;
+    opacity: 1 !important;
+    font-size: 13px !important;
+    border: none !important;
+    text-align:right !important;
+
+}
+
+[data-omni-key="TXT_AddMembFee"] slot c-input div, [data-omni-key="TXT_UpgradeFee"] slot c-input div  {
+    /*position: relative !important;
+    left: 48% !important;*/
+    padding-right: 0 !important;
+
+}
+
+[data-omni-key="TXT_AddMembFee"] slot c-input div div input, [data-omni-key="TXT_UpgradeFee"] slot c-input div div input{
+    font-weight: bold !important;
+    opacity: 1 !important;
+    font-size: 13px !important;
+    border: none !important;
+    text-align:right !important;
+}
+
+[data-omni-key="TXT_AddMembFee"] div, [data-omni-key="TXT_UpgradeFee"] div, [data-omni-key="TXT_ChangeFeeProUpdate"] div, [data-omni-key="TXT_ChangeFeeAddMemText"] div{
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+[data-omni-key='TXTBLK_Separator']{
+    margin-bottom:10px;
+    border-top: 2px solid black; width: 85%;
+}
+[data-omni-key='BLK_ProductSummary'] .vlocity-input.nds-input.nds-input_mask.nds-not-empty.nds-is-dirty {
+    font-size: 13px !important;
+    opacity: 1 !important;
+    font-weight: bold !important;
+    border: none !important;
+    background: #ff000000 !important;
+    text-align: right;
+} 
+[data-omni-key='BLK_ProductSummary'] div {
+    min-height: 0 !important;
+    
+}
+[data-omni-key="TXT_AppFeePrice"] div{
+    margin-bottom:15px;
+}
+[data-omni-key='BLK_ProductSummary'] .nds-p-around_small{
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    
+}  
+[data-omni-key="BLK_ProductSummary"]{
+    margin-top:45px;
+}
+[data-omni-key="TXT_Reason"] textarea{
+    border: none !important;
+    text-align: right !important;
+    resize: none !important; 
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden
+}
+[data-omni-key='BLK_ProductSummary'] .via-nds .nds-size_12-of-12, .via-nds .nds-medium-size_7-of-12 {
+    /* margin-bottom: 50px !important; */
+    /* position: relative !important;
+    left: 60% !important;  */
+}
+
+[data-omni-key='BLK_RejectedMembers'] .nds-form-container {
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+}
+
+[data-omni-key='BLK_RejectedMembers'] .vlocity-input.nds-input.nds-input_mask.nds-not-empty.nds-is-dirty {
+    font-size: 14px !important;
+    opacity: 1 !important;
+    border: none !important;
+    background: #ff000000 !important;
+    text-align: left;
+} 
+[data-omni-key='BLK_RejectedMembers'] div {
+    min-height: 0 !important;
+    margin-left: 6px;
+
+    
+}
+[data-omni-key='BLK_RejectedMembers'] .nds-p-around_small{
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    
+}  
+[data-omni-key='TXTBLK_RejectedMembers'] .nds-form-container{
+    padding-bottom: 0 !important;
+    
+} 
+
+
+
+[data-omni-key='STEP_SelectMedical'] .via-nds.nds-size--1-of-6, .via-nds.nds-size_1-of-6 {
+    padding-left: 26%;
+}
+
+[data-omni-key='STEP_SelectMedical'] .via-nds.nds-border--bottom, .via-nds.nds-border_bottom {
+    max-width: 90%;
+}
+
+[data-omni-key='STEP_SelectSMART'] .via-nds.nds-size--1-of-6, .via-nds.nds-size_1-of-6 {
+    padding-left: 26%;
+}
+
+[data-omni-key='STEP_SelectSMART'] .via-nds.nds-border--bottom, .via-nds.nds-border_bottom {
+    max-width: 90%;
+}
+
+[data-omni-key='STEP_SelectAIDD'] .via-nds.nds-size--1-of-6, .via-nds.nds-size_1-of-6 {
+    padding-left: 26%;
+}
+
+[data-omni-key='STEP_SelectAIDD'] .via-nds.nds-border--bottom, .via-nds.nds-border_bottom {
+    max-width: 90%;
+}
+
+/* Remove the capital letters from Password error message */
+.omniscript-article [data-omni-key='PSWD_Password'] > .via-nds .nds-form-element__help, .via-nds .nds-size_1-of-1{
+    text-transform: none !important;
+}
+
+/* Set the title of the PCP Edit block black */
+.omniscript-article [data-omni-key='EB_Physician'] > h1 .nds-text-heading_small, .nds-step_label{
+    color: black !important;
+    letter-spacing: 0px !important;
+}
+
+/* LWC Crate a new password inputs style */
+.omniscript-article [data-omni-key='LWC_CreateNewPassword'] .slds-input{
+    color: var(--color-text);
+    background-color: var(--color-background);
+    border: 0;
+    border-bottom: 1px solid #dddbda;
+    border-radius: 0;
+    width: 100%;
+    transition: border .1s linear,background-color .1s linear;
+    box-shadow: none;
+    display: inline-block;
+    padding: 0;
+    line-height: 1.875rem;
+    min-height: calc(
+    1.875rem + ( 1px * 2));
+    font-size: .875rem;
+    letter-spacing: 1px;
+    font-weight: 400;
+}
+
+.omniscript-article [data-omni-key='LWC_CreateNewPassword'] .slds-input:active, .slds-input:focus{
+    box-shadow: none !important;   
+    border-color: var(--omniscript-input-border-color);
+}
+
+.omniscript-article [data-omni-key='LWC_CreateNewPassword'] .slds-form-element__label.slds-no-flex{
+    display: inline-block;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 400;
+    font-size: .875rem;
+    letter-spacing: 1px;
+    color: #556a8c;
+}
+
+.omniscript-article [data-omni-key='STEP_SelectMedical'] .nds-size_2-of-8,
+.omniscript-article [data-omni-key='STEP_SelectSMART'] .nds-size_2-of-8,
+.omniscript-article [data-omni-key='STEP_DowngradeOrUpdatePlan'] .nds-size_2-of-8,
+.omniscript-article [data-omni-key='STEP_SelectAIDD'] .nds-size_2-of-8{
+    flex: 0 0 20%;
+}
+
+
+.omniscript-article [data-omni-key='STEP_MedicalQuestions'] .vlocity-input,
+.omniscript-article [data-omni-key='STEP_MedicalQuestions'] label{
+    color: black !important;   
+    font-weight: bold !important;
+    
+}
+
+.omniscript-article [data-omni-key='STEP_SignTheDocument'] .nds-checkbox_faux{
+    color: darkgray;   
+    outline: solid 0.1px;
+    
+}
+
+.omniscript-article [data-omni-key='STEP_ChristianBelives'] .nds-icon_container.nds-icon_container_circle.nds-m-right_small{
+   float: left;
+    
+}
+
+[data-omni-key='CHK_AddParents']{
+    margin-top: 30px;
+}
+
+[data-omni-key='CHK_AddParents'] .nds-form-element__label.nds-form-element__control-help.nds-checkbox-span{
+    font-weight: 300;
+}
+
+.close-modal-button>button{
+    background-color: var(--button-primary-color-background) !important; 
+    border-color: var(--button-primary-color-background) !important;
+    color: var(--button-primary-color-text) !important;
+
+}
+.close-modal-button>button:hover{
+    background-color: var(--button-primary-hover-color-background) !important; 
+    border-color: var(--button-primary-hover-color-background) !important;
+    color: var(--button-primary-color-text) !important;
+
+}
+
+body > div.themeLayoutStarterWrapper.isHeroUnderHeader-false.isHeaderPinned-true.siteforceThemeLayoutStarter > div.body.isPageWidthFixed-true > div > div.slds-col--padded.contentRegion.comm-layout-column > div > div.ui-widget.C-INDIVIDUAL-SHOP-PRODUCTS-UPDATE-P-A-ENGLISH > c-individual-shop-products-update-p-a-english > div > div > c-a-r-c_-custom-save-for-later-modal > vlocity_ins-modal > div > section > div > header > button{
+    display: none !important;
+}
+
+
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-edit-block_longcards-circle{
+    align-self: self-start;
+    margin-top: 15px;
+    margin-left: 15px;
+}
+
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12{
+	flex-direction:row;
+	flex-wrap:wrap;
+    width: 82%;
+    max-width: 82%;
+    flex: 82%;
+    justify-content: start;
+}
+
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate{
+    display: flex;
+    flex-direction: column;
+    width: calc(33.33% - 30px);
+    margin: 15px;
+}
+
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-dropdown-trigger{
+    margin-right: 50px;
+}
+
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(1):before{
+    content: "First Name";
+    font-weight: bold;
+}
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(2):before{
+    content: "Last Name";
+    font-weight: bold;
+}
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(3):before{
+    content: "Birthdate";
+    font-weight: bold;
+}
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(4):before{
+    content: "Height";
+    font-weight: bold;
+}
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(5):before{
+    content: "Weight";
+    font-weight: bold;
+}
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(6):before{
+    content: "City";
+    font-weight: bold;
+}
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(7):before{
+    content: "State";
+    font-weight: bold;
+}
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(8):before{
+    content: "Street";
+    font-weight: bold;
+}
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(9):before{
+    content: "Postal Code";
+    font-weight: bold;
+}
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_Members] .nds-small-size_8-of-12 span.nds-truncate:nth-child(10):before{
+    content: "SSN";
+    font-weight: bold;
+}
+
+[data-omni-key=STEP_Amendment] [data-omni-key=EDITBLK_ContractLineItems] [role=cell]:last-child{
+    overflow: visible;
+    text-overflow: initial;
+    white-space: initial;
+}
+
+[data-omni-key="TXT_CardNumber"]>slot>.via-nds .nds-form-element__control.nds-form-element__control-animated-label .nds-faux-animate+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label .nds-faux-animate~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.nds-has-value:not(:focus):valid+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.nds-has-value:not(:focus):valid~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.nds-input.ng-dirty.ng-not-empty.ng-touched[vlc-nds-lookup-control]+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.nds-input.ng-dirty.ng-not-empty.ng-touched[vlc-nds-lookup-control]~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.nds-input[cloned=dirty]+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.nds-input[cloned=dirty]~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.nds-is-dirty.nds-not-empty+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.nds-is-dirty.nds-not-empty~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.ng-dirty.ng-not-empty+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.ng-dirty.ng-not-empty~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.ng-touched.ng-not-empty.td-input+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input.ng-touched.ng-not-empty.td-input~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input:focus+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input:focus~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input[cloned=dirty]+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label input[cloned=dirty]~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select.nds-has-value:not(:focus):valid+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select.nds-has-value:not(:focus):valid~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select.nds-select.ng-dirty.ng-not-empty.ng-touched[vlc-nds-lookup-control]+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select.nds-select.ng-dirty.ng-not-empty.ng-touched[vlc-nds-lookup-control]~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select.nds-select[cloned=dirty]+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select.nds-select[cloned=dirty]~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select.ng-dirty.ng-not-empty+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select.ng-dirty.ng-not-empty~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select:focus+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select:focus~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select[cloned=dirty]+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label select[cloned=dirty]~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea.nds-has-value:not(:focus):valid+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea.nds-has-value:not(:focus):valid~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea.nds-not-empty.nds-is-dirty+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea.nds-not-empty.nds-is-dirty~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea.ng-not-empty.ng-dirty+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea.ng-not-empty.ng-dirty~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea:focus+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea:focus~.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea[cloned=dirty]+.nds-form-element__label,.via-nds .nds-form-element__control.nds-form-element__control-animated-label textarea[cloned=dirty]~.nds-form-element__label {
+
+    transition: none;
+}
+
+
+[data-omni-key="TXT_Description"] .nds-textarea{
+    padding-top: 10px;
+    /* margin-top: .25rem; */
+    margin-top: 0rem;
+    letter-spacing: 1px;
+    font-size: .875rem;
+    font-weight: 400;
+    height: 40px !important;
+}
+
+[data-omni-key="TXT_Description"] .nds-form-element__control.nds-form-element__control-animated-label .nds-form-element__label{
+    top: 0.7rem;
+    left: 0;
+    position: absolute;
+    width: 100%;
+    right: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+
+
+/* [data-omni-key='LWC_AddNewMembers'] .removeDep button {
+    background-color: red !important;
+    border: 1px solid red !important;
+}
+
+[data-omni-key='LWC_AddNewMembers'] .removeDep button:hover {
+    background-color: rgb(190, 4, 4) !important;
+    border: 1px solid rgb(190, 4, 4) !important;
+} */
+
+
+/* DEPTO */
+/* .slds-combobox__input slds-input_faux slds-combobox__input-value{
+    padding: 5px !important;
+}
+
+
+.slds-combobox__input .slds-input_faux .slds-combobox__input-value{
+    padding: 5px !important;
+}
+
+.slds-combobox__input{
+    padding: 5px !important;
+}
+
+.slds-input_faux{
+    padding: 5px !important;
+}
+
+.slds-combobox__input-value{
+    padding: 5px !important;
+}
+
+
+.slds-form-element__label{
+    font-size: 0.8rem !important;
+} *
+
+
+/* EDIT BLOCK Contract Amendment */
+/* Removes the extra column displayed in the EB */
+[data-omni-key="EB_ContractList"] div.nds-size_1-of-12.nds-grid.nds-grid--vertical-align-center {
+    display: none;
+}
+ /* Adjust the width of all the content of the table inside the EB */
+ [data-omni-key="EB_ContractList"] div.nds-size_11-of-12 {
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+}
+ /* Adjust the width of each block of the table content */
+ [data-omni-key="EB_ContractList"] div.nds-p-around_small.nds-truncate.nds-size_1-of-12 {
+    width: 15.8333333%;
+    max-width: 15.8333333%;
+    flex: 0 0 15.8333333%;
+    text-wrap: auto;
+    height: auto;
+    text-overflow: unset;
+}
+ /* Adjust the width of each header block */
+ [data-omni-key="EB_ContractList"] div.nds-p-horizontal_small.nds-truncate.nds-size_1-of-12 {
+    width: 15.8333333%;
+    max-width: 15.8333333%;
+    flex: 0 0 15.8333333%;
+    text-wrap: auto;
+}
+
+/* Style for header row of EB */
+[data-omni-key="EB_ContractList"] div.nds-border_top.nds-border_bottom.nds-border_left.nds-border_right.nds-grid.nds-p-vertical_xx-small {
+    background-color: lightgray;
+}
+
+/* Adjust the width of checkbox column */
+[data-omni-key="EB_ContractList"] div.nds-p-around_small.nds-truncate.nds-size_1-of-12.nds-grid.nds-grid_align-center {
+    width: 5%;
+    max-width: 5%;
+    flex: 0 0 5%;
+}
+
+/* Adjust the width of the edit block table */
+[data-omni-key="STEP_SelectContract"] div.nds-medium-size_8-of-12 {
+    max-width: 90%;
+    width: 90%;
+}
+
+/* Contract Amendment - Rich Text Input */
+[data-omni-key="TXT_AREA_AmendmentInfo"] div .nds-textarea {
+    min-height: 200px;
+    border: 2px solid black;
+    padding: 15px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+/* Text color date picker in PC OS (same as the other inputs) */
+.via-nds .omniscript-article .nds-form-element .nds-datepicker input.nds-input {
+    color: var(--color-text);
+}
+
+/* Hide the Save for later acknowledge modal */
+.omniscript-article c-omniscript-save-for-later-acknowledge  {
+    display: none !important;
+}
+
+/* Hide the Save for later acknowledge modal */
+.omniscript-article vlocity_ins-omniscript-save-for-later-acknowledge {
+    display: none !important;
+}
+
+/*Message 'Has currently an activated Healthy Discount applied' in step 'Medical Plans' for PC Refactor' */
+vlocity_ins-omniscript-text-block[data-omni-key="TXT_BLK_ActivatedHealthyDiscountMessage"] *{
+  font-size: 24px;
+  color: #ba372a;
+  text-align: center;
+  font-weight: bold;
+}
+
+/*Resume for 'previously saved Program Change with the following information:'*/
+vlocity_ins-omniscript-text-block[data-omni-key="TXT_BLK_ActionsPerformed"] *,
+vlocity_ins-omniscript-text-block[data-omni-key="TXT_BLK_ActionsPerformed1"] *,
+vlocity_ins-omniscript-text-block[data-omni-key="TXT_BLK_ActionsPerformed2"] *,
+vlocity_ins-omniscript-text-block[data-omni-key="TXT_BLK_ActionsPerformed3"] *,
+vlocity_ins-omniscript-text-block[data-omni-key="TXT_BLK_ActionsPerformed4"] *{
+  font-size: 16px;
+  color: black;
+  text-align: left;
+  height: 40px;
+}
+
+vlocity_ins-omniscript-radio[data-omni-key="RAD_ChargeAppFeeDefTrue"] span.tooltip {
+  margin-bottom: 13px;
+  margin-top: -38px;
+}
+
+/* DocuSign step in PC and Spin-Off */
+[data-omni-key="STEP_SignTheDocument"] [data-omni-key="CHK_AgreeingSigning"].nds-medium-size_8-of-12, [data-omni-key="STEP_SignTheDocument"] [data-omni-key="CHK_AgreeingSigning"].nds-medium-size_10-of-12 {
+    max-width: 70%;
+    flex: 0 0 70%;
+    margin: 0 15%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+[data-omni-key="STEP_SignTheDocument"] [data-omni-key="Recipient-Block"].nds-medium-size_10-of-12, [data-omni-key="STEP_SignTheDocument"] [data-omni-key="RecipientReadOnly-Block"].nds-medium-size_10-of-12 {
+    flex: 0 0 70%;
+    max-width: 70%;
+    margin: 0 15%;
+}
+
+[data-omni-key="STEP_SignTheDocument"] [data-omni-key="CHKBX_DoNotSendEmail"].nds-medium-size_3-of-12 {
+    flex: 0 0 20%;
+    max-width: 20%;
+    margin: 0 40%;
+}
+
+[data-omni-key="STEP_SignTheDocument"] [data-omni-key="SV_OmniscriptNextStepSendEmail"].nds-medium-size_4-of-12 {
+    flex: 0 0 30%;
+    max-width: 30%;
+    margin: 0 35%;
+}
+
+[data-omni-key="STEP_SignTheDocument"] [data-omni-key="SV_OmniscriptNextStepNotSendEmail"].nds-medium-size_4-of-12 {
+    flex: 0 0 40%;
+    max-width: 40%;
+    margin: 0 30%;
+}
+
+/* Temporary Newborn */
+[data-omni-key="STEP_PermanentNewborn"] [data-omni-key="DATE_EffectiveDate"].nds-medium-size_6-of-12 {
+    margin: 0 25%;
+}
+
+[data-omni-key="STEP_MotherNotInProgram"] [data-omni-key="NAV_CloseFlow"].nds-medium-size_4-of-12 {
+    margin: 0 33.3333333%;
+}

@@ -1,0 +1,144 @@
+<template>
+        
+    <div class="arc-app-omniscriptmanager">
+        <div class="omniscriptmanager-header">
+            <div class="header-bg">
+                <img src="/resource/ARC_Resources/AppHeader-Clouds.jpg">
+                <div class="image-foreground"></div>
+            </div>
+            <h1>OmniScript Manager</h1>
+        </div>
+        <div class="sections" >
+            <div class="buttons" if:true={enableBack}>
+                <lightning-button  variant="brand-outline" label="Back" onclick={evt_clickBack}></lightning-button>
+                <lightning-button disabled={enableSave} variant="brand" label="Save" icon-name="utility:save" icon-position="left" onclick={evt_clickSave}></lightning-button>
+            </div>
+            
+            
+            <div if:true={page_OSList}>
+                <p class="section-os-title">Select an OmniScript to configure</p>
+                <div class="ring" if:true={ringAll}>
+                    <div class="exampleHolder">
+                        <div class="lds-dual-ring"></div>
+                    </div>         
+                </div>
+                <ul class="section-os-list">
+                    <template for:each={osList} for:item="os">
+                        <li class="section-os-list-item" onclick={evt_OSClick} key={os.Id} data-osid={os.Id}>{os.Name}</li>
+                    </template>
+                </ul>
+                
+            </div>
+            <div class="ring" if:true={ringSaving}>
+                    <div class="exampleHolder">
+                        <div class="lds-dual-ring"></div>
+                    </div>         
+                </div>
+            <div class="section-settings" if:true={page_SETTINGS}>
+                
+                <div class="section-settings-list" if:true={ready_settingList}>
+                    <template for:each={os_displayableJSON} for:item="setting">
+                        <div if:true={setting.isActive} class="step step-active" key={setting.confLabel} onclick={evt_STEPClick} data-conflabel={setting.confLabel} data-apiname={setting.apiName}>
+                            <div class="step-in step-icon " if:true={setting.visible}></div>
+                            <p  class="step-in step-label " if:true={setting.visible}>{setting.confLabel}</p> 
+                            <div class="step-in step-icon visible-false" if:false={setting.visible}></div>
+                            <p  class="step-in step-label visible-false" if:false={setting.visible}>{setting.confLabel}</p> 
+                        </div>
+                        <div if:false={setting.isActive} class="step" key={setting.confLabel} onclick={evt_STEPClick} data-conflabel={setting.confLabel} data-apiname={setting.apiName}>
+                            <div class="step-in step-icon " if:true={setting.visible}></div>
+                            <p  class="step-in step-label " if:true={setting.visible}>{setting.confLabel}</p> 
+                            <div class="step-in step-icon visible-false" if:false={setting.visible}></div>
+                            <p  class="step-in step-label visible-false" if:false={setting.visible}>{setting.confLabel}</p> 
+                        </div>
+                        <div key={setting.confLabel} class="step-line"></div>
+                    </template> 
+                </div>
+                <div class="section-settings-details">
+                    <div class="ring" if:true={ringAll}>
+                        <div class="exampleHolder">
+                            <div class="lds-dual-ring"></div>
+                        </div>         
+                    </div>
+                    <div if:false={ringAll}>
+                        <p class="title-please title" if:false={isSelected}>
+                            ← Please, select a Step to continue
+                        </p>      
+                    </div>
+                    <template if:false={ringInDiv} for:each={os_displayableJSON_details} for:item="setting">
+                        
+                        <div class="section-settings-details-header" key={setting.confLabel}>
+                            <p class="title visible-false" if:false={setting.visible} data-conflabel={setting.confLabel}>{setting.confLabel}</p>
+                            <p class="title visible-true" if:true={setting.visible} data-conflabel={setting.confLabel}>{setting.confLabel}</p>
+                            <lightning-input data-apiname={setting.apiName} data-conflabel={setting.confLabel} onchange={evt_visibleChange} if:true={setting.display.visible} type="checkbox" label=" " checked={setting.visible}></lightning-input>
+                        </div>
+                        <div key={setting.confLabel} class="section-settings-details-edit">
+                            <div class="setting">
+                                <lightning-input-rich-text data-apiname={setting.apiName} onchange={evt_longTextChange} if:true={setting.display.longText} label="LongText" value={setting.longText}></lightning-input-rich-text>
+                                <lightning-input data-apiname={setting.apiName} onchange={evt_valueChange} if:true={setting.display.value} type="text" label="Value" value={setting.value}></lightning-input>
+                            </div>
+                            <template if:true={page_SETTING_details_children} for:each={setting.children} for:item="setting_child">
+                                <div key={setting_child.confLabel} class="setting-child">
+                                    <div class="setting-child-header">
+                                        <p class="setting-child-text" data-conflabel={setting_child.confLabel}>{setting_child.confLabel}</p>
+                                        <lightning-input data-apiname={setting_child.apiName} data-conflabel={setting_child.confLabel}  onchange={evt_visibleChange}  if:true={setting_child.display.visible} type="checkbox" class="setting-child-header-checkbox" label=" " checked={setting_child.visible}></lightning-input>
+                                    </div>
+                                    
+                                    <lightning-input-rich-text data-apiname={setting_child.apiName} onchange={evt_longTextChange}  if:true={setting_child.display.longText} label="LongText" value={setting_child.longText}></lightning-input-rich-text>
+                                    <lightning-input data-apiname={setting_child.apiName} onchange={evt_valueChange}  if:true={setting_child.display.value} type="text" label="Value" value={setting_child.value}></lightning-input>
+                                </div>
+                            </template>
+                        </div>       
+                    </template>
+                    <div if:false={ringInDiv}>
+                        <template if:true={noStepSelected}>
+                            <p class="details-no-selected-step">← Please, select a Step to continue</p>
+                        </template>        
+                    </div>
+                    <div class="ring" if:true={ringInDiv}>
+                        <div class="exampleHolder">
+                            <div class="lds-dual-ring"></div>
+                        </div>         
+                    </div>
+                </div>
+            </div> 
+        </div>
+        
+        <template if:true={page_SAVE}>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Success</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <p class="text-center">The OmniScript has been updated successfully.</p>
+                    
+                    </div>
+                    <button class="slds-button slds-button_brand" onclick={evt_clickContinue}>Continue</button>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+        <template if:true={page_UNSAVED_CHANGES}>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                    <h2 id="modal-heading-02" class="slds-modal__title slds-hyphenate">Unsaved changes</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                    <p class="text-center">There are unsaved changes. Do you want to continue?</p>
+                    
+                    </div>
+                    <div class="slds-modal__content slds-p-around_medium space-between">
+                        <button class="slds-button slds-button_text-destructive" onclick={evt_clickDiscard}>Discard Changes</button>
+                                                <button class="slds-button slds-button_brand" onclick={evt_clickCancel}>Cancel</button>
+
+                    </div>
+                    
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+    </div>
+
+</template>

@@ -1,0 +1,51 @@
+.forceCommunityRichText .social-links li:before{
+    display: none !important;
+}
+.forceCommunityMultiLevelNavigationWrapper{
+    display: none !important;
+}
+
+.uhsm-p{
+    width: 620px !important;
+}
+.uhsm-p a{
+    color: #008fee !important;
+}
+.uhsm-p a:hover,
+.uhsm-p a:focus{
+    color: #0079ca !important;
+}
+.uhsm-p ul{
+    padding: 0 !important;
+}
+.uhsm-p ul li{
+    margin-bottom: 16px !important;
+    padding-left: 0.6em !important;
+    line-height: 1.4 !important;
+}
+.uhsm-p ul li:last-child{
+    margin-bottom: 0 !important;
+}
+
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV,
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV{
+    width: 400px !important;
+    margin: auto !important;
+}
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .inputContainer{
+    border-radius: 10px !important;
+}
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .inputIcon{
+    display: none !important;
+}
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .slds-button{
+    background-color: #008fee !important;
+    border-radius: 10px !important;
+    text-align: left !important;
+    padding-left: 30px !important;
+}
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .slds-button:hover,
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .slds-button:focus,
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .slds-button:active{
+    background-color: #0079ca !important;
+}

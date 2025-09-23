@@ -1,0 +1,112 @@
+.os-header-container{
+	position: relative;
+	width: 100vw;
+	left: 50%;
+	transform: translateX(-50%);
+}
+.os-header{
+	position: relative;
+	margin: auto;
+	min-height: 200px;
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	justify-content: center;
+}
+.os-header-background{
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-image: var(--bg-image);
+	background-position: center;
+	background-size: cover;
+	width: 100%;
+	height: 100%;
+}
+.os-header-content{
+	width: 100%;
+	max-width: 1280px;
+	padding: 35px 40px;
+	display: flex;
+	flex: 1;
+	flex-flow: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+}
+.os-step-chart-scroll{
+	max-width: 100%;
+}
+c-a-r-c_-omnistudio-external-step-chart{
+	display: flex;
+	justify-content: center;
+}
+@media screen and (min-width: 64em){
+	.os-header-content{
+		flex-flow: row;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 20px;
+	}
+	.os-step-chart-scroll{
+		display: flex;
+		justify-content: flex-end;
+		max-width: 70%;
+		width: 100%;
+	}
+	c-a-r-c_-omnistudio-external-step-chart{
+		justify-content: flex-end;
+	}
+}
+.os-header-title{
+	align-self: center;
+	padding-left: 12px;
+	position: relative;
+}
+@media screen and (min-width: 64em){
+	.os-header-title{
+		min-width: 300px;
+		width: 100%;
+	}
+}
+.os-header-title:before{
+	content: "";
+    position: absolute;
+    width: 2px;
+    height: 70%;
+    top: 50%;
+    left: 0;
+    background: #F2BC30;
+    transform: translateY(-50%);
+}
+h2{
+	font-size: 40px;
+	color: #fff;
+}
+
+.os-action-bar-container{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #2C2B2C80;
+}
+.os-action-bar{
+	width: 100%;
+	max-width: 1280px;
+	height: 48px;
+	border-top: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.os-action{
+	font-size: 16px;
+	background: none;
+	border: none;
+	padding: 14px 20px;
+	text-decoration: underline;
+}
+.os-action:hover,
+.os-action:focus{
+	background: #75757510;
+}

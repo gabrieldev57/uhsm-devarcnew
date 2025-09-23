@@ -1,0 +1,28 @@
+<template>
+  <div class="wrapper">
+    <!-- Left arrow: only shown when content overflows -->
+    <template if:true={isOverflowing}>
+        <button class="arrow left"
+            onclick={handleLeftClick} disabled={isLeftDisabled}>
+            <svg>
+                <use xlink:href={iconChevron}></use>
+            </svg>
+        </button>
+    </template>
+
+    <!-- Scrollable container with slotted content -->
+	<div lwc:ref="scrollContainer" class="scroll-container" onscroll={handleScroll}>
+      	<slot></slot>
+    </div>
+
+    <!-- Right arrow: only shown when content overflows -->
+    <template if:true={isOverflowing}>
+        <button class="arrow right"
+            onclick={handleRightClick} disabled={isRightDisabled}>
+            <svg>
+                <use xlink:href={iconChevron}></use>
+            </svg>
+        </button>
+    </template>
+  </div>
+</template>

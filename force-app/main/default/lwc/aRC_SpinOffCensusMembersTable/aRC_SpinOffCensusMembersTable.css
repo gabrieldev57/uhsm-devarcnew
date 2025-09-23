@@ -1,0 +1,171 @@
+* {
+    font-family: var(--fallback-font-family);
+}
+
+table {
+    border: 1px solid #D4D4D4 !important;
+}
+
+.text-header-so{
+    font-weight: bold !important;
+    color: rgba(0, 0, 0, 0.8) !important;
+}
+
+th {
+    text-align: center;
+    font-size: 12px;
+    background-color: white !important;
+    color: #706e6b !important;
+    border-color: #dddbda;
+}
+
+.text-color-so{
+    color: rgba(0, 0, 0, 0.8) !important;
+    font-size: 14px !important;
+}
+
+.text-color-rm{
+    font-weight: bold !important;
+}
+
+
+td {
+    text-align: center;
+}
+
+tr {
+    background-color: white !important;
+}
+
+select {
+    padding: 5px;
+    border: none;
+    background-color: white; 
+    text-align: center;
+}
+
+select:hover {
+    cursor: pointer;
+}
+
+select:focus,
+select:focus-visible {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+select option:hover {
+    background-color: #80808000 !important;
+}
+
+
+.omniscript-btn-next {
+    margin-top: 50px;
+}
+
+.shareElements {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.shareCheckboxes {
+    margin: 0 45px 0 0 !important;
+}
+
+.nds-form-element__label .nds-form-element__control-help .nds-checkbox-span {
+    color: #3e456f !important;
+    font-size: 12px !important;
+}
+
+
+/* Styles for Dropdown Select */
+.custom-select-container {
+    position: relative;
+}
+
+.custom-select-container .slds-select {
+    border: 1px solid #d1d5db;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none;
+    padding-right: 32px;
+}
+
+.custom-select-container .slds-select_container::before,
+.custom-select-container .slds-select_container::after {
+    display: none;
+}
+
+.custom-select-container::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #6b7280;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.custom-select-container {
+    position: relative;
+}
+
+.custom-select-container .slds-select {
+    border: 1px solid #d1d5db;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none;
+    padding-right: 32px;
+}
+
+.custom-select-container .slds-select_container::before,
+.custom-select-container .slds-select_container::after {
+    display: none;
+}
+
+.custom-select-container::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #6b7280;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.table-container .slds-table td,
+.table-container .slds-table th {
+    padding: 16px 12px;
+}
+
+.table-container .slds-table tr {
+    min-height: 56px;
+}
+
+.table-container {
+    margin: 16px 0;
+}
+
+.table-container .slds-table thead th {
+    padding: 20px 12px;
+    font-weight: 600;
+}
+
+.table-container .slds-table td span,
+.table-container .slds-table th div {
+    line-height: 1.5;
+}

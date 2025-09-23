@@ -1,0 +1,48 @@
+<template>
+    <div lwc:ref="topbarContainer" class="si-topbar-container">
+        <header lwc:ref="topbar" class="si-topbar si-topbar-shadow" onmouseenter={handleMouseEnter} onmouseleave={handleMouseLeave}
+        data-logged-in={bIsUser} data-link-alignment={linkAlignment}>
+            <div class="topbar-content si-width">
+                <div class="topbar-left">
+                    <div class="logo-container">
+                        <div class="logo">
+                            <c-a-r-c_-button class="si-button-comp" button-data={homeButtonData} variation="none">
+                                <div></div>
+                            </c-a-r-c_-button>
+                        </div>
+                    </div>
+                    <template lwc:if={bLinksLeft}>
+                        <c-a-r-c_-navigation menu-items={menuItems} current-page-reference={currentPageReference} class="topbar-navigation topbar-links" alignment={linkAlignment} link-limit={maxLinksDesktop}></c-a-r-c_-navigation>
+                    </template>
+                </div>
+    
+                <div class="topbar-center" lwc:if={bLinksCenter}>
+                    <c-a-r-c_-navigation menu-items={menuItems} current-page-reference={currentPageReference} class="topbar-navigation topbar-links" alignment={linkAlignment} link-limit={maxLinksDesktop}></c-a-r-c_-navigation>
+                </div>
+    
+                <div class="topbar-right">
+                    <template lwc:if={bLinksRight}>
+                        <c-a-r-c_-navigation menu-items={menuItems} current-page-reference={currentPageReference} class="topbar-navigation topbar-links" alignment={linkAlignment} link-limit={maxLinksDesktop}></c-a-r-c_-navigation>
+                    </template>
+    
+    
+                    <div class="button-container" data-user-on-topbar={userOnTopbar}>
+                        <div class="user-container">
+                            <span>Welcome {currentUserName}!</span>
+                        </div>
+    
+                    </div>
+                </div>
+    
+            </div>
+            
+            <button type="button" class="si-drawer-toggle" title="Toggle drawer" onclick={toggleDrawer}>
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <c-a-r-c_-side-drawer-topbar lwc:ref="drawer" menu-items={menuItems} current-page-reference={currentPageReference} top-offset={height} responsive-top-offset={responsiveHeight}></c-a-r-c_-side-drawer-topbar>
+        </header>
+        <div class="spacer"></div>
+    </div>
+</template>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>ARC - Spacer</masterLabel>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__Tab</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="size" label="Size" type="String" default="40px" description="Add any valid CSS value for spacing. You can also use negative values to remove space between other components. This LWC doesn't include sibling margin and adds paddings or reduces margins to adjust spaces."></property>
+            <property name="sizeM" label="Size M (Not used)" type="String" description="Same as above but this only applies to medium breakpoints."></property>
+            <property name="sizeS" label="Size S" type="String" description="Same as above but this only applies to small breakpoints."></property>
+            <property name="direction" label="Direction" type="String" datasource="Vertical,Horizontal" default="Vertical" description="Sets the direction in which the space is applied."></property>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

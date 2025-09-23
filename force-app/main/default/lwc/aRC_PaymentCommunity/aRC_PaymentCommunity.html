@@ -1,0 +1,88 @@
+<template>
+    <div if:true={conditions.c1} class="flex-container warning">
+        <lightning-icon icon-name="utility:warning" size="x-small" alternative-text="Indicates approval"></lightning-icon>
+        <span class="text-header">LAST TRANSACTION WAS NOT APPROVED</span>
+    </div>
+    <div if:true={conditions.c2} class="flex-container warning">
+        <lightning-icon icon-name="utility:waits" size="x-small" alternative-text="Indicates approval"></lightning-icon>
+        <span class="text-header">WAITING FOR FIRST MONTH PAYMENT</span>
+    </div>
+    <div if:true={conditions.c3} class="flex-container success">
+        <lightning-icon icon-name="utility:check" size="x-small" alternative-text="Indicates approval"></lightning-icon>
+        <span class="text-header">PAYMENT IS UP TO DATE</span>
+    </div>
+    <div if:true={conditions.c4} class="flex-container neutral">
+        <lightning-icon icon-name="utility:error" size="x-small" alternative-text="Indicates approval"></lightning-icon>
+        <span class="text-header">TERMINATED</span>
+    </div>
+    <div if:true={conditions.c5} class="flex-container error">
+        <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Indicates approval"></lightning-icon>
+        <span class="text-header">THE PAYMENT IS DELAYED FOR</span>
+    </div>
+
+    <div class="grid-container">
+        <div class="grid">
+            <p class="header">ORDER DETAILS</p>
+            <div>
+                <p>PAYMENT METHOD</p>
+                <p>{IPResult.PaymentMethod}</p>
+            </div>
+            <div>
+                <p>CREDIT CARD LAST 4</p>
+                <p>{IPResult.Last4}</p>
+            </div>
+            <div>
+                <p>PAYMENT STATUS</p>
+                <p>{IPResult.PaymentStatus}</p>
+            </div>
+            <div>
+                <p>AMOUNT</p>
+                <p>{IPResult.ChargeAmount}</p>
+            </div>
+        </div>
+        <div if:true={conditions.c6} class="grid">
+            <p class="header">LAST CONTRIBUTION</p>
+            <div>
+                <p>DATE</p>
+                <p>{IPResult.Transactiondate}</p>
+            </div>
+            <div>
+                <p class="wrap">DAYS SINCE LAST PAYMENT</p>
+                <p>{IPResult.LastPayment}</p>
+            </div>
+            <div>
+                <p>RESPONSE</p>
+                <p>{IPResult.ResponseStatus}</p>
+            </div>
+            <div>
+                <p>MESSAGE</p>
+                <p>{IPResult.ResponceMessage}</p>
+            </div>
+        </div>
+        <div if:true={conditions.c7} class="grid">
+            <p class="header">LAST CONTRIBUTION</p>
+            <div>
+                <p>DATE</p>
+                <p>{IPResult.Transaction.CreatedDate}</p>
+            </div>
+            <div>
+                <p class="wrap">DAYS SINCE LAST PAYMENT</p>
+                <p>{IPResult.SinceLastPayment}</p></div>
+            <div>
+                <p>RESPONSE</p>
+                <p>{IPResult.Transaction.ResponseStatus}</p>
+            </div>
+            <div>
+                <p>MESSAGE</p>
+                <p>{IPResult.Transaction.ResponseMessage}</p>
+            </div>
+        </div>
+        <div if:true={conditions.c8} class="grid">
+            <p class="header">NO CONTRIBUTION TRANSACTION FOUND</p>
+        </div>
+    </div>
+    <p class="tac">If you have any questions about your upcoming payment or payment method, please call member services at +1 800-900-8476.</p>
+    <div class="button-container">
+        <button onclick={handleUpdatePaymentMethod}>Update Payment Method</button>
+    </div>
+</template>

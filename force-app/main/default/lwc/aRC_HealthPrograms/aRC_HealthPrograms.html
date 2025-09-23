@@ -1,0 +1,66 @@
+<template>
+    <div class="community-programs-component arc-scrollanim arc-scrollanim-parent">
+        <div class="community-programs-header">
+            <h5 if:true={title} class="community-programs-title">{title}</h5>
+            <h3 if:true={subtitle} class="community-programs-subtitle">{subtitle}</h3>
+            <p if:true={text} class="community-programs-text">{text}</p>
+        </div>
+        <div if:false={isSlider} class="community-programs-cards">
+            <template for:each={finalRecords} for:item="record">
+                <div key={record.Id} class="arc-scrollanim arc-scrollanim-widentoright arc-scrollanim-delay-sibling community-programs-card">
+                    <div class="community-programs-card-inner">
+                        <figure key={record.Id} class="community-programs-image">
+                            <img src={record.url} />
+                            <div class="community-programs-gradient"></div>
+                            <figcaption class="community-programs-name">{record.RecordName}</figcaption>
+                        </figure>
+                        <div class="community-programs-card-content">
+                            <div>
+                                <ul class="community-programs-list">
+                                    <template for:each={record.specs} for:item="spec">
+                                        <li key={spec.RecId} class="community-programs-list-element">{spec.Description}</li>
+                                    </template>
+                                </ul>
+                            </div>
+                            <div>
+                                <div class="community-programs-learn">
+                                    <p class="community-programs-learn-text">Learn More</p>    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+        <div if:true={isSlider} class="community-programs-cards arc-slider arc-slider-healthprograms" data-slides-per-view-m="2" data-slides-per-view-l="3">
+            <div class="swiper-wrapper">
+                <template for:each={finalRecords} for:item="record">
+                    <div key={record.Id} class="community-programs-card swiper-slide">
+                        <div class="community-programs-card-inner">
+                            <figure key={record.Id} class="community-programs-image">
+                                <img src={record.url} />
+                                <div class="community-programs-gradient"></div>
+                                <figcaption class="community-programs-name">{record.RecordName}</figcaption>
+                            </figure>
+                            <div class="community-programs-card-content">
+                                <div>
+                                    <ul class="community-programs-list">
+                                        <template for:each={record.specs} for:item="spec">
+                                            <li key={spec.RecId} class="community-programs-list-element">{spec.Description}</li>
+                                        </template>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <div class="community-programs-learn">
+                                        <p class="community-programs-learn-text">Learn More</p>    
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+</template>

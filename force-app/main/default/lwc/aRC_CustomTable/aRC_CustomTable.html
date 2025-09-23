@@ -1,0 +1,99 @@
+<template>
+  <article class="slds-card slds-card_boundary">
+    <div class="slds-page-header slds-grid table-header">
+      <header class="slds-media slds-media_center slds-has-flexi-truncate">
+        <div class="slds-media__figure slds-avatar_small">
+          <span class="slds-icon_container slds-icon-standard-contact" title="contact">
+            <lightning-icon icon-name={tableicon} title="customIcon"></lightning-icon>
+            <span class="slds-assistive-text">{tablename}</span>
+          </span>
+        </div>
+        <div class="slds-media__body">
+          <h2 class="slds-card__header-title">
+            <a class="slds-card__header-link slds-truncate" title={tablename} onclick={openModal}>
+              <span>{tablename} ({tableRowAmount})</span>
+            </a>
+          </h2>
+        </div>
+        <div class="slds-no-flex">
+          <lightning-button-icon icon-name="utility:refresh" alternative-text="Refresh" title="Refresh"
+            onclick={handleRefresh}></lightning-button-icon>
+        </div>
+      </header>
+    </div>
+    <div class="slds-card__body slds-grid slds-border__left slds-border__right listViewContainer table-content">
+      <lightning-datatable role="grid" aria-label="Example table in a Card" key-field="id" columns={tablecolumns}
+        data={dataToDisplay} hide-checkbox-column default-sort-direction={defaultSortDirection}
+        sorted-direction={sortDirection} sorted-by={sortedBy} onsort={onHandleSort}
+        style="width: -webkit-fill-available">
+      </lightning-datatable>
+    </div>
+    <footer class="slds-card__footer table-foot" if:true={maxRows}>
+      <a class="slds-card__footer-action" onclick={openModal}>View All
+        <span class="slds-assistive-text">{tablename}</span>
+      </a>
+    </footer>
+  </article>
+
+  <!--Use template if:true to display/hide popup based on isModalOpen value-->
+  <template if:true={tablemodal}>
+    <article>
+      <!-- Modal/Popup Box LWC starts here -->
+      <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+        aria-describedby="modal-content-id-1" class="slds-modal slds-modal_large slds-fade-in-open">
+        <div class="slds-modal__container">
+          <!-- Modal/Popup Box LWC header here -->
+          <header class="slds-modal__header">
+            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close"
+              onclick={closeModal}>
+              <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                size="small"></lightning-icon>
+              <span class="slds-assistive-text">Close</span>
+            </button>
+            <div class="slds-grid">
+              <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                  <span class="slds-icon_container slds-icon-standard-contact" title={tablename}>
+                    <lightning-icon icon-name={tableicon} title="customIcon"></lightning-icon>
+                    <span class="slds-assistive-text">{tablename}</span>
+                  </span>
+                </div>
+                <div class="slds-media__body">
+                  <h2 class="slds-card__header-title">
+                    <a class="slds-truncate" title={tablename}>
+                      <span>{tablename}</span>
+                    </a>
+                  </h2>
+                </div>
+                <div class="slds-no-flex">
+                  <lightning-button-icon icon-name="utility:refresh" alternative-text="Refresh" title="Refresh"
+                    onclick={handleRefresh}></lightning-button-icon>
+                </div>
+              </header>
+            </div>
+          </header>
+          <template if:false={modalloading}>
+            <article class="slds-card">
+              <lightning-datatable role="grid" aria-label="Example table in a Card" key-field="id"
+                columns={tablecolumns} data={tabledata} hide-checkbox-column
+                default-sort-direction={defaultSortDirection} sorted-direction={sortDirection} sorted-by={sortedBy}
+                onsort={onHandleSort} style="width: -webkit-fill-available">
+              </lightning-datatable>
+            </article>
+            <div class="slds-modal__footer">
+              <button class="slds-button slds-button_neutral" aria-label="Close" onclick={closeModal}>Close</button>
+            </div>
+          </template>
+          <template if:true={modalloading}>
+            <div class="slds-spinner_container">
+              <div class="slds-spinner_container__inner">
+                <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+              </div>
+            </div>
+          </template>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </article>
+  </template>
+</template>

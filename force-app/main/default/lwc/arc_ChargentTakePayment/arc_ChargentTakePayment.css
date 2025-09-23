@@ -1,0 +1,11 @@
+.iframe{
+    min-height:850px;
+    height: 100%;
+    width: 100%;
+    border: 0px;
+    overflow: hidden;
+}
+
+div .slds-col .slds-size_1-of-3 .slds-box.message-box .slds-align_absolute-center .slds-theme_success{
+    height: 10em;
+}

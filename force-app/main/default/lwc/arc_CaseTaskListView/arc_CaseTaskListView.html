@@ -1,0 +1,57 @@
+<!-- sldsValidatorIgnore -->
+<template>  
+    <div class="container forceRelatedListSingleContainer" data-aura-rendered-by="2665:0"
+        data-aura-class="forceRelatedListSingleContainer" style="border-radius: 0.25rem; border: rgb(201, 201, 201); border-style: solid; border-width: 0.03rem;">
+        <!--render facet: 2683:0-->
+        
+        <div class="slds-grid slds-page-header forceRelatedListCardHeader"
+                data-aura-rendered-by="2693:0" data-aura-class="forceRelatedListCardHeader">
+
+
+                <header class="slds-media slds-media--center slds-has-flexi-truncate"
+                    data-aura-rendered-by="2694:0">
+
+
+                    <div>
+                        <lightning-icon icon-name="standard:task" alternative-text="Task" title="Task" style="margin-right: 0.5rem"></lightning-icon>
+
+                    </div>
+                    
+
+                    <div class="slds-media__body" data-aura-rendered-by="2696:0">
+                        <h2 id="header_2677:0" class="slds-card__header-title"
+                            data-aura-rendered-by="2697:0">Tasks</h2>
+                    </div>
+
+
+                </header>
+
+
+                <div lwc:if={isUnderwritingAndClosed} class="slds-no-flex" data-aura-rendered-by="2704:0">
+                    <div class="actionsContainer" data-aura-rendered-by="2687:0">
+                        <lightning-button class="slds-m-around_medium" label="New Task" onclick={navigateToNewTask}></lightning-button>
+                    </div>
+                </div>
+            </div>
+        <div style="height:600px">
+            <template if:true={data}>
+                <c-arc_datatable-with-custom-types
+                    key-field="Id"
+                    data={data}
+                    columns={columns}
+                    hide-checkbox-column
+                    column-widths-mode="auto"
+                    style="width: -webkit-fill-available"
+                    sorted-by={sortBy}
+                    sorted-direction=(sortDirection)
+                    onsort={handleSortTaskData}
+                    enable-infinite-loading
+                    min-column-width="85"
+                >
+            </c-arc_datatable-with-custom-types>
+            </template>
+        </div>
+    </div>
+
+    
+</template>

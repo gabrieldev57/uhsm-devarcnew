@@ -1,0 +1,61 @@
+<template>
+    <div class="arc-scrollanim arc-scrollanim-parent component-container">
+        <div if:true={includeHeader} class="arc-scrollanim arc-scrollanim-scale header-container">
+            <div class="header-content">
+                <div class="header-elements">
+                    <h2><small>{title}</small>{subtitle}</h2>
+                    <p class="header-text">{description}</p>
+                </div>
+            </div>
+        </div>
+        <div if:false={isSlider} class="cards-container not-slider">
+            <div class="arc-scrollanim arc-scrollanim-scale arc-scrollanim-delay-sibling-quick benefit-card"
+            for:each={finalRecords} for:item="card" key={card.RecId}>
+                <div class="bc-content">
+                    <div class="bc-image">
+                        <figure key={card.RecId}>
+                            <img src={card.ImageUrl} />
+                        </figure>
+                        
+                    </div>
+                    <div class="bc-description">
+                        <h3 class="h5 bc-title">{card.Title}</h3>
+                        <div>
+                            <p>{card.Description}</p>
+                        </div>
+                        <div class="bc-link-wrapper">
+                            <lightning-formatted-rich-text value={card.Link}></lightning-formatted-rich-text>
+                            <!-- <a class="bc-button" href={card.Link} data-icon="">Learn More</a> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div if:true={isSlider} class="cards-container arc-slider arc-slider-benefitcards" data-loop="true" data-autoplay="true" data-slides-per-view-m={slidesPerViewM} data-slides-per-view-l={slidesPerViewL}>
+            <div class="swiper-wrapper">
+                <div class="benefit-card swiper-slide"
+                for:each={finalRecords} for:item="card" key={card.RecId}>
+                    <div class="bc-content">
+                        <div class="bc-image">
+                            <figure key={card.RecId}>
+                                <img src={card.ImageUrl} />
+                            </figure>
+                            
+                        </div>
+                        <div class="bc-description">
+                            <h3 class="h5 bc-title">{card.Title}</h3>
+                            <div>
+                                <p>{card.Description}</p>
+                            </div>
+                            <div class="bc-link-wrapper">
+                                <lightning-formatted-rich-text value={card.Link}></lightning-formatted-rich-text>
+                                <!-- <a class="bc-button" href={card.Link} data-icon="">Learn More</a> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+</template>

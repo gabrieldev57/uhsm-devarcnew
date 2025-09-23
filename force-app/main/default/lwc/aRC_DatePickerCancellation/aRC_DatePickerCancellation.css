@@ -1,0 +1,147 @@
+* {
+  padding: 0;
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.bold {
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.datesOutFocus {
+  display: none;
+}
+
+.dates {
+  width: 300px;
+  border: 1px solid #dddbda;
+  border-radius: 0.125rem;
+  padding: 0.25rem 0;
+  background: #fff;
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+  position: relative;
+  z-index: 99;
+}
+
+.dates ul {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 300px;
+  margin: 0 auto;
+}
+
+.dates .datePickerHolder {
+  flex-wrap: wrap;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  margin: 1px;
+}
+
+.buttonContainer {
+  width: 290px;
+  margin: 5px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: none;
+}
+
+.prev,
+.next {
+  border: none;
+  width: 40px;
+  background: white;
+}
+
+.prevDis,
+.nextDis {
+  border: none;
+  width: 40px;
+  pointer-events: none;
+  background: white;
+}
+
+.prev:hover,
+.next:hover,
+.todayBtn:hover {
+  cursor: pointer;
+}
+
+.prev:before {
+  content: "❮";
+  padding-right: 4px;
+}
+
+.next:after {
+  content: "❯";
+  padding-left: 4px;
+}
+
+.datePickerHolder li {
+  color: black;
+  cursor: pointer;
+  border-radius:25px;
+}
+
+.header li {
+  background-color: white;
+  color: #706e6b;
+}
+
+.datePickerHolder li:hover {
+  background-color: #f4b223;
+}
+
+.datePickerHolder .padder {
+  color: #dddbda;
+  pointer-events: none;
+}
+
+.datePickerHolder .today {
+  background-color: orange;
+}
+
+.datePickerHolder .selected {
+  background-color: #f4b223;
+}
+
+.date:hover {
+  cursor: pointer;
+}
+
+.datePickerHolder .date {
+  background-color: #ebebeb;
+}
+
+.month{
+    width: 80px;
+    text-align: center;
+    justify-content: center;
+}
+
+.todayBtn{
+    margin-top: 5px;
+}
+
+.closeDatePicker{
+  border: none;
+  background: white;
+  width: 30px;
+  padding: 0px 0px 7px 5px;
+  font-weight: bold;
+  font-size: 15px;
+}
+.yearDisplayed{
+  width: 25%;
+  text-align: center;
+  border: none;
+  background-color: white;
+}

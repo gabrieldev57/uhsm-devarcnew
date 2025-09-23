@@ -1,0 +1,58 @@
+.div1{
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.showData{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+.item{
+    flex-flow: wrap;
+    text-align: center;
+    color: gray;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    width: 100%;
+}
+
+.card-inside{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    position: relative;
+}
+.card-outside{
+    width: 100%;
+    height: auto;
+    height: 200px;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: white;
+    position: relative;
+}
+.textSpinner{
+    z-index: 1000;
+    position: relative;
+    bottom: -35px;
+}
+.left{
+    margin-right: 20px;
+}
+.right{
+    text-align: left;
+}
+.error{
+    color:#c83131
+}
+.settled{
+    color: black;
+}

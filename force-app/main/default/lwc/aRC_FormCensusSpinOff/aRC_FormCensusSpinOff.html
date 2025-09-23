@@ -1,0 +1,287 @@
+<template>
+    <div class="census-container">
+        <template for:each={census_members} for:item="member" for:index="memberindex">
+            <template lwc:if={member.ShowMember}>
+                    <lightning-accordion allow-multiple-sections-open key={member.Id}>
+                        <lightning-accordion-section name={member.Id} label={member.fullName} key={member.Id} class="accordion-section" style={member.accordionStyle}>
+                            <div class="member-container" key={member.Id}>
+                                <div class="rmv-member-btn-container">
+                                    <!-- Remove Member Button -->
+                                    <vlocity_ins-icon lwc:if={member.DISPLAY_BUTTON_REMOVE_MEMBER} data-memberindex={memberindex}
+                                        onclick={handler_RemoveMember} color="#d0242c" icon-name="utility:delete" size="x-small"
+                                        theme={theme}></vlocity_ins-icon>
+                                </div>
+                                <div class="rmv-member-modal" lwc:if={member.DISPLAY_MODAL_REMOVE_MEMBER}>
+                                    <div class="modal-buttons">
+                                        <vlocity_ins-button label="Yes, Remove Member" variant="destructive"
+                                            data-memberindex={memberindex} onclick={handler_YESRemoveMemberModal}
+                                            theme={theme}></vlocity_ins-button>
+                                        <vlocity_ins-button label="No, Cancel" variant="neutral" data-memberindex={memberindex}
+                                            onclick={handler_NORemoveMemberModal} theme={theme}></vlocity_ins-button>
+                                    </div>
+                                    <p>Are you sure you want proceed and remove this member?</p>
+                                </div>
+                                <div>
+                                    <div class="text-fields-container">
+                                        <!-- Census Member Form Fields -->
+                                        <div class="field">
+                                            <vlocity_ins-input type="text" name="vlocity_ins__FirstName__c"
+                                                value={member.vlocity_ins__FirstName__c} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} required="true" label="First Name" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                        </div>
+                                        <div class="field">
+                                            <vlocity_ins-input type="text" name="ARC_MiddleInitial__c" max-length="1"
+                                                value={member.ARC_MiddleInitial__c} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} label="Middle Initial" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                        </div>
+                                        <div class="field">
+                                            <vlocity_ins-input type="text" name="vlocity_ins__LastName__c"
+                                                value={member.vlocity_ins__LastName__c} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} required="true" label="Last Name" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                        </div>
+                                        <div class="field">
+                                            <vlocity_ins-input type="date" name="vlocity_ins__Birthdate__c"
+                                                value={member.vlocity_ins__Birthdate__c} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} required="true" label="Birthdate" format="MM-DD-YYYY"
+                                                output-format="YYYY-MM-DD" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                        </div>
+                                        <div class="field">
+                                            <vlocity_ins-combobox name="vlocity_ins__Gender__c"
+                                                value={member.vlocity_ins__Gender__c.value}
+                                                options={member.vlocity_ins__Gender__c.options} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} required="true" label="Gender" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}>
+                                            </vlocity_ins-combobox>
+                                        </div>
+                                        <div class="field">
+                                            <vlocity_ins-combobox name="ARC_Relationship__c"
+                                                value={member.ARC_Relationship__c.value}
+                                                options={member.ARC_Relationship__c.options} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} required="true" label="Relationship" theme={theme}>
+                                            </vlocity_ins-combobox>
+                                        </div>
+                                        <div class="field" lwc:if={member.vlocity_ins__Email__c.DISPLAY_FIELD}>
+                                            <vlocity_ins-input type="text" name="vlocity_ins__Email__c"
+                                                value={member.vlocity_ins__Email__c.value} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} required="true" label="Email" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                        </div>
+                                        <div class="field" lwc:if={member.ARC_Phone__c.DISPLAY_FIELD}>
+                                            <vlocity_ins-masked-input type="text" name="ARC_Phone__c" value={member.ARC_Phone__c.value} imask={maskAttribute} 
+                                                onchange={handler_FieldOnChange} data-memberindex={memberindex}
+                                                required="true" label="Phone" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-masked-input>
+                                        </div>
+                                        <div class="field">
+                                            <vlocity_ins-input type={member.showSSN} name="vlocity_ins__SocialSecurityNumber__c"
+                                                value={member.vlocity_ins__SocialSecurityNumber__c} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} required="true" maxlength="9"
+                                                label="Social Security Number" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                            <vlocity_ins-icon class="ssn-button" data-memberindex={memberindex}
+                                                icon-name="utility:preview" onclick={handler_toggleSSNVisibility} size="x-small"
+                                                theme={theme}></vlocity_ins-icon>
+                                        </div>
+                                        <div class="field">
+                                            <vlocity_ins-input type="text" name="ARC_HeightFeet__c"
+                                                value={member.ARC_HeightFeet__c} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} required="true" label="Height (Feet)" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                        </div>
+                                        <div class="field">
+                                            <vlocity_ins-input type="text" name="ARC_HeightInches__c"
+                                                value={member.ARC_HeightInches__c} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} required="true" label="Height (Inches)" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                        </div>
+                                        <div class="field">
+                                            <vlocity_ins-input type="text" name="ARC_Weight__c" value={member.ARC_Weight__c}
+                                                onchange={handler_FieldOnChange} data-memberindex={memberindex} required="true"
+                                                label="Weight (lbs)" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                        </div>
+                                        <div lwc:if={member.ARC_Smoker__c.DISPLAY_FIELD} class="field smoker">
+                                            <vlocity_ins-input type="checkbox" name="ARC_Smoker__c"
+                                                checked={member.ARC_Smoker__c.value} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} label="Are you a smoker?" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                            <lightning-helptext
+                                                content="Smokers are subject to a $50 monthly fee per smoker"></lightning-helptext>
+                                        </div>
+                                        <div lwc:if={member.ARC_isPregnant__c.DISPLAY_FIELD} class="field smoker">
+                                            <vlocity_ins-input type="checkbox" name="ARC_isPregnant__c"
+                                                checked={member.ARC_isPregnant__c.value} onchange={handler_FieldOnChange}
+                                                data-memberindex={memberindex} label="Are you pregnant?" theme={theme}
+                                                disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                        </div>
+                                    </div>
+                                    <!-- Address Search Bar and fields for Primary Member -->
+                                    <div lwc:if={member.vlocity_ins__IsPrimaryMember__c} class="address-container">
+                                        <div class="search-bar">
+                                            <vlocity_ins-typeahead name="ARC_Address__c" label="Search Address"
+                                                value={member.ARC_Address__c} options={member.address_suggestions}
+                                                disabled={member.DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS} remote-source="true"
+                                                disable-filter="true" icon-name-right="utility:search" theme={theme}
+                                                data-memberindex={memberindex} onkeyup={handler_SearchBarOnKeyUp}
+                                                onselect={handler_AddressSuggestionSelect}>
+                                            </vlocity_ins-typeahead>
+                                        </div>
+                                        <div class="address-fields-container">
+                                            <div class="address-field">
+                                                <vlocity_ins-input disabled={member.DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS}
+                                                    type="text" name="ARC_PhysicalAddressStreet__c"
+                                                    value={member.ARC_PhysicalAddressStreet__c} onchange={handler_FieldOnChange}
+                                                    data-memberindex={memberindex} label="Street"
+                                                    theme={theme}></vlocity_ins-input>
+                                            </div>
+                                            <div class="address-field">
+                                                <vlocity_ins-input disabled={member.DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS}
+                                                    type="text" name="ARC_PhysicalAddressCity__c"
+                                                    value={member.ARC_PhysicalAddressCity__c} onchange={handler_FieldOnChange}
+                                                    data-memberindex={memberindex} label="City"
+                                                    theme={theme}></vlocity_ins-input>
+                                            </div>
+                                            <div class="address-field">
+                                                <vlocity_ins-input disabled={member.DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS}
+                                                    type="text" name="ARC_PhysicalAddressState__c"
+                                                    value={member.ARC_PhysicalAddressState__c} onchange={handler_FieldOnChange}
+                                                    data-memberindex={memberindex} label="State"
+                                                    theme={theme}></vlocity_ins-input>
+                                            </div>
+                                            <div class="address-field">
+                                                <vlocity_ins-input disabled={member.DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS}
+                                                    type="text" name="ARC_PhysicalAddressZipCode__c" max-length="5"
+                                                    value={member.ARC_PhysicalAddressZipCode__c} onchange={handler_FieldOnChange}
+                                                    data-memberindex={memberindex} label="Zip Code"
+                                                    theme={theme}></vlocity_ins-input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Address Checkbox -->
+                                    <div class="checkbox-address-container" lwc:if={member.IsDependent}>
+                                        <vlocity_ins-input class="copy-address" type="checkbox" name="CopyAddressFromPrimary"
+                                            checked={member.CopyAddressFromPrimary}
+                                            onchange={handler_CheckboxCopyAddressFromPrimaryOnChange} data-memberindex={memberindex}
+                                            disabled={member.DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS}
+                                            label="Click Here to populate the Address from the Primary Member"
+                                            theme={theme}></vlocity_ins-input>
+                                        <!-- Address Search Bar and fields for Dependent members-->
+                                        <div lwc:if={member.ShowAddressForDependent} class="address-container">
+                                            <div class="search-bar">
+                                                <vlocity_ins-typeahead name="ARC_Address__c" label="Search Address"
+                                                    value={member.ARC_Address__c} options={member.address_suggestions}
+                                                    disabled={member.DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS} remote-source="true"
+                                                    disable-filter="true" icon-name-right="utility:search" theme={theme}
+                                                    data-memberindex={memberindex} onkeyup={handler_SearchBarOnKeyUp}
+                                                    onselect={handler_AddressSuggestionSelect}>
+                                                </vlocity_ins-typeahead>
+                                            </div>
+                                            <div class="address-fields-container">
+                                                <div class="address-field">
+                                                    <vlocity_ins-input type="text" name="ARC_PhysicalAddressStreet__c"
+                                                        value={member.ARC_PhysicalAddressStreet__c} onchange={handler_FieldOnChange}
+                                                        data-memberindex={memberindex} required="true" label="Street" theme={theme}
+                                                        disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                                </div>
+                                                <div class="address-field">
+                                                    <vlocity_ins-input type="text" name="ARC_PhysicalAddressCity__c"
+                                                        value={member.ARC_PhysicalAddressCity__c} onchange={handler_FieldOnChange}
+                                                        data-memberindex={memberindex} required="true" label="City" theme={theme}
+                                                        disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                                </div>
+                                                <div class="address-field">
+                                                    <vlocity_ins-input type="text" name="ARC_PhysicalAddressState__c"
+                                                        value={member.ARC_PhysicalAddressState__c} onchange={handler_FieldOnChange}
+                                                        data-memberindex={memberindex} required="true" label="State" theme={theme}
+                                                        disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                                </div>
+                                                <div class="address-field">
+                                                    <vlocity_ins-input type="text" name="ARC_PhysicalAddressZipCode__c"
+                                                        max-length="5" value={member.ARC_PhysicalAddressZipCode__c}
+                                                        onchange={handler_FieldOnChange} data-memberindex={memberindex}
+                                                        required="true" label="Zip Code" theme={theme}
+                                                        disabled={member.DISABLE_INPUT_FIELDS}></vlocity_ins-input>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <template for:each={member.individual_errors} for:item="error">
+                                    <span key={error.error_message} class="error-container error-txt">
+                                        {error.error_message}
+                                    </span>
+                                </template>
+                            </div>
+                        </lightning-accordion-section>
+                </lightning-accordion>
+                </template>
+            </template>
+
+        <!-- Add Member Button -->
+        <div class="add-button-container">
+            <vlocity_ins-button variant="neutral" label="Add Member"
+                onclick={handler_AddMemberButton} theme={theme}></vlocity_ins-button>
+        </div>
+        <!-- Previous Button Warning -->
+        <vlocity_ins-modal class="discard-warning-modal" title="Are you sure you want to discard your changes?" size="small">
+            <div slot="content" style="max-height: 100px; overflow-y: auto; padding-bottom: 0;">
+                <p>If you confirm, any entered or modified fields will be cleared. This action cannot be undone.</p>
+            </div>
+            <div slot="footer">
+                <vlocity_ins-button label="Cancel" variant="neutral" onclick={handler_CancelDiscardChanges} theme={theme}>
+                </vlocity_ins-button>
+                <vlocity_ins-button label="Confirm" variant="brand" onclick={handler_ConfirmDiscardChanges} theme={theme}>
+                </vlocity_ins-button>
+            </div>
+        </vlocity_ins-modal>
+        <!-- Census errors -->
+        <template for:each={census_errors} for:item="census_error">
+            <span key={census_error.error_message} class="error-container error-txt">
+                {census_error.error_message}
+            </span>
+        </template>
+    </div>
+    <!-- next & previous buttons -->
+    <div class="button-container">
+        <button class="vlocity-btn nds-button nds-button_brand nds-button_stretch" onclick={handler_NextStep} theme={theme}>Next</button>
+        <button class="vlocity-btn nds-button nds-button_neutral nds-button_stretch" onclick={handler_PreviousStep} theme={theme}>Previous</button>
+    </div>
+
+    <!-- Modal Extra dependent fee -->    
+    <template if:true={moreThan3Dependents}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- modal header start -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseExtraDepModal}>
+                        <lightning-icon icon-name="utility:close"
+                        alternative-text="close"
+                        variant="inverse"
+                        size="small" ></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center">
+                        <lightning-icon size="small" icon-name="utility:warning" alternative-text="Warning!" title="Warning"></lightning-icon>
+                        <span id="modal-heading-01" class="slds-text-heading_small slds-p-left_small">Extra dependent fee</span>
+                    </div>
+                </header>
+            
+                <!-- modal body start -->
+                <div class="slds-modal__content"  id="modal-content-id-1" >
+                    <span class="slds-p-around_medium slds-align_absolute-center">Starting with the 4th dependent, you will be charged $50 a month for each additional dependent. There is no fee for the first 3 dependents.</span> 
+                 </div>
+                <div id="footerSection">                                                             
+                    <div class="slds-modal__footer">
+                        <vlocity_ins-button label='Close' variant='brand' onclick={handleCloseExtraDepModal} class="close-modal-button" ></vlocity_ins-button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template> 
+
+</template>

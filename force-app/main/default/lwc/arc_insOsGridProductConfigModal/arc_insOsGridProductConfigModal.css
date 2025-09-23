@@ -1,0 +1,13 @@
+.arc_cart-popup {
+    text-align: center;
+    position: fixed;   
+    transform: translate(-25%, calc(-100% - 1rem * 0.7));
+    max-width: 10rem;
+    color: var(--bg-color);
+    padding: 6px;
+}
+
+.arc_cart-popup::before,
+.arc_cart-popup::after {
+    left: 50%;
+}

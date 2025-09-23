@@ -1,0 +1,13 @@
+<template>
+    <template if:false={isLoaded}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    <template if:true={isProducts}>
+        <template for:each={productsWithMembers} for:item="plan">
+            <c-arc_ins-os-enrollee-benefits-summary-row-shopv2 key={plan.plans.Id}
+                class="nds-p-horizontal_x-small slds-p-horizontal_x-small" product={plan.plans} productid={plan.plans.Id} dependents={plan.dependents}
+                root-channel={rootChannel} theme={theme}></c-arc_ins-os-enrollee-benefits-summary-row-shopv2>
+        </template>
+    </template>
+    <vlocity_ins-ins-os-grid-product-modal theme={theme} root-channel={rootChannel}></vlocity_ins-ins-os-grid-product-modal>
+</template>

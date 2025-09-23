@@ -1,0 +1,33 @@
+.vloc-ins-members-wrapper {
+    padding: 0;
+}
+
+.vloc-ins-employee-name-block {
+    min-height: 2.625rem;
+}
+
+.vloc-ins-employee-active {
+    background-color: #f0f7fd;
+}
+
+.vloc-ins-text-bold {
+    font-weight: bold;
+}
+
+.vloc-ins-add-dependent {
+    border-color: currentColor;
+    line-height: 1rem;
+}
+
+.vloc-ins-delete-census {
+    margin-left: auto;
+}
+
+.vloc-ins-delete-employee-button {
+    width: 100%;
+}
+
+.vloc-ins-error-message {
+    border-radius: 0.25rem;
+    justify-content: left;
+}

@@ -1,0 +1,31 @@
+<template>
+    <template if:false={isLoaded}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    <template if:true={isLoaded}>
+        <template for:each={contracts} for:item="contract">
+            <div key={contract.id} class="slds-m-bottom_xx-large products-block">
+                <h2 class="contract-status text-bold">
+                    {contract.status}
+                </h2>
+                <template for:each={contract.products} for:item="product">
+                    <c-a-r-c_-benefits-summary-row key={product.id} product={product}></c-a-r-c_-benefits-summary-row>
+                </template>
+            </div>
+        </template>
+        <template if:true={contractsIsEmpty}>
+            <div class="slds-text-align_center">
+                <!-- <lightning-icon icon-name="utility:info" size=" " alternative-text="Info" variant="warning">
+                </lightning-icon> -->
+                <!-- <p class="slds-text-heading_medium">Sorry, there are no Active or Awaiting Activation programs.</p> -->
+                <!-- <p></p> -->
+                <div style="padding: 20px; border-radius: 8px; color: black; text-align: center;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+                    <div style="font-size: 18px;">Sorry, there are no Active or Awaiting Activation programs to display.
+                    </div>
+                </div>
+            </div>
+
+        </template>
+    </template>
+</template>

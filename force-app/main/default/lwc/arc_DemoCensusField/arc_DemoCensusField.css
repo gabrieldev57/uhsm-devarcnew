@@ -1,0 +1,6 @@
+.ssnClass input{
+    -webkit-text-security: disc; 
+}
+.ssnClass{
+    width: -webkit-fill-available;
+}

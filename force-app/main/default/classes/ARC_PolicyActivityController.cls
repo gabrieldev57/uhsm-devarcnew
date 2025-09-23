@@ -1,0 +1,13 @@
+public with sharing class ARC_PolicyActivityController {
+
+    @AuraEnabled
+    public static List<Claim> getClaims(String policyName) {
+
+        if(String.isBlank(policyName)) return new List<Claim>();
+        List<Claim> claims = [SELECT Id, Name, Status, ARC_Vendor__r.name, ARC_Vendor__c, ARC_PatientCensusMember__c, ARC_PatientCensusMember__r.Name, ARC_PatientCensusMember__r.Member_ID__c, ARC_PatientCensusMember__r.e123_member_id_from_policy__c, ARC_PatientCensusMember__r.e123_member_id__c, ARC_MemberContact__c, ARC_MemberContact__r.Name, ARC_ClaimNotes__c, ARC_PlaceOfService__c, ARC_OriginalReceivedDate__c, CreatedDate, ARC_DOSFrom__c, ARC_LagDays__c, ARC_MemberBenefitPlan__c, ARC_ClaimTotalAmount__c, ARC_TotalNetPaidAmount__c, ARC_AuditorValidation__c, ARC_Auditor_Approved_By__c, LastModifiedBy.Name, LastModifiedById, LastModifiedDate, FinalizedDate, DX_A__r.Name, DX_A__r.vlocity_ins__ShortDescription__c, DX_B__r.Name, DX_B__r.vlocity_ins__ShortDescription__c, DX_C__r.Name, DX_C__r.vlocity_ins__ShortDescription__c, DX_D__r.Name, DX_D__r.vlocity_ins__ShortDescription__c, DX_E__r.Name, DX_E__r.vlocity_ins__ShortDescription__c, DX_F__r.Name, DX_F__r.vlocity_ins__ShortDescription__c, DX_G__r.Name, DX_G__r.vlocity_ins__ShortDescription__c, DX_H__r.Name, DX_H__r.vlocity_ins__ShortDescription__c, DX_I__r.Name, DX_I__r.vlocity_ins__ShortDescription__c, DX_J__r.Name, DX_J__r.vlocity_ins__ShortDescription__c, DX_K__r.Name, DX_K__r.vlocity_ins__ShortDescription__c, DX_L__r.Name, DX_L__r.vlocity_ins__ShortDescription__c , RecordType.Name, ARC_TotalCopayAmount__c, ARC_TotalDeductibleAmount__c, ARC_TotalCoinsuranceAmount__c, ARC_TotalMBRLiabilityAmount__c, ARC_TotalAllowedAmount__c, (SELECT Id, Name, Status, ARC_ProcedureCode__c,  ARC_Allowed__c, ARC_Claim__c, ICD_Codes__c, ARC_ProcedureCodeName__c, ARC_ProcedureCode__r.vlocity_ins__ShortDescription__c, ARC_RevenueCode__c, ARC_Deductible__c, ARC_Copay__c, ARC_Coinsurance__c, ARC_MBRLiability__c, ARC_PatientResp__c  FROM Claim_Coverage_Payment_Details__r ORDER BY Name ASC),
+        (SELECT Id, ARC_ICD_DX__r.Name, ARC_ICD_DX__r.vlocity_ins__ShortDescription__c FROM Institutional_Claim_Codes__r WHERE RecordType.Name = 'ICD 10 DX and POA' AND ARC_ICD_DX__r.Name != null )
+                              FROM Claim
+                              WHERE PolicyNumber.Name = :policyName OR ARC_PatientCensusMember__r.Member_ID__c =: policyName OR ARC_PatientCensusMember__r.e123_member_id_from_policy__c =: policyName OR ARC_PatientCensusMember__r.e123_member_id__c =: policyName];
+        return claims;
+    }
+}

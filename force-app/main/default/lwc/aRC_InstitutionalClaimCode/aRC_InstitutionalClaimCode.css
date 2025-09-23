@@ -1,0 +1,23 @@
+.table-idx {
+    display: table;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.row-idx {
+    display: table-row;
+}
+
+.header-idx {
+    display: table-header-group;
+    background-color: #f4f4f4;
+    color: black;
+    font-weight: bold;
+}
+
+.cell-idx {
+    display: table-cell;
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}

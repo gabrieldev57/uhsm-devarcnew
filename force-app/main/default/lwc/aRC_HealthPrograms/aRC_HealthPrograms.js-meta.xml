@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>ARC Health Programs</masterLabel>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__Tab</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="title" label="Title" type="String" default="Health Programs Title"></property>
+            <property name="subtitle" label="SubTitle" type="String" default="Health Programs SubTitle"></property>
+            <property name="text" label="Text" type="String" default="Health Programs Text"></property>
+            <property name="programsList" label="Programs List" type="String" default="Home"></property>
+            <property name="slider" label="Slider" type="Boolean" description="Should it transform into a slider?" default="false"></property>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

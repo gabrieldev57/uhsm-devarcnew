@@ -1,0 +1,184 @@
+.community-hero{
+    position: relative;
+}
+.community-hero.remove-component-vertical-margin{
+    margin: calc(var(--component-vertical-spacing) * -1) 0;
+}
+.community-hero-container{
+    position: absolute;
+    top: calc(var(--jepson-topbar-height)*-1);;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+}
+.community-hero-content-absolute{
+    position: absolute;
+    width: 100%;
+    transform: translateY(-50%);
+}
+.community-hero-content{
+    margin: auto;
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+}
+.community-hero-content-alignment{
+    padding: 40px 50px;
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+}
+.community-hero-content-container{
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+}
+.community-hero-background-container{
+    position: absolute;
+    width: 100vw;
+    height: 100%;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+.community-hero-shadow{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    box-shadow: 0px -5px 45px -5px rgb(0 0 0 / 50%) inset;
+    -webkit-box-shadow: 0px -5px 45px -5px rgb(0 0 0 / 50%) inset;
+    -moz-box-shadow: 0px -5px 45px -5px rgb(0 0 0 / 50%) inset;
+}
+.community-hero-background-parallax{
+    transform: translate(0,0);
+    height: 100%;
+}
+img,
+video{
+    position: absolute;
+    max-width: none;
+    width: 100%;
+    height: auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    z-index: -1;
+}
+h1{
+    font-size: 40px;
+}
+.community-hero-content>*{
+    margin-top: 14px;
+    max-width: 600px;
+    width: 100%;
+}
+.community-hero-content>*:first-child{
+    margin-top: 0;
+}
+.community-hero-content h3+h1{
+    margin-top: 6px;
+}
+.community-hero-content .hero-button-container{
+    margin-top: 20px;
+    display: flex;
+}
+.community-hero-content .hero-button-container .hero-button{
+    margin-left: 12px;
+}
+.community-hero-content .hero-button-container .hero-button:first-child{
+    margin-left: 0;
+}
+.community-hero-bottom-arc{
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    z-index: 1;
+}
+.community-hero-bottom-arc svg{
+    height: 60px;
+}
+.community-hero-bottom-arc svg path{
+    fill: var(--color-background);
+}
+.community-hero-background-filter{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+@media screen and (max-width: 1400px){
+    img,
+    video{
+        width: auto;
+        height: 150%;
+    }
+}
+@media screen and (max-width: 1200px){
+    .community-hero-content-alignment{
+        max-width: 50vw !important;
+    }
+}
+@media screen and (max-width: 768px){
+    c-cf-a-r-c_-community-quick-actions > div.nds-grid.nds-wrap.nds-is-relative{
+        margin-top: 50px;
+    }
+    
+    c-a-r-c_-community-hero > div > div > div:nth-child(2){
+    /* body > div.themeLayoutStarterWrapper.isHeroUnderHeader-false.isHeaderPinned-true.siteforceThemeLayoutStarter > div.body.isPageWidthFixed-true > div > div > div:nth-child(1) > div > div.cb-section_row.slds-grid.slds-wrap.slds-large-nowrap > div > div > div.ui-widget.C-A-R-C_-COMMUNITY-HERO > c-a-r-c_-community-hero > div > div > div.community-hero-content-absolute{ */
+        margin-top: -30px;
+    }
+    img,
+    video{
+        width: auto;
+        height: 150%;
+    }
+    .community-hero-content-absolute{
+        bottom: 0;
+        /* top: unset !important; */
+        top: 30% !important;
+        transform: none;
+    }
+    .community-hero-content-alignment{
+        max-width: 100vw !important;
+    }
+}
+/* .parallax{
+    overflow: hidden;
+} */
+/* .parallax .community-hero-background-container{
+    width: 106vw;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+} */
+
+.community-hero-media{
+    height: 100vh;
+    transform: translateY(-50%);
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+}
+video.community-hero-media{
+    width: 100%;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+}
+button.slds-button.hero-scroll-button{
+    padding: 0;
+    height: 100%;
+    border-radius: 50%;
+}
+
+.h3{
+    font-weight: bold !important;
+}

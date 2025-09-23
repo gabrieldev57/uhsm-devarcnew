@@ -1,0 +1,143 @@
+<template>
+            <div class="slds-grid slds-wrap slds-is-relative ">
+            <div style="position: fixed;z-index: 999999;top: 0;right: 0;">
+  <vlocity_ins-toast class="flexcard-toast-element" theme="slds" title="" message="" styletype=""> </vlocity_ins-toast>
+</div>
+            <div if:true={showLoader} class="slds-is-absolute vloc-loader_override" style="height: 100%; width: 100%; min-height:50px; background: transparent; z-index: 99;">
+  <div>
+   <vlocity_ins-spinner
+      variant="brand"
+      alternative-text="Loading content..."
+      size="medium"
+      theme="slds"
+      ></vlocity_ins-spinner>
+  </div>
+</div>
+            <template if:false={hasPermission}>
+              You don't have required permissions to view this card.
+            </template>
+            <template if:true={hasPermission}>
+              <template if:true={hasRecords}>
+                        <template for:each={_records} for:item="record" for:index="rindex">
+                            <vlocity_ins-flex-card-state if:true={record}  key={record._flex.uniqueKey} data-recordid={record.Id} record={record} data-statue="true"  data-index="0" data-rindex={rindex} class="cf-vlocity-state-0 cf-vlocity-state slds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="slds-grid slds-wrap slds-card slds-p-around_x-small slds-m-bottom_x-small " style="      
+         display:flex;justify-content:center;">
+          <div data-style-id="state0element0" class="slds-col   slds-card arc-styles profile-details slds-p-around_medium  slds-size_12-of-12  " data-rindex={rindex} style="      
+         " >
+    <vlocity_ins-block data-style-id="state0element0_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element0" class="slds-col   slds-size_12-of-12  " data-rindex={rindex} style="      
+         text-align:center;" ><vlocity_ins-output-field data-style-id="state0element0block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%20class=%22slds-text-heading_medium%20slds-text-body_regular%22%3EDiscount%20Promotion%3C/div%3E%0A%3Cdiv%20class=%22slds-text-color_success%20slds-text-body_small%20slds-text-heading_small%22%3EActive%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element1" class="slds-col   slds-p-around_x-small slds-size_12-of-12 " data-rindex={rindex} style="" >
+    <vlocity_ins-block data-style-id="state0element0block_element1_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element1block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element1block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EDiscount%20ID%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element1block_element1" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-flex-action data-style-id="state0element0block_element1block_element1_child"  tracking-obj={_childCardTrackingObj}  class= "state0element0block_element1block_element1_child flexActionElement" 
+        data-action-element-class="state0element0block_element1block_element1_child" onexecuteaction={performAction} data-show-spinner="false"
+        data-element-label="act_recordurl"   state-obj={record}  record={record}  card={card}  action-list='\[{"actionIndex":0,"draggable":true,"isOpen":true,"key":"1691689333441-2s9jiys39","label":"Action","stateAction":{"Record":{"targetAction":"view","targetId":"{Id}","targetName":"ARC_PromotionDiscount__c"},"id":"flex-action-1691689346881","openUrlIn":"New Tab/Window","targetType":"Record","type":"Custom"}}]'  flyout-details='\{}'  hide-action-icon="false"  icon-name="standard:link"  icon-only="false"  label="\{Id}"  theme="slds"  ></vlocity_ins-flex-action>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element2" class="slds-col   slds-p-around_x-small slds-size_12-of-12  condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}' >
+    <vlocity_ins-block data-style-id="state0element0block_element2_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}'  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element2block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element2block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EDiscount%20Type%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element2block_element1" class="slds-col   slds-size_6-of-12 " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element2block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BType%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element3" class="slds-col   slds-p-around_x-small slds-size_12-of-12 condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-24","operator":"==","type":"custom","value":"App Fee"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-25","logicalOperator":"||","operator":"==","type":"custom","value":"Change Fee"}],"id":"state-condition-object","isParent":true}' >
+    <vlocity_ins-block data-style-id="state0element0block_element3_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-24","operator":"==","type":"custom","value":"App Fee"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-25","logicalOperator":"||","operator":"==","type":"custom","value":"Change Fee"}],"id":"state-condition-object","isParent":true}'  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element3block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element3block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EAmount%20To%20Discount%20per%20Transaction%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element3block_element1" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element3block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BAmount%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element4" class="slds-col   slds-p-around_x-small slds-size_12-of-12  condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-0","operator":"==","type":"custom","value":"First Month Payment"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-5","logicalOperator":"||","operator":"==","type":"custom","value":"Next X Number of Recurring Payments"}],"id":"state-condition-object","isParent":true}' >
+    <vlocity_ins-block data-style-id="state0element0block_element4_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-0","operator":"==","type":"custom","value":"First Month Payment"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-5","logicalOperator":"||","operator":"==","type":"custom","value":"Next X Number of Recurring Payments"}],"id":"state-condition-object","isParent":true}'  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element4block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element4block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EPrice%20Without%20Discount%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element4block_element1" class="slds-col   slds-size_6-of-12 " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element4block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BPriceWithoutDiscount%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element5" class="slds-col   slds-p-around_x-small slds-size_12-of-12  condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-0","operator":"==","type":"custom","value":"First Month Payment"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-5","logicalOperator":"||","operator":"==","type":"custom","value":"Next X Number of Recurring Payments"}],"id":"state-condition-object","isParent":true}' >
+    <vlocity_ins-block data-style-id="state0element0block_element5_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-0","operator":"==","type":"custom","value":"First Month Payment"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-5","logicalOperator":"||","operator":"==","type":"custom","value":"Next X Number of Recurring Payments"}],"id":"state-condition-object","isParent":true}'  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element5block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element5block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EPrice%20With%20Discount%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element5block_element1" class="slds-col   slds-size_6-of-12 " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element5block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BPriceWithDiscount%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element6" class="slds-col   slds-p-around_x-small slds-size_12-of-12 " data-rindex={rindex} style="" >
+    <vlocity_ins-block data-style-id="state0element0block_element6_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element6block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element6block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EDiscount%20ID%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element6block_element1" class="slds-col   slds-size_6-of-12 " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element6block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BOverallDiscountUsage%7D%20times%20used.%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div>
+        </div></vlocity_ins-block>
+    </div>
+        </div>
+      </vlocity_ins-flex-card-state>
+                        </template>
+                      </template>
+                      <template if:false={hasRecords}>
+                            <vlocity_ins-flex-card-state  record={record} data-statue="false"  data-index="0" data-rindex={rindex} class="cf-vlocity-state-0 cf-vlocity-state slds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="slds-grid slds-wrap slds-card slds-p-around_x-small slds-m-bottom_x-small " style="      
+         display:flex;justify-content:center;">
+          <div data-style-id="state0element0" class="slds-col   slds-card arc-styles profile-details slds-p-around_medium  slds-size_12-of-12  " data-rindex={rindex} style="      
+         " >
+    <vlocity_ins-block data-style-id="state0element0_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element0" class="slds-col   slds-size_12-of-12  " data-rindex={rindex} style="      
+         text-align:center;" ><vlocity_ins-output-field data-style-id="state0element0block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%20class=%22slds-text-heading_medium%20slds-text-body_regular%22%3EDiscount%20Promotion%3C/div%3E%0A%3Cdiv%20class=%22slds-text-color_success%20slds-text-body_small%20slds-text-heading_small%22%3EActive%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element1" class="slds-col   slds-p-around_x-small slds-size_12-of-12 " data-rindex={rindex} style="" >
+    <vlocity_ins-block data-style-id="state0element0block_element1_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element1block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element1block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EDiscount%20ID%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element1block_element1" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-flex-action data-style-id="state0element0block_element1block_element1_child"  tracking-obj={_childCardTrackingObj}  class= "state0element0block_element1block_element1_child flexActionElement" 
+        data-action-element-class="state0element0block_element1block_element1_child" onexecuteaction={performAction} data-show-spinner="false"
+        data-element-label="act_recordurl"   state-obj={record}  record={record}  card={card}  action-list='\[{"actionIndex":0,"draggable":true,"isOpen":true,"key":"1691689333441-2s9jiys39","label":"Action","stateAction":{"Record":{"targetAction":"view","targetId":"{Id}","targetName":"ARC_PromotionDiscount__c"},"id":"flex-action-1691689346881","openUrlIn":"New Tab/Window","targetType":"Record","type":"Custom"}}]'  flyout-details='\{}'  hide-action-icon="false"  icon-name="standard:link"  icon-only="false"  label="\{Id}"  theme="slds"  ></vlocity_ins-flex-action>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element2" class="slds-col   slds-p-around_x-small slds-size_12-of-12  condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}' >
+    <vlocity_ins-block data-style-id="state0element0block_element2_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}'  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element2block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element2block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EDiscount%20Type%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element2block_element1" class="slds-col   slds-size_6-of-12 " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element2block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BType%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element3" class="slds-col   slds-p-around_x-small slds-size_12-of-12 condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-24","operator":"==","type":"custom","value":"App Fee"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-25","logicalOperator":"||","operator":"==","type":"custom","value":"Change Fee"}],"id":"state-condition-object","isParent":true}' >
+    <vlocity_ins-block data-style-id="state0element0block_element3_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-24","operator":"==","type":"custom","value":"App Fee"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-25","logicalOperator":"||","operator":"==","type":"custom","value":"Change Fee"}],"id":"state-condition-object","isParent":true}'  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element3block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element3block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EAmount%20To%20Discount%20per%20Transaction%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element3block_element1" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element3block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BAmount%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element4" class="slds-col   slds-p-around_x-small slds-size_12-of-12  condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-0","operator":"==","type":"custom","value":"First Month Payment"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-5","logicalOperator":"||","operator":"==","type":"custom","value":"Next X Number of Recurring Payments"}],"id":"state-condition-object","isParent":true}' >
+    <vlocity_ins-block data-style-id="state0element0block_element4_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-0","operator":"==","type":"custom","value":"First Month Payment"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-5","logicalOperator":"||","operator":"==","type":"custom","value":"Next X Number of Recurring Payments"}],"id":"state-condition-object","isParent":true}'  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element4block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element4block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EPrice%20Without%20Discount%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element4block_element1" class="slds-col   slds-size_6-of-12 " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element4block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BPriceWithoutDiscount%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element5" class="slds-col   slds-p-around_x-small slds-size_12-of-12  condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-0","operator":"==","type":"custom","value":"First Month Payment"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-5","logicalOperator":"||","operator":"==","type":"custom","value":"Next X Number of Recurring Payments"}],"id":"state-condition-object","isParent":true}' >
+    <vlocity_ins-block data-style-id="state0element0block_element5_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  data-conditions='\{"group":[{"field":"Type","hasMergeField":false,"id":"state-new-condition-0","operator":"==","type":"custom","value":"First Month Payment"},{"field":"Type","hasMergeField":false,"id":"state-new-condition-5","logicalOperator":"||","operator":"==","type":"custom","value":"Next X Number of Recurring Payments"}],"id":"state-condition-object","isParent":true}'  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element5block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element5block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EPrice%20With%20Discount%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element5block_element1" class="slds-col   slds-size_6-of-12 " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element5block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BPriceWithDiscount%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element0block_element6" class="slds-col   slds-p-around_x-small slds-size_12-of-12 " data-rindex={rindex} style="" >
+    <vlocity_ins-block data-style-id="state0element0block_element6_child"  record={record}  card={card}  collapsed-by-default="false"  collapsible="false"  label="Block"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element6block_element0" class="slds-col   slds-size_6-of-12  " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element6block_element0_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%3Cstrong%3EDiscount%20ID%3C/strong%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element0block_element6block_element1" class="slds-col   slds-size_6-of-12 " data-rindex={rindex} style="" ><vlocity_ins-output-field data-style-id="state0element0block_element6block_element1_child"   record={record}  card={card}  merge-field="%3Cdiv%3E%7BOverallDiscountUsage%7D%20times%20used.%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div>
+        </div></vlocity_ins-block>
+    </div>
+        </div>
+      </vlocity_ins-flex-card-state>
+                      </template>
+            </template>
+            <template if:true={hasError}>
+            {error}
+            </template>
+            
+      <vlocity_ins-action action-wrapperclass="slds-hide" re-render-flyout class="action-trigger slds-col" onupdateos={updateOmniscript} onselectcards={updateSelectedCards} onsetvalue={updateAction} onfireactionevent={actionEvtHandler}>
+      
+      </vlocity_ins-action>
+  
+            <vlocity_ins-action class="execute-action" re-render-flyout action-wrapperclass="slds-hide" onupdateos={updateOmniscript} onselectcards={updateSelectedCards} onsetvalue={updateAction} onfireactionevent={actionEvtHandler}>
+            
+            </vlocity_ins-action>
+            </div>
+          </template>

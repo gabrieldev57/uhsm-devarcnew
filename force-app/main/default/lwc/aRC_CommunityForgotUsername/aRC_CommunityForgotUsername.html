@@ -1,0 +1,19 @@
+<template>
+    <div class="slds-grid slds-form-element slds-align_absolute-center">
+        <div class="slds-col">
+            <div if:true={error}>
+                <div class="errorMessage">{errorMessage}</div>
+            </div>
+            <!--Input Username-->
+            <div class="slds-grid slds-wrap slds-p-around_medium slds-box slds-box_small slds-m-bottom_small">
+                <lightning-icon icon-name="utility:user" alternative-text="Email" size="xx-small" title="small size" class="slds-col slds-size_1-of-12 slds-icon-utility-user slds-icon_container slds-p-top_x-small slds-p-left_small inputIcons">
+                </lightning-icon>
+                <input type="email" id="input_username" placeholder="Email"  class="slds-input slds-col slds-size_11-of-12 form_inputs" data-key="inputEmail"  onchange={handleEmailChange} />
+            </div>  
+            <!--Reset Button-->
+            <div class="slds-form-element__control slds-size_12-of-12" >
+                <button class="slds-button slds-button_neutral slds-size_12-of-12 requestUsernameButton" onclick={handleSend}>Request Username</button>
+            </div>
+        </div>
+    </div>
+</template>

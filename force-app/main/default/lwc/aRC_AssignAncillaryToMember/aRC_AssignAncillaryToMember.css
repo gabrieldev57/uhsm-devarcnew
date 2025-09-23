@@ -1,0 +1,65 @@
+* {
+    font-family: Arial, sans-serif;
+}
+
+table {
+    border: 1px solid #D4D4D4 !important;
+}
+
+th {
+    text-align: center;
+    font-size: 15px;
+    background-color: rgb(244 178 35) !important;
+    color: white !important;
+}
+
+td {
+    text-align: center;
+}
+
+tr:hover select {
+    background-color: #80808000 !important;
+}
+
+select {
+    padding: 5px;
+    border: none;
+    background-color: white; 
+    text-align: center;
+    width: 60%;
+}
+
+select:hover {
+    cursor: pointer;
+}
+
+select:focus,
+select:focus-visible {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+select option:hover {
+    background-color: #80808000 !important;
+}
+
+
+.omniscript-btn-next {
+    margin-top: 50px;
+}
+
+.shareElements {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.shareCheckboxes {
+    margin: 0 45px 0 0 !important;
+}
+
+.nds-form-element__label .nds-form-element__control-help .nds-checkbox-span {
+    color: #3e456f !important;
+    font-size: 12px !important;
+}

@@ -1,0 +1,100 @@
+<template>
+    <div class="sectionContainer">
+        <lightning-datatable
+                key-field="id"
+                data={sectionAData}
+                columns={sectionAColumns}
+                hide-checkbox-column=true
+                resize-column-disabled
+                >
+        </lightning-datatable>
+        <div class="previousButtonContainer">
+            <lightning-button 
+                label="Modify" 
+                onclick={handleClick}>
+            </lightning-button>
+        </div>
+    </div>
+    
+    <div class="sectionContainer">
+        <lightning-datatable
+                key-field="id"
+                data={sectionBData}
+                columns={sectionBColumns}
+                hide-checkbox-column=true
+                resize-column-disable
+                >
+            </lightning-datatable>
+        <!-- <template if:true={sectionB}>
+            <lightning-datatable
+                key-field="id"
+                data={sectionBData}
+                columns={sectionBColumns}
+                hide-checkbox-column=true
+                resize-column-disable
+                >
+            </lightning-datatable>
+        </template>
+        <template if:false={sectionB}>
+            <p>Past Conditions are empty</p>
+        </template> -->
+        <div class="previousButtonContainer">
+            <lightning-button 
+                label="Modify" 
+                onclick={handleClick}>
+            </lightning-button>
+        </div>
+    </div>
+
+    <div class="sectionContainer">
+        <lightning-datatable
+                key-field="id"
+                data={sectionCData}
+                columns={sectionCColumns}
+                hide-checkbox-column=true                                                      
+                resize-column-disabled
+                >
+        </lightning-datatable>
+        <div class="previousButtonContainer">
+            <lightning-button 
+                label="Modify" 
+                onclick={handleClick}>
+            </lightning-button>
+        </div>
+    </div>
+
+    <div class="sectionContainer">
+        <lightning-datatable
+                key-field="id"
+                data={sectionDData}
+                columns={sectionDColumns}
+                hide-checkbox-column=true
+                resize-column-disabled
+                class="sectionTable"
+                >
+        </lightning-datatable>
+        <div class="previousButtonContainer">
+            <lightning-button 
+                label="Modify" 
+                onclick={handleClick}>
+            </lightning-button>
+        </div>
+    </div>
+
+    <div class="sectionContainer">
+        <lightning-datatable
+                key-field="id"
+                data={sectionEData}
+                columns={sectionEColumns}
+                hide-checkbox-column=true
+                resize-column-disabled
+                >
+        </lightning-datatable>
+        <div class="previousButtonContainer">
+            <lightning-button 
+                label="Modify" 
+                onclick={handleClick}>
+            </lightning-button>
+        </div>
+    </div>
+</template>

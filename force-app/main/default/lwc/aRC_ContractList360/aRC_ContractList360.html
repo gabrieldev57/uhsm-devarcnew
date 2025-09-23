@@ -1,0 +1,73 @@
+<template>
+    <div class="lwc-card-list">
+        <lightning-spinner alternative-text="Loading..." if:true={isLoading} size="medium"></lightning-spinner>
+        <div class="search-container">
+            <lightning-input type="search" onchange={handleKeyChange} class="slds-m-bottom_small searchInput"
+                value={keyString} placeholder="Search contract by status..."></lightning-input>
+            <lightning-button onclick={newContract} label="Open contract" value="Open contract"
+                class="newContractButton"></lightning-button>
+            <lightning-button-icon icon-name="utility:refresh" alternative-text="Refresh" title="Refresh"
+                onclick={handleRefresh}></lightning-button-icon>
+        </div>
+        <template if:true={contractList} for:each={contractList} for:item="contract" for:index="index">
+            <div key={contract.id} class="main">
+                <lightning-card>
+                    <div class="container title-container">
+                        <h3>
+                            {contract.contractNumber} - {contract.status}
+                        </h3>
+                        <div class="actions">
+                            <a onclick={viewRecord} data-id={contract.id}>
+                                <lightning-icon size="x-small" icon-name="utility:case" alternative-text="View Contract"
+                                    title="View Contract"></lightning-icon>
+                            </a>
+                            <a onclick={editRecord} data-id={contract.id}>
+                                <lightning-icon size="x-small" icon-name="utility:edit" alternative-text="Edit Contract"
+                                    title="Edit Contract"></lightning-icon>
+                            </a>
+                            <a onclick={viewOwner} data-ownerid={contract.ownerId}>
+                                <lightning-icon size="x-small" icon-name="utility:user"
+                                    alternative-text="Contract Owner" title="Contract Owner"></lightning-icon>
+                            </a>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="container">
+                        <div class="column">
+                            <span>Effective Date</span>
+                            <span>Paid Through Date</span>
+
+                            <!-- <span if:false={contract.hasInactiveDate}>Status</span> -->
+                            <span if:true={contract.inactiveDate}>Inactive Date</span>
+                            <span>Product Name</span>
+                            <span>Reason</span>
+                            <span if:true={contract.cancellationReason}>Cancellation Reason</span>
+                            <span if:true={contract.repriced}>Repriced</span>
+                            <span>Active Members</span>
+                            <span>Agent</span>
+                        </div>
+                        <div class="column">
+                            <p>
+                                <lightning-formatted-date-time value={contract.effectiveDate} year="numeric"
+                                    month="numeric" day="numeric" time-zone="UTC"></lightning-formatted-date-time>
+                            </p>
+                            <p>{contract.paidThroughDate}</p>
+                            <p if:true={contract.inactiveDate}>
+                                {contract.inactiveDate}
+                            </p>
+                            <p>{contract.productName}</p>
+                            <p>{contract.reason}</p>
+                            <p if:true={contract.cancellationReason}>
+                                {contract.cancellationReason}
+                            </p>
+                            <p if:true={contract.repriced}>{contract.repriced}</p>
+                            <p>{contract.members}</p>
+                            <p>{contract.sellingAgent}</p>
+                        </div>
+                    </div>
+                </lightning-card>
+            </div>
+        </template>
+
+    </div>
+</template>

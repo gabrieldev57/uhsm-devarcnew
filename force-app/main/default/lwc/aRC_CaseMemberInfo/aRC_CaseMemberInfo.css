@@ -1,0 +1,24 @@
+input{
+    box-shadow: none;
+}
+.content{
+    padding-top: 8px;
+}
+.first-column{
+    padding-right: 20px;
+}
+.slds-form-element__icon{
+    padding-top: 0px !important;
+}
+.clickable-contract{
+    cursor: pointer !important;
+}
+.last-column{
+    padding-right: 20px;
+}
+
+.no-account{
+    display: flex;
+    justify-content: center;
+    align-items: end;
+}

@@ -1,0 +1,71 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <div class="via-nds datePickerHt">
+        <div class="nds-form nds-form_compound">
+            <fieldset class="nds-form-element nds-form-container">
+                <div class="nds-grid nds-gutters nds-size_1-of-1 nds-m-around_none">
+                    <div class="nds-col nds-p-around_none">
+                        <div class="nds-form-element nds-size_1-of-1 nds-dropdown-trigger nds-dropdown-trigger_click">
+                            <div
+                                class="nds-datepicker nds-form-element__control nds-input-has-icon nds-input-has-icon_right nds-form-element__control-animated-label">
+                                <input type="text" required readonly aria-label="Effective Date" id="date-input-86"
+                                    data-id="date-picker-nds-input" autocomplete="off" aria-invalid="false"
+                                    aria-describedby="errorMessageBlock-86" onclick={openDatePicker}
+                                    class="nds-input nds-input_mask selectedInput" value={formattedSelectedDate}>
+                                <div data-label="true"
+                                    class="nds-form-element__label nds-align-middle nds-animated-label__ease-out nds-date-label">
+                                    <label aria-label="Effective Date" for="date-input-86">Effective Date<abbr
+                                            title="Required" class="nds-required nds-p-left_xx-small">*</abbr></label>
+                                    <slot name="label">
+                                        <slot slot="label" name="label"></slot>
+                                    </slot>
+                                </div>
+                                <!-- <button data-id="datePickerBtn" title="Select Date" type="button"
+                                    class="nds-button nds-button_icon nds-input__icon nds-input__icon_right Date">
+                                    <vlocity_ins-icon class="Date"><svg aria-hidden="true"
+                                            class="nds-icon nds-icon-text-default nds-icon_x-small">
+                                            <use href="">
+                                            </use>
+                                        </svg><span class="nds-assistive-text"></span></vlocity_ins-icon><span
+                                        class="nds-assistive-text">Select Date</span>
+                                </button> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="datesOutFocus" >
+        <div class="buttonContainer bold">
+            <button class="prev" data-id="prevBtn" type="button" onclick={previousMonth}>
+            </button>
+            <div class="month">
+                <h2 class="nds-align-middle bold">{month}</h2>
+            </div>
+            <button class="next" data-id="nextBtn" type="button" onclick={nextMonth}>
+            </button>
+                <input type="number" value={year} class="yearDisplayed" disabled>
+            <button class="closeDatePicker" onclick={closeDatePicker}>x</button>
+        </div>
+        <ul class="header">
+            <li>Sun</li>
+            <li>Mon</li>
+            <li>Tue</li>
+            <li>Wed</li>
+            <li>Thu</li>
+            <li>Fri</li>
+            <li>Sat</li>
+        </ul>
+        <ul class="datePickerHolder">
+            <template for:each={dates} for:item="date">
+                <li key={date.formatted} class={date.className} data-date={date.formatted} onclick={setSelected}>
+                    {date.text}
+                </li>
+            </template>
+        </ul>
+        <!-- <button class="todayBtn nds-button nds-align_absolute-center nds-text-link" type="button" onclick={goToday}>
+            TODAY
+        </button> -->
+    </div>
+</template>

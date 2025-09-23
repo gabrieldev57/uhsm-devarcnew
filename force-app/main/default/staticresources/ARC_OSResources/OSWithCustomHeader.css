@@ -1,0 +1,427 @@
+body{
+    --color-text: #2C2B2C;
+}
+
+/* 
+MARK: Section Fix
+    Fix to remove set height and padding from section
+    on Flexible Layout */
+.cb-section.forceCommunitySection{
+    padding: 0 !important;
+    height: unset !important;
+}
+
+
+/* ////////////////////////////////////
+MARK: Step Chart
+    Makes small change so step-chart is aligned to the end inside OS Header
+/////////////////////////////////////*/
+
+@media screen and (min-width: 64em) {
+    .os-header .ushm-step-chart{
+        justify-content: flex-end;
+    }
+}
+
+
+/* ////////////////////////////////////
+MARK: OS
+/////////////////////////////////////*/
+/* Remove OS border (we use a shadowed Block inside steps) */
+.omniscript-article{
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 1280px;
+    margin: auto;
+    min-height: 500px;
+}
+/* Step Title */
+/* Overrides ARC_SFOmniscriptStylePrivate
+    Restores step title */
+vlocity_ins-omniscript-step>h1[vlocity_ins-omniscriptstep_omniscriptstep_nds].nds-page-header__title{
+    display: flex !important;
+    justify-content: flex-start;
+    font-family: 'Aktiv Grotesk Ex', Arial;
+    font-size: 24px;
+    line-height: 36px;
+    letter-spacing: 0;
+    color: var(--color-text);
+}
+.nds-page-header__title:focus-visible{
+    outline: none;
+}
+/* Remove padding from the Step body so it aligs to Step title */
+.nds-page-header__title + div > .omniscript-step__body-nds{
+    padding: 0 !important;
+}
+/* Adds styling and shadows to any blocks
+    with names starting in "StepContent" */
+[data-omni-key^="StepContent"] {
+    border-radius: 16px;
+    border: 2px solid #D0D0D0;
+    box-shadow: 0px 0px 16px 0px #00000026;
+    padding: 12px;
+}
+
+/* ////////////////////////////////////
+MARK: OS Buttons
+/////////////////////////////////////*/
+/* .omniscript-btn-next, */
+.omniscript-btn-previous,
+.omniscript-btn-save-for-later{
+    /* --distance-to-external-bar: calc(48px + 1.5rem); */
+    --distance-to-external-bar: 48px;
+    height: 48px;
+    width: unset !important;
+    max-width: unset !important;
+    width: auto;
+    position: absolute;
+    top: calc(var(--distance-to-external-bar) * -1);
+    left: 0;
+    margin: 0;
+}
+/* .omniscript-btn-next *, */
+.omniscript-btn-previous button,
+.omniscript-btn-save-for-later button{
+    width: auto;
+    height: 100%;
+    padding: 0 40px !important;
+    border: none !important;
+    background-color: transparent !important;
+}
+/* .omniscript-btn-next *, */
+.omniscript-btn-previous button .btnLabel,
+.omniscript-btn-save-for-later button .btnLabel{
+    text-transform: none;
+    text-decoration: underline;
+    color: var(--button-secondary-color-text) !important;
+}
+/* .omniscript-btn-previous{
+
+} */
+.omniscript-btn-save-for-later{
+    left: unset;
+    right: 0;
+}
+
+/* Remove step position relative when using custom return button.
+    Fixes the button not showing up in the correct position */
+.via-nds vlocity_ins-omniscript-block > * > .nds-form-element{
+    position: unset;
+}
+
+/* Button next */
+.omniscript-btn-next button{
+	padding: 10px 25px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 6px !important;
+	background: #F2BC30 !important;
+	color: #fff !important;
+	border: none !important;
+	border-radius: 100px !important;
+	transition: all .125s ease-in-out !important;
+}
+@media screen and (min-width: 64em) {
+	.omniscript-btn-next button{
+		min-width: 176px !important;
+	}
+}
+.omniscript-btn-next button:hover,
+.omniscript-btn-next button:focus{
+	background: #e7b32d !important;
+}
+.omniscript-btn-next button:active{
+	background: #c49726 !important;
+}
+/* Align next button to the right */
+.omniscript-article > .nds-m-around_small > .nds-grid_align-center{
+    justify-content: flex-end !important;
+}
+/* Align next button to the right */
+.omniscript-article > .nds-m-around_small > .nds-grid_align-center > .nds-button-group-row{
+    justify-content: flex-end !important;
+    padding: 0 !important;
+}
+
+/* Special "Continue" button inside custom components */
+c-arc_-demo-census > .nds-m-around_small,
+c-a-r-c_-external-insurer-members-options > .nds-m-around_small{
+    margin: 0 !important;
+}
+c-arc_-demo-census > .nds-m-around_small > *,
+c-a-r-c_-external-insurer-members-options > .nds-m-around_small > *{
+    justify-content: flex-end !important;
+}
+c-arc_-demo-census > .nds-m-around_small > * > *,
+c-a-r-c_-external-insurer-members-options > .nds-m-around_small > * > *{
+    justify-content: flex-end !important;
+    padding-right: 0 !important;
+}
+
+/* 
+MARK: Typography
+*/
+.omniscript-article .step-h5,
+.omniscript-article .step-h5 *{
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 150%;
+}
+.via-nds .omniscript-article div.nds-text-block span,
+.via-nds .omniscript-article div.nds-text-block p{
+    font-size: 18px;
+}
+
+/* 
+MARK: Inputs
+*/
+.nds-input[type="text"],
+.nds-input[type="number"],
+.nds-input[type="email"],
+.nds-input[role="combobox"]
+{
+    border: 1px solid #7F8183 !important;
+    padding: 4px 16px !important;
+    margin-top: 26px;
+    border-radius: 10px;
+}
+.nds-input[type="text"] + *,
+.nds-input[type="number"] + *,
+.nds-input[type="email"] + *,
+.nds-input[role="combobox"] + *
+{
+    top: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+}
+.nds-input[type="text"] + * label,
+.nds-input[type="number"] + * label,
+.nds-input[type="email"] + * label,
+.nds-input[role="combobox"] + * label
+{
+   font-size: 14px !important;
+   font-weight: 400 !important;
+}
+.nds-input-has-icon .nds-input__icon{
+    right: 10px !important;
+    bottom: calc(30px / 2) !important;
+    top: unset !important;
+    box-shadow: none !important;
+}
+
+
+/* Radio */
+c-radio-group .nds-form-element__label{
+    margin-bottom: 18px !important;
+}
+c-radio-group .nds-form-element__control{
+    gap: 16px;
+}
+c-radio-group .nds-radio{
+    margin-bottom: 0 !important;
+}
+
+/* MARK: Products LWC
+*/
+
+.iogspss-header .vloc-ins-bold-heading{
+    font-size: 18px !important;
+    font-weight: 700 !important;
+}
+.iogspss-header{
+    margin-bottom: 40px;
+}
+.iogspss-header + *{
+    margin-top: 0;
+}
+/* Filter input */
+.iogspss-filter-container .nds-form-element{
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.iogspss-filter-container .nds-input{
+    margin: 0 !important;
+}
+.iogspss-filter-container > *{
+    align-items: center !important;
+}
+.iogspss-filter-container .nds-combobox__form-element{
+    min-width: 224px;
+}
+.iogspss-filter-container .nds-input{
+    background-color: #fff !important;
+    border: 1px solid #D9D9D9 !important;
+    font-size: 16px !important;
+}
+.iogspss-filter-container .nds-input__icon.nds-icon_container{
+    top: 50% !important;
+}
+
+
+.iogspr-checkbox-container .nds-checkbox__label{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px !important;
+}
+.iogspr-checkbox-container .nds-form-element__label{
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    color: #fff !important;
+    margin: 0 !important;
+}
+.iogspr-checkbox-container .nds-checkbox_faux{
+    background-color: transparent !important;
+    border: 1px solid #fff !important;
+    box-shadow: none !important;
+}
+.via-nds .omniscript-article .iogspr-checkbox-container .nds-checkbox [type=checkbox]:checked + .nds-checkbox__label .nds-checkbox_faux{
+    background: #fff !important;
+}
+.via-nds .omniscript-article .iogspr-checkbox-container .nds-checkbox [type=checkbox]:checked + .nds-checkbox__label .nds-checkbox_faux:after{
+    border-color: var(--omniscript-checkbox-color) !important;
+}
+
+/* Products background randomization */
+.via-nds .omniscript-article c-arc_-ins-os-grid-styled-product-row:nth-child(3n+1) .iogspr-product-content{
+    background-image: var(--product-bg-image);
+	background-position: center;
+    background-size: cover;
+}
+.via-nds .omniscript-article c-arc_-ins-os-grid-styled-product-row:nth-child(3n+2) .iogspr-product-content{
+    background-image: var(--product-bg-image-2);
+	background-position: center;
+    background-size: cover;
+}
+.via-nds .omniscript-article c-arc_-ins-os-grid-styled-product-row:nth-child(3n+3) .iogspr-product-content{
+    background-image: var(--product-bg-image-3);
+	background-position: center;
+    background-size: cover;
+}
+.via-nds .omniscript-article c-arc_-ins-os-grid-styled-product-row:nth-child(2n+1) .iogspr-product-content{
+	background-position: left;
+}
+.via-nds .omniscript-article c-arc_-ins-os-grid-styled-product-row:nth-child(2n+2) .iogspr-product-content{
+	background-position: right;
+}
+
+/* Replace content of add to cart button */
+.iogspr-product-content .add-to-cart-button button c-icon{
+    display: none !important;
+}
+.iogspr-product-content .add-to-cart-button button:before{
+    content: "Select";
+    font-family: "Aktiv Grotesk Ex", Arial !important;
+    font-weight: 500 !important;
+    font-size: 16px !important;
+    color: #fff !important;
+    line-height: 1;
+}
+.iogspr-product-content .add-to-cart-button button.nds-is-selected:before{
+    content: "Selected";
+}
+.iogspr-product-content .add-to-cart-button button{
+	padding: 10px 25px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 6px !important;
+    min-height: 40px;
+	background: #F2BC30 !important;
+	color: #fff !important;
+	border: 1px solid transparent !important;
+	border-radius: 100px !important;
+	transition: all .125s ease-in-out !important;
+    box-shadow: none !important;
+}
+@media screen and (min-width: 64em) {
+	.iogspr-product-content .add-to-cart-button button{
+		min-width: 176px !important;
+	}
+}
+.iogspr-product-content .add-to-cart-button button:hover,
+.iogspr-product-content .add-to-cart-button button:focus{
+	background: #e7b32d !important;
+}
+.iogspr-product-content .add-to-cart-button button:active{
+	background: #c49726 !important;
+}
+.iogspr-product-content .add-to-cart-button button.nds-is-selected{
+    background: transparent !important;
+	border: 1px solid #fff !important;
+}
+/* Product details table */
+.iogsp-product-details .arc_attribute-container .vloc-ins-prod-label{
+    font-size: 16px;
+    font-weight: 400;
+}
+.iogsp-product-details .arc_attribute-container .vloc-ins-prod-value{
+    font-size: 18px;
+    font-weight: 400;
+}
+.iogsp-product-details .iogspa-container{
+    text-align: left;
+}
+/* Auto-resize text inside attribute if overflown */
+.iogsp-product-details .iogspa-value-container{
+    max-height: 80px !important;
+    width: 100% !important;
+    overflow: hidden !important;
+}
+.iogsp-product-details .iogsp-product-details{
+    display: inline-block !important;
+    white-space: nowrap !important;
+    font-size: 18px !important; /* Starting font size */
+}
+/* Attributes inside product row */
+.iogp-products-container .iogspa-label{
+    font-size: 18px !important;
+    font-weight: 400 !important;
+    color: #fff !important;
+}
+.iogp-products-container .iogspa-value{
+    font-size: 40px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+}
+/* MARK: Secondary Prod
+ */
+.via-nds .omniscript-article .secondary-product-screen .iogspr-product-header{
+    background: #2C2B2C !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-product-header .iogspr-product-title *,
+.via-nds .omniscript-article .secondary-product-screen .iogspr-product-header .iogspr-product-brochure *{
+    color: #fff !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-product-header .iogspr-product-brochure svg path{
+    stroke: #fff !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-product-content{
+    background: #fff !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-attribute-container *{
+    color: #2C2B2C !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-checkbox-container .nds-form-element__label{
+    color: #2C2B2C !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-checkbox-container .nds-checkbox_faux{
+    border-color: #2C2B2C !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-checkbox-container input:checked + .nds-checkbox_faux{
+    background-color: #2C2B2C !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-checkbox-container input:checked + .nds-checkbox_faux{
+    border-color: #2C2B2C !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-checkbox-container .nds-checkbox [type=checkbox]:checked + .nds-checkbox__label .nds-checkbox_faux{
+    background: #2C2B2C !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-checkbox-container .nds-checkbox [type=checkbox]:checked + .nds-checkbox__label .nds-checkbox_faux:after{
+    border-color: #fff !important;
+}
+.via-nds .omniscript-article .secondary-product-screen .iogspr-product-content .add-to-cart-button button.nds-is-selected:before{
+    color: #2C2B2C !important;
+}

@@ -1,0 +1,56 @@
+.vloc-ins-prod-label {
+    color: #242525;
+}
+
+.vloc-ins-prod-value {
+    color: #6d7278;
+    font-size: 1rem;
+    min-height: 1.5rem;
+    text-transform: none;
+}
+.vloc-ins-popover {
+    position: absolute;
+    bottom: 2rem;
+    left: 0;
+}
+
+/* Custom popup and icon */
+
+.arc_attribute-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+}
+
+.arc_attribute-container .arc_attribute-grid {
+    width: 85%;
+}
+
+.arc_attribute-container .arc_attribute-icon {
+    width: 15%;
+    position: relative;
+}
+
+.arc_attribute-container .arc_attribute-icon .arc_attribute-popup {   
+    display: none;
+    position: absolute;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: max-content;
+    padding: 10px 12px;
+    color: var(--bg-color);
+    bottom: 2rem;
+    left: -1rem;
+}
+
+.arc_attribute-container .arc_attribute-icon:hover .arc_attribute-popup {
+    display: flex;        
+}
+
+
+div.arc_attribute-icon > div > span {
+
+    max-width: 320px;
+}

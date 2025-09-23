@@ -1,0 +1,47 @@
+.container{
+    display: flex;
+    flex-direction: column;
+}
+
+.insurer-container{
+    margin-bottom: 20px;
+    border: 1px solid #d4d4d4;
+    border-radius: 3px;
+}
+
+.header {
+    font-size: 20px;
+    border-bottom: 1px solid #d4d4d4;
+    padding: 0px 12px;
+}
+
+.header, .main-content {
+    padding: 12px 12px;
+}
+
+.header-fields-container{
+    display: grid;
+    grid-template-areas: "a b c d";
+    grid-template-columns: 110px auto 110px auto;
+    grid-auto-flow: row;
+    grid-gap: 0px 20px;
+}
+
+.header-fields-container p {
+}
+
+.header-fields-container span,
+.main-content span {
+    font-size: 14px;
+    font-weight: bold;
+    align-self: center;
+}
+
+p{
+    font-size: 14px;
+}
+
+a{
+    color: #181818;
+    text-decoration: none;
+}

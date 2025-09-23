@@ -1,0 +1,43 @@
+<template>
+    <template lwc:if={hasTransactions}>
+        <template for:each={recordsToDisplay} for:item="transaction" >
+                <div class="main" key={transaction.Id} data-id={transaction.Id} onclick={navigateToRecord}>
+                    <div class="transaction-info-left">
+                        <p style="font-size: 1.25rem"><strong>{transaction.TransactionName}</strong></p>
+                        <p>{transaction.TransactionStatus}</p>
+                        <p>Settlement Status: <span class={transaction.settlementStatusClass}>{transaction.TransactionSettlementStatus}</span></p>
+                        <p>Date: {transaction.TransactionDate}</p>
+                        <p>{transaction.TransactionCoverFromCoverTo}</p>
+                        <p style="color: #169179;">{transaction.TransactionHasPromotion}</p>
+                        <p>Explanation: {transaction.TransactionExplanation}</p>
+                    </div>
+                    <div class="transaction-line-items-container">
+                        <p style="font-size: 1.25rem"><strong>Transaction Line Items</strong></p>       
+                        <template for:each={transaction.TLI} for:item="tli">                          
+                                <p key={tli.Id}>{tli.Name}:  {tli.formattedAmount}</p>
+                        </template>
+                    </div>
+                    <div class="transaction-info-right">
+                        <p><strong>{transaction.TransactionReason}</strong></p>
+                        <p>{transaction.TransactionType}</p>
+                        <p style="font-size: 1rem">{transaction.TransactionAmount} {transaction.TransactionCurrency}</p>
+                    </div>
+               </div>
+            </template>
+                <!-- PAGE NAVIGATION -->
+                <div class="slds-grid slds-grid_vertical-align-center slds-p-around_small">
+                    <!-- Previous and Next buttons -->
+                    <div class="slds-col slds-align_absolute-center">
+                        <lightning-button label="First" onclick={firstPage} icon-name="utility:jump_to_left" disabled={bDisablePrevious}></lightning-button>
+                        <lightning-button label="Previous" onclick={previousPage} icon-name="utility:chevronleft" disabled={bDisablePrevious}></lightning-button>
+                        <span class="slds-m-horizontal_small slds-badge">Page {pageNumber} of {totalPages}</span>
+                        <lightning-button label="Next" onclick={nextPage} icon-name="utility:chevronright" disabled={bDisableNext}></lightning-button>
+                        <lightning-button label="Last" onclick={lastPage} icon-name="utility:jump_to_right" disabled={bDisableNext}></lightning-button>
+                    </div>
+                    <!-- Total Transactions -->
+                    <div class="slds-col_buñmp-left slds-text-align_right">
+                        <span class="slds-badge">Total Transactions: {totalTransactions}</span>
+                    </div>
+                </div>
+    </template>
+</template>

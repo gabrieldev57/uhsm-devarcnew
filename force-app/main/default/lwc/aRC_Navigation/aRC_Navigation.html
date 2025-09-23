@@ -1,0 +1,81 @@
+<template>
+    <nav lwc:if={menuItems.length} role="navigation" lwc:ref="navigation" data-alignment={alignment} data-drawer={drawer} data-full-width-sublink={forceFullWidthButtons} data-drop-style="" data-link-style="" data-drop-link-style="" onmouseleave={handleMouseLeave}>
+        <ul>
+            <li class="si-nav-item" for:each={menuItems} for:item="item"
+                key={item.id} for:index="index" data-hide="false">
+
+                <!-- Accordion links for drawer -->
+                <template lwc:if={drawer}>
+
+                    <template lwc:if={item.subMenu.length}>
+                        <div class="accordion-title">
+                            <c-a-r-c_-button class="si-button-comp" button-data={item} data-index={index} onhandleclick={toggleAccordion} data-in-drawer="true"
+                                onfocus={handleLinkFocus} onblur={handleLinkBlur} data-focused="false" data-sub-focused="false">
+                                <span>{item.label}</span>
+                                <div class="accordion-toggle">
+                                    <svg>
+                                        <use xlink:href={iconChevronDown}></use>
+                                    </svg>
+                                </div>
+                            </c-a-r-c_-button>
+                        </div>
+                        <div class="accordion-content">
+                            <ul class="accordion-links">
+                                <li class="si-nav-sub-link" for:each={item.subMenu} for:item="subItem"
+                                    for:index="subIndex" key={subItem.label}>
+                                    <c-a-r-c_-button class="si-button-comp" button-data={subItem} data-index={index} data-sub-index={subIndex} data-in-drawer="true"
+                                        onfocus={handleSubLinkFocus} onblur={handleSubLinkBlur} data-focused="false" onhandleclick={navigationClicked} full-width={forceFullWidthButtons}>
+                                        <span>{subItem.label}</span>
+                                    </c-a-r-c_-button>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+
+                    <template lwc:else>
+                        <c-a-r-c_-button class="si-button-comp" button-data={item} data-index={index} onhandleclick={navigationClicked}>
+                            <span>{item.label}</span>
+                        </c-a-r-c_-button>
+                    </template>
+
+                </template>
+
+
+                <!-- Horizontal Navigation Links -->
+                <template lwc:else>
+
+                    <template lwc:if={item.subMenu.length}>
+                        <c-a-r-c_-button class="si-button-comp" button-data={child} data-index={index} onhandleclick={navigationClicked}
+                            onfocus={handleLinkFocus} onblur={handleLinkBlur} data-focused="false" data-sub-focused="false">
+                            <div class="si-nav-link si-nav-top-link si-nav-label">
+                                <span>{item.label}</span>
+                            </div>
+                        </c-a-r-c_-button>
+                        <div class="sub-menu">
+                            <ul>
+                                <li class="si-nav-sub-link" for:each={item.subMenu} for:item="subItem"
+                                    for:index="subIndex" key={subItem.label}>
+                                    <c-a-r-c_-button class="si-button-comp" button-data={subItem} data-index={index} data-sub-index={subIndex} onhandleclick={navigationClicked}
+                                        onfocus={handleSubLinkFocus} onblur={handleSubLinkBlur} data-focused="false" full-width={forceFullWidthButtons}>
+                                        <span>{subItem.label}</span>
+                                    </c-a-r-c_-button>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+
+                    <template lwc:else>
+                        <c-a-r-c_-button class="si-button-comp" button-data={item} data-index={index} onhandleclick={navigationClicked}>
+                            <div class="si-nav-link si-nav-top-link">
+                                <span>{item.label}</span>
+                            </div>
+                        </c-a-r-c_-button>
+                    </template>
+
+                </template>
+
+            </li>
+
+        </ul>
+    </nav>
+</template>

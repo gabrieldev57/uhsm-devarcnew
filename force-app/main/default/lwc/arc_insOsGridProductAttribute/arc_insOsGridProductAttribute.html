@@ -1,0 +1,24 @@
+<template>
+    <div class="arc_attribute-container">
+        <div
+            class="slds-col slds-p-horizontal_small nds-col nds-p-horizontal_small vloc-ins-product-cell arc_attribute-grid">
+            <div class="slds-is-relative nds-is-relative" if:true={isGeneralAttribute}>
+                <div class="slds-truncate nds-truncate vloc-ins-prod-label" name="label">
+                    {item.label}
+                </div>
+            </div>
+            <div class="slds-is-relative nds-is-relative">
+                <div class="slds-truncate nds-truncate vloc-ins-prod-value" name="value">
+                    {item.displayValue}
+                </div>
+            </div>
+        </div>
+        <div class="arc_attribute-icon" if:true={isGeneralAttribute}>
+            <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
+            <div class="arc_attribute-popup nds-popover nds-nubbin_bottom-left nds-popover_small">
+                <span>{item.label}</span>
+                <span>{item.displayValue}</span>
+            </div>
+        </div>
+    </div>
+</template>

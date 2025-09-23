@@ -1,0 +1,11 @@
+<template>
+        <div class="custom-help-container" onmouseenter={showHelpText} onmouseleave={hideHelpText}>
+                <lightning-button-icon icon-name="utility:connected_apps" alternative-text="Create Portal User"
+                        title="Create Portal User" variant="bare" class="icon slds-p-around_xx-small"
+                        onclick={handleClick}>
+                </lightning-button-icon>
+                <div class="custom-help-text slds-hide">
+                        Create Portal User
+                </div>
+        </div>
+</template>

@@ -1,0 +1,655 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="spinnerDiv">
+            <lightning-spinner alternative-text="Loading" size="medium" class="spinner"></lightning-spinner>
+        </div>
+    </template>
+
+    <template if:false={isLoading}>
+        <template if:true={isData}>
+            <template if:true={isLegacy}>
+                <!-- LEGACY VIEW HEADER -->
+                <div class="grid-container title slds-table slds-table_striped" style={tableStyleLegacy}>
+                    <div class="item-container">
+                        <input type="checkbox" data-id="all" onchange={handleChangeCheckbox}>
+                    </div>
+                    <div class="item-container"><h1>Line</h1></div>
+                    <div class="item-container"><h1>Status</h1></div>
+                    <div class="item-container"><h1>Date Of Service</h1></div>
+
+                    <!-- Show Revenue Code for Institutional only -->
+                    <div class="item-container" if:true={instClaim}><h1>Revenue Code</h1></div>
+
+                    <div class="item-container"><h1>CPT</h1></div>
+                    <div class="item-container"><h1>Mod 1</h1></div>
+                    <div class="item-container"><h1>Mod 2</h1></div>
+                    <div class="item-container"><h1>Mod 3</h1></div>
+                    <div class="item-container"><h1>Mod 4</h1></div>
+                    <!-- Show Place of Service for Professional only -->
+                    <div class="item-container" if:true={profClaim}><h1>Place of Service</h1></div>
+                    
+                    <!-- Show ICD DX for Professional only -->
+                    <div class="item-container" if:true={profClaim}><h1>ICD DX</h1></div>
+                    <div class="item-container"><h1>QTY</h1></div>
+                    <div class="item-container"><h1>Freq Type</h1></div>
+                    <div class="item-container"><h1>Medical Visit Reason</h1></div>
+                    <div class="item-container"><h1>Maximum Type</h1></div>
+                    <div class="item-container"><h1>Billed</h1></div>
+                    <div class="item-container"><h1>MCR Allowed</h1></div>
+                    <div class="item-container"><h1>MCR Paid</h1></div>
+                    <div class="item-container"><h1>MCR MBR Liability</h1></div>
+                    <div class="item-container"><h1>Allowed</h1></div>
+                    <div class="item-container"><h1>Adjusted</h1></div>
+                    <div class="item-container"><h1>AMCS</h1></div>
+                    <div class="item-container"><h1>Tobacco & E-Cigarettes AMCS</h1></div>
+                    <div class="item-container"><h1>Member Liability</h1></div>
+                    <div class="item-container"><h1>Net Paid</h1></div>
+                </div>
+
+                <!-- LEGACY VIEW ROWS -->
+                <div class="grid-container values" style={tableStyleLegacy} for:each={dataPayment} for:item="cov" key={cov.Id}>
+                    <div class="item-container">
+                        <input type="checkbox" data-id={cov.Id} onchange={handleChangeCheckbox}>
+                    </div>
+                    <div class="item-container"><a data-manage="open" onclick={handleEditItem} data-id={cov.Id}>{cov.name}</a></div>
+                    <div class={cov.styleTest}><h1>{cov.status}</h1></div>
+                    <div class="item-container">
+                        <h1>
+                            <template if:true={profClaim}>{cov.dateOfService}</template>
+                            <template if:true={instClaim}>{cov.dosTo}</template>
+                        </h1>   
+                    </div>
+
+                    <!-- Show Revenue Code for Institutional only -->
+                    <div class="item-container" if:true={instClaim}><h1>{cov.revenueCode}</h1></div>
+
+                    <div class="item-container" onmouseleave={handleMouseout} onmouseenter={handleMouseover} data-item={cov.Id}>
+                        <div><h1>{cov.cptCode}</h1></div>
+                        <div style="display:none;position: absolute;opacity:0" data-display={cov.Id}>
+                            <c-a-r-c_-compact-layout-on-hover-vlocity record-id={cov.cptId} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover-vlocity>
+                        </div>
+                    </div>
+                    <div class="item-container"><h1>{cov.mod1}</h1></div>
+                    <div class="item-container"><h1>{cov.mod2}</h1></div>
+                    <div class="item-container"><h1>{cov.mod3}</h1></div>
+                    <div class="item-container"><h1>{cov.mod4}</h1></div>
+                    <!-- Show Place of Service for Professional only -->
+                    <div class="item-container" if:true={profClaim}><h1>{cov.placeOfService}</h1></div>
+                    
+                    <!-- Show ICD DX for Professional only -->
+                    <div class="item-container" if:true={profClaim}><h1>{cov.icdx}</h1></div>
+                    <div class="item-container"><h1>{cov.qty}</h1></div>
+                    <div class="item-container"><h1>{cov.freqType}</h1></div>
+                    <div class="item-container" if:true={cov.editValues.visitReason}>
+                        <lightning-combobox
+                            placeholder="Select reason"
+                            options={optMedicalVisit}
+                            onchange={handleChangeValue}
+                            value={cov.meicalVisitReason} 
+                            data-value="visitReason" 
+                            data-item={cov.Id}
+                        ></lightning-combobox>
+                    </div>
+                    <div class="item-container" if:false={cov.editValues.visitReason}><h1 ondblclick={handleEditValue} data-value="visitReason" data-item={cov.Id}>{cov.meicalVisitReason}</h1></div>
+                    <div class="item-container"><h1>{cov.maxType}</h1></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.billed} format-style="decimal" minimum-significant-digits={cov.billedSize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.mcrAllowed} format-style="decimal" minimum-significant-digits={cov.mcrAllowedSize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.mcrPaid} format-style="decimal" minimum-significant-digits={cov.mcrPaidSize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.mcrMbrLiability} format-style="decimal" minimum-significant-digits={cov.mcrMbrLiabilitySize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.allowed} format-style="decimal" minimum-significant-digits={cov.allowedSize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.adjusted} format-style="decimal" minimum-significant-digits={cov.adjustedSize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.deductible} format-style="decimal" minimum-significant-digits={cov.deductibleSize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.tobacco} format-style="decimal" minimum-significant-digits={cov.tobaccoSize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.mbrLiability} format-style="decimal" minimum-significant-digits={cov.mbrLiabilitySize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.netPaid} format-style="decimal" minimum-significant-digits={cov.netPaidSize}></lightning-formatted-number></div>
+                    <div class="container2" style="grid-column: 1/26;" if:true={cov.hasCode}>
+                        <div><h1>{cov.reasonCodes}</h1></div>
+                    </div>
+                </div>
+
+                <!-- LEGACY TOTAL ROW -->
+                <div class="grid-container title" style={tableStyleLegacy}>
+                    <div class="item-container"><h1>Total:</h1></div>
+                    <div class="item-container"></div> <!-- Line -->
+                    <div class="item-container"></div> <!-- Status -->
+                    <div class="item-container"></div> <!-- Date of Service -->
+                    <!-- Empty cell for Revenue Code if Institutional -->
+                    <div class="item-container" if:true={instClaim}></div>
+                    <div class="item-container"></div> <!-- CPT -->
+                    <div class="item-container"></div> <!-- Mod 1 -->
+                    <div class="item-container"></div> <!-- Mod 2 -->
+                    <div class="item-container"></div> <!-- Mod 3 -->
+                    <div class="item-container"></div> <!-- Mod 4 -->
+                    <!-- Empty cells for Place of Service and ICD DX if Professional -->
+                    <div class="item-container" if:true={profClaim}></div>
+                    <div class="item-container" if:true={profClaim}></div>
+                    <div class="item-container"></div> <!-- QTY -->
+                    <div class="item-container"></div> <!-- Freq Type -->
+                    <div class="item-container"></div> <!-- Med Visit Reason -->
+                    <div class="item-container"></div> <!-- Maximum Type -->
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={billedTotal} format-style="decimal" minimum-significant-digits={billedTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mcrAllowedTotal} format-style="decimal" minimum-significant-digits={mcrAllowedTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mcrPaidTotal} format-style="decimal" minimum-significant-digits={mcrPaidTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mcrMbrLiabilityTotal} format-style="decimal" minimum-significant-digits={mcrMbrLiabilityTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={allowedTotal} format-style="decimal" minimum-significant-digits={allowedTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={adjustedTotal} format-style="decimal" minimum-significant-digits={adjustedTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={deductibleTotal} format-style="decimal" minimum-significant-digits={deductibleTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={tobaccoTotal} format-style="decimal" minimum-significant-digits={tobaccoTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mbrLiabilityTotal} format-style="decimal" minimum-significant-digits={mbrLiabilityTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={netPaidTotal} format-style="decimal" minimum-significant-digits={netPaidTotalSize}></lightning-formatted-number></h1></div>
+                </div>
+            </template>
+            <template if:false={isLegacy}>
+                <template if:true={profClaim}>
+                    <div class="grid-container title slds-table slds-table_striped" style={tableStyleProfesional}>
+                        <div class="item-container">
+                            <input type="checkbox" data-id="all" onchange={handleChangeCheckbox}>
+                        </div>
+                        <div class="item-container"><h1>Line</h1></div>
+                        <div class="item-container"><h1>Status</h1></div>
+                        <div class="item-container"><h1>Date Of Service</h1></div>
+                        <div class="item-container"><h1>CPT</h1></div>
+                        <div class="item-container"><h1>Mod 1</h1></div>
+                        <div class="item-container"><h1>Mod 2</h1></div>
+                        <div class="item-container"><h1>Mod 3</h1></div>
+                        <div class="item-container"><h1>Mod 4</h1></div>
+                        <div class="item-container"><h1>Place of Service</h1></div>
+                        <div class="item-container"><h1>ICD DX</h1></div>
+                        <div class="item-container"><h1>QTY</h1></div>
+                        <div class="item-container"><h1>Freq Type</h1></div>
+                        <div class="item-container"><h1>Medical Visit Reason</h1></div>
+                        <div class="item-container"><h1>Maximum Type</h1></div>
+                        <div class="item-container"><h1>Billed</h1></div>
+                        <div class="item-container"><h1>Allowed</h1></div>
+                        <div class="item-container"><h1>Pre Exisiting Condition</h1></div>
+                        <div class="item-container"><h1>Adjusted</h1></div>
+                        <div class="item-container"><h1>Tobacco & E-Cigarette AMCS</h1></div>
+                        <div class="item-container"><h1>Consult Fee</h1></div>
+                        <div class="item-container"><h1>Share for AMCS</h1></div>
+                        <div class="item-container"><h1>AMCS</h1></div>
+                        <div class="item-container"><h1>MBR Liability</h1></div>
+                        <div class="item-container"><h1>Net Paid</h1></div>
+                    </div>
+                    <div class="grid-container values" style={tableStyleProfesional} for:each={dataPayment} for:item="cov" key={cov.Id}>
+                            <div class="item-container">
+                                <input type="checkbox" data-id={cov.Id} onchange={handleChangeCheckbox}>
+                            </div>
+                            <div class="item-container"><a data-manage="open" onclick={handleEditItem} data-id={cov.Id}>{cov.name}</a></div>
+                            <div class={cov.styleTest}><h1>{cov.status}</h1></div>
+                            <div class="item-container"><h1>{cov.dateOfService}</h1></div>
+                            <div class="item-container" onmouseleave={handleMouseout} onmouseenter={handleMouseover} data-item={cov.Id}>
+                                <div><h1>{cov.cptCode}</h1></div>
+                                <div style="display:none;position: absolute;opacity:0" data-display={cov.Id}>
+                                    <c-a-r-c_-compact-layout-on-hover-vlocity record-id={cov.cptId} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover-vlocity>
+                                </div>
+                            </div>
+                            <div class="item-container"><h1>{cov.mod1}</h1></div>
+                            <div class="item-container"><h1>{cov.mod2}</h1></div>
+                            <div class="item-container"><h1>{cov.mod3}</h1></div>
+                            <div class="item-container"><h1>{cov.mod4}</h1></div>
+                            <div class="item-container"><h1>{cov.placeOfService}</h1></div>
+                            <div class="item-container"><h1>{cov.icdx}</h1></div>
+                            <div class="item-container"><h1>{cov.qty}</h1></div>
+                            <div class="item-container"><h1>{cov.freqType}</h1></div>
+                            <div class="item-container" if:true={cov.editValues.visitReason}>
+                                <lightning-combobox
+                                    placeholder="Select reason"
+                                    options={optMedicalVisit}
+                                    onchange={handleChangeValue}
+                                    value={cov.meicalVisitReason} 
+                                    data-value="visitReason" 
+                                    data-item={cov.Id}
+                                ></lightning-combobox>
+                            </div>
+                            <div class="item-container" if:false={cov.editValues.visitReason}><h1 ondblclick={handleEditValue} data-value="visitReason" data-item={cov.Id}>{cov.meicalVisitReason}</h1></div>
+                            <div class="item-container"><h1>{cov.maxType}</h1></div>
+                            <div class="item-container" if:true={cov.editValues.billed}><lightning-input class="editing-mode" value={cov.billed} data-value="billed" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.billed}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="billed" data-item={cov.Id} value={cov.billed} format-style="decimal" minimum-significant-digits={cov.billedSize}></lightning-formatted-number></div>
+                            <div class="item-container" if:true={cov.editValues.allowed}><lightning-input class="editing-mode" value={cov.allowed} data-value="allowed" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.allowed}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="allowed" data-item={cov.Id} value={cov.allowed} format-style="decimal" minimum-significant-digits={cov.allowedSize}></lightning-formatted-number></div>
+                        
+                            <div class="item-container" if:true={cov.editValues.preExistingCond}><lightning-input class="editing-mode" value={cov.preExistingCond} data-value="preExistingCond" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.preExistingCond}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="preExistingCond" data-item={cov.Id} value={cov.preExistingCond} format-style="decimal" minimum-significant-digits={cov.preExistingCondSize}></lightning-formatted-number></div>
+                 
+                            <div class="item-container" if:true={cov.editValues.adjusted}><lightning-input class="editing-mode" value={cov.adjusted} data-value="adjusted" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.adjusted}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="adjusted" data-item={cov.Id} value={cov.adjusted} format-style="decimal" minimum-significant-digits={cov.adjustedSize}></lightning-formatted-number></div>
+                            <div class="item-container" if:true={cov.editValues.tobacco}><lightning-input class="editing-mode" value={cov.tobacco} data-value="tobacco" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.tobacco}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="tobacco" data-item={cov.Id} value={cov.tobacco} format-style="decimal" minimum-significant-digits={cov.tobaccoSize}></lightning-formatted-number></div>
+                            <div class="item-container" if:true={cov.editValues.copay}><lightning-input class="editing-mode" value={cov.copay} data-value="copay" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.copay}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="copay" data-item={cov.Id} value={cov.copay} format-style="decimal" minimum-significant-digits={cov.copaySize}></lightning-formatted-number></div>
+                        
+                          
+                            <div class="item-container" if:true={cov.editValues.coinsurance}><lightning-input class="editing-mode" value={cov.coinsurance} data-value="coinsurance" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.coinsurance}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="coinsurance" data-item={cov.Id} value={cov.coinsurance} format-style="decimal" minimum-significant-digits={cov.coinsuranceSize}></lightning-formatted-number></div>
+
+                            <div class="item-container" if:true={cov.editValues.deductible}><lightning-input class="editing-mode" value={cov.deductible} data-value="deductible" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.deductible}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="deductible" data-item={cov.Id} value={cov.deductible} format-style="decimal" minimum-significant-digits={cov.deductibleSize}></lightning-formatted-number></div>
+                            <div class="item-container" if:true={cov.editValues.mbrLiability}><lightning-input class="editing-mode" value={cov.mbrLiability} data-value="mbrLiability" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.mbrLiability}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="mbrLiability" data-item={cov.Id} value={cov.mbrLiability} format-style="decimal" minimum-significant-digits={cov.mbrLiabilitySize}></lightning-formatted-number></div>
+                            <div class="item-container"><lightning-formatted-number class="numericValue" value={cov.netPaid} format-style="decimal" minimum-significant-digits={cov.netPaidSize}></lightning-formatted-number></div>
+                        <div class="container2" style="grid-column: 1/26;" if:true={cov.hasCode}>
+                            <div><h1>{cov.reasonCodes}</h1></div>
+                        </div>
+                    </div>
+                    <div class="grid-container refund-row" if:true={hasRefund} style={tableStyleProfesional}>
+                        <div class="item-container">
+                            <div class="item-container"><h1>Refund:</h1></div>
+                        </div>
+                        <div class="item-container"></div> <!-- Line -->
+                        <div class="item-container"></div> <!-- Status -->
+                        <div class="item-container"></div> <!-- Date of Service -->
+                        <div class="item-container"></div> <!-- CPT -->
+                        <div class="item-container"></div> <!-- Mod 1 -->
+                        <div class="item-container"></div> <!-- Mod 2 -->
+                        <div class="item-container"></div> <!-- Mod 3 -->
+                        <div class="item-container"></div> <!-- Mod 4 -->
+                        <div class="item-container"></div> <!-- Place of Service -->
+                        <div class="item-container"></div> <!-- ICD DX -->
+                        <div class="item-container"></div> <!-- QTY -->
+                        <div class="item-container"></div> <!-- Freq Type -->
+                        <div class="item-container"></div> <!-- Med Visit Reason -->
+                        <div class="item-container"></div> <!-- Maximum Type -->
+                        <div class="item-container"></div> <!-- Billed -->
+                        <div class="item-container"></div> <!-- Allowed -->
+                        <div class="item-container"></div> <!-- Pre Existing Condition -->
+                        <div class="item-container"></div> <!-- Adjusted -->
+                        <div class="item-container"></div> <!-- Tobacco & E-Cigarette AMCS -->
+                        <div class="item-container"></div> <!-- Consult Fee -->
+                        <div class="item-container"></div> <!-- Share for AMCS -->
+                        <div class="item-container"></div> <!-- AMCS -->
+                        <div class="item-container"></div> <!-- MBR Liability -->
+                        <div class="item-container"></div> <!-- Net Paid -->
+                        <div class="item-container"><h2 class="numericValue redText">- <lightning-formatted-number value={refundTotal} format-style="decimal" minimum-significant-digits={refundTotalSize}></lightning-formatted-number></h2></div>
+                    </div>
+                    <div class="grid-container refund-row" if:true={isAdjust} style={tableStyleProfesional}>
+                        <div class="item-container">
+                            <div class="item-container"><h1>Adjusted:</h1></div>
+                        </div>
+                        <div class="item-container"></div> <!-- Line -->
+                        <div class="item-container"></div> <!-- Status -->
+                        <div class="item-container"></div> <!-- Date of Service -->
+                        <div class="item-container"></div> <!-- CPT -->
+                        <div class="item-container"></div> <!-- Mod 1 -->
+                        <div class="item-container"></div> <!-- Mod 2 -->
+                        <div class="item-container"></div> <!-- Mod 3 -->
+                        <div class="item-container"></div> <!-- Mod 4 -->
+                        <div class="item-container"></div> <!-- Place of Service -->
+                        <div class="item-container"></div> <!-- ICD DX -->
+                        <div class="item-container"></div> <!-- QTY -->
+                        <div class="item-container"></div> <!-- Freq Type -->
+                        <div class="item-container"></div> <!-- Med Visit Reason -->
+                        <div class="item-container"></div> <!-- Maximum type -->
+                        <div class="item-container"></div> <!-- Billed -->
+                        <div class="item-container"></div> <!-- Allowed -->
+                        <div class="item-container"></div> <!-- Pre Existing Condition -->
+                        <div class="item-container"></div> <!-- Adjusted -->
+                        <div class="item-container"></div> <!-- Tobacco & E-Cigarette AMCS -->
+                        <div class="item-container"></div> <!-- Share for AMCS -->
+                        <div class="item-container"></div> <!-- AMCS -->
+                        <div class="item-container"></div> <!-- MBR Liability -->
+                        <div class="item-container"></div> <!-- Net Paid -->
+                        <div class="item-container"><h2 class="numericValue redText">- <lightning-formatted-number value={originalSmbNetPaid} format-style="decimal" minimum-significant-digits={originalSmbNetPaidSize}></lightning-formatted-number></h2></div>
+                    </div>
+                    <div class="grid-container refund-row" if:true={wasAdjusted} style={tableStyleProfesional}>
+                        <div class="item-container">
+                            <div class="item-container"><h1>Adjusted:</h1></div>
+                        </div>
+                        <div class="item-container"></div> <!-- Line -->
+                        <div class="item-container"></div> <!-- Status -->
+                        <div class="item-container"></div> <!-- Date of Service -->
+                        <div class="item-container"></div> <!-- CPT -->
+                        <div class="item-container"></div> <!-- Mod 1 -->
+                        <div class="item-container"></div> <!-- Mod 2 -->
+                        <div class="item-container"></div> <!-- Mod 3 -->
+                        <div class="item-container"></div> <!-- Mod 4 -->
+                        <div class="item-container"></div> <!-- Place of Service -->
+                        <div class="item-container"></div> <!-- ICD DX -->
+                        <div class="item-container"></div> <!-- QTY -->
+                        <div class="item-container"></div> <!-- Freq Type -->
+                        <div class="item-container"></div> <!-- Med Visit Reason -->
+                        <div class="item-container"></div> <!-- Maximum Type -->
+                        <div class="item-container"></div> <!-- Billed -->
+                        <div class="item-container"></div> <!-- Allowed -->
+                        <div class="item-container">
+                            <h2 class="numericValue redText" if:true={adjustPreExistingCond}><lightning-formatted-number value={adjustPreExistingCond} format-style="decimal" minimum-significant-digits={adjustPreExistingCondSize}></lightning-formatted-number></h2> <!-- Pre Existing Condition -->
+                        </div>
+                        <div class="item-container"></div> <!-- Adjusted -->
+                        <div class="item-container"></div> <!-- Tobacco & E-Cigarette AMCS -->
+                        <div class="item-container"><h2 class="numericValue redText" if:true={adjustCopay}>- <lightning-formatted-number value={adjustCopay} format-style="decimal" minimum-significant-digits={adjustCopaySize}></lightning-formatted-number></h2></div> <!-- Consult Fee -->
+                        <div class="item-container"><h2 class="numericValue redText" if:true={adjustCoinsurance}>- <lightning-formatted-number value={adjustCoinsurance} format-style="decimal" minimum-significant-digits={adjustCoinsuranceSize}></lightning-formatted-number></h2></div> <!-- Share for AMCS -->
+                        <div class="item-container"><h2 class="numericValue redText" if:true={adjustDeductible}>- <lightning-formatted-number value={adjustDeductible} format-style="decimal" minimum-significant-digits={adjustDeductibleSize}></lightning-formatted-number></h2></div> <!-- AMCS -->
+                        <div class="item-container"></div> <!-- MBR Liability -->
+                        <div class="item-container"></div> <!-- Net Paid -->
+                    </div>
+                    <div class="grid-container title" style={tableStyleProfesional}>
+                        <div class="item-container"><h1>Total:</h1></div>
+                        <div class="item-container"></div> <!-- Line -->
+                        <div class="item-container"></div> <!-- Status -->
+                        <div class="item-container"></div> <!-- Date of Service -->
+                        <div class="item-container"></div> <!-- CPT -->
+                        <div class="item-container"></div> <!-- Mod 1 -->
+                        <div class="item-container"></div> <!-- Mod 2 -->
+                        <div class="item-container"></div> <!-- Mod 3 -->
+                        <div class="item-container"></div> <!-- Mod 4 -->
+                        <div class="item-container"></div> <!-- Place of Service -->
+                        <div class="item-container"></div> <!-- ICD DX -->
+                        <div class="item-container"></div> <!-- QTY -->
+                        <div class="item-container"></div> <!-- Freq Type -->
+                        <div class="item-container"></div> <!-- Med Visit Reason -->
+                        <div class="item-container"></div> <!-- Maximum Type -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={billedTotal} format-style="decimal" minimum-significant-digits={billedTotalSize}></lightning-formatted-number></h1></div> <!-- Billed -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={allowedTotal} format-style="decimal" minimum-significant-digits={allowedTotalSize}></lightning-formatted-number></h1></div> <!-- Allowed -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={totalPreExistingCond} format-style="decimal" minimum-significant-digits={totalPreExistingCondSize}></lightning-formatted-number></h1></div> <!-- Pre Existing Condition -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={adjustedTotal} format-style="decimal" minimum-significant-digits={adjustedTotalSize}></lightning-formatted-number></h1></div> <!-- Adjusted -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={tobaccoTotal} format-style="decimal" minimum-significant-digits={tobaccoTotalSize}></lightning-formatted-number></h1></div> <!-- Tobacco & E-Cigarette AMCS -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={copayTotal} format-style="decimal" minimum-significant-digits={copayTotalSize}></lightning-formatted-number></h1></div> <!-- Consult Fee -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={coinsuranceTotal} format-style="decimal" minimum-significant-digits={coinsuranceTotalSize}></lightning-formatted-number></h1></div> <!-- Share for AMCS -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={deductibleTotal} format-style="decimal" minimum-significant-digits={deductibleTotalSize}></lightning-formatted-number></h1></div> <!-- AMCS -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mbrLiabilityTotal} format-style="decimal" minimum-significant-digits={mbrLiabilityTotalSize}></lightning-formatted-number></h1></div> <!-- MBR Liability -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={netPaidTotal} format-style="decimal" minimum-significant-digits={netPaidTotalSize}></lightning-formatted-number></h1></div> <!-- Net Paid -->
+                    </div>
+                </template>
+                <template if:true={instClaim}>
+                    <div class="grid-container title slds-table slds-table_striped" style={tableStyleInstitutional}>
+                        <div class="item-container">
+                            <input type="checkbox" data-id="all" onchange={handleChangeCheckbox}>
+                        </div>
+                        <div class="item-container"><h1>Line</h1></div>
+                        <div class="item-container"><h1>Status</h1></div>
+                        <div class="item-container"><h1>Date of Service</h1></div>
+                        <div class="item-container"><h1>Revenue Code</h1></div>
+                        <div class="item-container"><h1>CPT</h1></div>
+                        <div class="item-container"><h1>Mod 1</h1></div>
+                        <div class="item-container"><h1>Mod 2</h1></div>
+                        <div class="item-container"><h1>Mod 3</h1></div>
+                        <div class="item-container"><h1>Mod 4</h1></div>
+                        <div class="item-container"><h1>QTY</h1></div>
+                        <div class="item-container"><h1>Freq Type</h1></div>
+                        <div class="item-container"><h1>Medical Visit Reason</h1></div>
+                        <div class="item-container"><h1>Maximum Type</h1></div>
+                        <div class="item-container"><h1>Billed</h1></div>
+                        <div class="item-container"><h1>Allowed</h1></div>
+                        <div class="item-container"><h1>Pre Exisiting Condition</h1></div>
+                        <div class="item-container"><h1>Adjusted</h1></div>
+                        <div class="item-container"><h1>Tobacco & E-Cigarette AMCS</h1></div>
+                        <div class="item-container"><h1>Consult Fee</h1></div>
+                        <div class="item-container"><h1>Share for AMCS</h1></div>
+                        <div class="item-container"><h1>AMCS</h1></div>
+                        <div class="item-container"><h1>MBR Liability</h1></div>
+                        <div class="item-container"><h1>Net Paid</h1></div>
+                    </div>
+                    <div class="grid-container values" style={tableStyleInstitutional} for:each={dataPayment} for:item="cov" key={cov.Id}>
+                            <div class="item-container">
+                                <input type="checkbox" data-id={cov.Id} onchange={handleChangeCheckbox}>
+                            </div>
+                            <div class="item-container"><h1><a data-manage="open" onclick={handleEditItem} data-id={cov.Id}>{cov.name}</a></h1></div>
+                            <div class={cov.styleTest}><h1>{cov.status}</h1></div>
+                            <div class="item-container"><h1>{cov.dosTo}</h1></div>
+                            <div class="item-container"><h1>{cov.revenueCode}</h1></div>
+                            <div class="item-container" onmouseleave={handleMouseout} onmouseenter={handleMouseover} data-item={cov.Id}>
+                                <div><h1>{cov.cptCode}</h1></div>
+                                <div style="display:none;position: absolute;opacity:0" data-display={cov.Id}>
+                                    <c-a-r-c_-compact-layout-on-hover-vlocity record-id={cov.cptId} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover-vlocity>
+                                </div>
+                            </div>
+                            <div class="item-container"><h1>{cov.mod1}</h1></div>
+                            <div class="item-container"><h1>{cov.mod2}</h1></div>
+                            <div class="item-container"><h1>{cov.mod3}</h1></div>
+                            <div class="item-container"><h1>{cov.mod4}</h1></div>
+                            <div class="item-container"><h1>{cov.qty}</h1></div>
+                            <div class="item-container"><h1>{cov.freqType}</h1></div>
+                            <div class="item-container" if:true={cov.editValues.visitReason}>
+                                <lightning-combobox
+                                    placeholder="Select reason"
+                                    options={optMedicalVisit}
+                                    onchange={handleChangeValue}
+                                    value={cov.meicalVisitReason} 
+                                    data-value="visitReason" 
+                                    data-item={cov.Id}
+                                ></lightning-combobox>
+                            </div>
+                            <div class="item-container" if:false={cov.editValues.visitReason}><h1 ondblclick={handleEditValue} data-value="visitReason" data-item={cov.Id}>{cov.meicalVisitReason}</h1></div>
+                            <div class="item-container"><h1>{cov.maxType}</h1></div>
+                            <div class="item-container" if:true={cov.editValues.billed}><lightning-input class="editing-mode" value={cov.billed} data-value="billed" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.billed}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="billed" data-item={cov.Id} value={cov.billed} format-style="decimal" minimum-significant-digits={cov.billedSize}></lightning-formatted-number></div>
+                            <div class="item-container" if:true={cov.editValues.allowed}><lightning-input class="editing-mode" value={cov.allowed} data-value="allowed" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.allowed}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="allowed" data-item={cov.Id} value={cov.allowed} format-style="decimal" minimum-significant-digits={cov.allowedSize}></lightning-formatted-number></div>
+
+                            <div class="item-container" if:true={cov.editValues.preExistingCond}><lightning-input class="editing-mode" value={cov.preExistingCond} data-value="preExistingCond" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.preExistingCond}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="preExistingCond" data-item={cov.Id} value={cov.preExistingCond} format-style="decimal" minimum-significant-digits={cov.preExistingCondSize}></lightning-formatted-number></div>
+                            
+                            <div class="item-container" if:true={cov.editValues.adjusted}><lightning-input class="editing-mode" value={cov.adjusted} data-value="adjusted" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.adjusted}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="adjusted" data-item={cov.Id} value={cov.adjusted} format-style="decimal" minimum-significant-digits={cov.adjustedSize}></lightning-formatted-number></div>
+                            <div class="item-container" if:true={cov.editValues.tobacco}><lightning-input class="editing-mode" value={cov.tobacco} data-value="tobacco" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.tobacco}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="tobacco" data-item={cov.Id} value={cov.tobacco} format-style="decimal" minimum-significant-digits={cov.tobaccoSize}></lightning-formatted-number></div>
+                            <div class="item-container" if:true={cov.editValues.copay}><lightning-input class="editing-mode" value={cov.copay} data-value="copay" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.copay}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="copay" data-item={cov.Id} value={cov.copay} format-style="decimal" minimum-significant-digits={cov.copaySize}></lightning-formatted-number></div>
+                            
+                            <div class="item-container" if:true={cov.editValues.coinsurance}><lightning-input class="editing-mode" value={cov.coinsurance} data-value="coinsurance" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.coinsurance}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="coinsurance" data-item={cov.Id} value={cov.coinsurance} format-style="decimal" minimum-significant-digits={cov.coinsuranceSize}></lightning-formatted-number></div>
+
+                            <div class="item-container" if:true={cov.editValues.deductible}><lightning-input class="editing-mode" value={cov.deductible} data-value="deductible" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.deductible}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="deductible" data-item={cov.Id} value={cov.deductible} format-style="decimal" minimum-significant-digits={cov.deductibleSize}></lightning-formatted-number></div>
+                            <div class="item-container" if:true={cov.editValues.mbrLiability}><lightning-input class="editing-mode" value={cov.mbrLiability} data-value="mbrLiability" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
+                            <div class="item-container" if:false={cov.editValues.mbrLiability}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="mbrLiability" data-item={cov.Id} value={cov.mbrLiability} format-style="decimal" minimum-significant-digits={cov.mbrLiabilitySize}></lightning-formatted-number></div>
+                            <div class="item-container"><lightning-formatted-number class="numericValue" value={cov.netPaid} format-style="decimal" minimum-significant-digits={cov.netPaidSize}></lightning-formatted-number></div>
+                        <div class="container2" style="grid-column: 1/25;" if:true={cov.hasCode}>
+                            <div><h1>{cov.reasonCodes}</h1></div>
+                        </div>                    
+                    </div>
+                    <div class="grid-container refund-row" if:true={hasRefund} style={tableStyleInstitutional}>
+                        <div class="item-container">
+                            <div class="item-container"><h1>Refund:</h1></div>
+                        </div>
+                        <div class="item-container"></div> <!-- Line -->
+                        <div class="item-container"></div> <!-- Status -->
+                        <div class="item-container"></div> <!-- Date of Service -->
+                        <div class="item-container"></div> <!-- Revenue Code -->
+                        <div class="item-container"></div> <!-- CPT -->
+                        <div class="item-container"></div> <!-- Mod 1 -->
+                        <div class="item-container"></div> <!-- Mod 2 --> 
+                        <div class="item-container"></div> <!-- Mod 3 -->
+                        <div class="item-container"></div> <!-- Mod 4 -->
+                        <div class="item-container"></div> <!-- QTY -->
+                        <div class="item-container"></div> <!-- Freq Type -->
+                        <div class="item-container"></div> <!-- Medical Visit Reason -->
+                        <div class="item-container"></div> <!-- Maximum Type -->
+                        <div class="item-container"></div> <!-- Billed -->
+                        <div class="item-container"></div> <!-- Allowed -->
+                        <div class="item-container"></div> <!-- Pre Existing Condition -->
+                        <div class="item-container"></div> <!-- Adjusted -->
+                        <div class="item-container"></div> <!-- Tobacco & E-Cigarette AMCS -->
+                        <div class="item-container"></div> <!-- Consult Fee -->
+                        <div class="item-container"></div> <!-- Share for AMCS -->
+                        <div class="item-container"></div> <!-- AMCS -->
+                        <div class="item-container"></div> <!-- MBR Liability -->
+                        <div class="item-container"><h2 class="numericValue redText">- <lightning-formatted-number value={refundTotal} format-style="decimal" minimum-significant-digits={refundTotalSize}></lightning-formatted-number></h2></div>
+                    </div>
+                    <div class="grid-container refund-row" if:true={isAdjust} style={tableStyleInstitutional}>
+                        <div class="item-container">
+                            <div class="item-container"><h1>Adjusted:</h1></div>
+                        </div>
+                        <div class="item-container"></div> <!-- Line -->
+                        <div class="item-container"></div> <!-- Status -->
+                        <div class="item-container"></div> <!-- Date of Service -->
+                        <div class="item-container"></div> <!-- Revenue Code -->
+                        <div class="item-container"></div> <!-- CPT -->
+                        <div class="item-container"></div> <!-- Mod 1 -->
+                        <div class="item-container"></div> <!-- Mod 2 -->
+                        <div class="item-container"></div> <!-- Mod 3 -->
+                        <div class="item-container"></div> <!-- Mod 4 -->
+                        <div class="item-container"></div> <!-- QTY -->
+                        <div class="item-container"></div> <!-- Freq Type -->
+                        <div class="item-container"></div> <!-- Medical Visit Reason -->
+                        <div class="item-container"></div> <!-- Maximum Type -->
+                        <div class="item-container"></div> <!-- Billed -->
+                        <div class="item-container"></div> <!-- Allowed -->
+                        <div class="item-container"></div> <!-- Pre Existing Condition -->
+                        <div class="item-container"></div> <!-- Adjusted -->
+                        <div class="item-container"></div> <!-- Tobacco & E-Cigarette AMCS -->
+                        <div class="item-container"></div> <!-- Consult Fee -->
+                        <div class="item-container"></div> <!-- Share for AMCS -->
+                        <div class="item-container"></div> <!-- AMCS -->
+                        <div class="item-container"></div> <!-- MBR Liability -->
+                        <div class="item-container"><h2 class="numericValue redText">- <lightning-formatted-number value={originalSmbNetPaid} format-style="decimal" minimum-significant-digits={originalSmbNetPaidSize}></lightning-formatted-number></h2></div>
+                    </div>
+                    <div class="grid-container refund-row" if:true={wasAdjusted} style={tableStyleInstitutional}>
+                        <div class="item-container">
+                            <div class="item-container"><h1>Adjusted:</h1></div>
+                        </div>
+                        <div class="item-container"></div> <!-- Line -->
+                        <div class="item-container"></div> <!-- Status -->
+                        <div class="item-container"></div> <!-- Date of Service -->
+                        <div class="item-container"></div> <!-- Revenue Code -->
+                        <div class="item-container"></div> <!-- CPT -->
+                        <div class="item-container"></div> <!-- Mod 1 -->
+                        <div class="item-container"></div> <!-- Mod 2 -->
+                        <div class="item-container"></div> <!-- Mod 3 -->
+                        <div class="item-container"></div> <!-- Mod 4 -->
+                        <div class="item-container"></div> <!-- QTY -->
+                        <div class="item-container"></div> <!-- Freq Type -->
+                        <div class="item-container"></div> <!-- Medical Visit Reason -->
+                        <div class="item-container"></div> <!-- Maximum Type -->
+                        <div class="item-container"></div> <!-- Billed -->
+                        <div class="item-container"></div> <!-- Allowed -->
+                        <!-- Pre Existing Condition -->
+                        <div class="item-container">
+                            <h2 class="numericValue redText" if:true={adjustPreExistingCond}>- <lightning-formatted-number value={adjustPreExistingCond} format-style="decimal" minimum-significant-digits={adjustPreExistingCondSize}></lightning-formatted-number></h2>
+                        </div> 
+                        <div class="item-container"></div> <!-- Adjusted -->
+                        <div class="item-container"></div> <!-- Tobacco & E-Cigarette AMCS -->
+                        <div class="item-container"><h2 class="numericValue redText" if:true={adjustCopay}>- <lightning-formatted-number value={adjustCopay} format-style="decimal" minimum-significant-digits={adjustCopaySize}></lightning-formatted-number></h2></div> <!-- Consult Fee -->
+                        <!-- Share for AMCS -->
+                        <div class="item-container">
+                            <h2 class="numericValue redText" if:true={adjustCoinsurance}>- <lightning-formatted-number value={adjustCoinsurance} format-style="decimal" minimum-significant-digits={adjustCoinsuranceSize}></lightning-formatted-number></h2>
+                        </div> 
+                        <div class="item-container"><h2 class="numericValue redText" if:true={adjustDeductible}>- <lightning-formatted-number value={adjustDeductible} format-style="decimal" minimum-significant-digits={adjustDeductibleSize}></lightning-formatted-number></h2></div> <!-- AMCS -->
+                        <div class="item-container"></div> <!-- MBR Liability -->
+                        <div class="item-container"></div> <!-- Net Paid -->
+                    </div>
+                    <div class="grid-container title" style={tableStyleInstitutional}>
+                        <div class="item-container">
+                            <div class="item-container"><h1>Total:</h1></div>
+                        </div>
+                        <div class="item-container"></div> <!-- Line -->
+                        <div class="item-container"></div> <!-- Status -->
+                        <div class="item-container"></div> <!-- Date of Service -->
+                        <div class="item-container"></div> <!-- Revenue Code -->
+                        <div class="item-container"></div> <!-- CPT -->
+                        <div class="item-container"></div> <!-- Mod 1 -->
+                        <div class="item-container"></div> <!-- Mod 2 -->
+                        <div class="item-container"></div> <!-- Mod 3 -->
+                        <div class="item-container"></div> <!-- Mod 4 -->
+                        <div class="item-container"></div> <!-- QTY -->
+                        <div class="item-container"></div> <!-- Freq Type -->
+                        <div class="item-container"></div> <!-- Medicial Visit Reason -->
+                        <div class="item-container"></div> <!-- Maximum Type -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={billedTotal} format-style="decimal" minimum-significant-digits={billedTotalSize}></lightning-formatted-number></h1></div> <!-- Billed -->
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={allowedTotal} format-style="decimal" minimum-significant-digits={allowedTotalSize}></lightning-formatted-number></h1></div> <!-- Allowed -->
+
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={totalPreExistingCond} format-style="decimal" minimum-significant-digits={totalPreExistingCondSize}></lightning-formatted-number></h1></div>
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={adjustedTotal} format-style="decimal" minimum-significant-digits={adjustedTotalSize}></lightning-formatted-number></h1></div>
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={tobaccoTotal} format-style="decimal" minimum-significant-digits={tobaccoTotalSize}></lightning-formatted-number></h1></div>
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={copayTotal} format-style="decimal" minimum-significant-digits={copayTotalSize}></lightning-formatted-number></h1></div>
+                        <div class="item-container" ><h1 class="numericValue"><lightning-formatted-number value={coinsuranceTotal} format-style="decimal" minimum-significant-digits={coinsuranceTotalSize}></lightning-formatted-number></h1></div>
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={deductibleTotal} format-style="decimal" minimum-significant-digits={deductibleTotalSize}></lightning-formatted-number></h1></div>
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mbrLiabilityTotal} format-style="decimal" minimum-significant-digits={mbrLiabilityTotalSize}></lightning-formatted-number></h1></div>
+                        <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={netPaidTotal} format-style="decimal" minimum-significant-digits={netPaidTotalSize}></lightning-formatted-number></h1></div>
+                    </div>
+                </template>
+            </template>
+        </template>
+        <template if:false={isData}>
+            <h1 class="noData">This claim does not have any Coverage Payments</h1>
+        </template>
+        <template if:true={isEditingItem}>
+            <section role="dialog" style="background: #00000094;" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleEditItem} data-manage="close">
+                            <lightning-icon icon-name="utility:close"
+                                alternative-text="close"
+                                variant="inverse"
+                                size="small" ></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">Edit the Claim Line Item</h2>
+                    </header>
+                    <div style="padding:20px" class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <template if:true={instClaim}>
+                            <lightning-record-edit-form  object-api-name="ClaimCoveragePaymentDetail" record-id={selectedItemId} onsuccess={successCreateCovPayment} onerror={errorCreateCovPayment}>
+                                <div class="slds-grid">
+                                    <div style="padding-top: 20px;" class="slds-col slds-size_1-of-2">
+                                        <lightning-input-field style="padding:10px" field-name="Name" readonly></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ClaimCoverageId" required></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_RevenueCode__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_DOSTo__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Quantity__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Medical_Visit_Reason__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Pre_Existing_Condition__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Tobacco__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="Medicare_Allowed__c" readonly></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="Medicare_Member_Liability__c" readonly></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="Medicare_Paid__c" readonly></lightning-input-field>
+                                    </div>
+                                    <div style="padding-top: 20px;" class="slds-col slds-size_1-of-2">
+                                        <lightning-input-field style="padding:10px" field-name="ClaimedAmount"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="AdjustedAmount"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Allowed__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Coinsurance__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Copay__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Deductible__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_MBRLiability__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_MaximumType__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_MaximumTypeAmount__c"></lightning-input-field>
+                                    </div>
+                                </div>
+                                <lightning-input-field field-name="Description"></lightning-input-field>
+                                <div class="slds-modal__footer">
+                                    <button class="slds-button slds-button_neutral" onclick={handleEditItem} data-manage="close">Cancel</button>
+                                    <button type="submit" class="slds-button slds-button_brand">Confirm</button>
+                                </div>
+                            </lightning-record-edit-form>
+                        </template>
+                        <template if:true={profClaim}>
+                            <lightning-record-edit-form  object-api-name="ClaimCoveragePaymentDetail" record-id={selectedItemId} onsuccess={successCreateCovPayment} onerror={errorCreateCovPayment}>
+                                <div class="slds-grid">
+                                    <div style="padding-top: 20px;" class="slds-col slds-size_1-of-2">
+                                        <lightning-input-field style="padding:10px" field-name="Name" readonly></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ClaimCoverageId" required></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_ProcedureCode__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_DateOfService__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_PlaceofService__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Quantity__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Medical_Visit_Reason__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Pre_Existing_Condition__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Tobacco__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="Medicare_Allowed__c" readonly></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="Medicare_Member_Liability__c" readonly></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="Medicare_Paid__c" readonly></lightning-input-field>
+                                    </div>
+                                    <div style="padding-top: 20px;" class="slds-col slds-size_1-of-2">
+                                        <lightning-input-field style="padding:10px" field-name="ClaimedAmount"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="AdjustedAmount"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Allowed__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Coinsurance__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Copay__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_Deductible__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_MBRLiability__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_MaximumType__c"></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="ARC_MaximumTypeAmount__c"></lightning-input-field>
+                                    </div>
+                                </div>
+                                <lightning-input-field field-name="Description"></lightning-input-field>
+                                <div class="slds-modal__footer">
+                                    <button class="slds-button slds-button_neutral" onclick={handleEditItem} data-manage="close">Cancel</button>
+                                    <button type="submit" class="slds-button slds-button_brand">Confirm</button>
+                                </div>
+                            </lightning-record-edit-form>
+                        </template>
+                    </div>
+                </div>
+            </section> 
+        </template>
+    </template>
+</template>

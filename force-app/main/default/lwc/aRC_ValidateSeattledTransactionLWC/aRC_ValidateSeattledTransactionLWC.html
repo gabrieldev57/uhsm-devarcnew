@@ -1,0 +1,43 @@
+<template>
+    <article class="card-outside">
+        <div class="card-inside">
+
+            <template if:true={lwcLoading}>
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                <div class="textSpinner">
+                    <span>Validating Settle Date</span>
+                </div>
+            </template>
+            <template if:false={lwcLoading}>
+                <div class="showData">
+
+                    <div class="item">
+                        <div class="left">
+                            <template if:true={settledDate}>
+                                <lightning-icon icon-name="action:approval" alternative-text="Approved"
+                                    title="Approved"></lightning-icon>
+                            </template>
+                            <template if:false={settledDate}>
+                                <lightning-icon icon-name="action:reject" alternative-text="Approved"
+                                    title="Approved"></lightning-icon>
+                            </template>
+                        </div>
+                        <div class="right">
+                            <template if:true={settledDate}>
+                                <p>Settle date:</p>
+                                <p class="settled">{settledDate}</p>
+                            </template>
+                            <template if:false={settledDate}>
+                                <p>Settle date:</p>
+                                <p class="error">{errorMessage}</p>
+                            </template>
+                        </div>
+
+                    </div>
+                </div>
+
+            </template>
+
+        </div>
+    </article>
+</template>

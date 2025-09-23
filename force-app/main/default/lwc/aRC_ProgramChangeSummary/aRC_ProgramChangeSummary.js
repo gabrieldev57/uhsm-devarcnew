@@ -1,0 +1,3 @@
+import insOsEnrolleeBenefitsSummary from 'vlocity_ins/insOsEnrolleeBenefitsSummary';
+
+export default class aRC_ProgramChangeSummary extends insOsEnrolleeBenefitsSummary {}

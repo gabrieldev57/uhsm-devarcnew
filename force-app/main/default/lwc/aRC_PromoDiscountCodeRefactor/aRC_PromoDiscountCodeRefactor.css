@@ -1,0 +1,145 @@
+p,label{
+    font-size: 14px;
+}
+
+.main-container{
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-rowmain-flex{
+    display: flex;
+    margin-top: 20px    ;
+}
+
+.radio-text{
+    margin-right: 20px;
+}
+
+.radio-row-flex{
+    display: flex;
+}
+
+.radio-col-flex{
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-label{
+    margin-left: 7px;
+}
+
+.text-label{
+    margin-right: 10px;
+}
+
+.button-validate{
+    color: #ffffff;
+    background-color:#f4b223;
+    width: 100px;
+    height: 32px;
+    margin-left: 40px;
+    border: none;
+    border-radius: 5px;
+}
+
+.button-validate:hover{
+    background-color:#e39f0b;
+}
+
+.button-validate:active{
+    background-color:#956807;
+}
+
+.content{
+    margin-top: 5px;
+}
+
+.discount-info{
+    display: grid;
+    width: 50%;
+    margin-top: 30px;
+    border: 1px solid rgb(128, 128, 128);
+    border-radius: 5px;
+    grid-template-areas:"a b";
+}
+
+input[name="code"]{
+    margin-left: 10px;
+}
+
+label.row-info{
+    display: flex;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+p.price{
+    text-align: end;
+    margin-right: 10px;
+    font-weight: normal;
+}
+
+lightning-input{
+    display: inline-block;
+    width: 200px;
+    margin-left: 20px;
+}
+
+.error-container{
+    margin-top: 10px;
+    color: #ff1f1f;
+}
+
+.success-container{
+    margin-top: 10px;
+    color: #4bb543;
+}
+
+
+.secondary-container{
+    display: flex;
+    width: 100%;
+    justify-content: end;
+}
+
+.grid-container{
+    width: 30%;
+    display: grid;
+    grid-template-areas: "a b";
+    grid-template-columns: 1fr auto;
+    grid-auto-flow: row;
+}
+
+.grid-container p{
+    display: inline-block;
+    text-align: end;
+}
+
+.grid-container label{
+    text-align: end;
+    padding-right: 10px;
+}
+
+.grid-container label:last-of-type,
+.grid-container p:last-of-type{
+    border-top: 1px solid #5c5c5c;
+}
+
+@media only screen and (max-width: 600px) {
+    .flex-container{
+        display: flex;
+    }
+
+    .button-validate{
+        margin-top: 19px;
+    }
+
+    .discount-info{
+        width: 100%;
+    }
+
+    .code{
+        margin: 0px !important;
+    }
+}

@@ -1,0 +1,227 @@
+/* Base container styles */
+.census-container {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #dddbda;
+    background-color: #ffffff;
+}
+
+.member-container {
+    margin: 20px;
+}
+
+.accordion-section {
+    border: 1px solid #dddbda;
+    margin-bottom: 25px;
+}
+
+/* :host {
+    --slds-c-accordion-heading-text-color: red;
+    --slds-c-accordion-heading-font-size: 30px;
+} */
+
+.section-control .slds-button .slds-button_reset .slds-accordion__summary-action {
+    box-shadow: none !important;
+}
+
+/* Flex containers */
+.text-fields-container,
+.address-fields-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.text-fields-container {
+    flex-direction: row;
+}
+
+.address-fields-container {
+    flex-direction: row;
+}
+
+/* Field and address field styles */
+.field {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    position: relative;
+}
+
+.address-field {
+    display: flex;
+    flex-direction: column;
+    width: 22%;
+    justify-content: space-between;
+}
+
+/* Buttons */
+button {
+    margin-right: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+vlocity_ins-icon:hover {
+    cursor: pointer;
+    opacity: 0.8;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Remove member modal */
+.rmv-member-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.rmv-member-modal p {
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-size: 14px;
+    padding: 8px 12px;
+    text-align: center;
+}
+
+.modal-buttons {
+    display: inline-flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Error container */
+.error-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+    padding: 12px;
+    background-color: #b80414;
+    border-radius: 8px;
+}
+
+.error-txt {
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    font-size: 14px;
+    color: #fff;
+    padding: 8px 12px;
+}
+
+/* Miscellaneous styles */
+.ssn-button {
+    position: absolute;
+    top: 19px;
+    right: 12px;
+}
+
+.search-bar {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.search-bar>input {
+    width: 100%;
+}
+
+.address-item {
+    cursor: pointer;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 2px;
+    position: absolute;
+    border-radius: 0.25rem;
+    bottom: 0;
+    background-color: #0176d3;
+    animation: progress 1s ease-in-out;
+    transform-origin: 0% 50%;
+}
+
+@keyframes progress {
+    0% {
+        transform: scaleX(0);
+    }
+
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+.checkbox-address-container {
+    display: flex;
+    flex-direction: column;
+    margin: 15px 0px;
+}
+
+/* hr {
+    margin: 35px 0;
+} */
+
+.smoker {
+    flex-direction: row;
+    margin: 15px 0px;
+}
+
+.copy-address {
+    margin-bottom: 30px;
+}
+
+/* Remove member button container */
+div.rmv-member-btn-container {
+    display: flex;
+    justify-content: end;
+}
+
+.add-button-container {
+    display: flex;
+    justify-content: end;
+    gap: 20px;
+}
+
+div[slot="content"] {
+    height: 200px;
+}
+
+div[slot="footer"] {
+    display: flex;
+    gap: 15px;
+    justify-content: end;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.button-container>button {
+    margin: 0px;
+}
+
+@media (max-width: 767px) {
+    /* Styles for mobile or small screens */
+    .button-container>button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+    /* Styles for tablets, laptops, desktops */
+    .button-container>button {
+        width: 25%;
+    }
+}

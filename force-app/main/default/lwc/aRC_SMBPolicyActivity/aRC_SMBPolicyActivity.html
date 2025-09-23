@@ -1,0 +1,116 @@
+<template>
+    <header>
+        <div class="header">
+            <h1>SMB Policy Activity</h1>
+            <lightning-button label="Back" variant="brand-outline" onclick={closeReport} class="back-button"></lightning-button>
+        </div>
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <lightning-input placeholder="Policy Number" type="text" class="input-search" data-id="policyInput" onkeydown={handleKeyPress}></lightning-input>
+                <lightning-button icon-name="utility:search" icon-position="right" class="button-search" variant="brand" label="Search" onclick={searchPolicy}></lightning-button>
+            </div>
+            <div class="search-buttons">
+                <div class="aligned-left">
+                    <lightning-button-icon icon-name="utility:refresh" variant="border-filled" onclick={refreshData} class="header-refresh"></lightning-button-icon>
+                </div>    
+                <div class="aligned-right">
+                <lightning-button icon-name="utility:download" icon-position="left" onclick={downloadData} label="Export to Excel" class="header-export"></lightning-button>
+                </div>    
+            </div>
+        </div>
+    </header>
+    <main>
+        <template if:true={policySearched}>
+            <template if:true={policyHasClaims}> 
+                <div class="lgc-bg table-container">
+                    <table class="slds-table main-table">
+                        <thead>
+                            <tr>
+                                <template for:each={columns} for:item="column">
+                                    <th key={column.fieldName} onclick={orderByColumn} data-column={column.fieldName} class="table-column">
+                                        {column.label}
+                                        <template if:true={column.sorted}>
+                                            <template if:true={showUpArrow}>
+                                                <lightning-icon icon-name="utility:arrowup" size="xx-small"></lightning-icon>
+                                            </template>
+                                            <template if:true={showDownArrow}>
+                                                <lightning-icon icon-name="utility:arrowdown" size="xx-small"></lightning-icon>
+                                            </template>
+                                        </template>
+                                    </th>
+                                </template>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={finalRecords} for:item="claim">
+                                <tr key={claim.Id} class="items">
+                                    <td>
+                                        <template if:true={claim.hasChildData}>
+                                            <lightning-button  variant="base" icon-name="utility:chevrondown" class="icon-chevrondown slds-button_icon" onclick={expandChildren} data-claimid={claim.Id}></lightning-button>
+                                        </template>
+                                    </td>
+                                    <td><a target="_blank" href={claim.urlId}>{claim.Name}</a></td>
+                                    <td><a target="_blank" href={claim.urlPatient}>{claim.Patient}</a></td>
+                                    <td>{claim.Status}</td>
+                                    <td>{claim.RecordType}</td>
+                                    <td>{claim.PlaceOfService}</td>
+                                    <td>{claim.ZelisReceivedDate}</td>
+                                    <td>{claim.CreatedDate}</td>
+                                    <td>{claim.DOSFrom}</td>
+                                    <td>{claim.LagDays}</td>
+                                    <td>{claim.TotalBilledAmount}</td>
+                                    <td>{claim.Allowed}</td>
+                                    <td>{claim.ConsultFee}</td>
+                                    <td>{claim.SFAMCS}</td>
+                                    <td>{claim.AMCS}</td>
+                                    <td>{claim.MBRLiability}</td>
+                                    <td>{claim.TotalNetPaidAmount}</td>
+                                    <td>{claim.SharingProgram}</td>
+                                    <td><a target="_blank" href={claim.urlVendor}>{claim.Vendor}</a></td>
+                                    <td>{claim.AuditorValidation}</td>
+                                    <td>{claim.AuditorApprovedBy}</td>
+                                    <td><a target="_blank" href={claim.urlLastModifiedBy}>{claim.LastModifiedBy}</a></td>
+                                    <td>{claim.LastModifiedDate}</td>
+                                    <td>{claim.FinalizedDate}</td>
+                                </tr>
+                                <template if:true={claim.showChildren}>
+                                    <tr key={claim.Id} class="child-row">
+                                        <td colspan="6">
+                                            <table class="slds-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Line Item
+                                                        </th>
+                                                        <th>
+                                                            CPT
+                                                        </th>
+                                                        <th>
+                                                            ICD
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <template if:true={claim.childData} for:each={claim.childData} for:item="childItem">
+                                                        <tr key={childItem.Id}>
+                                                            <td><a href={childItem.urlId}>{childItem.Name}</a></td>
+                                                            <td>{childItem.CPT}</td>
+                                                            <td>{childItem.ICD}</td>
+                                                        </tr>
+                                                    </template>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+            <template if:false={policyHasClaims}>
+                <div class="error-message">No claims found</div>
+            </template>
+        </template>
+    </main>
+</template>

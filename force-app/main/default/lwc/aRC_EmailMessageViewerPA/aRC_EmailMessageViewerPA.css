@@ -1,0 +1,128 @@
+.tableContainer{
+    
+    width: 100%;
+}
+.top{
+    width: 100%;
+    
+    display: flex;
+    background-color: rgb(243, 243, 243);
+    
+    align-items: center;
+    
+}
+.top div{
+    width: 24.375%;
+    text-align: left;
+    color: rgb(68, 68, 68);
+    padding: 0.5rem;
+    padding-left: 1rem;
+    font-weight: 700;
+    min-height: 2rem;
+}
+.uptop{
+    background-color: rgb(243, 243, 243);
+    border-bottom: 1px solid rgb(201, 201, 201);
+    width: 100%;
+}
+.content{
+    height: auto;
+}
+.item{
+    
+    width: 100%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    transition: 0.4s;
+    
+}
+.item div{
+    width: 24.375%;
+    padding: 0.5rem;
+    padding-left: 1rem;
+    text-align: left;
+    
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    
+}
+.panel{
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    border-bottom: 1px solid rgb(201, 201, 201);
+    width: 100%;
+}
+.item-wrap{
+    display: flex;
+    flex-flow: wrap;
+}
+
+.item:hover {
+    background-color: rgb(243, 243, 243);
+  }
+  .item.active{
+    background-color: rgb(234 231 231);
+  }
+
+  
+  
+
+  .titleCont{
+    height: 65px;
+    padding: 1rem;
+    width: 100%;
+    border-bottom: 1px solid rgb(201, 201, 201);
+    background-color: rgb(243, 243, 243);
+    display: flex;
+    align-items: center;
+  }
+  .titleCont lightning-icon{
+    margin-right: 0.75rem;
+  }
+  .titleCont h2{
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  .card{
+    
+    position: relative;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom:0;
+    padding-left: 0;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(201, 201, 201);
+    border-radius: 0.25rem;
+    background-clip: padding-box;
+    box-shadow:0 2px 2px 0 rgba(0, 0, 0, 0.10);
+    color: var(--slds-c-card-text-color, var(--sds-c-card-text-color));
+  }
+  .bottom{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+  }
+  .htmlbody{
+    padding: 20px;
+  }
+  p {
+    margin-bottom: 2rem !important; /* Espacio de 1 rem entre los párrafos */
+  }
+  .deletebutton{
+    
+    display: flex;
+    justify-content: center;
+    align-content: center;
+  }
+  .bottom a{
+    margin-right: 5px;
+  }

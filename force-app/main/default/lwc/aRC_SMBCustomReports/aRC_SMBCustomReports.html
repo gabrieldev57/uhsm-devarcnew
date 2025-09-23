@@ -1,0 +1,14 @@
+<template>
+    <div class="report-container">
+        <template if:false={openReport}>
+            <ul class="report-list">
+                <li><button onclick={handleSelectReport} data-rpt="aRC_SMBPolicyActivity">SMB - Policy Activity</button></li>
+            </ul>
+        </template>
+        <template if:true={openReport}>
+            <template for:each={reportsToDisplay} for:item="report">
+                <c-a-r-c_-s-m-b-policy-activity if:true={report} key={report} onclosereport={resetVariables}></c-a-r-c_-s-m-b-policy-activity>
+            </template>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>ARC Benefit Cards</masterLabel>
+    <targets xmlns="http://soap.sforce.com/2006/04/metadata">
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__Tab</target>
+        <target>lightningCommunity__Page</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="title" label="Tagline" type="String" default="Benefit Cards Tagline"></property>
+            <property name="subtitle" label="Title" type="String" default="Benefit Cards Title"></property>
+            <property name="description" label="Description" type="String" default="Benefit Cards Description"></property>
+            <property name="cardsList" label="Cards List" type="String" default="Home"></property>
+            <property name="slider" label="Slider" type="Boolean" description="Should it transform into a slider?" default="false"></property>
+            <property name="horizontal" label="Horizontal Style" type="Boolean" description="Should this be stacked in rows instead of columns?" default="false"></property>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

@@ -1,0 +1,127 @@
+div.via-nds,
+div.via-nds .nds-text-block{
+    font-family: var(--font-family-text);
+}
+
+.ui-widget h1,
+.ui-widget .h1,
+.ui-widget h1 *:not(small),
+.ui-widget .h1 *:not(small),
+div.forceCommunityRichText h1{
+    font-size: var(--ty-h1-size);
+    font-weight: var(--ty-h1-weight);
+    letter-spacing: var(--ty-h1-spacing);
+    margin-bottom: var(--ty-h1-mbottom);
+}
+
+.ui-widget h2,
+.ui-widget .h2,
+.ui-widget h2 *:not(small),
+.ui-widget .h2 *:not(small),
+div.forceCommunityRichText h2{
+    font-size: var(--ty-h2-size);
+    font-weight: var(--ty-h2-weight);
+    letter-spacing: var(--ty-h2-spacing);
+    margin-bottom: var(--ty-h2-mbottom);
+}
+
+.ui-widget h3,
+.ui-widget .h3,
+.ui-widget h3 *:not(small),
+.ui-widget .h3 *:not(small),
+div.forceCommunityRichText h3{
+    font-size: var(--ty-h3-size);
+    font-weight: var(--ty-h3-weight);
+    letter-spacing: var(--ty-h3-spacing);
+    margin-bottom: var(--ty-h3-mbottom);
+}
+
+.ui-widget h4,
+.ui-widget .h4,
+.ui-widget h4 *:not(small),
+.ui-widget .h4 *:not(small),
+div.forceCommunityRichText h4{
+    font-size: var(--ty-h4-size);
+    font-weight: var(--ty-h4-weight);
+    letter-spacing: var(--ty-h4-spacing);
+    margin-bottom: var(--ty-h4-mbottom);
+}
+
+.ui-widget h5,
+.ui-widget .h5,
+.ui-widget h5 *:not(small),
+.ui-widget .h5 *:not(small),
+div.forceCommunityRichText h5{
+    font-size: var(--ty-h5-size);
+    font-weight: var(--ty-h5-weight);
+    letter-spacing: var(--ty-h5-spacing);
+    margin-bottom: var(--ty-h5-mbottom);
+}
+
+.ui-widget h6,
+.ui-widget .h6,
+.ui-widget h6 *:not(small),
+.ui-widget .h6 *:not(small),
+div.forceCommunityRichText h6{
+    font-size: var(--ty-h6-size);
+    font-weight: var(--ty-h6-weight);
+    letter-spacing: var(--ty-h6-spacing);
+}
+
+.ui-widget h1 small, .ui-widget h1 .small, .ui-widget .h1 small, .ui-widget .h1 .small{
+    font-size: var(--ty-h3-size);
+}
+.ui-widget h2 small, .ui-widget h2 .small, .ui-widget .h2 small, .ui-widget .h2 .small{
+    font-size: var(--ty-h4-size);
+}
+.ui-widget h3 small, .ui-widget h3 .small, .ui-widget .h3 small, .ui-widget .h3 .small{
+    font-size: var(--ty-h5-size)
+}
+.ui-widget h4 small, .ui-widget h4 .small, .ui-widget .h4 small, .ui-widget .h4 .small{
+    font-size: var(--ty-h6-size)
+}
+.ui-widget h5 small, .ui-widget h5 .small, .ui-widget .h5 small, .ui-widget .h5 .small{
+    font-size: var(--ty-body-size)
+}
+.ui-widget h6 small, .ui-widget h6 .small, .ui-widget .h6 small, .ui-widget .h6 .small{
+    font-size: var(--ty-caption-size);
+}
+h1 small, h1 .small,
+h2 small, h2 .small,
+h3 small, h3 .small,
+h4 small, h4 .small,
+h5 small, h5 .small,
+h6 small, h6 .small{
+    display: block;
+    opacity: var(--ty-small-opacity);
+}
+
+
+div.siteforceContentArea,
+div.forceCommunityRichText li,
+div.forceCommunityRichText p{
+    font-size: var(--ty-body-size);
+}
+button.nds-button,
+button.nds-button *,
+button.slds-button,
+button.slds-button *{
+    font-size: var(--ty-button-size);
+    font-weight: var(--ty-button-weight);
+    letter-spacing: var(--ty-button-spacing);
+    text-transform: var(--ty-button-transform);
+}
+caption, .caption{
+    font-size: var(--ty-caption-size);
+    font-weight: var(--ty-caption-weight);
+    letter-spacing: var(--ty-caption-spacing);
+    color: var(--ty-caption-color);
+}
+
+h1:last-child, h1:last-child *, h2:last-child, h2:last-child *, h3:last-child, h3:last-child *, h4:last-child, h4:last-child *, h5:last-child, h5:last-child *, h6:last-child, h6:last-child *{
+    --ty-h1-mbottom: 0;
+    --ty-h2-mbottom: 0;
+    --ty-h3-mbottom: 0;
+    --ty-h4-mbottom: 0;
+    --ty-h5-mbottom: 0;
+}

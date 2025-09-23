@@ -1,0 +1,56 @@
+<template>
+    <div if:true={isProductRow} class={productRowClass}></div>
+    <div style="padding-top: 0.82rem; padding-bottom:0.82rem" class={containerStyle}>
+        <vlocity_ins-icon size="small" if:true={showAccordionIcon} theme={theme} icon-name={iconName}
+            extraclass="slds-p-left_x-small slds-is-absolute slds-p-bottom_x-small slds-m-left_xx-small nds-p-left_x-small nds-is-absolute nds-p-bottom_x-small nds-m-left_xx-small">
+        </vlocity_ins-icon>
+        <div class={labelStyle} style="padding-left: 28.8px; cursor: pointer">{row.label}<span if:true={hasDifference} class="vloc-ins-diff">*</span></div>
+        <template for:each={contents} for:item="cell" for:index="index">
+            <div key={cell.id} class={row.className}>
+                <!--Product Cell Header-->
+                <div if:true={cell.isHeader} class="slds-m-bottom_small nds-m-bottom_small">
+                    <h2 class="slds-text-link nds-text-link vloc-ins-link slds-truncate nds-truncate slds-p-right_xx-small nds-p-right_xx-small"
+                        onclick={navigateToRecord} data-record-id={cell.productId}>
+                        <b>{cell.label}</b></h2>
+                    <lightning-formatted-number class="vloc-ins-total-price vloc-ins-bold" value={cell.price}
+                        format-style="currency" currency-code={currency} minimum-fraction-digits="0"
+                        maximum-fraction-digits="2">
+                    </lightning-formatted-number>
+                    <span if:true={cell.priceNote} class="vloc-ins-total-price vloc-ins-bold">
+                        {cell.priceNote}
+                    </span>
+                    <div>{cell.description}</div>
+                    <template if:true={selectBtnFn}>
+                        <vlocity_ins-button if:true={cell.isSelected} theme={theme} variant="brand" onclick={toggleSelect}
+                            label={labels.Selected} icon-name="utility:check" icon-fill="white" data-record-id={cell.productId} data-record-index={index} extraclass="slds-m-top_small nds-m-top_small slds-size_11-of-12 nds-size_11-of-12">
+                        </vlocity_ins-button>
+                        <vlocity_ins-button if:false={cell.isSelected} theme={theme} variant="neutral" onclick={toggleSelect}
+                            label={labels.Select} data-record-id={cell.productId} data-record-index={index} extraclass="slds-m-top_small nds-m-top_small slds-size_11-of-12 nds-size_11-of-12"></vlocity_ins-button>
+                    </template>
+                </div>
+                <!--Cell-->
+                <div if:false={isHeaderRow} class={attributeStyle}>
+                    <template if:false={row.isInsuredPartySpec}>
+                        <lightning-formatted-number if:false={cell.attributeId} value={cell.price}
+                            format-style="currency" currency-code={currency} minimum-fraction-digits="2"
+                            maximum-fraction-digits="2"></lightning-formatted-number>
+                    </template>
+                    <template if:true={row.isInsuredPartySpec}>
+                        <template if:false={cell.isDummyCell}>
+                            <vlocity_ins-icon if:false={cell.isPrimary} size="x-small" icon-name="utility:check"></vlocity_ins-icon>
+                            <template if:true={cell.isPrimary}>
+                                <vlocity_ins-tooltip content={labels.Primary} arrowposition="bottom-left"
+                                    icon-name="utility:check" icon-size="x-small"></vlocity_ins-tooltip>
+                                <span class="vloc-ins-is-primary">*</span>
+                            </template>
+                        </template>
+                    </template>
+                    <div if:true={cell.attributeId}>
+                        <vlocity_ins-ins-attribute attribute={cell} theme={theme} root-channel={rootChannel}
+                            is-readonly={attributeReadonly}></vlocity_ins-ins-attribute>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>

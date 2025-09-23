@@ -1,0 +1,88 @@
+.simple-spacer{
+    --spacer-size-m: var(--spacer-size);
+    --spacer-size-s: var(--spacer-size);
+    
+    pointer-events: none;
+}
+.simple-spacer[data-direction="Vertical"]{
+    padding-bottom: var(--spacer-size-s);
+}
+.simple-spacer[data-direction="Horizontal"]{
+    padding-right: var(--spacer-size-s);
+}
+.simple-spacer[data-direction="Vertical"][data-negative="true"]{
+    padding: 0;
+    margin-bottom: var(--spacer-size-s);
+}
+.simple-spacer[data-direction="Horizontal"][data-negative="true"]{
+    padding: 0;
+    margin-right: var(--spacer-size-s);
+}
+.si-no-spacing{
+    margin-top: calc(var(--dxp-c-section-content-spacing-block-start-mobile, var(--dxp-s-section-content-spacing-block-start-mobile)) * -1);
+    margin-bottom: calc(var(--dxp-c-section-content-spacing-block-end-mobile, var(--dxp-s-section-content-spacing-block-end-mobile)) * -1);
+}
+@media screen and (min-width: 64em) {
+    .simple-spacer[data-direction="Vertical"]{
+        padding-bottom: var(--spacer-size);
+    }
+    .simple-spacer[data-direction="Horizontal"]{
+        padding-right: var(--spacer-size);
+    }
+    .simple-spacer[data-direction="Vertical"][data-negative="true"]{
+        padding: 0;
+        margin-bottom: var(--spacer-size);
+    }
+    .simple-spacer[data-direction="Horizontal"][data-negative="true"]{
+        padding: 0;
+        margin-right: var(--spacer-size);
+    }
+    .si-no-spacing{
+        margin-top: calc(var(--dxp-c-section-content-spacing-block-start, var(--dxp-s-section-content-spacing-block-start)) * -1);
+        margin-bottom: calc(var(--dxp-c-section-content-spacing-block-end, var(--dxp-s-section-content-spacing-block-end)) * -1);
+    }
+}
+
+/* Preview for Experience Builder */
+.preview{
+    display: none;
+    justify-content: space-between;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--spacer-size-s);
+    height: 12px;
+
+    font-size: 12px;
+    opacity: .7;
+}
+@media screen and (min-width: 64em) {
+    .preview{
+        width: var(--spacer-size);
+    }
+}
+[data-direction="Vertical"] .preview{
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+.preview span{
+    text-wrap: nowrap;
+}
+/* Preview Size text */
+.preview-size{
+    position: relative;
+}
+.preview-size span{
+    position: absolute;
+    top: calc(50% - 10px);
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+[data-direction="Vertical"] .preview-size span{
+    transform: translate(-50%, -50%) rotate(-90deg);
+}
+/* Always hide preview if spacer is negative */
+[data-negative="true"] .preview{
+    display: none !important;
+}

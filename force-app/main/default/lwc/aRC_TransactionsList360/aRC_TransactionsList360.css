@@ -1,0 +1,45 @@
+.main{
+    margin-bottom: 12px;
+    -webkit-box-shadow: var(--card-box-shadow);
+    -moz-box-shadow: var(--card-box-shadow);
+    box-shadow: var(--card-box-shadow);
+    border-width: var(--sds-c-card-sizing-border, var(--lwc-borderWidthThin,1px));
+    border-style: solid;
+    border-color: var(--sds-c-card-color-border,#D4D4D4);
+    border-radius: var(--sds-c-card-radius-border, var(--lwc-borderRadiusMedium,0.25rem));
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    padding: 15px;
+    cursor: pointer;
+}
+
+.transaction-info-left {
+    text-align: start;
+    font-size: 12pt;
+    width: 30%;
+}
+
+.transaction-info-right {
+    text-align: end;
+    font-size: 1.25rem;
+    width: 30%;
+}
+
+.transaction-line-items-container {
+    width: 30%;
+    text-align: end;
+    font-size: 1rem;
+}
+
+.status-settled {
+   color: #169179; 
+}
+
+.status-pending {
+    color: orange;
+}
+
+.status-failed  {
+    color: red;
+}

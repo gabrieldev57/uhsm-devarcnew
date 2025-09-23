@@ -1,0 +1,66 @@
+.header-background{
+    width: 100vw;
+    position: absolute;
+    left: 0;
+    top: 65px;
+    height: 40vh;
+    min-height: 380px;
+    object-fit: cover;
+    object-position: right top;
+    z-index: -1;
+}
+
+header h4{
+    max-width: 699px;
+}
+
+header{
+    height: 30vh;
+    min-height: 273px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+main{
+    margin-top: 100px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+@media (min-width: 1250px) and (max-width: 1430px) {
+    .header-background{
+        width: 100vw;
+        position: absolute;
+        left: 175px;
+        top: 65px;
+        height: 40vh;
+        min-height: 380px;
+        object-fit: cover;
+        object-position: right top;
+        z-index: -1;
+    }
+}
+@media (max-width: 1250px) {
+    .header-background{
+        width: 100vw;
+        position: relative;
+        left: 0;
+        top: 0;
+        height: 26vh;
+        object-fit: cover;
+        object-position: right top;
+        z-index: -1;
+    }
+    header{
+        height: auto;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    main{
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    header h4{
+        max-width: unset;
+    }
+}

@@ -1,0 +1,73 @@
+<template>
+	<template lwc:if={bIsCompleted}>
+		<div class="nds-progress__item nds-is-relative nds-is-completed">
+			<button class="nds-button nds-button_icon nds-button_icon nds-progress__marker nds-progress__marker_icon"
+				onclick={handleStepClick}>
+				<svg class="nds-button__icon" aria-hidden="true">
+					<use xlink:href={iconCheck}>
+					</use>
+				</svg>
+				<span class="nds-assistive-text">
+					{step.chartLabel}
+				</span>
+			</button>
+			<div class="nds-is-absolute" onclick={handleStepClick}>
+				<div class="nds-popover nds-popover_tooltip nds-nubbin_bottom" role="tooltip">
+					<div class="nds-popover__body">
+						{step.chartLabel}
+					</div>
+				</div>
+			</div>
+		</div>
+	</template>
+	<template lwc:elseif={bIsActive}>
+		<div class="nds-progress__item nds-is-active"
+			style="cursor:default;padding-bottom:4px;">
+			<button class="nds-button nds-progress__marker" onclick={handleStepClick}>
+				<span class="nds-assistive-text">
+					{step.chartLabel}
+				</span>
+			</button>
+			<div class="nds-is-absolute">
+				<div class="nds-m-top_medium nds-is-relative nds-progress__step-label nds-p-top_xx-small"
+					onclick={handleStepClick}>
+					{step.chartLabel}
+				</div>
+			</div>
+		</div>
+	</template>
+	<template if:true={bIsPristine}>
+		<div class="nds-progress__item" style="cursor: default;padding-bottom:4px;">
+			<button class="nds-button nds-progress__marker" onclick={handleStepClick}
+				disabled>
+				<span class="nds-assistive-text">
+					{step.chartLabel}
+				</span>
+			</button>
+			<div class="nds-is-absolute" onclick={handleStepClick}>
+				<div class="nds-popover nds-popover_tooltip nds-nubbin_bottom" role="tooltip">
+					<div class="nds-popover__body">
+						{step.chartLabel}
+					</div>
+				</div>
+			</div>
+		</div>
+	</template>
+	<template if:true={bIsNonPristine}>
+		<div class="nds-progress__item nds-is-nonpristine" style="cursor: default;padding-bottom:4px;">
+			<button class="nds-button nds-progress__marker" onclick={handleStepClick}
+				disabled>
+				<span class="nds-assistive-text">
+					{step.chartLabel}
+				</span>
+			</button>
+			<div class="nds-is-absolute" onclick={handleStepClick}>
+				<div class="nds-popover nds-popover_tooltip nds-nubbin_bottom" role="tooltip">
+					<div class="nds-popover__body">
+						{step.chartLabel}
+					</div>
+				</div>
+			</div>
+		</div>
+	</template>
+</template>

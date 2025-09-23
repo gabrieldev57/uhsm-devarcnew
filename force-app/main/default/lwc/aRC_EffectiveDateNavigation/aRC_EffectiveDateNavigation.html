@@ -1,0 +1,19 @@
+<template>
+    <!-- next & previous buttons -->
+    <div class="button-container">
+        <button class="vlocity-btn nds-button nds-button_brand nds-button_stretch" onclick={handler_NextStep} theme={theme}>Next</button>
+        <button class="vlocity-btn nds-button nds-button_neutral nds-button_stretch" onclick={handler_PreviousStep} theme={theme}>Previous</button>
+    </div>
+    <!-- Previous Button Warning -->
+    <vlocity_ins-modal class="discard-warning-modal" title="Are you sure you want to discard your changes?" size="small">
+        <div slot="content" style="max-height: 100px; overflow-y: auto; padding-bottom: 0;">
+            <p>If you confirm, any entered or modified fields will be cleared. This action cannot be undone.</p>
+        </div>
+        <div slot="footer">
+            <vlocity_ins-button label="Cancel" variant="neutral" onclick={handler_CancelDiscardChanges} theme={theme}>
+            </vlocity_ins-button>
+            <vlocity_ins-button label="Confirm" variant="brand" onclick={handler_ConfirmDiscardChanges} theme={theme}>
+            </vlocity_ins-button>
+        </div>
+    </vlocity_ins-modal>
+</template>

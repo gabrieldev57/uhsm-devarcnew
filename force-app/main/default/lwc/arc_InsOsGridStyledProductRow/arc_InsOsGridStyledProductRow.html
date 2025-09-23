@@ -1,0 +1,65 @@
+<template>
+
+    <div class="iogspr-product-container">
+
+        <div class="iogspr-product-header">
+            <div>
+                <div data-label="Product Name" class="product-name-td iogspr-product-title">
+                    <div class="attribute-container" title={product.Name}>{product.Name}</div>
+                </div>
+            </div>
+            <div>
+                <a class="iogspr-product-brochure" href="">
+                    <span>Program Brochure</span>
+                    <!-- <svg>
+                        <use xlink:href={iconExternal}></use>
+                    </svg> -->
+                    <!-- <svg aria-hidden="true">
+                        <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#open"></use>
+                    </svg> -->
+                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 11V17C16 17.5304 15.7893 18.0391 15.4142 18.4142C15.0391 18.7893 14.5304 19 14 19H3C2.46957 19 1.96086 18.7893 1.58579 18.4142C1.21071 18.0391 1 17.5304 1 17V6C1 5.46957 1.21071 4.96086 1.58579 4.58579C1.96086 4.21071 2.46957 4 3 4H9M13 1H19M19 1V7M19 1L8 12" stroke="#2C2B2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <!-- <div>
+            <div class="slds-col">
+                <vlocity_ins-button theme={theme} icon-name="standard:customer_portal_users" icon-position="left"
+                    label="Program Details" onclick={openDetailsProduct}></vlocity_ins-button>
+            </div>
+        </div> -->
+        <div class="iogspr-product-content">
+            <!-- Attributes (AMCS Individual/Family) -->
+            <div if:false={attribute.hidden} for:each={filteredAttributes} for:item="attribute" class="iogspr-attribute-container" title={attribute.attributeId} data-label="Attributes" key={attribute.attributeId}>
+                <c-arc_-ins-os-grid-styled-product-attribute theme={theme} attribute={attribute} is-cart={isCart}
+                    root-channel={rootChannel} is-general-attribute>
+                </c-arc_-ins-os-grid-styled-product-attribute>
+            </div>
+            <!-- Monthly price -->
+            <div class="iogspr-attribute-container" data-label="Price">
+                <span class="iogspr-label">Monthly Price</span>
+                <lightning-formatted-number class="iogspr-value" value={price} format-style="currency" minimum-fraction-digits="2"
+                    maximum-fraction-digits="2"></lightning-formatted-number>
+                <!-- <span class="vloc-ins-lowercase">/{labels.InsMonthAbrv}</span> -->
+            </div>
+            <!-- Compare price -->
+            <div class="iogspr-checkbox-container" data-label="Compare" title="Compare">
+                <vlocity_ins-input class="compare-checkbox" type="checkbox" checked={product.isSelectedForCompare}
+                    theme={theme} onchange={toggleCompare} label="Compare" disabled={isCompareDisabled}></vlocity_ins-input>
+            </div>
+            <!-- Select button -->
+            <div class="iogspr-button-container" data-label="Add to Cart" title="Add To Cart">
+                <vlocity_ins-button variant="brand" class="add-to-cart-button" extraclass={isSelectedForCartClasses}
+                    onclick={selectProduct} onmouseenter={addHoverState} onmouseleave={removeHoverState}
+                    icon-name={isSelectedForCartIcon} icon-position="left" icon-fill="#ffffff" theme={theme} label=""
+                    aria-live="assertive">
+                </vlocity_ins-button>
+            </div>
+        </div>
+
+    </div>
+
+
+
+</template>

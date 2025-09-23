@@ -1,0 +1,21 @@
+.si-button{
+    position: relative;
+    max-width: fit-content;
+}
+
+/* Full width property */
+[data-full-width="true"]{
+    width: 100%;
+    max-width: unset;
+}
+
+/* noStyle */
+.si-button[data-variation="noStyle"],
+.si-button[data-variation="none"]{
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    height: 100% !important;
+}

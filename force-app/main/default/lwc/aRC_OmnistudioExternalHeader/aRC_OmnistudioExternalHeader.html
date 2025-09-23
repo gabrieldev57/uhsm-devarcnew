@@ -1,0 +1,32 @@
+<template>
+	<div lwc:ref="css"></div>
+	<div class="os-header-container">
+		<div lwc:ref="header" class="os-header">
+			<div class="os-header-background"></div>
+			<div class="os-header-content">
+				<h2 class="os-header-title">{sHeaderTitle}</h2>
+				 
+				<c-a-r-c_-horizontal-scrollable-container class="os-step-chart-scroll" lwc:ref="stepChartScroll"
+					scroll-amount="250" 
+					fade-width="40"
+					active-selector="[data-status='active']">
+					<c-a-r-c_-omnistudio-external-step-chart lwc:if={stepDef} lwc:ref="stepChart"
+											steps={stepDef}
+											use-labels
+											onstepclick={handleDotBack}>
+					</c-a-r-c_-omnistudio-external-step-chart>
+				</c-a-r-c_-horizontal-scrollable-container>
+			</div>
+		</div>
+		<div lwc:if={bShowActionBar} class="os-action-bar-container">
+			<div class="os-action-bar">
+				<!-- <div>
+					<button lwc:if={goBackLabel} class="os-action" onclick={handleBack}>{goBackLabel}</button>
+				</div>
+				<div>
+					<button lwc:if={bCanSave} class="os-action" onclick={handleSaveForLater}>Save and resume later</button>
+				</div> -->
+			</div>
+		</div>
+	</div>
+</template>

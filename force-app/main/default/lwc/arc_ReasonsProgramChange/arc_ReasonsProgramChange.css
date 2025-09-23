@@ -1,0 +1,30 @@
+.comp-row{ 
+    margin-top:45px;
+    display: flex;
+    align-items: flex-start;
+    padding: 0 !important;
+}
+
+.reason-label{
+    width: 75%;
+}
+
+.all-reasons{
+    width: 25%;
+}
+
+p{
+
+    letter-spacing: 1px;
+    min-height: calc(1.875rem + 2px);
+    line-height: 1.875rem;
+    color: var(--color-text);
+    opacity: 1 !important;
+    font-weight: bold !important;
+    text-align: right;
+
+}
+
+.reason{
+    margin-bottom: -3px;
+}

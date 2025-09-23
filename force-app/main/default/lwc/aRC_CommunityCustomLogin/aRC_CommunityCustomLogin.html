@@ -1,0 +1,62 @@
+<template>
+    <div class="slds-form-element">
+        <!--Error Message-->
+        <div if:true={error}>
+            <div class="errorMessage">{errorMessage}</div>
+        </div>
+        <!--Inactive User-->
+        <div if:true={inactiveUser}>
+            <div class="errorMessage">
+                <p>You are attempting to log in with an inactive user account. <a class="slds-text-link"
+                        onclick={handleActivateUser}>Click
+                        here</a> to activate it.</p>
+            </div>
+        </div>
+        <div if:true={inactiveUserEmailSent}>
+            <div class="errorMessage">
+                <p>An email has been sent to your email address with instructions to activate your account. </p>
+            </div>
+        </div>
+        <!--Input Username-->
+        <div class="slds-grid slds-wrap slds-p-around_medium slds-box slds-m-bottom_small">
+            <lightning-icon icon-name="utility:user" alternative-text="Username" size="xx-small" title="small size"
+                class="slds-col slds-size_1-of-12 slds-icon-utility-user slds-icon_container slds-p-top_x-small slds-p-left_small inputIcons">
+            </lightning-icon>
+            <input type="text" onkeypress={enterSubmit} id="input_username" placeholder="Username"
+                class="slds-input slds-col slds-size_11-of-12 form_inputs" data-key="inputUsername"
+                oninput={handleUsernameChange} />
+        </div>
+
+        <!--Input Password-->
+        <div class="slds-grid slds-wrap slds-p-around_medium slds-box slds-m-bottom_small">
+            <lightning-icon icon-name="utility:unlock" alternative-text="Password" size="xx-small" title="small size"
+                class="slds-col slds-col slds-size_1-of-12 slds-icon-utility-user slds-icon_container slds-p-top_x-small slds-p-left_small inputIcons">
+            </lightning-icon>
+            <input type="password" onkeypress={enterSubmit} id="input_password" placeholder="Password"
+                class="slds-input slds-col slds-size_11-of-12 form_inputs" data-key="inputPassword"
+                oninput={handlePasswordChange} />
+        </div>
+
+        <!--Login Button-->
+        <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left ">
+            <button disabled={loading} class="slds-button slds-button_neutral slds-size_12-of-12 loginButton"
+                onclick={handleLogin}>
+                <span if:false={loading}>Log in</span>
+                <lightning-spinner if:true={loading} class="spinner" alternative-text="Loading"
+                    size="x-small"></lightning-spinner>
+            </button>
+        </div>
+
+        <!--Redirect Pages Buttons-->
+        <div class="slds-grid slds-wrap slds-grid_align-spread redirectPagesContainer">
+            <div class="slds-col ">
+                <button class="slds-button  buttonPages" onclick={handleForgotUsername}>Forgot Username?</button>
+            </div>
+            <div class="slds-col ">
+                <button class="slds-button  buttonPages" onclick={handleForgotPassword}>Forgot Password?</button>
+            </div>
+        </div>
+    </div>
+
+
+</template>

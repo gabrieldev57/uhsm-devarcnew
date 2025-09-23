@@ -1,0 +1,8 @@
+.vloc-ins-error-message {
+    border-radius: 0.25rem;
+    justify-content: left;
+}
+
+.vloc-ins-readonly-toggle {
+    pointer-events: none;
+}

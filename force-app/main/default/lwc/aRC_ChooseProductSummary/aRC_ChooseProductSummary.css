@@ -1,0 +1,76 @@
+.customers {
+    border-collapse: collapse;
+}
+  
+td,th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+tr:hover {
+    background-color: #ddd;
+}
+  
+th {
+	font-family: Arial;
+    text-align: center;
+	background-color: var(--color-action); /* rgb(244 178 35);  --color-action */
+	font-size: 14px; /* --ty-button-size */
+	font-weight: 500; /* --ty-button-weight */
+	letter-spacing: 1.25px; /* --ty-button-spacing */
+	text-transform: uppercase; /* --ty-button-transform */
+	border: none;
+	color: white; /* --button-primary-color-text */
+	padding: 4px 20px; /* --button-base-padding: 4px 20px; */
+}
+
+tbody tr:last-child>td{
+	border: none;
+}
+
+@media only screen and (max-width: 600px) {
+	thead{
+		display: none;
+	}
+	tr{
+		display: flex;
+		flex-direction: column;
+		background: lightgray;
+		border: 1px solid black;
+		margin-bottom: 20px;
+	}
+
+	td{
+		display: flex;
+		flex-direction: column;
+		border: none;
+	}
+
+	tbody tr:last-child{
+		border: none;
+		background: none;
+		flex-direction: row;
+		justify-content: end;
+	}
+
+	tbody tr:last-child td{
+		padding: 0;
+	}
+
+	.name:before{
+		content:"PRODUCT";
+		font-weight: bold;
+	}
+	.coverage:before{
+		content:"COVERAGES";
+		font-weight: bold;
+	}
+	.members:before{
+		content:"MEMBERS";
+		font-weight: bold;
+	}
+	.price:before{
+		content:"PRICE";
+		font-weight: bold;
+	}
+}

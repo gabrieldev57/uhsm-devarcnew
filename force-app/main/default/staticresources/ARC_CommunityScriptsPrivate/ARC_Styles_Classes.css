@@ -1,0 +1,765 @@
+.arc-hidden{
+    display: none;
+}
+.arc-invisible{
+    visibility: hidden;
+}
+.arc-color-primary, .arc-color-primary *{
+    color: var(--color-primary) !important;
+}
+.arc-color-text, .arc-color-text *{
+    color: var(--color-text) !important;
+}
+.arc-color-detail, .arc-color-detail *{
+    color: var(--color-detail-text) !important;
+}
+.arc-color-link, .arc-color-link *{
+    color: var(--color-link) !important;
+}
+.arc-color-overlay, .arc-color-overlay *{
+    color: var(--color-overlay-text) !important;
+}
+.arc-box{
+    display: flex;
+}
+.arc-box-rows{
+    flex-flow: row;
+}
+.arc-box-columns{
+    flex-flow: column;
+}
+.arc-box-rows.arc-box-center-horizontal,
+.arc-box-center-vertical{
+    align-items: center;
+}
+.arc-box-columns.arc-box-center-vertical,
+.arc-box-center-horizontal{
+    justify-content: center;
+}
+.arc-box-center-both{
+    align-items: center;
+    justify-content: center;
+}
+.arc-bg{
+    background-color: var(--color-primary);
+}
+
+/* Media Queries */
+@media screen and (max-width: 768px){
+    .hide-on-mobile{
+        display: none !important;
+    }
+}
+@media screen and (min-width: 769px) and (max-width: 1024px){
+    .hide-on-tablet{
+        display: none !important;
+    }
+}
+@media screen and (min-width: 1025px){
+    .hide-on-desktop{
+        display: none !important;
+    }
+}
+
+/* Flexible Vertical Adjustment */
+.ui-sortable-handle .cb-section.arc-section-colored,
+.ui-widget .cb-section.arc-section-colored{
+    margin: 0;
+    padding-top: var(--section-colored-vertical-spacing);
+    padding-bottom:  var(--section-colored-vertical-spacing);
+}
+
+/* SVG Color */
+.arc-svg-fill-primary,
+.arc-svg-fill-primary *,
+.arc-svg-primary,
+.arc-svg-primary *{
+    fill: var(--color-primary);
+}
+.arc-svg-fill-secondary,
+.arc-svg-fill-secondary *,
+.arc-svg-secondary,
+.arc-svg-secondary *{
+    fill: var(--color-primary);
+}
+.arc-svg-fill-white,
+.arc-svg-fill-white *,
+.arc-svg-white,
+.arc-svg-white *{
+    fill: #fff;
+}
+.arc-svg-stroke-primary,
+.arc-svg-stroke-primary *{
+    stroke: var(--color-primary);
+}
+.arc-svg-stroke-secondary,
+.arc-svg-stroke-secondary *{
+    stroke: var(--color-primary);
+}
+.arc-svg-stroke-white,
+.arc-svg-stroke-white *{
+    stroke: #fff;
+}
+
+/* SVG Injecting */
+.arc-svg-injecting img[src$=svg]{
+    opacity: .1;
+}
+
+/* Filters */
+/* .arc-filter-primary{
+    filter: var(--arc-filter-primary);
+}
+.arc-filter-secondary{
+    filter: var(--arc-filter-secondary);
+} */
+.arc-filter-white{
+    filter: var(--arc-filter-white);
+}
+
+/* Gradients */
+.arc-black-gradient-top{
+    background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(255,255,255,0) 70%);
+}
+.arc-black-gradient-bottom{
+    background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(255,255,255,0) 70%);
+}
+.arc-white-gradient-top{
+    background: linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(0,0,0,0) 70%);
+}
+.arc-white-gradient-bottom{
+    background: linear-gradient(0deg, rgba(255,255,255,0.6) 0%, rgba(0,0,0,0) 70%);
+}
+
+/* Buttons */
+.arc-button-big button,
+.arc-button-big button:hover,
+.arc-button-big button:focus,
+.arc-button-big button:active,
+button.arc-button-big,
+button.arc-button-big:hover,
+button.arc-button-big:focus,
+button.arc-button-big:active{
+    padding: var(--button-big-padding);
+    border-radius: var(--button-big-border-radius);
+}
+
+/* ////////////// Scrolling Configuration /////////////// */
+[class*="arc-scrollanim"]{
+    pointer-events: none;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent{
+    pointer-events: all;
+}
+[class*="arc-scrollanim"].arc-scrollanim-delay-p1{ animation-delay: .1s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-p2{ animation-delay: .2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-p3{ animation-delay: .3s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-p4{ animation-delay: .4s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-p5{ animation-delay: .5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-p6{ animation-delay: .6s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-p7{ animation-delay: .7s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-p8{ animation-delay: .8s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-p9{ animation-delay: .9s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1{ animation-delay: 1s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1p1{ animation-delay: 1.1s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1p2{ animation-delay: 1.2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1p3{ animation-delay: 1.3s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1p4{ animation-delay: 1.4s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1p5{ animation-delay: 1.5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1p6{ animation-delay: 1.6s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1p7{ animation-delay: 1.7s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1p8{ animation-delay: 1.8s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-1p9{ animation-delay: 1.9s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2{ animation-delay: 2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2p1{ animation-delay: 2.1s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2p2{ animation-delay: 2.2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2p3{ animation-delay: 2.3s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2p4{ animation-delay: 2.4s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2p5{ animation-delay: 2.5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2p6{ animation-delay: 2.6s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2p7{ animation-delay: 2.7s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2p8{ animation-delay: 2.8s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-2p9{ animation-delay: 2.9s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3{ animation-delay: 3s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3p1{ animation-delay: 3.1s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3p2{ animation-delay: 3.2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3p3{ animation-delay: 3.3s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3p4{ animation-delay: 3.4s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3p5{ animation-delay: 3.5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3p6{ animation-delay: 3.6s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3p7{ animation-delay: 3.7s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3p8{ animation-delay: 3.8s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-3p9{ animation-delay: 3.9s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-4{ animation-delay: 4s !important }
+
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(2){ animation-delay: .5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(3){ animation-delay: 1s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(4){ animation-delay: 1.5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(5){ animation-delay: 2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(6){ animation-delay: 2.5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(7){ animation-delay: 3s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(8){ animation-delay: 3.5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(9){ animation-delay: 4s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(10){ animation-delay: 4.5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(11){ animation-delay: 5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(12){ animation-delay: 5.5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(13){ animation-delay: 6s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(14){ animation-delay: 6.5s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling:nth-child(15){ animation-delay: 7s !important }
+
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(2){ animation-delay: .2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(3){ animation-delay: .4s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(4){ animation-delay: .6s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(5){ animation-delay: .8s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(6){ animation-delay: 1s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(7){ animation-delay: 1.2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(8){ animation-delay: 1.4s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(9){ animation-delay: 1.6s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(10){ animation-delay: 1.8s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(11){ animation-delay: 2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(12){ animation-delay: 2.2s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(13){ animation-delay: 2.4s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(14){ animation-delay: 2.6s !important }
+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick+[class*="arc-scrollanim"].arc-scrollanim-delay-sibling-quick:nth-child(15){ animation-delay: 2.8s !important }
+
+/* ////////////// Scrolling Animations /////////////// */
+
+/* Spin */
+[class*="arc-scrollanim"].arc-scrollanim-spin {
+    transform: rotateZ(0deg);
+    pointer-events: all;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-spin,
+[class*="arc-scrollanim"].arc-scrollanim-spin.arc-scrollanim-in{
+    animation: scroll-anim-spin 6s linear infinite;
+}
+@keyframes scroll-anim-spin{
+    0%{
+        transform: rotateZ(0deg);
+    }
+    100%{
+        transform: rotateZ(360deg);
+    }
+}
+/* Fade */
+[class*="arc-scrollanim"].arc-scrollanim-fade {
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fade,
+[class*="arc-scrollanim"].arc-scrollanim-fade.arc-scrollanim-in{
+    animation: scroll-anim-fade 1s ease forwards;
+}
+@keyframes scroll-anim-fade{
+    0%{
+    }
+    99%{
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        opacity: 1;
+    }
+}
+/* Fade From Top */
+[class*="arc-scrollanim"].arc-scrollanim-fadefromtop {
+    transform: translateY(-40%);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fadefromtop,
+[class*="arc-scrollanim"].arc-scrollanim-fadefromtop.arc-scrollanim-in{
+    animation: scroll-anim-fadefromtop 1s ease forwards;
+}
+@keyframes scroll-anim-fadefromtop{
+    0%{
+        transform: translateY(-40%);
+    }
+    99%{
+        transform: translateY(0%);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: translateY(0%);
+        opacity: 1;
+    }
+}
+/* Fade From Bottom */
+[class*="arc-scrollanim"].arc-scrollanim-fadefrombottom {
+    transform: translateY(40%);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fadefrombottom,
+[class*="arc-scrollanim"].arc-scrollanim-fadefrombottom.arc-scrollanim-in{
+    animation: scroll-anim-fadefrombottom 1s ease forwards;
+}
+@keyframes scroll-anim-fadefrombottom{
+    0%{
+        transform: translateY(40%);
+    }
+    99%{
+        transform: translateY(0%);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: translateY(0%);
+        opacity: 1;
+    }
+}
+/* Fade From Left */
+[class*="arc-scrollanim"].arc-scrollanim-fadefromleft {
+    transform: translateX(-40%);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fadefromleft,
+[class*="arc-scrollanim"].arc-scrollanim-fadefromleft.arc-scrollanim-in{
+    animation: scroll-anim-fadefromleft 1s ease forwards;
+}
+@keyframes scroll-anim-fadefromleft{
+    0%{
+        transform: translateX(-40%);
+    }
+    99%{
+        transform: translateX(0%);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: translateX(0%);
+        opacity: 1;
+    }
+}
+/* Fade From Right */
+[class*="arc-scrollanim"].arc-scrollanim-fadefromright {
+    transform: translateX(40%);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fadefromright,
+[class*="arc-scrollanim"].arc-scrollanim-fadefromright.arc-scrollanim-in{
+    animation: scroll-anim-fadefromright 1s ease forwards;
+}
+@keyframes scroll-anim-fadefromright{
+    0%{
+        transform: translateX(40%);
+    }
+    99%{
+        transform: translateX(0%);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: translateX(0%);
+        opacity: 1;
+    }
+}
+/* Slide From Top */
+.arc-scrollanim-slidefromtop,
+[class*="arc-scrollanim"].arc-scrollanim-slidefromtop {
+    transform: translateY(-100vh);
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in .arc-scrollanim-slidefromtop,
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-slidefromtop,
+[class*="arc-scrollanim"].arc-scrollanim-slidefromtop.arc-scrollanim-in{
+    animation: scroll-anim-slidefromtop 1s ease forwards;
+}
+@keyframes scroll-anim-slidefromtop{
+    0%{
+        transform: translateY(-100vh);
+    }
+    99%{
+        transform: translateY(0vh);
+    }
+    100%{
+        pointer-events: all;
+        transform: translateY(0vh);
+    }
+}
+
+/* Slide From Bottom */
+.arc-scrollanim-slidefrombottom,
+[class*="arc-scrollanim"].arc-scrollanim-slidefrombottom {
+    transform: translateY(100vh);
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in .arc-scrollanim-slidefrombottom,
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-slidefrombottom,
+[class*="arc-scrollanim"].arc-scrollanim-slidefrombottom.arc-scrollanim-in{
+    animation: scroll-anim-slidefrombottom 1s ease forwards;
+}
+@keyframes scroll-anim-slidefrombottom{
+    0%{
+        transform: translateY(100vh);
+    }
+    99%{
+        transform: translateY(0vh);
+    }
+    100%{
+        pointer-events: all;
+        transform: translateY(0vh);
+    }
+}
+
+/* Slide From Left */
+[class*="arc-scrollanim"].arc-scrollanim-slidefromleft {
+    transform: translateX(-100vw);
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-slidefromleft,
+[class*="arc-scrollanim"].arc-scrollanim-slidefromleft.arc-scrollanim-in{
+    animation: scroll-anim-slidefromleft 1s ease forwards;
+}
+@keyframes scroll-anim-slidefromleft{
+    0%{
+        transform: translateX(-100vw);
+    }
+    99%{
+        transform: translateX(0vw);
+    }
+    100%{
+        pointer-events: all;
+        transform: translateX(0vw);
+    }
+}
+/* Slide From Right */
+[class*="arc-scrollanim"].arc-scrollanim-slidefromright {
+    transform: translateX(100vw);
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-slidefromright,
+[class*="arc-scrollanim"].arc-scrollanim-slidefromright.arc-scrollanim-in{
+    animation: scroll-anim-slidefromright 1s ease forwards;
+}
+@keyframes scroll-anim-slidefromright{
+    0%{
+        transform: translateX(100vw);
+    }
+    99%{
+        transform: translateX(0vw);
+    }
+    100%{
+        pointer-events: all;
+        transform: translateX(0vw);
+    }
+}
+/* Scale */
+[class*="arc-scrollanim"].arc-scrollanim-scale {
+    transform: scale(0.8);
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-scale,
+[class*="arc-scrollanim"].arc-scrollanim-scale.arc-scrollanim-in{
+    animation: scroll-anim-scale 1s ease forwards;
+}
+@keyframes scroll-anim-scale{
+    0%{
+        transform: scale(0.8);
+    }
+    99%{
+        transform: scale(1);
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1);
+    }
+}
+/* Scale From Top */
+[class*="arc-scrollanim"].arc-scrollanim-scalefromtop {
+    transform: scale(0.8) translateY(-40%);
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-scalefromtop,
+[class*="arc-scrollanim"].arc-scrollanim-scalefromtop.arc-scrollanim-in{
+    animation: scroll-anim-scalefromtop 1s ease forwards;
+}
+@keyframes scroll-anim-scalefromtop{
+    0%{
+        transform: scale(0.8) translateY(-40%);
+    }
+    99%{
+        transform: scale(1) translateY(0%);
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1) translateY(0%);
+    }
+}
+/* Scale From Bottom */
+[class*="arc-scrollanim"].arc-scrollanim-scalefrombottom {
+    transform: scale(0.8) translateY(40%);
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-scalefrombottom,
+[class*="arc-scrollanim"].arc-scrollanim-scalefrombottom.arc-scrollanim-in{
+    animation: scroll-anim-scalefrombottom 1s ease forwards;
+}
+@keyframes scroll-anim-scalefrombottom{
+    0%{
+        transform: scale(0.8) translateY(40%);
+    }
+    99%{
+        transform: scale(1) translateY(0%);
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1) translateY(0%);
+    }
+}
+/* Scale From Left */
+[class*="arc-scrollanim"].arc-scrollanim-scalefromleft {
+    transform: scale(0.8) translateX(-40%);
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-scalefromleft,
+[class*="arc-scrollanim"].arc-scrollanim-scalefromleft.arc-scrollanim-in{
+    animation: scroll-anim-scalefromleft 1s ease forwards;
+}
+@keyframes scroll-anim-scalefromleft{
+    0%{
+        transform: scale(0.8) translateX(-40%);
+    }
+    99%{
+        transform: scale(1) translateX(0%);
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1) translateX(0%);
+    }
+}
+/* Scale From Right */
+[class*="arc-scrollanim"].arc-scrollanim-scalefromright {
+    transform: scale(0.8) translateX(40%);
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-scalefromright,
+[class*="arc-scrollanim"].arc-scrollanim-scalefromright.arc-scrollanim-in{
+    animation: scroll-anim-scalefromright 1s ease forwards;
+}
+@keyframes scroll-anim-scalefromright{
+    0%{
+        transform: scale(0.8) translateX(40%);
+    }
+    99%{
+        transform: scale(1) translateX(0%);
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1) translateX(0%);
+    }
+}
+/* Fade & Scale */
+[class*="arc-scrollanim"].arc-scrollanim-fadescale {
+    transform: scale(0.8);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fadescale,
+[class*="arc-scrollanim"].arc-scrollanim-fadescale.arc-scrollanim-in{
+    animation: scroll-anim-fadescale 1s ease forwards;
+}
+@keyframes scroll-anim-fadescale{
+    0%{
+        transform: scale(0.8);
+    }
+    99%{
+        transform: scale(1);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+/* Fade & Scale From Top */
+[class*="arc-scrollanim"].arc-scrollanim-fadescalefromtop {
+    transform: scale(0.8) translateY(-40%);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fadescalefromtop,
+[class*="arc-scrollanim"].arc-scrollanim-fadescalefromtop.arc-scrollanim-in{
+    animation: scroll-anim-fadescalefromtop 1s ease forwards;
+}
+@keyframes scroll-anim-fadescalefromtop{
+    0%{
+        transform: scale(0.8) translateY(-40%);
+    }
+    99%{
+        transform: scale(1) translateY(0%);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1) translateY(0%);
+        opacity: 1;
+    }
+}
+/* Fade & Scale From Bottom */
+[class*="arc-scrollanim"].arc-scrollanim-fadescalefrombottom {
+    transform: scale(0.8) translateY(40%);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fadescalefrombottom,
+[class*="arc-scrollanim"].arc-scrollanim-fadescalefrombottom.arc-scrollanim-in{
+    animation: scroll-anim-fadescalefrombottom 1s ease forwards;
+}
+@keyframes scroll-anim-fadescalefrombottom{
+    0%{
+        transform: scale(0.8) translateY(40%);
+    }
+    99%{
+        transform: scale(1) translateY(0%);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1) translateY(0%);
+        opacity: 1;
+    }
+}
+/* Fade & Scale From Left */
+[class*="arc-scrollanim"].arc-scrollanim-fadescalefromleft {
+    transform: scale(0.8) translateX(-40%);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fadescalefromleft,
+[class*="arc-scrollanim"].arc-scrollanim-fadescalefromleft.arc-scrollanim-in{
+    animation: scroll-anim-fadescalefromleft 1s ease forwards;
+}
+@keyframes scroll-anim-fadescalefromleft{
+    0%{
+        transform: scale(0.8) translateX(-40%);
+    }
+    99%{
+        transform: scale(1) translateX(0%);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1) translateX(0%);
+        opacity: 1;
+    }
+}
+/* Fade & Scale From Right */
+[class*="arc-scrollanim"].arc-scrollanim-fadescalefromright {
+    transform: scale(0.8) translateX(40%);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-fadescalefromright,
+[class*="arc-scrollanim"].arc-scrollanim-fadescalefromright.arc-scrollanim-in{
+    animation: scroll-anim-fadescalefromright 1s ease forwards;
+}
+@keyframes scroll-anim-fadescalefromright{
+    0%{
+        transform: scale(0.8) translateX(40%);
+    }
+    99%{
+        transform: scale(1) translateX(0%);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: scale(1) translateX(0%);
+        opacity: 1;
+    }
+}
+/* Widen To Top */
+[class*="arc-scrollanim"].arc-scrollanim-widentotop {
+    transform: scaleY(0);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-widentotop,
+[class*="arc-scrollanim"].arc-scrollanim-widentotop.arc-scrollanim-in{
+    animation: scroll-anim-widentotop 1s ease forwards;
+}
+@keyframes scroll-anim-widentotop{
+    0%{
+        transform: scaleY(0);
+    }
+    99%{
+        transform: scaleY(1);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+/* Widen To Bottom */
+[class*="arc-scrollanim"].arc-scrollanim-widentobottom {
+    transform: scaleY(0);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-widentobottom,
+[class*="arc-scrollanim"].arc-scrollanim-widentobottom.arc-scrollanim-in{
+    animation: scroll-anim-widentobottom 1s ease forwards;
+}
+@keyframes scroll-anim-widentobottom{
+    0%{
+        transform: scaleY(0);
+    }
+    99%{
+        transform: scaleY(1);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+/* Widen To Left */
+[class*="arc-scrollanim"].arc-scrollanim-widentoleft {
+    transform: scaleX(0);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-widentoleft,
+[class*="arc-scrollanim"].arc-scrollanim-widentoleft.arc-scrollanim-in{
+    animation: scroll-anim-widentoleft 1s ease forwards;
+}
+@keyframes scroll-anim-widentoleft{
+    0%{
+        transform: scaleX(0);
+    }
+    99%{
+        transform: scaleX(1);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: scaleX(1);
+        opacity: 1;
+    }
+}
+/* Widen To Right */
+[class*="arc-scrollanim"].arc-scrollanim-widentoright {
+    transform: scaleX(0);
+    opacity: 0;
+}
+[class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-widentoright,
+[class*="arc-scrollanim"].arc-scrollanim-widentoright.arc-scrollanim-in{
+    animation: scroll-anim-widentoright 1s ease forwards;
+}
+@keyframes scroll-anim-widentoright{
+    0%{
+        transform: scaleX(0);
+    }
+    99%{
+        transform: scaleX(1);
+        opacity: 1;
+    }
+    100%{
+        pointer-events: all;
+        transform: scaleX(1);
+        opacity: 1;
+    }
+}
+/* /////////////// SPECIAL ANIMATIONS //////////////// */
+[class*="arc-scrollanim"].arc-scrollanim-risingnumber{
+    opacity: 0;
+    transition: opacity .8s ease-in;
+}
+/* [class*="arc-scrollanim"].arc-scrollanim-parent.arc-scrollanim-in [class*="arc-scrollanim"].arc-scrollanim-risingnumber, */
+[class*="arc-scrollanim"].arc-scrollanim-risingnumber.arc-scrollanim-in{
+    opacity: 1;
+}
+/* /////////////////////////////////////////////////// */
+.arc-example-box{
+    overflow: hidden;
+    padding: 40px;
+    border: 1px solid var(--color-border);
+}
+.arc-example-box h4{
+    width: fit-content;
+}

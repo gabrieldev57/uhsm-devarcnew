@@ -1,0 +1,13 @@
+<template>
+    <template if:false={isLoaded}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    <template if:true={plans}>
+        <template for:each={plans} for:item="plan">
+            <c-a-r-c_-program-change-summary-row key={plan.Id}
+                class="nds-p-horizontal_x-small slds-p-horizontal_x-small" product={plan} dependents={dependents}
+                root-channel={rootChannel} theme={theme}></c-a-r-c_-program-change-summary-row>
+        </template>
+    </template>
+    <vlocity_ins-ins-os-grid-product-modal theme={theme} root-channel={rootChannel}></vlocity_ins-ins-os-grid-product-modal>
+</template>

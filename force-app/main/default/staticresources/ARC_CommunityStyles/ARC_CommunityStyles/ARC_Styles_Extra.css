@@ -1,0 +1,145 @@
+:root{
+    --swiper-theme-color: var(--color-primary);
+}
+
+.swiper-pagination{
+    position: unset;
+    margin-top: 20px;
+    z-index: 4;
+}
+.swiper-button-next,
+.swiper-button-previous{
+    z-index: 4;
+}
+.swiper-pagination-bullet{
+    background: var(--color-text);
+}
+.swiper-pagination-bullet.swiper-pagination-bullet-active {
+    background: var(--swiper-pagination-color,var(--swiper-theme-color));
+}
+
+/* Salesforce Toasts */
+div.forceCommunityToastManager.forceToastManager .forceVisualMessageQueue {
+    display: flex;
+    flex-flow: column-reverse;
+    position: fixed;
+    top: unset;
+    bottom: 0;
+}
+div.forceCommunityToastManager .slds-notify_container{
+    text-align: right;
+}
+div.forceCommunityToastManager .toastContent{
+    margin-right: 20px;
+}
+div.forceCommunityToastManager .slds-notify--toast{
+    min-width: auto;
+}
+div.forceCommunityToastManager .slds-theme--warning{
+    background-color: rgb(229 119 27);
+}
+div.forceCommunityToastManager .slds-theme--warning .toastContent{
+    color: #fff;
+}
+div.slds-theme--warning svg.slds-icon,
+div.forceToastManager .slds-button svg,
+div.forceToastManager .slds-button:hover svg,
+div.forceToastManager .slds-button:focus svg{
+    fill: #fff;
+}
+div.forceCommunityToastManager button:focus {
+    box-shadow: none;
+    border: none;
+}
+
+
+/* ALL BELOW Added for UHSM Demo */
+.uhsm-hero-box{
+    padding: 40px 40px 20px;
+    background-color: rgba(255,255,255,0.85);
+}
+.uhsm-hero-box h2{
+    border-left: 8px solid var(--color-primary);
+    padding-left: 12px;
+    padding-bottom: 14px;
+}
+.uhsm-hero-box.uhsm-hero-numbers{
+    padding: 20px 40px 40px;
+    font-size: 56px;
+    text-align: center;
+}
+@media screen and (min-width: 600px){
+    .uhsm-hero-box{
+        padding: 60px 100px 20px;
+    }
+    .uhsm-hero-box.uhsm-hero-numbers{
+        padding: 20px 100px 60px;
+        display: flex;
+        justify-content: space-around;
+    }
+}
+.uhsm-hero-box.uhsm-hero-numbers .small{
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+/* Topbar Fix */
+.arc-showhide-topbar .linkBtn svg,
+.arc-showhide-topbar .linkBtn{
+    transition: color .5s linear, fill .5s linear;
+}
+
+@media only screen and (min-width: 48em){
+    .arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeHeaderCompact .search-triggerButton svg,
+    .arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeNav.jepsonInnerHeader .mainNavItem .linkBtn svg {
+        fill: #fff !important;
+    }
+    .arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeNav.jepsonInnerHeader .mainNavItem .linkBtn {
+        color: #fff !important;
+    }
+    .arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeHeaderCompact .search-triggerButton svg,
+    .arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeNav.jepsonHomeHeader .mainNavItem .linkBtn svg {
+        fill: #fff !important;
+    }
+    .arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeNav.jepsonHomeHeader .mainNavItem .linkBtn {
+        color: #fff !important;
+    }
+}
+
+.forceCommunityThemeNavTrigger .themeNavTrigger .themeBurgerLine,
+.forceCommunityThemeNavTrigger .themeNavTrigger:hover .themeBurgerLine{
+    background-color: #fff !important;
+}
+
+.arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeHeaderCompact .search-triggerButton svg{
+    fill: #fff !important;
+}
+
+h1 .uiOutputText{
+    font-size: var(--ty-h4-size) !important;
+    font-weight: var(--ty-h4-weight) !important;
+    letter-spacing: var(--ty-h4-spacing) !important;
+    margin-bottom: var(--ty-h4-mbottom) !important;
+}
+
+h3 .slds-section__title-action span{
+    font-size: var(--ty-h5-size) !important;
+    font-weight: var(--ty-h5-weight) !important;
+    letter-spacing: var(--ty-h5-spacing) !important;
+    margin-bottom: var(--ty-h5-mbottom) !important;
+}
+
+.themeLayoutStarterWrapper .actionsContainer .slds-button.slds-button--neutral{
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.slds-page-header__title{
+    display: flex !important;
+}
+.forceActionsContainer .slds-button.slds-button--icon-border-filled.oneActionsDropDown{
+    height: 100%;
+}
+.forceActionsContainer .slds-button.slds-button--icon-border-filled.oneActionsDropDown .uiMenu a{
+    height: 40px;
+}

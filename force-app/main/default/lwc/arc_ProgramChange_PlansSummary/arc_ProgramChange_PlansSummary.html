@@ -1,0 +1,61 @@
+<template>
+    <div class="comp-row" if:true={feeApplicable}>
+        <div class="reason-label">
+            <p>{programSummaryFeeText}</p>
+        </div>
+        <div class="all-reasons">
+            <div>
+                <p>{feeAmount}</p>
+            </div>  
+        </div>
+    </div>
+    <div class="comp-row">
+        <div class="reason-label">
+            <p>Reason:</p>
+        </div>
+        <div class="all-reasons">
+            <div for:each={reasonList} for:item="reason" key={reason}>
+                <p>{reason}</p>
+            </div>  
+        </div>
+    </div>
+    <div class="comp-row">
+        <div class="reason-label">
+            <p>Effective Date:</p>
+        </div>
+        <div class="all-reasons">
+            <div>
+                <p>{effDate}</p>
+            </div>  
+        </div>
+    </div>
+    <div class="comp-row">
+        <div class="reason-label">
+            <div for:each={planSelected} for:item="planName" key={planName}>
+                <p>{planName}</p>
+            </div>
+        </div>
+        
+       <div class="all-reasons">
+            <div for:each={planSelectedPrice} for:item="planPrice" key={planPrice}>
+                <div>
+                    <p>{planPrice}</p>
+                </div>  
+            </div>
+       </div>
+    </div>
+
+    <hr class="custom-hr">
+
+    <div class="comp-row">
+        <div class="reason-label">
+            <p>Recurring Monthly:</p>
+        </div>
+        <div class="all-reasons">
+            <div>
+                <p>{monthlyPrice}</p>
+            </div>  
+        </div>
+    </div>
+
+</template>

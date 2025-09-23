@@ -1,0 +1,9 @@
+<svg width="200px" height="200px" version="1.1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <rect x="5.5415" y="6.674" width="189.43" height="187.16" ry="27.622" fill="#fff" stroke="#168281" stroke-linecap="round" stroke-linejoin="round" stroke-width="11.009"/>
+ </g>
+ <g transform="matrix(.37631 0 0 .37631 203.42 -90.275)" fill="#168281">
+  <polygon transform="translate(-386.96 265.02)" points="244.02 136 303.32 0 147.98 0 62.519 196 147.98 196 62.519 392 329.48 136" fill="#168281"/>
+ </g>
+ <text transform="scale(1.0607 .94277)" x="28.12636" y="199.15178" fill="#000000" font-family="sans-serif" font-size="87.774px" stroke="#ffffff" stroke-width="3.5266" style="line-height:1.25;mix-blend-mode:normal" xml:space="preserve"><tspan x="28.12636" y="199.15178" fill="#168281" font-family="Arial" font-size="87.774px" font-weight="900" stroke="#168281" stroke-width="3.5266">HS</tspan></text>
+</svg>

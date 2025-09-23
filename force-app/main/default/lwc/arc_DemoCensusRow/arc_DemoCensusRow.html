@@ -1,0 +1,215 @@
+<template>
+    <div class="nds-col nds-size_1-of-1 nds-box slds-col slds-size_1-of-1 slds-box vloc-ins-members-wrapper">
+        <div id="rowDiv"
+            class="nds-p-horizontal_medium nds-p-vertical_x-small vloc-ins-employee-active nds-border_bottom">
+            <vlocity_ins-layout theme={theme}>
+                <!-- <vlocity_ins-layout-item
+                    
+                    size="1"
+                    class="nds-grid nds-grid_vertical-align-center slds-grid slds-grid_vertical-align-center"
+                >
+                    <vlocity_ins-button
+                        if:false={member.isSelected}
+                        theme={theme}
+                        variant="icon"
+                        icon-name="utility:chevronright"
+                        icon-size="x-small"
+                        icon-fill="#706e6b"
+                        onclick={expand}
+                        
+                    >
+                    </vlocity_ins-button>
+                    <vlocity_ins-button
+                        if:true={member.isSelected}
+                        theme={theme}
+                        variant="icon"
+                        icon-name="utility:chevrondown"
+                        icon-size="x-small"
+                        icon-fill="#706e6b"
+                        onclick={expand}
+                    >
+                    </vlocity_ins-button>
+                </vlocity_ins-layout-item> -->
+                <vlocity_ins-layout-item size="3" class="vloc-ins-employee-name-block">
+                    <div if:false={hideDiv}>{labels.InsOSCensusRelationshipEmployee} {memberIndex}</div>
+                    <div if:false={memberNameIsUndefined}
+                        class="vloc-ins-text-bold nds-color__text_gray-12 nds-m-top_xx-small slds-color__text_gray-12 slds-m-top_xx-small">
+                        {memberName}
+                    </div>
+                </vlocity_ins-layout-item>
+                <vlocity_ins-layout-item size="4"
+                    class="vloc-ins-text-bold nds-color__text_gray-12 nds-m-top_xx-small slds-color__text_gray-12 slds-m-top_xx-small">
+                    <span class="vloc-ins-text-bold nds-color__text_gray-12 slds-color__text_gray-12">
+                        {dependentCount}
+                    </span>
+                </vlocity_ins-layout-item>
+                <vlocity_ins-layout-item size="4"
+                    class="nds-grid nds-grid_vertical-align-end slds-grid slds-grid_vertical-align-end">
+                    <div
+                        class="vloc-ins-delete-employee-button nds-grid nds-grid_vertical-align-center slds-grid slds-grid_vertical-align-center">
+                        <template if:true={hasError}>
+                            <vlocity_ins-icon if:false={clickedCensus} icon-name="utility:warning" size="x-small"
+                                color="#c23934" theme={theme} class="nds-p-around_xx-small slds-p-around_xx-small">
+                            </vlocity_ins-icon>
+                            <span if:false={clickedCensus}
+                                class="nds-text-color_error slds-text-color_error">{labels.InsMissingInformation}</span>
+                        </template>
+                        <vlocity_ins-button if:false={hideDiv} theme={theme} variant="icon" icon-name="utility:delete"
+                            icon-size="x-small" icon-fill="#706e6b" onclick={deleteEmployee}
+                            class="vloc-ins-delete-census" title={labels.Delete}>
+                        </vlocity_ins-button>
+                    </div>
+                </vlocity_ins-layout-item>
+            </vlocity_ins-layout>
+        </div>
+        <vlocity_ins-layout multiple-rows
+            extraclass="nds-p-horizontal_medium nds-p-vertical_x-small slds-p-horizontal_medium slds-p-vertical_x-small">
+            <div class="slds-size_1-of-1">
+                <vlocity_ins-accordion theme={theme} allow-multiple-sections-open="true"
+                    active-section-name={defaultActiveSectionName}>
+                    <template for:each={sections} for:item="section">
+                        <div class="slds-tabs_default slds-tabs_medium" key={section.key}>
+                            <div if:false={hidePrimaryTab}>
+                                <div class="slds-tabs_default__nav">
+                                    <li class="slds-tabs_default__item slds-is-active">
+                                        <a class="slds-tabs_default__link customLabelTab">Primary Information</a>
+                                    </li>
+                                </div>
+                                    <c-arc_-demo-census-info onupdate={handleUpdate} headers={section.headers}
+                                        member={member} theme={theme}
+                                        disable-relationship-field={section.disableRelationshipField}
+                                        os-data={osData} required-fields-primary={requiredFieldsPrimary}
+                                        required-fields-dependent={requiredFieldsDependent}
+                                        visible-fields-primary={visibleFieldsPrimary}
+                                        visible-fields-dependent={visibleFieldsDependent}>
+                                    </c-arc_-demo-census-info>
+                                
+                            </div>
+
+                                <!-- <lightning-tab label="Address Information" title="Address Information" value="2" onactive={handleActive}>
+                                <c-arc_-demo-census-info
+                                onupdate={handleUpdateAddress}
+                                tab-address-position={tabAddressPosition}
+                                headers={section.headers}
+                                member={member}
+                                theme={theme}
+                                disable-relationship-field={section.disableRelationshipField}  
+                                os-data = {osData}
+                                required-fields-primary = {requiredFieldsPrimary}
+                                required-fields-dependent = {requiredFieldsDependent}      
+                                visible-fields-primary = {visibleFieldsPrimary}
+                                visible-fields-dependent = {visibleFieldsDependent}                        
+                                >
+                                </c-arc_-demo-census-info> 
+                                </lightning-tab> -->
+                                <div if:false={hideDependentTab}>
+                                    <div if:true={hasDependents} class="slds-tabs_default__nav">
+                                        <li class="slds-tabs_default__item slds-is-active">
+                                            <a class="slds-tabs_default__link customLabelTab">Dependent Information</a>
+
+                                        </li>
+                                    </div>
+                                        <div for:each={member.dependents} for:item="dependent"
+                                            key={dependent.vlocity_ins__MemberIdentifier__c}>
+                                            <c-arc_-demo-census-info headers={headers} member={dependent}
+                                                ondelete={deleteDependent} theme={theme} os-data={osData}
+                                                onupdate={handleUpdate} type-to-enrolled-plans={typeToEnrolledPlans}
+                                                required-fields-primary={requiredFieldsPrimary}
+                                                required-fields-dependent={requiredFieldsDependent}
+                                                visible-fields-primary={visibleFieldsPrimary}
+                                                visible-fields-dependent={visibleFieldsDependent}>
+                                            </c-arc_-demo-census-info>
+                                        </div>
+                                        <vlocity_ins-layout-item>
+                                            <div if:false={hideAddDependent}>
+                                                <vlocity_ins-button theme={theme} variant="neutral"
+                                                    onclick={addNewDependent} label={labels.InsOSCensusAddDependent}
+                                                    extraclass="nds-p-horizontal_xx-large nds-p-vertical_xx-small nds-m-bottom_small slds-p-horizontal_xx-large slds-p-vertical_xx-small slds-m-bottom_small"
+                                                    class="vloc-ins-text-bold">
+                                                </vlocity_ins-button>
+                                            </div>
+
+                                        </vlocity_ins-layout-item>
+                                </div>
+
+                        </div>
+                    </template>
+                    <!-- <template for:each={sections} for:item="section">
+                        <vlocity_ins-accordion-section key={section.key} name={section.key} label={section.title} theme={theme}>
+                            <c-arc_-census-info
+                                onupdate={handleUpdate}
+                                headers={section.headers}
+                                member={member}
+                                theme={theme}
+                                disable-relationship-field={section.disableRelationshipField}  
+                                os-data = {osData}
+                                required-fields-primary = {requiredFieldsPrimary}
+                                required-fields-dependent = {requiredFieldsDependent}      
+                                visible-fields-primary = {visibleFieldsPrimary}
+                                visible-fields-dependent = {visibleFieldsDependent}                        
+                            >
+                            </c-arc_-census-info>
+                        </vlocity_ins-accordion-section>
+                    </template> -->
+                    <template if:true={hasPlans}>
+                        <vlocity_ins-accordion-section name="planSelection" label={labels.InsPlans} theme={theme}>
+                            <div class="nds-size_11-of-12 nds-grid nds-wrap slds-size_11-of-12 slds-grid slds-wrap">
+                                <template for:each={planSections} for:item="planSection">
+                                    <template for:each={planSection.values} for:item="plan">
+                                        <div class="nds-m-bottom_large nds-size_1-of-5 nds-p-around_small slds-m-bottom_large slds-size_1-of-5 slds-p-around_small"
+                                            key={plan.key}>
+                                            <label class="slds-form-element__label" aria-label={plan.label}>
+                                                {plan.label}
+                                            </label>
+                                            <div class="slds-text-heading_small">{plan.value}</div>
+                                        </div>
+                                    </template>
+                                </template>
+                            </div>
+                        </vlocity_ins-accordion-section>
+                    </template>
+                </vlocity_ins-accordion>
+                <div if:true={member.error} role="alert"
+                    class="nds-notify nds-notify_alert nds-theme_alert-texture nds-theme_error nds-m-bottom_large slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error slds-m-bottom_large vloc-ins-error-message">
+                    <span class="nds-assistive-text slds-assistive-text">{member.error}</span>
+                    <span>{member.error}</span>
+                </div>
+
+                <!-- <vlocity_ins-accordion theme={theme} allow-multiple-sections-open="true">
+                    <template if:true={hasDependents}>
+                        <vlocity_ins-accordion-section theme={theme} name="dependents" label={labels.InsDependentPlural}>
+                            <template for:each={member.dependents} for:item="dependent" for:index="index">
+                                <div class="nds-size_1-of-1 slds-size_1-of-1" key={dependent.uuid}>
+                                    <c-arc_-census-info
+                                        headers={headers}
+                                        member={dependent}
+                                        ondelete={deleteDependent}
+                                        theme={theme}
+                                        onupdate={handleUpdate}
+                                        type-to-enrolled-plans={typeToEnrolledPlans}
+                                        required-fields-primary = {requiredFieldsPrimary}
+                                        required-fields-dependent = {requiredFieldsDependent} 
+                                        visible-fields-primary = {visibleFieldsPrimary}
+                                        visible-fields-dependent = {visibleFieldsDependent}    
+                                    >
+                                    </c-arc_-census-info>
+                                </div>
+                            </template>
+                        </vlocity_ins-accordion-section>
+                    </template>
+                </vlocity_ins-accordion> -->
+            </div>
+            <!-- <vlocity_ins-layout-item>
+                <vlocity_ins-button
+                    theme={theme}
+                    variant="neutral"
+                    onclick={addNewDependent}
+                    label={labels.InsOSCensusAddDependent}
+                    extraclass="nds-p-horizontal_xx-large nds-p-vertical_xx-small nds-m-bottom_small slds-p-horizontal_xx-large slds-p-vertical_xx-small slds-m-bottom_small"
+                    class="vloc-ins-text-bold"
+                >
+                </vlocity_ins-button>
+            </vlocity_ins-layout-item> -->
+        </vlocity_ins-layout>
+    </div>
+</template>

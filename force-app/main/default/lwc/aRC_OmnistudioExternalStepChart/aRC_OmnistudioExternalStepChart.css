@@ -1,0 +1,172 @@
+:host{
+    width: fit-content;
+}
+.ushm-step-chart{
+    --background-color: #F8F8F8;
+    --dot-size: 24px;
+    --track-thickness: 2px;
+
+    --dot-background-color: #FFF;
+    --color-step-pristine: #C6C6C6;
+    --color-step-nonpristine: #F3BC30;
+    --color-step-complete: #F3BC30;
+    --color-step-current: #F3BC30;
+    --dot-color: var(--color-step-pristine);
+
+    --track-fill: calc((100% / calc(var(--step-count) - 1)) * var(--last-active-step));
+
+    --label-height: 24px;
+
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+@media screen and (min-width: 64em){
+    .ushm-step-chart{
+        justify-content: flex-end;
+    }
+}
+.ushm-step-chart[data-first-step="true"]{
+    --track-fill: 0;
+}
+.ushm-step-chart[data-use-labels="true"]{
+    padding: 0 40px;
+}
+.uhsm-step-chart-content{
+    position: relative;
+    width: fit-content;
+}
+.ushm-sc-items{
+    position: relative;
+    display: flex;
+    flex-flow: row;
+    gap: 40px;
+    z-index: 2;
+}
+[data-vertical="true"] .ushm-sc-items{
+    flex-flow: column;
+}
+[data-vertical="false"][data-use-labels="true"] .ushm-sc-items{
+    gap: 100px;
+}
+
+/* Step Item */
+.ushm-sc-item{
+    position: relative;
+    display: flex;
+}
+
+/* Step Item Dot */
+.ushm-sc-item-dot{
+    width: var(--dot-size);
+    height: var(--dot-size);
+    min-width: var(--dot-size);
+    min-height: var(--dot-size);
+    border-radius: 50%;
+    background-color: var(--dot-background-color);
+    border: 2px solid var(--color-step-pristine);
+    padding: 0;
+    cursor: default;    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* MARK:Step Status
+*/
+.ushm-sc-item[data-status="pristine"] .ushm-sc-item-dot{
+    --dot-color: var(--color-step-pristine);
+}
+.ushm-sc-item[data-status="nonpristine"] .ushm-sc-item-dot{
+    --dot-color: var(--color-step-nonpristine);
+    border-color: var(--dot-color);
+}
+.ushm-sc-item[data-status="completed"] .ushm-sc-item-dot{
+    --dot-color: var(--color-step-complete);
+    cursor: pointer;
+    background-color: var(--dot-color);
+    border-color: var(--dot-color);
+}
+.ushm-sc-item[data-status="completed"] svg{
+    display: block;
+}
+.ushm-sc-item[data-status="active"] .ushm-sc-item-dot{
+    --dot-color: var(--color-step-current);
+    border-color: var(--dot-color);
+    background-color: var(--dot-color);
+    outline: 8px solid var(--background-color);
+    outline-offset: -10px;
+}
+[data-vertical="true"] .ushm-sc-item-dot{
+    margin-right: 12px;
+}
+/* Step Item Help */
+lightning-helptext{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.ushm-sc-item-label{
+    display: none;
+    color: #fff;
+    font-size: 14px;
+    transform: translateX(-50%);
+    top: 24px;
+    left: 50%;
+    position: absolute;
+    width: 100px;
+    text-align: center;
+}
+[data-vertical="true"] lightning-helptext,
+[data-use-labels="true"] lightning-helptext{
+    display: none;
+}
+[data-vertical="true"] .ushm-sc-item-label,
+[data-use-labels="true"] .ushm-sc-item-label{
+    display: flex;
+}
+.ushm-sc-item-label-spacer{
+    margin-top: calc(var(--dot-size) + var(--label-height));
+}
+
+svg{
+    display: none;
+    width: 12px;
+    height: 12px;
+    fill: #fff;
+}
+
+
+/* Step Chart Track */
+.ushm-sc-track{
+    position: absolute;
+    top: calc(var(--dot-size) / 2);
+    left: calc(var(--dot-size) / 2);
+    width: calc(100% - var(--dot-size));
+    height: var(--track-thickness);
+    transform: translateY(-50%);
+    z-index: 1;
+    overflow: hidden;
+}
+[data-vertical="true"] .ushm-sc-track{
+    width: var(--track-thickness);
+    height: calc(100% - var(--dot-size));
+    transform: translateX(-50%);
+}
+.ushm-sc-track-progress{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-step-pristine);
+}
+.ushm-sc-track-progress:before{
+    content: "";
+    position: absolute;
+    width: var(--track-fill);
+    height: 100%;
+    background-color: var(--color-step-complete);
+}
+[data-vertical="true"] .ushm-sc-track-progress:before{
+    width: 100%;
+    height: var(--track-fill);
+}

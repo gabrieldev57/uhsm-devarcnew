@@ -1,0 +1,108 @@
+/* .omniscript-article button.slds-button--neutral.uiButton--brand,
+.via-nds .omniscript-article button.nds-button_brand{
+    transition: .1s ease-out;
+}
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus,
+.via-nds .omniscript-article button.nds-button_brand:focus{
+    box-shadow: 0 0 3px black;
+}
+.omniscript-article button.slds-button_brand,
+.omniscript-article button.slds-button_brand:hover,
+.omniscript-article button.slds-button_brand:focus,
+.omniscript-article button.slds-button_brand:active,
+.omniscript-article .via-slds button.slds-button_brand,
+.omniscript-article .via-slds button.slds-button_brand:hover,
+.omniscript-article .via-slds button.slds-button_brand:focus,
+.omniscript-article .via-slds button.slds-button_brand:active,
+.omniscript-article button.slds-button--neutral.uiButton--brand,
+.omniscript-article button.slds-button--neutral.uiButton--brand:hover,
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus,
+.omniscript-article button.slds-button--neutral.uiButton--brand:active,
+.via-nds .omniscript-article button.nds-button_brand,
+.via-nds .omniscript-article button.nds-button_brand:hover,
+.via-nds .omniscript-article button.nds-button_brand:focus,
+.via-nds .omniscript-article button.nds-button_brand:active,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:hover,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:focus,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:active,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:focus,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:hover,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:active{
+    transition: .1s ease-out;
+    padding: 10px;
+    border-radius:  10px;
+}
+.omniscript-article button.slds-button--neutral.uiButton--brand,
+.omniscript-article button.slds-button--neutral.uiButton--brand:hover,
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus,
+.omniscript-article button.slds-button--neutral.uiButton--brand:active,
+.omniscript-article button.slds-button_brand svg,
+.omniscript-article button.slds-button_brand:hover svg,
+.omniscript-article button.slds-button_brand:focus svg,
+.omniscript-article button.slds-button_brand:active svg,
+.via-nds .omniscript-article button.nds-button_brand svg,
+.via-nds .omniscript-article button.nds-button_brand:hover svg,
+.via-nds .omniscript-article button.nds-button_brand:focus svg,
+.via-nds .omniscript-article button.nds-button_brand:active svg{
+    fill: blue !important;
+}
+.omniscript-article button.slds-button_brand:hover,
+.omniscript-article button.slds-button_brand:focus,
+.omniscript-article button.slds-button--neutral.uiButton--brand:hover,
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus,
+.via-nds .omniscript-article button.nds-button_brand:hover,
+.via-nds .omniscript-article button.nds-button_brand:focus,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:focus,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:hover,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:hover,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:focus{
+    background-color: blue;
+    border: blue;
+}
+.omniscript-article button.slds-button_brand:active,
+.omniscript-article button.slds-button--neutral.uiButton--brand:active,
+.via-nds .omniscript-article button.nds-button_brand:active,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:active,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:hover{
+    background-color: blue;
+    border: blue;
+}
+.omniscript-article button.slds-button_brand:disabled,
+.omniscript-article button.slds-button_brand:hover:disabled,
+.omniscript-article button.slds-button_brand:focus:disabled,
+.omniscript-article button.slds-button_brand:active:disabled,
+.omniscript-article button[disabled].slds-button_brand,
+.omniscript-article button.slds-button--neutral.uiButton--brand:disabled,
+.omniscript-article button.slds-button--neutral.uiButton--brand:hover:disabled,
+.omniscript-article button.slds-button--neutral.uiButton--brand:focus:disabled,
+.omniscript-article button.slds-button--neutral.uiButton--brand:active:disabled,
+.via-nds .omniscript-article button.nds-button_brand:disabled,
+.via-nds .omniscript-article button.nds-button_brand:hover:disabled,
+.via-nds .omniscript-article button.nds-button_brand:focus:disabled,
+.via-nds .omniscript-article button.nds-button_brand:active:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:hover:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:focus:disabled,
+.omniscript-article .nds-modal .nds-modal__container footer ul li:last-child button:active:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:focus:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:hover:disabled,
+.omniscript-article .slds-modal .slds-modal__container footer vlocity_ins-button:last-child button:active:disabled{
+    background-color: blue;
+    border: blue;
+    color: blue;
+} */
+
+/* .vlocity-btn .nds-button .nds-button_brand .nds-button_stretch .nds-p-around_xx-small .nds-size_1-of-1{
+    top: -7rem;
+}
+
+.vlocity-btn nds-button nds-button_brand nds-button_stretch nds-p-around_xx-small nds-size_1-of-1{
+    top: -7rem;
+} */
+
+vlocity_ins-button.omniscript-btn-next button{
+    top: -7rem !important;
+}

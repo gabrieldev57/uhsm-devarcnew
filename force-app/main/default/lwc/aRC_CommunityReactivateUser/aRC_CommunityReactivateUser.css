@@ -1,0 +1,11 @@
+.spinner{
+    position: relative;
+    display: inline-block;
+    width: 40px;
+}
+.loading-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+}

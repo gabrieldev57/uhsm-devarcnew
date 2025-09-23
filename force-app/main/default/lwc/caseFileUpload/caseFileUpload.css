@@ -1,0 +1,9 @@
+:host {
+    --ty-h2-size: 35px; /* Change the font size as needed */
+}
+.centered-container {
+    display: flex;
+    justify-content: center; /* Horizontally center */
+    align-items: center;     /* Vertically center */
+    height: 15vh;           /* Full height of the viewport (optional) */
+}

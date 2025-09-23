@@ -1,0 +1,83 @@
+<template>
+	<div lwc:if={UI.showCodeActive} class="main-container">
+
+		<div lwc:if={UI.showDiscountRadio} class="content">
+			<!-- HIDE Radio Button if external referral-->
+			<div class="radio-rowmain-flex">
+				<p class="radio-text">Do you have a Promotion Code to apply?</p>
+				<div class="nds-form-element__control nds-vertical_radio">
+					<span class="nds-radio">
+						<input onclick={handleRadioInput} type="radio" required="" id="vlocity-radio-29-0-2504" data-index="0" name="vlocity-radio-29" value="YES">
+						<label class="nds-radio__label" data-index="0" for="vlocity-radio-29-0-2504">
+							<span class="nds-radio_faux"></span>
+							<span class="nds-form-element__label">Yes</span>
+						</label>
+					</span>
+					<span class="nds-radio">
+						<input onclick={handleRadioInput} type="radio" required="" id="vlocity-radio-29-1-2505" data-index="1" name="vlocity-radio-29" value="NO">
+						<label class="nds-radio__label" data-index="1" for="vlocity-radio-29-1-2505">
+							<span class="nds-radio_faux"></span><span class="nds-form-element__label">No</span>
+						</label>
+					</span>
+				</div>
+			</div>
+		</div>
+
+		<div lwc:if={UI.showCodeInput} class="content">
+			<div>
+				<label class="text-label">Promotion Code:</label>
+				<div class="flex-container">
+					<lightning-input onchange={handleTextInputChange} class="code" type="text" value={UI.textInputValue}></lightning-input>
+					<button onclick={handleValidateButton} class="button-validate">Validate</button>
+				</div>
+			</div>
+
+			<div class="success-container">
+				<p class="success-message">{UI.successMessage}</p>
+			</div>
+
+			<div class="error-container">
+				<p class="error-message">{UI.errorMessage}</p>
+			</div>
+		</div>
+
+		<div lwc:else><div class="success-container">
+			<p class="success-message">{UI.referralMessage}</p>
+		</div>	
+	</div>
+		<div lwc:if={UI.showDiscountInfo} class="discount-info">
+			<!-- DISCOUNT TYPE -->
+			<label class="row-info">Discount Type:</label>
+			<p class="price">{UI.ARC_DiscountType__c}</p>
+			<!-- IF PERCENTAGE RATE ONLY -->
+			<label lwc:if={UI.showPercent} class="row-info">{UI.discount_label_percent} Discount:</label>
+			<p lwc:if={UI.showPercent} class="price">{UI.discount}</p>
+
+			<!-- SUB-TOTAL -->
+			<label lwc:if={UI.showDiscountDetail} class="row-info">{UI.orderName} Sub-Total:</label>
+			<p lwc:if={UI.showDiscountDetail} class="price">${UI.subtotal_amount}</p>
+			<!-- DISCOUNT -->
+				<!-- HIDE DISCOUNT FIELD IF THIS ACCOUNT IS FROM REFERRAL (UHSM-2209)-->
+			<label lwc:if={UI.showDiscountDetail} class="row-info">Discount:</label>
+			<p lwc:if={UI.showDiscountDetail} class="price">-${UI.discount_amount}</p>
+			<!-- <label lwc:if={isDiscountVisible} class="row-info">Discount:</label>
+			<p lwc:if={isDiscountVisible} class="price">-${UI.discount_amount}</p> -->
+			<!-- TOTAL AFTER DISCOUNT -->
+			<label lwc:if={UI.showDiscountDetail} class="row-info">{UI.orderName} Total:</label>
+			<p lwc:if={UI.showDiscountDetail} class="price">${UI.total_amount}</p>
+		</div>
+	</div>
+	<div lwc:elseif={UI.showCodeInactive} class="secondary-container">
+		<div class="grid-container">
+			<!-- <label>First Monthly Recurring:</label>
+			<p>$500.00</p>
+			<label>App Fee:</label>
+			<p>$99.00</p>
+			<label>Total:</label>
+			<p>$599.00</p> -->
+		</div>
+	</div>
+
+
+
+</template>

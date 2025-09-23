@@ -1,0 +1,12 @@
+<template>
+    <!-- <div class="arc-scrollanim arc-scrollanim-parent logos-component"> -->
+    <div class="logos-component">
+        <h2 class="h2 logos-component-title">{title}</h2>
+        <template for:each={urlList} for:item="logoUrl">
+            <!-- <div key={logoUrl} class="arc-scrollanim arc-scrollanim-fadescale arc-scrollanim-delay-sibling-quick logos-logo-container"> -->
+            <div key={logoUrl} class="logos-logo-container">
+                <img src={logoUrl} />
+            </div>
+        </template>
+    </div>
+</template>

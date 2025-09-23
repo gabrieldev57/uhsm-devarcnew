@@ -1,0 +1,304 @@
+:root{
+    --jepson-topbar-height: 68px;
+    --jepson-topbar-user-size: 40px;
+    --jepson-device-topbar-height: 48px;
+}
+
+/* .header div.themeHeader{
+    box-shadow: 0px 3px 30px -5px rgba(0,0,0,0.25);
+    -webkit-box-shadow: 0px 3px 30px -5px rgba(0,0,0,0.25);
+    -moz-box-shadow: 0px 3px 30px -5px rgba(0,0,0,0.25);
+} */
+/* ADDED FOR DEMO */
+/* .header div.themeHeader .logoImage{
+    height: 68px !important;
+} */
+/* ///////////////// */
+@media only screen and (min-width: 47.9375em){
+    .forceCommunityThemeNav.jepsonHomeHeader .mainNavItem .linkBtn svg{
+        transition: transform 150ms ease;
+    }
+    .header div.themeHeader .themeBottomBorder{
+        margin-top: -1px;
+    }
+    .header div.themeHeader .themeHeaderInner{
+        padding: 0 !important;
+        height: var(--jepson-topbar-height);
+    }
+    .forceCommunityThemeNav div.uiMenuList{
+        margin-top: var(--jepson-topbar-height);
+    }
+    .header div.themeHeader .themeHeaderInner .themeNav{
+        top: unset;
+    }
+    .header div.themeHeader,
+    .header div.themeHeader .themeHeaderInner .themeNav,
+    .header div.themeHeader .themeHeaderInner .themeNav>div,
+    .header div.themeHeader .themeHeaderInner .themeNav .siteforceDesignTimeRegion,
+    .header div.themeHeader .themeHeaderInner .themeNav .siteforceDesignTimeComponent,
+    .header div.themeHeader .themeHeaderInner .themeNav .actualNode,
+    .header div.themeHeader .themeHeaderInner .themeNav .mainNavItem,
+    .header div.themeHeader .themeHeaderInner .themeNav .mainNavItem .uiPopupTrigger,
+    .header div.themeHeader .themeHeaderInner .themeNav .mainNavItem .uiPopupTrigger>div,
+    .header div.themeHeader .themeHeaderInner .themeNav .mainNavItem .uiPopupTrigger>div>div,
+    .header div.themeHeader .themeHeaderInner .themeNav .mainNavItem .uiPopupTrigger>div>div>button,
+    .header div.themeHeader .themeHeaderInner .themeNav .jepsonInnerHeader,
+    .header div.themeHeader .themeHeaderInner .themeNav .visible-links,
+    .header div.themeHeader .themeHeaderInner .themeNav .mainNavItem,
+    .header div.themeHeader .themeHeaderInner .mainNavItem>button,
+    .header div.themeHeader .themeHeaderInner .mainNavItem>a{
+        height: var(--jepson-topbar-height);
+    }
+    .header div.themeHeader .themeHeaderInner .mainNavItem{
+        padding: 0;
+    }
+    .header div.themeHeader .themeHeaderInner .themeNav .mainNavItem .uiPopupTrigger>div>div>button,
+    .header div.themeHeader .themeHeaderInner .mainNavItem>button,
+    .header div.themeHeader .themeHeaderInner .mainNavItem>a{
+        padding: 0 30px;
+        line-height: var(--jepson-topbar-height);
+    }
+    .nav.forceCommunityThemeNav.jepsonInnerHeader .mainNavItem .linkBtn,
+    .nav.forceCommunityThemeNav.jepsonInnerHeader .mainNavItem .linkBtn:hover,
+    .nav.forceCommunityThemeNav.jepsonInnerHeader .mainNavItem .linkBtn:focus,
+    .nav.forceCommunityThemeNav.jepsonInnerHeader .mainNavItem .linkBtn:active{
+        text-shadow: none;
+        font-size: 14px;
+    }
+    .header div.themeHeader .themeHeaderInner .linkBtn::before{
+        content: "";
+        height: 0;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--color-primary);
+        transition: all .3s cubic-bezier(0,.7,.5,1);
+        opacity: 0;
+    }
+    .header div.themeHeader .themeHeaderInner .linkBtn:focus::before,
+    .header div.themeHeader .themeHeaderInner .linkBtn:hover::before{
+        height: 100%;
+        opacity: .2;
+    }
+    .header div.themeHeader .themeHeaderInner .themeNav.panel{
+        top: 0 !important;
+        height: 100% !important;
+    }
+    /* Search Bar Animation */
+    .header div.themeHeader.forceCommunityThemeHeaderCompact .themeNotifications,
+    .header div.themeHeader.forceCommunityThemeHeaderCompact .themeProfileMenu,
+    .header div.themeHeader.forceCommunityThemeHeaderCompact .themeAppLauncher,
+    .header div.themeHeader.forceCommunityThemeHeaderCompact .themeCartIcon {
+        transition: opacity .2s ease-out, transform .3s ease-out;
+    }
+    /* .header div.themeHeader.forceCommunityThemeHeaderCompact .themeHeaderInner.centerAlignLogo-false .themeNav{
+        transition: opacity .3s ease-out;
+    } */
+    .header div.themeHeader.forceCommunityThemeHeaderCompact.search-expanded .themeNotifications,
+    .header div.themeHeader.forceCommunityThemeHeaderCompact.search-expanded .themeProfileMenu,
+    .header div.themeHeader.forceCommunityThemeHeaderCompact.search-expanded .themeAppLauncher,
+    .header div.themeHeader.forceCommunityThemeHeaderCompact.search-expanded .themeCartIcon {
+        display: initial;
+        opacity: 0;
+        pointer-events: none;
+        /* transform: translateX(100px); */
+    }
+    .header div.themeHeader.forceCommunityThemeHeaderCompact.search-expanded .themeHeaderInner.centerAlignLogo-false .themeNav{
+        visibility: visible;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .header div.themeHeader.forceCommunityThemeHeaderCompact .themeHeaderInner.centerAlignLogo-false .themeUtils .themeSearch .search-region{
+        justify-content: flex-end;
+    }
+    .header div.themeHeader.forceCommunityThemeHeaderCompact.search-expanded .themeHeaderInner.centerAlignLogo-false .themeUtils .themeSearch .search-region .search-regionCmp{
+        animation: expand-searchbar .4s ease-out;
+    }
+    div.themeHeader.forceCommunityThemeHeaderCompact .themeUtils{
+        padding-left: 30px;
+    }
+    /* .header div.themeHeader .themeHeaderInner .linkBtn{
+        text-transform: uppercase;
+    } */
+    .header div.themeHeader .themeHeaderInner .linkBtn{
+        font-weight: 600;
+    }
+}
+
+@keyframes expand-searchbar {
+    0%{
+        width: 0;
+    }
+    100%{
+        width: 100%;
+    }
+}
+
+/* Added for Theme Changer */
+div.themeHeader.forceCommunityThemeHeaderCompact .themeUtils .themeUtil:nth-child(2){
+    margin-right: 40px;
+}
+
+/* .header div.themeHeader .themeHeaderInner .themeNav .mainNavItem .uiPopupTrigger>div>div>button:focus,
+.header div.themeHeader .themeHeaderInner .themeNav .mainNavItem .uiPopupTrigger>div>div>button:hover,
+.header div.themeHeader .themeHeaderInner .mainNavItem>button:hover,
+.header div.themeHeader .themeHeaderInner .mainNavItem>button:focus,
+.header div.themeHeader .themeHeaderInner .mainNavItem>a:hover,
+.header div.themeHeader .themeHeaderInner .mainNavItem>a:focus{
+    background-color: var(--color-background-1);
+} */
+div.forceCommunityThemeHeroBase{
+    overflow: hidden;
+}
+div.forceCommunityThemeHeroBase::after{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100vw;
+    width: 300vw;
+    height: 100%;
+    z-index: 10;
+    box-shadow: 0px -5px 30px -5px rgba(0,0,0,0.5) inset;
+    -webkit-box-shadow: 0px -5px 30px -5px rgba(0,0,0,0.5) inset;
+    -moz-box-shadow: 0px -5px 30px -5px rgba(0,0,0,0.5) inset;
+    pointer-events: none;
+}
+div.comm-user-profile-menu__dropdown-ctn::before{
+    display: none;
+}
+div.comm-user-profile-menu__dropdown-ctn>span,
+div.comm-user-profile-menu__dropdown-ctn::after{
+    border-top: 1px solid var(--color-border);
+    border-left: 1px solid var(--color-border);
+    box-shadow: none;
+}
+div.forceCommunityThemeHeaderCompact .themeUtil .slds-button,
+div.forceCommunityThemeHeaderCompact .themeUtil .slds-button:hover{
+    border-color: transparent !important;
+}
+div.forceCommunityThemeHeaderCompact .themeUtil .slds-button:focus{
+    box-shadow: none;
+}
+div.forceCommunityThemeSearch div.search-box button.slds-button.search-inputSearchButton:focus{
+    box-shadow: none;
+}
+div.forceCommunityThemeSearch a.search-deflectionItem{
+    background-color: var(--color-background) !important;
+}
+div.forceCommunityThemeSearch .search-deflectionItem:focus,
+div.forceCommunityThemeSearch .search-deflectionItem:hover,
+div.forceCommunityThemeSearch .search-deflectionItem:active{
+    background-color: var(--color-background-1) !important;
+}
+/* Theme Buttons */
+div.forceCommunityThemeHeaderCompact .themeUtil .slds-button .slds-avatar,
+div.forceCommunityThemeHeaderCompact .themeUtil .slds-button img{
+    width: var(--jepson-topbar-user-size);
+    height: var(--jepson-topbar-user-size);
+}
+
+/* Login Screen */
+.communityLogoContainer{
+    background: var(--lwc-brandLogoImage);
+    background-position: top;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.communityLogoContainer span{
+    opacity: 0;
+}
+
+#LoginNew::before{
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--color-primary);
+    opacity: .8;
+}
+.login-box{
+    position: fixed;
+    width: 500px;
+    height: 70vh;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background-color: var(--color-background);
+    border-radius: 4%;
+    z-index: -1;
+}
+.login-box-line{
+    position: fixed;
+    width: 300px;
+    height: 100vh;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background-color: var(--color-background);
+    opacity: .4;
+    z-index: -1;
+}
+.comm-page-login-home #LoginNew .cCenterPanel .inverseTextColor,
+.comm-page-check-password .cCenterPanel .inverseTextColor,
+.comm-page-forgot-password .cCenterPanel .inverseTextColor,
+.comm-page-self-register .cCenterPanel .inverseTextColor{
+    color: var(--color-text);
+}
+.comm-page-login-home #LoginNew .cCenterPanel a.inverseTextColor,
+.comm-page-login-home #LoginNew .cCenterPanel a.inverseTextColor:hover,
+.comm-page-login-home #LoginNew .cCenterPanel a.inverseTextColor:focus,
+.comm-page-check-password .cCenterPanel a.inverseTextColor,
+.comm-page-check-password .cCenterPanel a.inverseTextColor:hover,
+.comm-page-check-password .cCenterPanel a.inverseTextColor:focus,
+.comm-page-forgot-password .cCenterPanel a.inverseTextColor,
+.comm-page-forgot-password .cCenterPanel a.inverseTextColor:hover,
+.comm-page-forgot-password .cCenterPanel a.inverseTextColor:focus,
+.comm-page-self-register .cCenterPanel a.inverseTextColor,
+.comm-page-self-register .cCenterPanel a.inverseTextColor:hover,
+.comm-page-self-register .cCenterPanel a.inverseTextColor:focus{
+    color: var(--color-link);
+}
+.comm-page-login-home #LoginNew .cCenterPanel a.inverseTextColor:hover,
+.comm-page-login-home #LoginNew .cCenterPanel a.inverseTextColor:focus,
+.comm-page-check-password .cCenterPanel a.inverseTextColor:hover,
+.comm-page-check-password .cCenterPanel a.inverseTextColor:focus,
+.comm-page-forgot-password .cCenterPanel a.inverseTextColor:hover,
+.comm-page-forgot-password .cCenterPanel a.inverseTextColor:focus,
+.comm-page-self-register .cCenterPanel a.inverseTextColor:hover,
+.comm-page-self-register .cCenterPanel a.inverseTextColor:focus{
+    text-decoration: underline;
+}
+
+.siteforceThemeLayoutStarter .header.arc-showhide-topbar,
+.arc-showhide-topbar .themeBgImage,
+.arc-showhide-topbar .forceCommunityThemeNavTrigger .themeNavTrigger .themeBurgerLine,
+.arc-showhide-topbar .forceCommunityThemeNavTrigger .themeNavTrigger:hover .themeBurgerLine,
+.arc-showhide-topbar .forceCommunityThemeHeaderCompact .search-triggerButton svg,
+.arc-showhide-topbar .forceCommunityThemeHeaderCompact .themeUtils .themeUtil.themeNotifications button svg{
+    transition: all .4s ease-out;
+}
+
+.arc-showhide-topbar-replacecolors .themeBgImage{
+    background-color: var(--color-background) !important;
+}
+.arc-showhide-topbar-replacecolors .themeBottomBorder{
+    background-color: var(--color-border) !important;
+}
+.arc-showhide-topbar-replacecolors .forceCommunityThemeNavTrigger .themeNavTrigger .themeBurgerLine,
+.arc-showhide-topbar-replacecolors .forceCommunityThemeNavTrigger .themeNavTrigger:hover .themeBurgerLine{
+    background-color: var(--color-text) !important;
+}
+.arc-showhide-topbar-replacecolors .forceCommunityThemeHeaderCompact .search-triggerButton svg,
+.arc-showhide-topbar-replacecolors .forceCommunityThemeHeaderCompact .themeUtils .themeUtil.themeNotifications button svg{
+    fill: var(--color-text) !important;
+}
+.arc-showhide-topbar-hide{
+    top: -68px !important;
+}
+/* 
+.header.arc-showhide-topbar+.spacer{
+    height: 0 !important;
+} */

@@ -1,0 +1,29 @@
+<template>
+    <vlocity_ins-modal hidefooter={hideFooter} size="medium">
+        <div slot="header">
+            <div class="nds-text-heading_medium slds-text-heading_medium">
+                {modalTitle}
+            </div>
+        </div>
+        <div slot="content">
+            <!-- <div if:true={hideHeader}
+                class="slds-border_bottom slds-p-bottom_small slds-text-align_right slds-p-right_small nds-border_bottom nds-p-bottom_small nds-text-align_right nds-p-right_small slds-text-heading_large nds-text-heading_large">
+                <lightning-formatted-number if:true={product}
+                    value={price} format-style="currency" currency-code={currency.code} minimum-fraction-digits="2"
+                    maximum-fraction-digits="2">
+                </lightning-formatted-number>/{labels.InsMonthAbrv}
+            </div> -->
+            <template if:true={products}>
+                <c-arc_-ins-product-matrix products={products} last-medical-selection-id={lastMedicalSelectionId}
+                    hide-header={hideHeader} is-editable={isEditable} root-channel={rootChannel} theme={theme}
+                    compare-limit={compareLimit} select-btn-fn={selectBtnFn} medical-warning={medicalWarning}
+                    smart-warning={smartWarning} aidd-warning={aiddWarning}>
+                </c-arc_-ins-product-matrix>
+            </template>
+        </div>
+        <div if:false={hideFooter} slot="footer">
+            <vlocity_ins-button variant="neutral" theme={theme} label={labels.Back}
+                onclick={backToCart}></vlocity_ins-button>
+        </div>
+    </vlocity_ins-modal>
+</template>

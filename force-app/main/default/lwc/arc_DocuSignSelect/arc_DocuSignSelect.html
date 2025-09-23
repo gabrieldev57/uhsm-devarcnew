@@ -1,0 +1,15 @@
+<template>
+    <div class="docuSignSelectComboBoxContainer">
+        <lightning-combobox 
+            label="Recipient"
+            value={recipient} 
+            placeholder="Select Recipient" 
+            options={hipaas} 
+            onchange={handleChange}
+            ongothipaas={setFirstRecipient}>
+        </lightning-combobox>
+    </div>
+    <!-- <div class="docuSignSelectValueContainer">
+        <p>Selected value is: {recipient}</p>
+    </div> -->
+</template>

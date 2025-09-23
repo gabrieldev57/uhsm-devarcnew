@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__Tab</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="heightOffset" label="Height Offset" default="0" placeholder="500px" description="Will it show up immediatly or at some point when scrolling the page?" type="String"></property>
+            <property name="animation" label="Animation" type="String" default="None" description="Animation applied to component when it reaches the viewport" datasource="None,Fade,Fade from Top,Fade from Bottom,Fade from Left,Fade from Right, Fade/Scale, Fade/Scale from Top,Fade/Scale from Bottom,Fade/Scale from Left,Fade/Scale from Right,Slide from Left, Slide from Right"></property>
+            <property name="animationDelay" label="Animation Delay" type="String" default="None" description="Delay applied to the animation when executed" datasource="None,0.5s,1s,1.5s,2s,2.5s,3s,3.5s,4s"></property>
+            <property name="width" label="Width" default="100vw" placeholder="100%" type="String"></property>
+            <property name="widthm" label="Width M" default="100vw" placeholder="100%" type="String"></property>
+            <property name="widths" label="Width S" default="100vw" placeholder="100%" type="String"></property>
+            <property name="background" label="Background URL" placeholder="background.jpg" description="Can be a static resource (image.png) which will direct to CommunityHero/image.png" type="String"></property>
+            <property name="backgroundSVGFillColor" label="Background SVG Fill Color" type="Color" default="rgba(255, 255, 255, 0.3)" description="Set the background fill color for SVG images"></property>
+            <property name="backgroundSVGStrokeColor" label="Background SVG Stroke Color" type="Color" default="rgba(255, 255, 255, 0)" description="Set the background stroke color for SVG images"></property>
+            <property name="backgroundOpacity" label="Background Opacity" type="String" default="0.05"></property>
+            <property name="backgroundColor" label="Background Color" type="Color" default="rgba(240, 240, 240, 1)"></property>
+            <property name="backgroundRepeat" label="Background Repeat" type="Boolean" default="false" description="Should the background image repeat?"></property>
+            <property name="height" label="Height" default="1500px" placeholder="1500px" type="String" description="If the background image repeats, set height for how much it does"></property>
+            <property name="horizontalPosition" label="Horizontal Position" type="Integer" description="Horizontal transform position of the background"></property>
+            <property name="parallax" label="Parallax" default="false" type="Boolean" description="The background will scroll a little with the rest of a page"></property>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

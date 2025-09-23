@@ -1,0 +1,21 @@
+<template>
+    <div
+        class="vloc-ins-product-card nds-box slds-box slds-grid slds-wrap nds-grid nds-wrap slds-p-around_none nds-p-around_none">
+        <div class="vloc-ins-product-detail nds-size_3-of-4 slds-size_3-of-4 slds-p-around_large nds-p-around_large">
+            <div if:true={product.Type__c} class="vloc-ins-bold nds-truncate slds-truncate slds-p-bottom_small nds-p-bottom_small">
+                {product.Type__c}
+            </div>
+            <div class={productTitleStyles} onclick={openDetailsProduct}>{product.Name}</div>
+            <vlocity_ins-button theme={theme} variant="base" label="Program Details"
+                icon-name="standard:customer_portal_users" onclick={openDetailsProduct}></vlocity_ins-button>
+            <div if:true={product.Description} class="vloc-ins-covered-people nds-m-top_xx-small slds-m-top_xx-small">
+                <strong>Who's Applying:</strong><br>
+                {product.Description}
+            </div>
+        </div>
+        <div class={productPriceStyles}>
+            <lightning-formatted-number value={price} format-style="currency" minimum-fraction-digits="2"
+                maximum-fraction-digits="2"></lightning-formatted-number>/{labels.InsMonthAbrv}
+        </div>
+    </div>
+</template>

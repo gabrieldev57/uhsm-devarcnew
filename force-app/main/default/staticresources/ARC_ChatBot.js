@@ -1,0 +1,31 @@
+function loadScript(url, callback) {
+    var head = document.head;
+    var script = document.createElement('script');
+
+    script.type = 'text/javascript';
+    script.src = url;
+
+    script.onreadystatechange = callback;
+    script.onload = callback;
+
+    // Fire the loading
+    head.appendChild(script);
+}
+
+
+loadScript('https://cdn.prod.us.five9.net/static/stable/chat/wrapper/index.js', function () {
+    F9.Chat.Wrapper.init({
+        cdn: 'prod',
+        useBusinessHours: true,
+        languages: { "enabled": false, "backgroundColor": "#2C2B2C" },
+        l10n: { "en": { "messenger": { "customText": { "headerText": "Welcome to WeShare Healthcare by UHSM! Are you a member or provider looking to connect with our service team or are you looking to join the UHSM family and needing more information?" } }, "systemMessages": { "conversationCreated": "Welcome to WeShare Healthcare by UHSM!", "participantAccepted": "You've been connected to a representative.", "participantJoined": "A representative has joined the chat.", "participantLeft": "A representative has left the chat.", "transferredToParticipant": "The chat has been transferred to {name}.", "transferredToGroup": "That chat has been transferred to group {group}." }, "captureFields": [{ "k": "campaign", "l": "Tell us about yourself", "p": "Choose an option", "o": [{ "v": "Website_Chat_Current_Member", "l": "I am a member" }, { "v": "Website_Chat_Provider", "l": "I am a provider" }, { "v": "Website_Chat_Prospective_Cx", "l": "I am interested in becoming a member" }] }, { "k": "name", "l": "Name", "p": "Enter your name..." }, { "k": "email", "l": "Email Address", "p": "Enter your email..." }, { "k": "Question", "l": "Question", "p": "What can we help you with today?" }, { "k": "member_id", "l": "Member ID", "p": "Do you have a member ID?", "z": true }] } },
+        prepopulatedFields: [],
+        messenger: { "integrationId": "62929dbd-ee25-4917-bd53-bf1d5ddc163b", "soundNotificationEnabled": true, "transcriptPrintingEnabled": true, "menuItems": { "imageUpload": false, "fileUpload": false, "shareLocation": false }, "embedded": false, "setViewportScale": false, "browserStorage": "sessionStorage", "hideWidgetAfterBusinessHours": false, "scheduleCallback": { "isCallbackEnabled": false, "requestCallbackList": "", "customConfirmationMessage": "We will call you as soon as we can at [PHONE]", "web2CampaignAPIHost": "" }, "fixedHeader": false, "displayStyle": "button", "customColors": { "brandColor": "2C2B2C", "conversationColor": "2C2B2C", "actionColor": "F2BC30" }, "carouselType": "default" },
+        clearMessagesTimeout: 60
+    });
+});
+
+
+
+
+

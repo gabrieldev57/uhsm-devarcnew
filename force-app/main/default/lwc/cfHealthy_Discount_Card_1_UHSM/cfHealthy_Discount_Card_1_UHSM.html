@@ -1,0 +1,85 @@
+<template>
+            <div class="slds-grid slds-wrap slds-is-relative ">
+            <div style="position: fixed;z-index: 999999;top: 0;right: 0;">
+  <vlocity_ins-toast class="flexcard-toast-element" theme="slds" title="" message="" styletype=""> </vlocity_ins-toast>
+</div>
+            <div if:true={showLoader} class="slds-is-absolute vloc-loader_override" style="height: 100%; width: 100%; min-height:50px; background: transparent; z-index: 99;">
+  <div>
+   <vlocity_ins-spinner
+      variant="brand"
+      alternative-text="Loading content..."
+      size="medium"
+      theme="slds"
+      ></vlocity_ins-spinner>
+  </div>
+</div>
+            <template if:false={hasPermission}>
+              You don't have required permissions to view this card.
+            </template>
+            <template if:true={hasPermission}>
+              <template if:true={hasRecords}>
+                        <template for:each={_records} for:item="record" for:index="rindex">
+                            <vlocity_ins-flex-card-state if:true={record}  key={record._flex.uniqueKey} data-recordid={record.Id} record={record} data-statue="true"  data-index="0" data-rindex={rindex} class="cf-vlocity-state-0 cf-vlocity-state slds-size_12-of-12"  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="slds-grid slds-wrap slds-card slds-p-around_x-small slds-m-bottom_x-small" style="">
+          <div data-style-id="state0element0" class="slds-col   slds-p-around_x-small slds-size_12-of-12 " data-rindex={rindex} style="" >
+    <vlocity_ins-block data-style-id="state0element0_child"  card={card}  record={record}  label="Block"  collapsible="false"  collapsed-by-default="false"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element0" class="slds-col  slds-theme_default slds-text-align_left slds-p-around_x-small slds-m-bottom_large slds-m-horizontal_x-large box-shadow:5px 5px 5px grey; border 1px solid #cccccc; slds-size_4-of-12  " data-rindex={rindex} style="background-color:#B6AC44;      
+        color:#E6EBF0; " ><vlocity_ins-flex-action data-style-id="state0element0block_element0_child"  tracking-obj={_childCardTrackingObj}  class= "state0element0block_element0_child flexActionElement" 
+        data-action-element-class="state0element0block_element0_child" onexecuteaction={performAction} data-show-spinner="false"
+        data-element-label="updatehealthydiscount"   state-obj={record}  card={card}  record={record}  label="Add/Update Healthy Discount"  icon-name="action:new_account"  action-list='\[{"stateAction":{"id":"flex-action-1677257594058","type":"OmniScript","openUrlIn":"New Tab/Window","layoutType":"lightning","omniType":{"Name":"HealthyDiscount/Discount/English","Id":"a4r3C000000k6oHQAQ","isLwcOs":true},"isLwcOS":true},"key":"1677255564000-lyimn70b7","label":"Action","draggable":false,"isOpen":true,"actionIndex":0,"contextId":"\\{recordId}"}]'  flyout-details='\{}'  styles='\{"label":{"fontSize":"12pt","textAlign":"center","color":"#F3F4F3"}}'  icon-color="#F6FFF2"  theme="slds"  ></vlocity_ins-flex-action>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element1" class="slds-col   slds-p-around_x-small slds-size_12-of-12 " data-rindex={rindex} style="" >
+    <vlocity_ins-block data-style-id="state0element1_child"  card={card}  record={record}  label="Block"  collapsible="false"  collapsed-by-default="false"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element1block_element0" class="slds-col  slds-p-around_x-small slds-m-bottom_large slds-m-horizontal_x-large  slds-size_3-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-output-field data-style-id="state0element1block_element0_child"   card={card}  record={record}  merge-field="%3Cdiv%20class=%22slds-text-heading_medium%20slds-text-title_caps%22%3E%3Cstrong%3ECall%20Confirmed%3C/strong%3E%3C/div%3E%0A%3Cdiv%3E%3Cspan%20class=%22slds-text-title_caps%22%20style=%22font-family:%20sans-serif;%22%3E%7BCallConfirmed%7D%3C/span%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element1block_element1" class="slds-col  slds-p-around_x-small slds-m-bottom_large slds-m-horizontal_x-large  slds-size_12-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-output-field data-style-id="state0element1block_element1_child"   card={card}  record={record}  merge-field="%3Cdiv%20class=%22slds-text-heading_medium%20slds-text-title_caps%22%3E%3Cstrong%3EHEAlthy%20Discount%20Status%3C/strong%3E%3C/div%3E%0A%3Cdiv%3E%7BHealthyDiscountStatus%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element1block_element2" class="slds-col  slds-p-around_x-small slds-m-bottom_large slds-m-horizontal_x-large  slds-size_12-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-output-field data-style-id="state0element1block_element2_child"   card={card}  record={record}  merge-field="%3Cdiv%20class=%22slds-text-heading_medium%20slds-text-title_caps%22%3E%3Cstrong%3EDiscount%20expiration%20date%3C/strong%3E%3C/div%3E%0A%3Cdiv%3E%7BExpiryDate%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div>
+        </div>
+      </vlocity_ins-flex-card-state>
+                        </template>
+                      </template>
+                      <template if:false={hasRecords}>
+                            <vlocity_ins-flex-card-state  record={record} data-statue="false"  data-index="0" data-rindex={rindex} class="cf-vlocity-state-0 cf-vlocity-state slds-size_12-of-12"  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="slds-grid slds-wrap slds-card slds-p-around_x-small slds-m-bottom_x-small" style="">
+          <div data-style-id="state0element0" class="slds-col   slds-p-around_x-small slds-size_12-of-12 " data-rindex={rindex} style="" >
+    <vlocity_ins-block data-style-id="state0element0_child"  card={card}  record={record}  label="Block"  collapsible="false"  collapsed-by-default="false"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element0block_element0" class="slds-col  slds-theme_default slds-text-align_left slds-p-around_x-small slds-m-bottom_large slds-m-horizontal_x-large box-shadow:5px 5px 5px grey; border 1px solid #cccccc; slds-size_4-of-12  " data-rindex={rindex} style="background-color:#B6AC44;      
+        color:#E6EBF0; " ><vlocity_ins-flex-action data-style-id="state0element0block_element0_child"  tracking-obj={_childCardTrackingObj}  class= "state0element0block_element0_child flexActionElement" 
+        data-action-element-class="state0element0block_element0_child" onexecuteaction={performAction} data-show-spinner="false"
+        data-element-label="updatehealthydiscount"   state-obj={record}  card={card}  record={record}  label="Add/Update Healthy Discount"  icon-name="action:new_account"  action-list='\[{"stateAction":{"id":"flex-action-1677257594058","type":"OmniScript","openUrlIn":"New Tab/Window","layoutType":"lightning","omniType":{"Name":"HealthyDiscount/Discount/English","Id":"a4r3C000000k6oHQAQ","isLwcOs":true},"isLwcOS":true},"key":"1677255564000-lyimn70b7","label":"Action","draggable":false,"isOpen":true,"actionIndex":0,"contextId":"\\{recordId}"}]'  flyout-details='\{}'  styles='\{"label":{"fontSize":"12pt","textAlign":"center","color":"#F3F4F3"}}'  icon-color="#F6FFF2"  theme="slds"  ></vlocity_ins-flex-action>
+      </div>
+        </div></vlocity_ins-block>
+    </div><div data-style-id="state0element1" class="slds-col   slds-p-around_x-small slds-size_12-of-12 " data-rindex={rindex} style="" >
+    <vlocity_ins-block data-style-id="state0element1_child"  card={card}  record={record}  label="Block"  collapsible="false"  collapsed-by-default="false"  theme="slds"  ><div class="slds-grid slds-wrap">
+          <div data-style-id="state0element1block_element0" class="slds-col  slds-p-around_x-small slds-m-bottom_large slds-m-horizontal_x-large  slds-size_3-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-output-field data-style-id="state0element1block_element0_child"   card={card}  record={record}  merge-field="%3Cdiv%20class=%22slds-text-heading_medium%20slds-text-title_caps%22%3E%3Cstrong%3ECall%20Confirmed%3C/strong%3E%3C/div%3E%0A%3Cdiv%3E%3Cspan%20class=%22slds-text-title_caps%22%20style=%22font-family:%20sans-serif;%22%3E%7BCallConfirmed%7D%3C/span%3E%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element1block_element1" class="slds-col  slds-p-around_x-small slds-m-bottom_large slds-m-horizontal_x-large  slds-size_12-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-output-field data-style-id="state0element1block_element1_child"   card={card}  record={record}  merge-field="%3Cdiv%20class=%22slds-text-heading_medium%20slds-text-title_caps%22%3E%3Cstrong%3EHEAlthy%20Discount%20Status%3C/strong%3E%3C/div%3E%0A%3Cdiv%3E%7BHealthyDiscountStatus%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div><div data-style-id="state0element1block_element2" class="slds-col  slds-p-around_x-small slds-m-bottom_large slds-m-horizontal_x-large  slds-size_12-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-output-field data-style-id="state0element1block_element2_child"   card={card}  record={record}  merge-field="%3Cdiv%20class=%22slds-text-heading_medium%20slds-text-title_caps%22%3E%3Cstrong%3EDiscount%20expiration%20date%3C/strong%3E%3C/div%3E%0A%3Cdiv%3E%7BExpiryDate%7D%3C/div%3E"  theme="slds"  ></vlocity_ins-output-field>
+      </div>
+        </div></vlocity_ins-block>
+    </div>
+        </div>
+      </vlocity_ins-flex-card-state>
+                      </template>
+            </template>
+            <template if:true={hasError}>
+            {error}
+            </template>
+            
+      <vlocity_ins-action action-wrapperclass="slds-hide" re-render-flyout class="action-trigger slds-col" onupdateos={updateOmniscript} onselectcards={updateSelectedCards} onsetvalue={updateAction} onfireactionevent={actionEvtHandler}>
+      
+      </vlocity_ins-action>
+  
+            <vlocity_ins-action class="execute-action" re-render-flyout action-wrapperclass="slds-hide" onupdateos={updateOmniscript} onselectcards={updateSelectedCards} onsetvalue={updateAction} onfireactionevent={actionEvtHandler}>
+            
+            </vlocity_ins-action>
+            </div>
+          </template>

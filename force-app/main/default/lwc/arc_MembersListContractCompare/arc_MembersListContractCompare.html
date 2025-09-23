@@ -1,0 +1,57 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    
+        
+    <div class="container forceRelatedListSingleContainer" data-aura-rendered-by="2665:0"
+        data-aura-class="forceRelatedListSingleContainer" style="border-radius: 0.25rem; border: rgb(201, 201, 201); border-style: solid; border-width: 0.03rem;">
+        <!--render facet: 2683:0-->
+        
+        <div class="slds-grid slds-page-header forceRelatedListCardHeader"
+                data-aura-rendered-by="2693:0" data-aura-class="forceRelatedListCardHeader">
+
+
+                <header class="slds-media slds-media--center slds-has-flexi-truncate"
+                    data-aura-rendered-by="2694:0">
+
+
+                    <div>
+                        <lightning-icon icon-name="standard:team_member" alternative-text="Members" title="Members" style="margin-right: 0.5rem"></lightning-icon>
+
+                    </div>
+                    
+
+
+                    <div class="slds-media__body" data-aura-rendered-by="2696:0">
+                        <h2 id="header_2677:0" class="slds-card__header-title"
+                            data-aura-rendered-by="2697:0">Members</h2>
+                    </div>
+
+
+                </header>
+
+
+                
+            </div>
+        <div class="slds-media slds-media--center">
+            <template if:true={recordsList}>
+                <lightning-datatable
+                    key-field="Id"
+                    data={recordsList}
+                    columns={columns}
+                    hide-checkbox-column
+                    max-column-width="5000"
+                    style="width: -webkit-fill-available"
+                >
+                </lightning-datatable>
+            </template>
+        </div>
+    </div>
+                       
+        
+   
+    
+       
+   
+    
+    
+</template>

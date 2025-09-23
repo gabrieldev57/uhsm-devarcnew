@@ -1,0 +1,279 @@
+/* :host{
+  --c-main-color:#00a1e0;
+  --c-main-color-light:#78d1f5;
+  --c-secondary-color: #e3e3e3;
+} */
+
+/*---------- UTULITIES ----------*/
+.text-center{
+  text-align: center;
+}
+.space-between{
+  display: flex;
+  justify-content: space-between;
+}
+
+/*----------- HEADER -----------*/
+.omniscriptmanager-header{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: -90px;
+  width: 100%;
+  height: 140px;
+}
+.omniscriptmanager-header .image-foreground{
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #128168;
+  width: 100%;
+  height: 100%;
+  opacity: .8;
+}
+.omniscriptmanager-header .header-bg{
+  background-color: #128168;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 100%;
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+.omniscriptmanager-header img{
+  width: 100%;
+}
+.omniscriptmanager-header h1{
+  z-index: 1;
+  font-size: 36px;
+  font-weight: 600;
+  color: #fff;
+}
+
+
+
+/*----------- TITLE -----------*/
+
+.title{
+  font-size: 24px;
+}
+.visible-false{
+    color: rgb(167, 167, 167);
+    /* text-decoration: line-through; */
+}
+
+
+/*----------- BUTTONS ----------*/
+.buttons{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+/*-------- LOADING RING --------*/
+
+.lds-dual-ring {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 50px;
+  height: 50px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid rgb(227, 227, 227);
+  border-color: rgb(227, 227, 227) transparent rgb(227, 227, 227) transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.exampleHolder {
+  position: relative;
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  background-color: transparent;
+}
+.ring{
+  display: flex;
+  width: inherit;
+  height: inherit;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  margin: 50px 0;
+}
+
+
+/*---------- DETAILS ----------*/
+.details-no-selected-step{
+  font-size: 16px;
+}
+:host {
+    --sds-c-textarea-sizing-max-height: 500px;
+}
+
+
+
+/*---------- SECTIONS ----------*/
+
+.sections{
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    margin-top: -40px;
+    width: 80vw;
+}
+.margin-auto{
+  margin: auto;
+}
+.section-os-list{
+  max-width: 400px;
+  margin: auto;
+}
+.section-os-list-item{
+  cursor: pointer;
+  padding: 14px;
+  border: 1px solid #c2c2c2;
+  border-bottom: none;
+}
+.section-os-list-item:last-child{
+  border-bottom: 1px solid #c2c2c2;
+}
+.section-os-list-item:hover{
+  background-color: #e9f9ff;
+}
+.section-os-title{
+  font-size: large;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.section-settings{
+  display: flex;
+  gap: 40px;
+  padding-bottom: 60px;
+}
+.section-settings-list{
+  min-width: 300px;
+  max-width: 400px;
+  height: fit-content;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 120px;
+  margin-top: 60px;
+}
+.section-settings-list .step{
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+.section-settings-list .step:hover{
+  border: 1px solid #00a1e0;
+}
+.section-settings-list .step:active{
+  border: 1px solid #00a1e0;
+  background-color: #00bbff18;
+
+}
+.section-settings-details{
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 100%;
+}
+.section-settings-details-edit{
+  display: flex;
+  flex-wrap: wrap;
+}
+.section-settings-details-header{
+  display: flex;
+  align-items: center;
+  gap: 10px;  
+  border-bottom: 1px solid;
+  padding-bottom: 7px;
+  margin-bottom: 20px;
+}
+
+
+/*---------- SETTINGS ----------*/
+
+.setting{
+  margin-top: 10px;
+  max-width: 62vw;
+}
+.setting-child{
+    background-color: #e3e3e3;
+    padding: 15px;
+    margin: 18px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+.setting-child-header{
+  display: flex;
+  margin-bottom: 7px;
+  flex-flow: row wrap;
+  gap: 10px;
+}
+.setting-child-header-checkbox{
+  margin-top: -2px;
+}
+
+
+/*---------- STEPS ----------*/
+.step{
+  display: grid;
+  align-items: center;
+  cursor: pointer;
+  column-gap: 18px;
+  grid-template-columns: 30px auto;
+  color: #00a1e0;
+}
+.step-active{
+  background-color: #dbf5ff;
+}
+
+.step-icon{
+  width: 24px;
+  height: 24px;
+  background-color: #00a1e0;
+  border: 4px solid #e3e3e3;
+  border-radius: 50%;
+  margin: -2px 0;
+}
+.step-icon.visible-false{
+  background-color: #aaaaaa;
+}
+
+.step-label{
+  background-color: transparent !important;
+}
+.step-line{
+  width: 7px;
+  height: 46px;
+  background-color: #e3e3e3;
+  margin: -6px 0 -6px 19.35px;
+  position: relative;
+}
+.step-line:last-of-type{
+  display: none;
+}
+.step-in{
+  pointer-events: none;
+}
+
+.title-please{
+  margin-top: 80px;
+}

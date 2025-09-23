@@ -1,0 +1,15 @@
+.vloc-ins-census-info-title-container {
+    border-radius: 0.1875rem;
+    border-color: #c8d1e2;
+}
+.vloc-ins-family-tiers-container {
+    justify-content: space-between;
+}
+.vloc-ins-census-count {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.hide_Div {
+    display: block;
+}

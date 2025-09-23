@@ -1,0 +1,91 @@
+.arc-theme-dark .arc-theme-dark-hide{
+    display: none !important;
+}
+.arc-theme-dark-show{
+    display: none !important;
+}
+.arc-theme-dark .arc-theme-dark-show{
+    display: initial !important;
+}
+
+.arc-theme-dark .arc-theme-dark-invert{
+    filter: invert(1);
+}
+
+
+/* Jepson Adjustments */
+.arc-theme-dark nav.forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn,
+.arc-theme-dark nav.forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn:hover,
+.arc-theme-dark nav.forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn:focus,
+.arc-theme-dark nav.forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn:active{
+    color: var(--color-dark-topbar-text) !important;
+}
+@media only screen and (min-width: 48em){
+    .arc-theme-dark nav.forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn,
+    .arc-theme-dark nav.forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn:hover,
+    .arc-theme-dark nav.forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn:focus,
+    .arc-theme-dark nav.forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn:active{
+        color: var(--color-dark-topbar-text) !important;
+    }
+    .arc-theme-dark .slds-dropdown__list a.menu-item,
+    .arc-theme-dark .forceCommunityThemeNav.comm-navigation .mainNavItem .subMenu .uiMenuItem,
+    .arc-theme-dark .forceCommunityThemeNav.comm-navigation .mainNavItem .subMenu,
+    .arc-theme-dark .forceCommunityThemeNav.comm-navigation .mainNavItem .subMenu::before{
+        background-color: var(--color-dark-topbar-background) !important;
+    }
+    .arc-theme-dark .forceCommunityThemeNav.comm-navigation .mainNavItem .subMenu .uiMenuItem a:hover{
+        background-color: var(--color-dark-topbar-background-1) !important;
+    }
+    .arc-theme-dark .forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn .comm-navigation__sub-menu-trigger-icon svg{
+        fill: var(--color-dark-topbar-text) !important;
+    }
+}
+.arc-theme-dark .themeBgImage,
+.arc-theme-dark .themeProfileMenu .slds-dropdown,
+.arc-theme-dark .themeProfileMenu .slds-dropdown__list a.menu-item{
+    background: var(--color-dark-topbar-background) !important;
+}
+@media only screen and (max-width: 47.9375em){
+    .arc-theme-dark .forceCommunityThemeNav.comm-navigation .mainNavItem{
+        background-color: var(--color-dark-topbar-background) !important;
+    }
+    .arc-theme-dark .forceCommunityThemeNav.comm-navigation .mainNavItem .linkBtn:hover{
+        background-color: var(--color-dark-topbar-background-1) !important;
+    }
+    .arc-theme-dark .forceCommunityThemeNavTrigger .themeNavTrigger:hover .themeBurgerLine,
+    .arc-theme-dark .forceCommunityThemeNavTrigger .themeNavTrigger .themeBurgerLine{
+        background-color: var(--color-dark-topbar-icon-color);
+    }
+}
+.arc-theme-dark .forceCommunityThemeHeaderCompact .search-triggercloseButton svg,
+.arc-theme-dark .forceCommunityThemeHeaderCompact .search-triggercloseButton:hover svg,
+.arc-theme-dark .forceCommunityThemeSearch .search-box .search-inputSearchButton svg,
+.arc-theme-dark .forceCommunityThemeHeaderCompact .themeUtils .themeUtil.themeNotifications:hover button svg,
+.arc-theme-dark .forceCommunityThemeHeaderCompact .themeUtils .themeUtil.themeNotifications button svg,
+.arc-theme-dark .forceCommunityThemeHeaderCompact .search-triggerButton:hover svg,
+.arc-theme-dark .forceCommunityThemeHeaderCompact .search-triggerButton svg{
+    fill: var(--color-dark-topbar-icon-color);
+}
+.arc-theme-dark .forceCommunityThemeSearch.commThemeCmp .search-input,
+.arc-theme-dark .forceCommunityThemeSearch.commThemeCmp .search-box .search-inputSearchButton{
+    background-color: var(--color-dark-search-bar-background) !important;
+}
+.arc-theme-dark .themeBottomBorder{
+    background-color: var(--color-dark-topbar-bottom-border-color) !important;
+}
+
+
+.arc-theme-dark .button-back-to-top img{
+    filter: var(--arc-filter-white);
+}
+
+/* footer logo */
+/* .arc-theme-dark .footer-logo .nds-image > *::after{    
+    content: "";
+    width: 80%;
+    height: 100%;
+    filter: var(--arc-filter-white);
+    position: absolute;
+    top: 0;
+    right: 0;
+} */

@@ -1,0 +1,12 @@
+.products-block{
+    margin: 0 auto var(--lwc-spacingXxLarge,3rem) auto;
+    max-width: 50rem;
+}
+
+.text-header{
+    font-size: 20px; 
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    padding-left: 20px;
+    font-weight: 600;
+}

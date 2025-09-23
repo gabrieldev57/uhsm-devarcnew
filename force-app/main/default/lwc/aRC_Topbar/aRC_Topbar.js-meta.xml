@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <masterLabel>ARC - Topbar</masterLabel>
+    <description>Topbar with show/hide, fixed position, drawer and navigation menus.</description>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__Tab</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="navigationName" label="Navigation Menu Name" type="String" default="Default Navigation" description="Name of the navigation menu to display."></property>
+            <property name="fixed" label="Fixed Mode" type="Boolean" description="If true, the topbar will follow the user scroll."></property>
+            <property name="hideOnScroll" label="Hide/Show on Scroll" type="Boolean" description="If true, the topbar will hide when scrolling down and reappear when scrolling up."></property>
+            <property name="height" label="Height" type="String" default="70px" description="Height of the topbar."></property>
+            <property name="responsiveHeight" label="Responsive Height" type="String" default="58px" description="Same as above but this only applies to the responsive breakpoint."></property>
+            <property name="maxLinksDesktop" label="Max Links Visible on Topbar" type="Integer" min="0" max="7" description="Maximum amount of links allowed to appear on the topbar menu for desktop breakpoint."></property>
+            <property name="userOnTopbar" label="User on Topbar" type="Boolean" description="If true, will display login/logout options as well as a welcome message to logged in users on the topbar."></property>
+            <property name="showDrawerDesktop" label="Show Drawer on Desktop" type="Boolean" default="true" description="If true, will display the responsive drawer menu on desktop."></property>
+            <property name="background" label="Background Color" type="Color" default="#ffffff"></property>
+            <property name="color" label="Item Color" type="Color" default="#ffffff" description="Color for items on the topbar (Links, Hamburger button, User Message)."></property>
+            <property name="colorHover" label="Item Hover Color" type="Color" default="#ffffff" description="Color for clickable items on the topbar when hovered."></property>
+            <property name="transparentAtTop" label="Transparent When On Top" type="Boolean" description="Will make the topbar background transparent and change the color of items when the user is at the top of the page. (Useful for mixing with a hero with background media or color)"></property>
+            <property name="colorWhenTransparent" label="Item Color When Transparent" type="Color" description="Color for items when the topbar is transparent at the top of the page."></property>
+            <property name="logoOverride" label="Logo Override" type="String" description="Set to a CSS variable containing the image to use."></property>
+            <property name="logoWidth" label="Logo Width" type="String" default="120px" description="Width of the logo displayed on the topbar."></property>
+            <property name="logoHeight" label="Logo Height" type="String" description="Height of the logo displayed on the topbar."></property>
+            <property name="logoColor" label="Logo Color" type="Color" description="Changes the color of the logo by applying a mask. (Works well only if your logo was uploaded in SVG format)"></property>
+            <property name="linkAlignment" label="Link Alignment" type="String" datasource="Left,Center,Right" default="Right" description="Changes where the navigation links show up in the topbar."></property>
+            <property name="linkHoverStyle" label="Link Style" type="String" datasource="None,Highlighted,Bottom Highlight,Pill" default="Highlighted" description="Style of the navigation links when hovered."></property>
+            <property name="dropLinkHoverStyle" label="Dropdown Link Style" type="String" datasource="None,Highlighted,Bottom Highlight,Pill" default="None" description="Style of the navigation links from submenus when hovered."></property>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

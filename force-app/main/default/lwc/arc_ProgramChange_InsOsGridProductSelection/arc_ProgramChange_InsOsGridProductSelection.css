@@ -1,0 +1,76 @@
+.vloc-serv-filters-container {
+    display: flex;
+    width: 45%;
+}
+
+.vloc-ins-inline-filters-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 55%;
+}
+
+.vloc-ins-sort-combo {
+    width: 35%;
+}
+
+.vloc-ins-bold-heading {
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.vloc-ins-products-spinner {
+    min-height: 4rem;
+}
+
+.noPlan{
+    margin: 35px 100px;
+    border-radius: 12px;
+    border: 3px solid #e37a7a;
+    background-color: rgb(249 173 173);
+    box-shadow: 10px 8px 8px #f7d7d7;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.noPlan h1{
+    font-size: 22px;
+    text-align: center;
+    padding: 15px 10px;
+    color: black;
+}
+
+.iconNoPlan{
+    --sds-c-icon-color-foreground-default: red;
+    margin: 19px 0px 19px 10px;
+}
+
+.slds-modal__content.slds-p-around_medium{
+    margin-top: 0px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.button-container>button {
+    margin: 0px;
+}
+
+@media (max-width: 767px) {
+    /* Styles for mobile or small screens */
+    .button-container>button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+    /* Styles for tablets, laptops, desktops */
+    .button-container>button {
+        width: 25%;
+    }
+}

@@ -1,0 +1,106 @@
+.benefit-card{
+    padding: 10px;
+}
+.arc-slider .benefit-card{
+    width: unset;
+}
+@media only screen and (min-width: 768px) {
+    .benefit-card{
+        width: 50%;
+    }
+    .header-container{
+        justify-self: left;
+    }
+    .header-elements h3{
+        text-align: left !important;
+    }
+    .header-elements h4{
+        text-align: left !important;
+    }
+    .header-text{
+        text-align: left !important;
+    }
+    .benefit-card-type-horizontal .bc-content{
+        display: flex;
+        flex-flow: row;
+    }
+    .benefit-card-type-horizontal .benefit-card{
+        width: 100%;
+    }
+    .benefit-card-type-horizontal .bc-description{
+        width: 65%;
+    }
+}
+@media only screen and (min-width: 1280px) {
+    .benefit-card{
+        width: 25%;
+    }
+    .header-elements h3{
+        font-size: 36px !important;
+    }
+    .cards-container{
+        justify-content: left;
+    }
+    .benefit-card-type-horizontal .benefit-card{
+        width: 90%;
+        margin: auto;
+    }
+}
+
+.component-container{
+    position: relative;
+}
+.header-container{
+    width: 80%;
+    padding: 30px 0;
+}
+.header-content{
+    animation-timing-function: linear;
+    animation-duration: 200ms;
+    max-width: 660px;
+    float: left;
+    padding: 30px 40px;
+    background-color: var(--color-background);
+}
+
+.cards-container{
+    width: 100%;
+    margin: 0;    
+    padding: 30px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.bc-content{
+    border: 1px solid var(--color-border);
+    background-color: var(--color-background);
+    margin-bottom: 0;
+    height: 100%;
+}
+@media only screen and (min-width: 1280px) {
+    .not-slider .bc-content{
+        transition: transform .6s ease;
+
+    }
+    .not-slider .bc-content:hover,
+    .not-slider .bc-content:focus{
+        transform: translateY(-4px);
+    }
+}
+img{
+    width: 100%;
+}
+.bc-description{
+    margin: 30px;
+}
+.bc-link-wrapper{
+    margin-top: 30px;
+    text-align: left;
+    font-size: 14px;
+}
+.bc-link-wrapper a{
+    display: inline-block;
+    font-weight: 500 !important;
+    text-transform: uppercase !important
+}

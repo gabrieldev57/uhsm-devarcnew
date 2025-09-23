@@ -1,0 +1,16 @@
+<template>
+    <header>
+        <h4 class="slds-m-around_large">Caring for your mind, body, and spirit goes beyond taking care of your medical
+            needs. The WeShare Community
+            includes the
+            perks below to help you focus on your whole health, at no additional cost to you!</h4>
+        <img class="header-background" src={headerImageURL} alt="Header Background">
+    </header>
+    <main>
+        <template for:each={memberPerks} for:item="memberPerk">
+            <div key={memberPerk.title} class="elementHoldingHTMLContent slds-m-around_large"
+                data-title={memberPerk.title}>
+            </div>
+        </template>
+    </main>
+</template>

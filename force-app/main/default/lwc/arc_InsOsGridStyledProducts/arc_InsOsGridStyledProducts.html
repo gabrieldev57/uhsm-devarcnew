@@ -1,0 +1,97 @@
+<template>
+
+    <template for:each={products} for:item="group" for:index="index">
+        <div key={group} class="slds-box slds-m-bottom_medium iogp-box">
+            <span class="group-name">
+                {group.groupName}</span>
+            <div class="nds-form-element nds-form-container nds-text-block">
+                <div class={group.groupName} lwc:dom="manual">
+
+                </div>
+                <!-- <p>
+
+                </p> -->
+            </div>
+            <button class="nds-form-element nds-form-container iogp-program-details" onclick={openDetailsProduct}>
+                <span>Program Details</span>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 11V17C16 17.5304 15.7893 18.0391 15.4142 18.4142C15.0391 18.7893 14.5304 19 14 19H3C2.46957 19 1.96086 18.7893 1.58579 18.4142C1.21071 18.0391 1 17.5304 1 17V6C1 5.46957 1.21071 4.96086 1.58579 4.58579C1.96086 4.21071 2.46957 4 3 4H9M13 1H19M19 1V7M19 1L8 12" stroke="#2C2B2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <!-- <vlocity_ins-button class="nds-form-element nds-form-container program-details-button" theme={theme}
+                data-group={group.groupName} icon-name="standard:customer_portal_users" icon-position="left"
+                label="Program Details" onclick={openDetailsProduct}></vlocity_ins-button> -->
+            <div
+                class="nds-form-element nds-form-container vloc-ins-product-attributes slds-grid slds-wrap nds-grid nds-wrap iogsp-product-details">
+                <template for:each={group.generalAttributes} for:item="attribute">
+                    <div if:false={attribute.hidden}
+                        class="slds-p-vertical_small slds-size_1-of-3 nds-p-vertical_small nds-size_1-of-3"
+                        key={attribute.attributeId}>
+                        <c-arc_-ins-os-grid-styled-product-attribute is-general-attribute={isGeneralAttribute} theme={theme}
+                            attribute={attribute} is-cart={isCart} root-channel={rootChannel} fit-text>
+                        </c-arc_-ins-os-grid-styled-product-attribute>
+                    </div>
+                </template>
+
+            </div>
+            <!-- <div class="slds-col">
+                
+                <div key={group.groupName} class="slds-grid_align-spread slds-grid">
+                    <template for:each={group.uniqueAttributes} for:item="att">
+                        <p key={att}>{att}</p>
+                    </template>
+                    <p>monthly cost</p>
+                    <p>compare</p>
+                    <p>add to cart</p>
+                </div>
+                <template for:each={group.products} for:item="product" for:index="index">
+                    <div key={product.Id} data-id={index} class="slds-col slds-size_1-of-1 nds-col nds-size_1-of-1">
+                        <c-poc_-ins-os-grid-product-row onsenddata={handleDataFromChild} hidden-actions={hiddenActions}
+                            onselected={selectProduct} product={product} group-name={group.groupName}
+                            unique-attributes={group.uniqueAttributes} show-config-inline={showConfigInline}
+                            onexpand={expandProduct} invalidate-cache={invalidateCache}
+                            show-product-tile={showProductTile} is-cart={isCart} theme={theme}
+                            root-channel={rootChannel} reprice-action={repriceAction}>
+                        </c-poc_-ins-os-grid-product-row>
+                    </div>
+                </template>
+            </div> -->
+            <div class="iogp-products-container">
+                <!-- <table class="slds-table slds-table_bordered plan-selection-table" aria-label="Plan Selection">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="arc_attribute-grid" scope="col">
+                                <div class="slds-truncate" title="Product Name">Product Name</div>
+                            </th>
+                            <template for:each={group.uniqueAttributes} for:item="att">
+                                <th key={att} class="arc_attribute-grid" scope="col">
+                                    <div class="slds-truncate" title="Attributes">{att}</div>
+                                </th>
+                            </template>
+
+                            <th class="arc_attribute-grid" scope="col">
+                                <div class="slds-truncate" title="Price">Price</div>
+                            </th>
+                            <th class="arc_attribute-grid" scope="col">
+                                <div class="slds-truncate" title="Compare">Compare</div>
+                            </th>
+                            <th class="arc_attribute-grid" scope="col">
+                                <div class="slds-truncate" title="Add to Cart">Add To Cart</div>
+                            </th>
+                        </tr>
+                    </thead> -->
+                    <!-- <tbody> -->
+                    <c-arc_-ins-os-grid-styled-product-row for:each={group.products} for:item="product" for:index="index" key={product.Id} class="slds-hint-parent"
+                        onsenddata={handleDataFromChild} hidden-actions={hiddenActions}
+                        onselected={selectProduct} product={product} group-name={group.groupName}
+                        unique-attributes={group.uniqueAttributes} show-config-inline={showConfigInline}
+                        onexpand={expandProduct} invalidate-cache={invalidateCache}
+                        show-product-tile={showProductTile} is-cart={isCart} theme={theme}
+                        root-channel={rootChannel} reprice-action={repriceAction}>
+                    </c-arc_-ins-os-grid-styled-product-row>
+                    <!-- </tbody> -->
+                <!-- </table> -->
+            </div>
+        </div>
+    </template>
+</template>

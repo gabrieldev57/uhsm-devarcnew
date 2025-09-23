@@ -1,0 +1,18 @@
+.vloc-ins-error-message {
+    border-radius: 0.25rem;
+    justify-content: left;
+}
+
+.vloc-ins-readonly-toggle {
+    pointer-events: none;
+}
+
+@media only screen and (max-width: 600px) {
+    .container {
+        display: block;
+    }
+
+    c-arc_-demo-census-field{
+        width: 100% !important;
+    }
+}

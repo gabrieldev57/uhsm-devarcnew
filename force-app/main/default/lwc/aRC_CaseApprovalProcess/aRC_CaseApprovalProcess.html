@@ -1,0 +1,179 @@
+<template>
+    <template if:false={isLoading}>
+        <template if:true={isEmpty}>
+            <div class="noItem">
+                <h1>This case does not have any Member</h1>
+                <div class="centerBtns">
+                    <lightning-button-icon icon-name="utility:refresh" variant="border-filled"
+                        class="slds-m-left_xx-small refreshComponent" alternative-text="Refresh" onclick={handleGetData}
+                        title="Refresh"></lightning-button-icon>
+                </div>
+            </div>
+        </template>
+        <template if:false={isUCMembersEmpty}>
+            <template for:each={underwritingCaseMembers} for:item="ucMember">
+                <div class="slds-box slds-m-bottom_medium" key={ucMember.Id}>
+                    <div class="card-header">
+                        <a onclick={gotoMember} data-id={ucMember.Id}
+                            class="card-name">{ucMember.ARC_Member__r.vlocity_ins__FirstName__c}
+                            {ucMember.ARC_Member__r.vlocity_ins__LastName__c}</a>
+                        <div class="reviewed-by">
+                            <p class="card-data-label slds-form-element__label">Reviewed by</p>
+                            <a onclick={gotoUser} data-userid={ucMember.ARC_ReviewedBy__c}
+                                class="card-data card-data-link">{ucMember.ARC_FRMLReviewedBy__c}</a>
+                        </div>
+                    </div>
+                    <div class="card-info slds-grid slds-grid_vertical-align-start slds-wrap">
+                        <div class="slds-grid slds-grid_vertical-align-end">
+                            <div>
+                                <p class="card-data-label slds-form-element__label">SSN</p>
+                                <p class="card-data">{ucMember.ARC_Member__r.vlocity_ins__SocialSecurityNumber__c}</p>
+                            </div>
+                            <div>
+                                <p class="card-data-label slds-form-element__label">Birthdate <lightning-helptext
+                                        content="YYYY-MM-DD"></lightning-helptext></p>
+                                <p class="card-data">{ucMember.ARC_Member__r.vlocity_ins__Birthdate__c}</p>
+                            </div>
+                            <div>
+                                <p class="card-data-label slds-form-element__label">Gender</p>
+                                <p class="card-data">{ucMember.ARC_Member__r.vlocity_ins__Gender__c}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="card-data-label slds-form-element__label">Height</p>
+                            <p class="card-data">{ucMember.ARC_Member__r.ARC_Height__c}</p>
+                        </div>
+                        <div>
+                            <p class="card-data-label slds-form-element__label">Weight</p>
+                            <p class="card-data">{ucMember.ARC_Member__r.ARC_Weight__c}</p>
+                        </div>
+                        <div>
+                            <p class="card-data-label slds-form-element__label">Reason</p>
+                            <p class="card-data">{ucMember.ARC_Reason__c}</p>
+                        </div>
+                        
+                        <lightning-input onchange={handleInputChange} class="input-score" disabled={disableInputs}
+                            data-id={ucMember.Id} data-fieldname="ARC_Score__c" data-save="fieldToSave"
+                            label="Score" type="number" step="0.01" formatter="decimal"
+                            value={ucMember.ARC_Score__c}></lightning-input>
+                            
+                        <lightning-combobox onchange={handleInputChange} class="input-score" label="Status"
+                            value={ucMember.ARC_ApprovalResolution__c} placeholder="Select Status"
+                            data-fieldname="ARC_ApprovalResolution__c" data-save="fieldToSave" data-id={ucMember.Id}
+                            options={optionsStatus} disabled={disableInputs}></lightning-combobox>
+                        
+                        <lightning-textarea onchange={handleInputChange} class="textareaDesc" disabled={disableInputs}
+                            data-id={ucMember.Id} data-fieldname="ARC_Description__c" data-save="fieldToSave"
+                            label="Description" value={ucMember.ARC_Description__c}></lightning-textarea>
+                    </div>
+                </div>
+            </template>
+            <div class="slds-m-top_medium buttons">
+                <div class="close-buttons">
+                    <!-- Close and Void - Not Admin Profile -->
+                    <lightning-button if:false={adminProfile} label="Close and Void" disabled={disableCloseVoid} variant="brand"
+                        onclick={handleCloseCase} data-id="Closed Voided" class="slds-m-right_small"></lightning-button>
+
+                    <!-- Close and Void - Admin Profile -->
+                    <lightning-button if:true={adminProfile} label="Close and Void" disabled={disableCloseVoidForAdmins} variant="brand"
+                        onclick={handleCloseCase} data-id="Closed Voided" class="slds-m-right_small"></lightning-button>
+
+                    <!-- Close and Deny - Not Admin Profile -->
+                    <lightning-button if:false={adminProfile} label="Close and Deny" disabled={disableCloseDeny} variant="brand"
+                        onclick={handleCloseCase} data-id="Closed Rejected"
+                        class="slds-m-right_small"></lightning-button>
+                    
+                    <!-- Close and Deny - Admin Profile -->
+                    <lightning-button if:true={adminProfile} label="Close and Deny" disabled={disableCloseDenyForAdmins} variant="brand"
+                        onclick={handleCloseCase} data-id="Closed Rejected"
+                        class="slds-m-right_small"></lightning-button>
+
+                    <!-- Close All - Not Admin Profile -->
+                    <lightning-button if:false={adminProfile} disabled={disableCloseApproveButton}
+                        label="Close and Approve" variant="brand" onclick={handleCloseCase} data-id="Closed Approved"
+                        class="slds-border_left slds-p-left_small"></lightning-button>
+                        
+                    <!-- Close All - Admin Profile -->
+                    <lightning-button if:true={adminProfile} disabled={disableCloseApproveButtonForAdmins}
+                        label="Close and Approve" variant="brand" onclick={handleCloseCase} data-id="Closed Approved"
+                        class="slds-border_left slds-p-left_small"></lightning-button>
+                    
+
+                    <!-- <lightning-button if:false={claimProfile} disabled={disableCloseApproveButton}
+                        label="Close and Approve" variant="brand" onclick={handleCloseCase} data-id="Closed Approved"
+                        class="slds-border_left slds-p-left_small"></lightning-button>
+
+                    <lightning-button if:true={claimProfile} disabled={disableCloseApproveButtonForClaimProfile}
+                        label="Close and Approve" variant="brand" onclick={handleCloseCase} data-id="Closed Approved"
+                        class="slds-border_left slds-p-left_small"></lightning-button>
+                     -->
+
+
+                </div>
+                <div class="save-section">
+                    <lightning-button disabled={disableSaveButton} variant="brand" label="Save"
+                        onclick={handleSave}></lightning-button>
+                </div>
+            </div>
+        </template>
+        <template if:true={isUCMembersEmpty}>
+            <div class="slds-m-top_medium buttons">
+                <div class="close-buttons">
+                    <!-- Close and Void - Not Admin Profile -->
+                    <lightning-button if:false={adminProfile} label="Close and Void" disabled={disableCloseVoid} variant="brand"
+                        onclick={handleCloseCase} data-id="Closed Voided" class="slds-m-right_small"></lightning-button>
+
+                    <!-- Close and Void - Admin Profile -->
+                    <lightning-button if:true={adminProfile} label="Close and Void" disabled={disableCloseVoidForAdmins} variant="brand"
+                        onclick={handleCloseCase} data-id="Closed Voided" class="slds-m-right_small"></lightning-button>
+                </div>
+
+            </div>
+        </template>
+
+    </template>
+    <template if:true={isLoading}>
+        <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+    </template>
+
+    <!-- Close Modal, it will ask the user to select a cancel -->
+
+
+    <template if:true={showModal}>
+        <!-- Modal/Popup Box LWC starts here -->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box LWC header here -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={closeModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Close Case
+                    </h2>
+                </header>
+                <!-- Modal/Popup Box LWC body starts here -->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <lightning-combobox name="cancel-reason" label="Select the Cancellation Reason"
+                        source-label="Available" selected-label="Selected" options={cancelReasonOptions}
+                        onchange={handleCancelReasonChange}></lightning-combobox>
+                    <p class="slds-text-color_error" if:true={disableSaveButtonModal}>An option must be selected.</p>
+                </div>
+                <!-- Modal/Popup Box LWC footer starts here -->
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>
+                    <button class="slds-button slds-button_brand" data-id={selectedCloseOption}
+                        disabled={disableSaveButtonModal} onclick={handleCloseCase} title="OK">OK</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+
+</template>

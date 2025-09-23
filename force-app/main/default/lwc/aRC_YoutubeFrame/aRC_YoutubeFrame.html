@@ -1,0 +1,38 @@
+<template>
+    <template if:true={isMemberCommunity}>
+        <!-- This is the HTML code for the speech bubble -->
+        <template if:true={showHelpBubble}>
+            <div class="speech-bubble">
+                <div onclick={handleCloseBubble} class="close-bubble">✖</div>
+                <p>{helpmessage}</p>
+            </div>
+        </template>
+
+        <div onclick={toggleIFrameVisibility} class="help-button shake-horizontal ping-color"><span>VIDEO</span></div>
+        <template if:true={showIframe}>
+            <div data-id="youtube_modal" class="modal">
+                <div class="change-video-container">
+                    <lightning-icon if:true={showPrevious} variant="inverse" class="button"
+                        icon-name="utility:chevronleft" alternative-text="Next" size="medium" onclick={previous}
+                        title="Previous"></lightning-icon>
+                </div>
+                <div class="player">
+                    <div class="player-header">
+                        <lightning-icon variant="inverse" class="close-modal button" icon-name="utility:close"
+                            alternative-text="Close" size="medium" title="Close" onclick={toggleIFrameVisibility}>
+                        </lightning-icon>
+                    </div>
+                    <div class="frame-container">
+                        <iframe id="yt-vid" src={url}>
+                        </iframe>
+                    </div>
+                </div>
+                <div class="change-video-container">
+                    <lightning-icon if:true={showNext} variant="inverse" class="button color-waggle"
+                        icon-name="utility:chevronright" alternative-text="Next" size="medium" onclick={next}
+                        title="Next"></lightning-icon>
+                </div>
+            </div>
+        </template>
+    </template>
+</template>

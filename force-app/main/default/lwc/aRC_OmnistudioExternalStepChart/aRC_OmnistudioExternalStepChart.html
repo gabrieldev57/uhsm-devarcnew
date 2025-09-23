@@ -1,0 +1,25 @@
+<template>
+    <div lwc:ref="container" class="ushm-step-chart" data-vertical={vertical} data-use-labels={useLabels}
+        data-first-step={bIsFirstStep}>
+        <div lwc:ref="styles"></div>
+        <div class="uhsm-step-chart-content">
+            <div class="ushm-sc-track">
+                <div class="ushm-sc-track-progress"></div>
+            </div>
+            <div class="ushm-sc-items">
+                <div class="ushm-sc-item" for:each={steps} for:item="step" for:index="index" key={step.name}
+                    data-status={step.status}>
+                    <div class="ushm-sc-item-dot" data-index={index} onclick={navigateOmniscriptToStep}>
+                        <svg>
+                            <use xlink:href={iconCheck}></use>
+                        </svg>
+                    </div>
+                    <div class="ushm-sc-item-label-spacer"></div>
+                    <div class="ushm-sc-item-label">{step.propSetMap.chartLabel}</div>
+                    <lightning-helptext content={step.propSetMap.chartLabel} data-index={index}
+                        onclick={navigateOmniscriptToStep}></lightning-helptext>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

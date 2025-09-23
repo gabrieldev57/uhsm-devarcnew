@@ -1,0 +1,301 @@
+.si-topbar-container{
+	--topbar-height: 64px;
+	--topbar-height-responsive: var(--topbar-height);
+	--currentHeight: var(--topbar-height-responsive);
+}
+.si-topbar {
+	--max-width: 1280px;
+	/* Variables tied to parameters */
+	--topbar-background: #fff;
+	--si-topbar-shadow: 0px 3px 9px rgb(0 0 0 / 10%);
+
+	--padding-left: 40px;
+	--padding-right: 40px;
+
+	--topbar-logo-width: 120px;
+
+	--topbar-link-color: var(--color-text-contrast);
+
+	--item-color: #fff;
+	--item-color-hover: #fff;
+	--item-color-transparent: #000;
+
+
+
+
+	--dropdown-background-color: var(--background-color, var(--si-background-color));
+
+	--link-high-height: 4px;
+	--drop-link-high-height: 4px;
+
+	/* Variables for elements */
+	
+	/* Link Styles */
+	--link-high-color: rgba(255, 255, 255, 0.205);
+	--link-bg-color: transparent;
+	--link-color: var(--item-color);
+	--link-hover-color: var(--item-color-hover);
+
+	/* Dropdown Link Styles */
+	--drop-link-high-color: var(--link-high-color);
+	--drop-link-bg-color: var(--link-bg-color);
+	--drop-link-color: var(--link-color);
+	--drop-link-hover-color: var(--link-hover-color);
+
+	--topbar-transparent-elem-color: var(--item-color-transparent);
+
+	/* Arrows */
+	--arrow-color: var(--link-color);
+	--arrow-display: block;
+
+	/* Hamburger */
+	--hamburger-color: var(--link-color);
+	--hamburger-hover-color: var(--hamburger-color);
+
+	
+	--topbar-transition-all: top .4s ease-out, color .4s ease-out, background-color .4s ease-out;
+
+
+	display: flex;
+	align-items: center !important;
+	justify-content: space-between;
+	background-color: var(--topbar-background);
+	color: var(--topbar-link-color);
+	width: 100%;
+	height: var(--currentHeight);
+	overflow-x: hidden;
+	z-index: 1000;
+	transition: var(--topbar-transition-all);
+	position: relative;
+	overflow: visible;
+}
+/* DESKTOP */
+@media screen and (min-width: 64em) {
+	.si-topbar-container {
+		--currentHeight: var(--topbar-height);
+	}
+}
+
+/* Adds space */
+.spacer{
+	display: none;
+	height: var(--currentHeight);
+}
+.si-topbar-fixed + .spacer{
+	display: block;
+}
+/* Disable spacer if Transparent on Top is checked */
+.si-topbar-transparentontop.replace-top-color + .spacer{
+	display: none;
+}
+
+/* Topbar will autohide when scrolling down if this feature is on */
+.si-topbar-autohide {
+	top: calc(var(--currentHeight) * -1 - 10px);
+}
+
+/* Fix for all inner elements to use 100% of topbar height */
+.topbar-content * {
+	height: 100%;
+}
+
+/* Topbar will be fixed at top if this class is added */
+.si-topbar-fixed {
+	position: fixed;
+	left: 0;
+}
+.si-topbar-show {
+	top: 0;
+}
+
+/* Sizing and Display */
+.topbar-content {
+	display: flex;
+	justify-content: space-between;
+	height: 100% !important;
+	max-width: var(--max-width);
+	width: 100%;
+	margin: auto;
+	padding-left: 40px;
+	padding-right: 40px;
+}
+@media screen and (min-width: 64em) {
+	.topbar-content {
+		padding-left: var(--padding-left);
+		padding-right: var(--padding-right);
+	}
+}
+.topbar-right,
+.topbar-left{
+	display: flex;
+	align-items: center;
+	gap: 24px;
+}
+.topbar-right{
+	display: none;
+}
+@media screen and (min-width: 64em) {
+	.topbar-right {
+		display: flex;
+	}
+}
+.topbar-center{
+	justify-content: center;
+}
+.topbar-right{
+	justify-content: flex-end;
+}
+
+/* Logo */
+.logo-container{
+	display: flex;
+	align-items: center;
+}
+.si-topbar .logo {
+	width: var(--topbar-logo-width, 120px);
+	height: var(--topbar-logo-height, unset);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+@media screen and (min-width: 64em) {
+	.si-topbar .logo {
+		/* width: calc(var(--topbar-logo-width, 120px) + 60px); */
+		width: var(--topbar-logo-width, 164px);
+	}
+}
+.logo {
+	width: 100%;
+	height: 100%;
+}
+.logo img {
+	width: 100%;
+}
+
+/* Topbar Buttons */
+.si-topbar[data-logged-in="false"] .si-button-comp[data-type="Logout"],
+.si-topbar[data-logged-in="true"] .si-button-comp[data-type="Login"]{
+	display: none;
+}
+
+/* Hamburger */
+.si-drawer-toggle {
+    width: 30px;
+    height: 30px;
+    border: 0 !important;
+    box-shadow: none !important;
+    vertical-align: middle;
+    padding: 10px !important;
+    box-sizing: content-box;
+    background: transparent !important;
+	margin-right: 20px;
+}
+@media screen and (min-width: 64em) {
+	.si-drawer-toggle {
+		margin-right: 30px;
+	}
+	.hide-drawer-desktop .si-drawer-toggle{
+		display: none;
+	}
+}
+.si-drawer-toggle:focus {
+    outline: 0;
+}
+.si-drawer-toggle span {
+    display: block;
+    width: 80%;
+    height: 2px;
+    margin: 5px auto;
+    background: var(--hamburger-color, var(--color-text, #fff));
+    transition: all .6s cubic-bezier(0.250, 0.100, 0.250, 1.000);
+}
+.si-drawer-toggle:focus span,
+.si-drawer-toggle:hover span{
+	background: var(--hamburger-hover-color, var(--hamburger-color, var(--color-text, #fff)));
+}
+/* rotate first span */
+.si-drawer-toggle span:first-of-type {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+/* hide second span */
+.si-drawer-toggle span:nth-of-type(2) {
+    opacity: 0;
+}
+/* rotate third span */
+.si-drawer-toggle span:last-of-type {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+.si-topbar:not(.drawer-open) .si-drawer-toggle span {
+    transform: none;
+    opacity: 1;
+}
+
+
+/* Hide topbar links on drawer open
+.button-container .si-button-comp,
+.drawer-open .topbar-links,
+.drawer-open .button-container .si-button-comp{
+	display: none;
+}
+@media screen and (min-width: 1024px) {
+	.button-container .si-button-comp,
+	.topbar-navigation.topbar-links{
+		display: flex;
+	}
+} */
+
+.topbar-content .si-button,
+.topbar-content .si-button * {
+	height: unset;
+}
+.si-button{
+	padding: 10px 25px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	background: #F2BC30;
+	color: #fff;
+	border: none;
+	border-radius: 100px;
+	transition: all .125s ease-in-out;
+}
+@media screen and (min-width: 64em) {
+	.login-button{
+		min-width: 176px;
+	}
+}
+.si-button:hover,
+.si-button:focus{
+	background: #e7b32d;
+}
+.si-button:active{
+	background: #c49726;
+}
+.si-button[data-variation="none"]{
+	color: #1E1E1E;
+	padding: 10px 8px;
+	background: transparent !important;
+	border: none;
+}
+.si-button[data-variation="none"].logo-button{
+	padding: 0;
+}
+.si-button svg{
+	width: 20px;
+	height: 20px;
+}
+
+.nav-button{
+
+}
+
+
+.si-drawer-links{
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-top: 40px;
+}

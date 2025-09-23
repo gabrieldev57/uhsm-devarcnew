@@ -1,0 +1,23 @@
+<template>
+    <div if:true={missingCodes} class="alert yellow">
+        On this SMB the system could not find this codes: <strong>{strMissingCodes}</strong>
+    </div>
+    <div if:true={clonedClaim} class="alert yellow">
+        Cloned SMB from <a onclick={handleNavigate} data-id={orgClaim.id} style="color: #856404;"><strong>{orgClaim.orgName}</strong></a> with a Total Net Paid of <strong>{orgClaim.orgNetPaid}</strong>. This amount will be automatically deducted from the Net paid of this SMB.
+    </div>
+    <div if:true={isCopyClaim} class="alert yellow">
+        This SMB is a Copy of: <a onclick={handleNavigate} data-id={copyClaim.id} style="color: #856404;"><strong>{copyClaim.name}</strong></a>
+    </div>
+    <div if:true={unknownProvider} class="alert yellow">
+        This SMB contains a <b>Unknown Provider</b>
+    </div>
+    <div if:true={negativeNetPaid} class="alert red">
+        This SMB has an item with <b>Negative Net Paid</b>
+    </div>
+    <div if:true={isOriginalClaim} class="alert yellow">
+        This is the original SMB of:&nbsp; 
+        <a for:each={clonedClaims} for:item="clm" key={clm.id} data-id={clm.id} onclick={handleNavigate} style="color: #856404;">
+            <strong>{clm.name} </strong>
+        </a>
+    </div>
+</template>

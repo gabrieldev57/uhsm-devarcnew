@@ -1,0 +1,37 @@
+/* //////////// ////////// Simple Topbar //////////// //////////  */
+.cb-section_column > * > .ui-widget{
+    margin: 0 !important;
+}
+
+/* Topbar Shadows */
+.si-topbar-shadow,
+.si-topbar-shadow .submenu{
+	box-shadow: var(--si-topbar-shadow);
+}
+.si-topbar-transparentontop .si-topbar-shadow{
+	box-shadow: none;
+}
+.si-topbar.si-topbar-autohide:not(.si-topbar-show) .submenu{
+    display: none !important;
+}
+
+/* Drawer */
+.topbar-navigation .topbar-menu[data-drawer="true"] simple-button{
+    width: 100%;
+}
+.topbar-navigation .topbar-menu[data-drawer="true"] simple-button .si-button{
+    width: 100%;
+    max-width: unset;
+}
+.topbar-navigation .topbar-menu[data-drawer="true"] simple-button .si-button .menu-link{
+    width: 100%;
+    justify-content: flex-start;
+}
+
+/* Replace colors at top fixes */
+.si-topbar-transparentontop.on-top.si-topbar-shadow{
+	box-shadow: none;
+}
+.si-topbar-transparentontop.replace-top-color.on-top:not(.drawer-open) .menu-link:before{
+    opacity: 20% !important;
+}

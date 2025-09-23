@@ -1,0 +1,45 @@
+<template>
+    <td data-label="Product Name" class="product-name-td">
+        <div class="attribute-container" title={product.Name}>{product.Name}</div>
+    </td>
+    <template for:each={filteredAttributes} for:item="attribute">
+        <td data-label="Attributes" key={attribute.attributeId}>
+            <div class="attribute-container" title={attribute.attributeId} if:false={attribute.hidden}>
+                <c-arc_ins-os-grid-product-attribute theme={theme} attribute={attribute} is-cart={isCart}
+                    root-channel={rootChannel}>
+                </c-arc_ins-os-grid-product-attribute>
+            </div>
+        </td>
+    </template>
+    <td data-label="Price">
+        <div class={attributeContainerClass}>
+            <lightning-formatted-number value={price} format-style="currency" minimum-fraction-digits="2"
+                maximum-fraction-digits="2"></lightning-formatted-number>
+            <span class="vloc-ins-lowercase">/{labels.InsMonthAbrv}</span>
+        </div>
+    </td>
+    <td lwc:if={showHealthyDiscountRows} class={healthyDiscountClass} data-label="Healthy Discount">
+        <div class={attributeContainerClassHD}>
+            <lightning-formatted-number value={healthyDiscount} format-style="currency" minimum-fraction-digits="2"
+                maximum-fraction-digits="2"></lightning-formatted-number>
+            <span class="vloc-ins-lowercase">/{labels.InsMonthAbrv}</span>
+        </div>
+    </td>
+    <td data-label="Compare">
+        <div class="" title="Compare">
+            <vlocity_ins-input class="compare-checkbox" type="checkbox" checked={product.isSelectedForCompare}
+                theme={theme} onchange={toggleCompare} disabled={isCompareDisabled}></vlocity_ins-input>
+        </div>
+    </td>
+    <td data-label="Add to Cart">
+        <div class="slds-grid slds-grid_align-center" title="Add To Cart">
+            <vlocity_ins-button variant="brand" class="add-to-cart-button" extraclass={isSelectedForCartClasses}
+                onclick={selectProduct} onmouseenter={addHoverState} onmouseleave={removeHoverState}
+                icon-name={isSelectedForCartIcon} icon-position="left" icon-fill="#ffffff" theme={theme} label=""
+                aria-live="assertive">
+            </vlocity_ins-button>
+        </div>
+    </td>
+
+
+</template>

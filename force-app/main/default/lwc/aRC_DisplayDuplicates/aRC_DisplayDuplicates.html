@@ -1,0 +1,51 @@
+<template>
+    <div class="container">
+        <div if:true={showDuplicate} class="alert danger-alert" onanimationend={handleAnimationEnd}>
+            <h3>This SMB is the Duplicate of:
+                <a data-id={smbDuplicateId} onclick={handleNavigate} style="color: hsl(0, 0%, 0%);"> {smbDuplicateName}</a>
+                <!-- <a onclick={handleClose} class="close">&times;</a>-->
+            </h3>
+        </div>
+
+        <div if:true={showPartialDuplicate} class="alert warning-alert" onanimationend={handleAnimationEnd}>
+            <h3>This SMB is a Partial Duplicate of:
+                <a data-id={smbDuplicateId} onclick={handleNavigate} style="color: hsl(0, 0%, 0%);"> {smbDuplicateName}</a>
+            </h3>
+
+            <!-- <a onclick={handleClose} class="close">&times;</a> -->
+        </div>
+    </div>
+
+    <!-- Modal to Remove the Duplicate start -->      
+
+    <!--
+    <template if:true={isRemoveDuplicate}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-align_absolute-center">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"  title="Close" onclick={hideForms}>
+                        <lightning-icon icon-name="utility:close"
+                        alternative-text="close"
+                        variant="inverse"
+                        size="small" ></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium slds-hyphenate" style="padding: 8px;" >Remove as {reason}</h2>
+                </header>
+                
+                <div class="slds-modal__content slds-p-around_medium slds-align_absolute-center" style="padding: 15px;" id="modal-content-id-1">
+                        <h1><strong>Are you sure you want to remove this SMB as {reason}?</strong></h1>
+                </div>
+                <div id="footerSection" >                                                             
+                    <div class="slds-modal__footer " style="padding: 4px;">
+                        <button class="slds-button slds-button_brand slds-size_1-of-12" onclick ={removeAsDuplicate}>Yes</button>
+                        <button class="slds-button slds-button_bran slds-size_1-of-12" onclick={hideForms}>Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+    --> 
+    
+</template>

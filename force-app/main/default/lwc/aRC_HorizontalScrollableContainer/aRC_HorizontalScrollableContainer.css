@@ -1,0 +1,56 @@
+.wrapper{
+    position: relative;
+    width: 100%;
+}
+
+.scroll-container{
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+
+    /* Using a CSS variable to control the mask */
+    --mask-left: transparent;
+    --mask-right: transparent;
+    -webkit-mask-image: linear-gradient(to right, var(--mask-left), black 3rem, black calc(100% - 3rem), var(--mask-right));
+    mask-image: linear-gradient(to right, var(--mask-left), black 3rem, black calc(100% - 3rem), var(--mask-right));
+    mask-size: 100% 100%;
+
+    width: 100%;
+}
+
+.arrow{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: #3d3d3d;
+    border-radius: 8px;
+    padding: 10px;
+}
+/* Positioning for left/right arrows */
+.arrow.left{
+    left: 0;
+}
+.arrow.right{
+    right: 0;
+}
+.arrow svg{
+    --icon-color: #fff;
+    width: 12px;
+    height: 12px;
+}
+.arrow.left svg{
+    transform: rotate(180deg);
+}
+.arrow[disabled]{
+    display: none;
+}
+
+/* Hide scrollbar */
+.scroll-container::-webkit-scrollbar{
+    height: 0;
+}

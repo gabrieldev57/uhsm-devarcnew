@@ -1,0 +1,31 @@
+<template>
+    <div class="header">
+        <lightning-combobox
+            class="filter-select"
+            label="Policy"
+            value={valFilterPolicy}
+            options={optPolicy}
+            onchange={handleChangePolicy}
+        ></lightning-combobox>
+        <lightning-combobox
+            class="filter-select"
+            label="Year"
+            value={valueYear}
+            options={optionsYear}
+            onchange={handleChangeYear}
+        ></lightning-combobox>
+    </div>
+    <div class="body">
+        <lightning-datatable
+            key-field="Id"
+            data={tableData}
+            columns={columns}
+            resizable-columns
+            class="custom-table"
+            sorted-by={sortBy}
+            sorted-direction={sortDirection}
+            onsort={doSorting}
+            hide-checkbox-column="true"
+        ></lightning-datatable>
+    </div>
+</template>

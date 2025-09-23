@@ -1,0 +1,59 @@
+.vloc-ins-product-card{
+    background-color: #E5F2FE;
+    margin-bottom: 1.3rem;
+}
+
+.slds-scope .slds-box{
+    padding: var(--lwc-spacingMedium,1rem);
+    border-radius: var(--lwc-borderRadiusMedium,0.25rem);
+    border: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,rgb(217, 219, 221));
+}
+
+.slds-scope .slds-p-around_none, .slds-scope .slds-p-around--none{
+    padding: 0!important;
+}
+
+.slds-scope .slds-wrap{
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.slds-scope .slds-grid{
+    display: flex;
+}
+
+.slds-scope .slds-box{
+    padding: 1rem;
+    border-radius: .25rem;
+    border: 1px solid rgb(221, 219, 218);
+}
+
+.slds-scope .slds-p-around_none, .slds-scope .slds-p-around--none{
+    padding: 0!important;
+}
+
+.vloc-ins-product-detail{
+    background:#F9FBFE;
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+
+.slds-scope .slds-size_3-of-4, .slds-scope .slds-size--3-of-4{
+    width: 75%;
+}
+
+.slds-scope .slds-p-around_large, .slds-scope .slds-p-around--large{
+    padding: var(--lwc-spacingLarge,1.5rem);
+}
+
+.vloc-ins-bold{
+    font-weight: 700;
+}
+
+.slds-scope .slds-align_absolute-center, .slds-scope .slds-align--absolute-center{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    margin: auto;
+}

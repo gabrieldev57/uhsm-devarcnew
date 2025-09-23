@@ -1,0 +1,20 @@
+<template>
+    <div>
+      <template if:true={recordId} >
+      <div style="position: absolute; opacity: 1" class="ModelTooltip">
+          <section class="slds-popover slds-popover_panel slds-nubbin_top-left" role="dialog">
+            <div class="slds-popover__header">
+              <header class="slds-media slds-media_center slds-m-bottom_small">
+                <div class="slds-media__body">
+                  <h2 class="slds-text-heading_medium slds-hyphenate">{layoutName}</h2>
+                </div>
+              </header>
+            </div>
+            <div class="slds-popover__body">
+              <lightning-record-form record-id={recordId} object-api-name="vlocity_ins__VlocityCode__c" layout-type="Compact" columns="1" mode="readonly"> </lightning-record-form>
+            </div>
+          </section>
+        </div>
+        </template>
+    </div>
+</template>

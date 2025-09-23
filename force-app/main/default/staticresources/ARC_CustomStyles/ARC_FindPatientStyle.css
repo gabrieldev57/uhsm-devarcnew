@@ -1,0 +1,5 @@
+.red-background,
+.red-background ~ *
+{
+    background-color: rgb(255, 243, 205);
+}

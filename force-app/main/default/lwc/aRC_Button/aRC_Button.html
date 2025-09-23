@@ -1,0 +1,12 @@
+<template>
+    <!-- Default styles -->
+    <a lwc:if={bIsDefault} lwc:ref="button" class="si-button" target={target} data-variation={variation} data-full-width={fullWidth} title={title} onclick={handleClick} disabled={bDisabled}>
+        <slot></slot>
+    </a>
+
+    <!-- VARIATIONS -->
+    <!-- No Style (Used as a container for logic-only and the entire styled element is placed in slot) -->
+    <a lwc:if={bIsNoStyle} lwc:ref="button" class="si-button" target={target} data-variation={variation} data-full-width={fullWidth} title={title} onclick={handleClick} disabled={bDisabled}>
+        <slot></slot>
+    </a>
+</template>

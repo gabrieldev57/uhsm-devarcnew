@@ -1,0 +1,21 @@
+.alert{
+    position: relative;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    width: auto;
+    margin: 10px 15px;
+}
+
+.yellow{
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.red{
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}

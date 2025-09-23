@@ -1,0 +1,17 @@
+vlocity_ins-spinner {
+    display: block !important;
+    height: 70px !important;
+    position: relative !important;
+}
+
+vlocity_ins-button {
+    color: white !important;    
+}
+
+/* c-a-r-c_-custom-save-for-later-modal vlocity_ins-modal button.nds-button.nds-button_icon.nds-modal__close.nds-button_icon-inverse{
+    display: none !important;
+} */
+
+/* div.ui-widget.C-INDIVIDUAL-SHOP-PRODUCTS-UPDATE-P-A-ENGLISH > c-individual-shop-products-update-p-a-english > div > div > c-a-r-c_-custom-save-for-later-modal > vlocity_ins-modal > div > section > div > header.nds-modal__header > button{
+    display: none !important;
+} */

@@ -1,0 +1,11 @@
+<template>
+        <div style="text-align:center; padding-bottom:2rem">Please confirm your billing address below. Enter your contribution information -- credit card or bank account -- and click the "Pay" button.</div>
+        <template if:true={isCreditCard}>
+             
+                <iframe class="iframe" src={commurl}></iframe> 
+        </template>
+        <template if:false={isCreditCard}>
+               
+                <iframe class="iframe" src={commurl}></iframe> 
+        </template>
+</template>

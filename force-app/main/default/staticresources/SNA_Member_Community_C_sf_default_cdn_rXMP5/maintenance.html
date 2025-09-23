@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="language">
+    <head>
+        <meta name="lwr-revised" content="238.0" />
+        <script type="text/javascript">
+            function launchModal(_ref){var id=_ref.id,titleLabel=_ref.titleLabel,contentLabel=_ref.contentLabel,buttonLabel=_ref.buttonLabel,callback=_ref.callback;var modalTemplate="<div id=\"".concat(id,"\">\n          <section\n          role=\"alertdialog\"\n          tabindex=\"-1\"\n          aria-labelledby=\"prompt-heading-id\"\n          aria-describedby=\"prompt-message-wrapper\"\n          class=\"slds-modal slds-fade-in-open slds-modal_prompt\"\n          aria-modal=\"true\"\n          style=\"color: rgb(62, 62, 60)\"\n          >\n              <div class=\"slds-modal__container\">\n                  <header class=\"slds-modal__header slds-theme_info slds-theme_alert-texture\">\n                      <h2 class=\"slds-text-heading_medium\">").concat(titleLabel,"</h2>\n                  </header>\n                  <div class=\"slds-modal__content slds-p-around_medium\">\n                      <p id=\"prompt-message-id\">").concat(contentLabel,"</p>\n                  </div>\n                  <footer class=\"slds-modal__footer slds-theme_default\">\n                      <button class=\"slds-button slds-button_neutral js-button\">").concat(buttonLabel,"</button>\n                  </footer>\n              </div>\n          </section>\n          <div class=\"slds-backdrop slds-backdrop_open\"></div>\n      </div>");var div=document.createElement("div");div.innerHTML=modalTemplate;div.querySelector(".js-button").addEventListener("click",callback);if(!document.body){document.createElement("body")}document.body.appendChild(div.querySelector("#".concat(id)))}window.onload=function(){if(!window.isBrowserSupportedByWebruntime){var WEBRUNTIME_UNSUPPORTED_BROWSER_MODAL_ID="webruntime-browser-not-supported-message";launchModal({id:WEBRUNTIME_UNSUPPORTED_BROWSER_MODAL_ID,titleLabel:"Your browser isn't supported",contentLabel:"Your browser doesn\u2019t support some features on this site. For the best experience, update your browser to the latest version, or switch to another browser.",buttonLabel:"Got It",callback:function callback(){var modal=document.querySelector("#".concat(WEBRUNTIME_UNSUPPORTED_BROWSER_MODAL_ID));document.body.removeChild(modal)}})}};window.document.addEventListener("client-error",function(error){if(error.detail.type==="FAILED_TO_LOAD_RESOURCE"){launchModal({id:"webruntime-client-error-failed-to-load-resource",titleLabel:"Oops!",contentLabel:"Something went wrong. Please try refreshing the app",buttonLabel:"Refresh",callback:function callback(){var url=new URL(window.location);url.searchParams.set("lwr.cachebust",new Date().getTime());window.location=url.href}})}else if(error.detail.type==="TOO_MANY_REQUESTS"){window.document.cookie="TooManyRequests=true;max-age=30;";window.location.reload()}});
+        </script>
+        
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">!function(){const e={documentCreateElement:Document.prototype.createElement,elementSetAttribute:Element.prototype.setAttribute,elementAttachShadow:Element.prototype.attachShadow,elementAppendChild:Element.prototype.appendChild,htmlelementAddEventListener:Element.prototype.addEventListener,iframeContentDocumentGet:Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype,"contentDocument").get,iframeContentWindowGet:Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype,"contentWindow").get};Object.freeze(e),Object.defineProperty(window,"originalDomApis",{writable:!1,value:e});const t=window.frames;Object.defineProperty(window,"frames",{get:function(){const e=[];for(let n=0;n<t.length;n++)try{t[n].frameElement.getRootNode().nodeType===Node.DOCUMENT_FRAGMENT_NODE||e.push(t[n])}catch(o){e.push(t[n])}return e.length===t.length?t:e}})}();</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">!function(){"use strict";window.isBrowserSupportedByWebruntime=function(){const n="performance"in window&&"mark"in window.performance,e="customElements"in window;return n&&e}()}();
+</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">globalThis.LWR = globalThis.LWR || {};
+globalThis.LWR.customInit = (lwr) => {
+
+        LWR.define('@app/apexApiBasePath', [], function() { return "webruntime/api"; });
+        LWR.define('@app/apiBasePath', [], function() { return "webruntime/api"; });
+        LWR.define('@app/basePath', [], function() { return ""; });
+        LWR.define('@app/deployTarget', [], function() { return null; });
+        LWR.define('@app/guestUuidCookieName', [], function() { return null; });
+        LWR.define('@app/isDesignMode', [], function() { return false; });
+        LWR.define('@app/isPreviewMode', [], function() { return false; });
+        LWR.define('@app/routes', [], function() { return [{"label":"Service Not Available","isPublic":true,"viewId":"3e497735-faa5-4438-b106-baded714971e","hasVanityURL":false,"patternMap":{},"id":"5ff530c2-6775-4520-aa78-7feb1cba0768","path":"/maintenance.html","view":"service_Not_Available","isRoot":true,"isDefault":true,"page":{"type":"comm__namedPage","attributes":{"name":"Service_Not_Available"}}}]; });
+        LWR.define('@app/uiBasePath', [], function() { return ""; });
+        LWR.define('@app/versionKey', [], function() { return "0DB5f000001GDP6:22"; });
+        LWR.define('@app/viewToThemeLayoutMap', [], function() { return {"service_Not_Available":"serviceNotAvailable"}; });
+        LWR.define('@salesforce/i18n/lang', [], function() { return "en_US"; });
+        LWR.define('@salesforce/site/Id', [], function() { return "0DM5f00000186xdGAA"; });
+lwr.define("webruntime/dispatcher", [], function(){ return function o11yDipatcherInit(dispatcher) { typeof lwr !== 'undefined' && lwr.attachDispatcher(dispatcher); };});
+LWR.define('@salesforce/user/Id', ['@app/user'], function(m) { return (m && typeof m === 'object' && 'default' in m ? m.default : m)['id'] });
+LWR.define('@salesforce/user/isGuest', ['@app/user'], function(m) { return (m && typeof m === 'object' && 'default' in m ? m.default : m)['isGuest'] });
+lwr.initializeApp();
+globalThis.process = { env: { NODE_ENV: "dev" } };};</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">globalThis.LWR = globalThis.LWR || {};
+Object.assign(globalThis.LWR, {
+  "bootstrapModule": "@lwrjs/app-service/communities_app/module/amd/v/0_10_11",
+  "autoBoot": false,
+  "rootComponents": [
+    "webruntime/app/v/1"
+  ],
+  "requiredModules": [
+    "lwc/v/3_0_4",
+    "@lwrjs/app-service/communities_app/module/amd/v/0_10_11"
+  ],
+  "importMappings": {
+    "default": "webruntime/component/latest/prod/en_US/",
+    "imports": {
+      "/webruntime/component/latest/prod/en_US/lwc": "webruntime/framework/9c1fab0c3c/prod/lwr_lwc",
+      "@app/csrfToken": "webruntime/module/@app/csrfToken",
+      "@app/user": "webruntime/module/@app/user",
+      "@perm/": "webruntime/perm/",
+      "@salesforce/client/formFactor": "webruntime/module/@salesforce/client/formFactor",
+      "@salesforce/featureFlag/": "webruntime/module/@salesforce/featureFlag/",
+      "@salesforce/user/Id": "webruntime/module/@salesforce/user/Id",
+      "@salesforce/user/isGuest": "webruntime/module/@salesforce/user/isGuest",
+      "@salesforce/userPermission/": "webruntime/perm/",
+      "@udd/": "webruntime/module/@udd/",
+      "@view/serviceNotAvailable": "webruntime/view/aac6cc7591ef7223a3bf55a6469d599a/prod/en_US/serviceNotAvailable_view",
+      "@view/service_Not_Available": "webruntime/view/ee7d93222ae214ba0bd8b1022c3add5c/prod/en_US/service_Not_Available_view",
+      "mobileruntime/hybridAppManager": "webruntime/framework/67e285a0d7/prod/lwr_mobile",
+      "o11y/collectors": "webruntime/component/d76853d91cc69c86af9798d9d20d6a51/prod/en_US/o11y/collectors_cmp",
+      "o11y/simple_collector": "webruntime/component/af44d16fbf77952a80ee66b92d2437df/prod/en_US/o11y/simple_collector_cmp"
+    }
+  }
+});</script>
+        <script src="webruntime/framework/5d828c2b28/prod/lwr_loader"></script>
+        <script src="webruntime/framework/cfd2af0ecd/prod/lwr_bootstrap"></script>
+        <script src="webruntime/framework/9c1fab0c3c/prod/lwr_lwc"></script>
+        <script src="webruntime/framework/fdc68abda1/prod/lwr_app"></script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('lwc', ['lwc/v/3_0_4'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">
+        LWR.define('@app/authenticationCookieName', [], function() { return "__Secure-has-sid"; });
+        LWR.define('@app/extraRouteParams', [], function() { return {}; });
+        LWR.define('@app/isMobileAppMode', [], function() { return false; });
+        LWR.define('@app/loginPath', [], function() { return null; });
+        LWR.define('@app/user', [], function() { return {"isGuest":true,"id":null,"csrfToken":null}; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/apiBasePath/v/1', ['@app/apiBasePath'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/authenticationCookieName/v/1', ['@app/authenticationCookieName'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/basePath/v/1', ['@app/basePath'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/csrfToken/v/1', ['@app/csrfToken'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/deployTarget/v/1', ['@app/deployTarget'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/isDesignMode/v/1', ['@app/isDesignMode'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/isMobileAppMode/v/1', ['@app/isMobileAppMode'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/isPreviewMode/v/1', ['@app/isPreviewMode'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/o11yApiEndpoint/v/1', ['@app/o11yApiEndpoint'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/o11yConfiguration/v/1', ['@app/o11yConfiguration'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/o11yFalconEnabled/v/1', ['@app/o11yFalconEnabled'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/o11yGuestToken/v/1', ['@app/o11yGuestToken'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/o11ySamplingRate/v/1', ['@app/o11ySamplingRate'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/uiBasePath/v/1', ['@app/uiBasePath'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/user/v/1', ['@app/user'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@app/versionKey/v/1', ['@app/versionKey'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@salesforce/i18n/lang/v/1', ['@salesforce/i18n/lang'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('@salesforce/site/Id/v/1', ['@salesforce/site/Id'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script type="text/javascript" nonce="d01ebb1e-e09b-4feb-ac03-61e89c93c086">LWR.define('webruntime/dispatcher/v/1', ['webruntime/dispatcher'], function(m) { return m && typeof m === 'object' && 'default' in m ? m.default : m; });</script>
+        <script src="webruntime/view/ee7d93222ae214ba0bd8b1022c3add5c/prod/en_US/service_Not_Available_view"></script>
+        <script src="webruntime/view/aac6cc7591ef7223a3bf55a6469d599a/prod/en_US/serviceNotAvailable_view"></script><style type="text/css" id="webruntime-branding">:root{--dxp-g-brand:#0A32C6;--dxp-c-link-text-color:#111111;--dxp-c-link-text-color-hover:#000000;--dxp-c-link-text-color-active:#000000;--dxp-g-neutral-contrast-3:#fff;--dxp-s-body-font-family:Lato;--dxp-g-neutral-contrast-2:#000;--dxp-g-neutral:#ecebea;--dxp-g-neutral-contrast-1:#000;--dxp-g-root:#FFFFFF;--dxp-g-root-contrast-1:rgba(0, 0, 0, 0.8);--dxp-g-root-contrast:rgba(0, 0, 0, 0.8);--dxp-g-root-contrast-2:rgba(0, 0, 0, 0.8);--dxp-g-root-contrast-3:rgba(0, 0, 0, 0.8);--dxp-g-neutral-contrast:#000;--dxp-g-root-1:rgb(235, 235, 235);--dxp-g-root-2:rgb(194, 194, 194);--dxp-g-root-3:rgb(133, 133, 133);--dxp-g-brand-contrast-1:rgb(255, 255, 255);--dxp-g-brand-contrast:#FFFFFF;--dxp-g-neutral-3:rgb(118, 113, 107);--dxp-g-neutral-2:rgb(178, 174, 170);--dxp-g-brand-contrast-3:rgb(255, 255, 255);--dxp-g-sna-heading-font-family:Montserrat;--dxp-g-brand-contrast-2:rgb(255, 255, 255);--dxp-g-neutral-1:rgb(217, 215, 213);--dxp-g-brand-1:rgb(8, 40, 159);--dxp-g-brand-2:rgb(4, 21, 81);--dxp-g-brand-3:rgb(0, 0, 0);}</style>
+        <link rel="stylesheet" href="/sfsites/c/resource/ARC_CommunityScripts/ARC_Main.css">
+<!--<link rel="stylesheet" href="/sfsites/c/resource/1694713304000/POC_Main">-->
+<link rel="stylesheet" href="/sfsites/c/resource/ARC_CommunityScripts/ARC_Styles_Classes.css">
+<link rel="stylesheet" href="/sfsites/c/resource/ARC_CommunityScripts/ARC_Styles_Extra.css">
+<link rel="stylesheet" href="/sfsites/c/resource/ARC_CommunityScripts/ARC_Styles_FlexCards.css">
+<link rel="stylesheet" href="/sfsites/c/resource/ARC_CommunityScripts/ARC_Styles_Jepson.css">
+<link rel="stylesheet" href="/sfsites/c/resource/ARC_CommunityScripts/ARC_Styles_LWC.css">
+ 
+ 
+<style>
+  :root{
+      --color-action: #2C2B2C;
+      --color-loading: #F2BC30;
+      --color-action-1: #F2BC30;
+      --color-action-2: rgb(149 104 7);
+ 
+     /*Product Selection and Plan Summary*/
+      --product-color-nds:  #F2BC30;
+    /*/////////////////////////////////////////////////////////////////////////////*/
+    /* Spacing Settings */
+    --component-vertical-spacing: 50px; /* Spacing between components */
+    --section-vertical-spacing: 100px; /* Spacing between Flexible Sections */
+    --section-colored-vertical-spacing: 70px; /* Spacing between Flexible Sections w/background */ 
+    /* Typography Settings */
+    --ty-h1-size: 96px;
+    --ty-h1-weight: 400;
+    --ty-h1-spacing: -1.5px;
+    --ty-h1-mbottom: .5rem;
+    --ty-h2-size: 60px;
+    --ty-h2-weight: 100;
+    --ty-h2-spacing: -.5px;
+    --ty-h2-mbottom: .75rem;
+    --ty-h3-size: 48px;
+    --ty-h3-weight: 400;
+    --ty-h3-spacing: initial;
+    --ty-h3-mbottom: 1rem;
+    --ty-h4-size: 34px;
+    --ty-h4-weight: 400;
+    --ty-h4-spacing: .25px;
+    --ty-h4-mbottom: 1.25rem;
+    --ty-h5-size: 24px;
+    --ty-h5-weight: 400;
+    --ty-h5-spacing: initial;
+    --ty-h5-mbottom: 1.5rem;
+    --ty-h6-size: 20px;
+    --ty-h6-weight: 500;
+    --ty-h6-spacing: .15px;
+    --ty-small-opacity: .7;
+    --ty-body-size: 16px;
+    --ty-button-size: 14px;
+    --ty-button-weight: 500;
+    --ty-button-spacing: 1.25px;
+    --ty-button-transform: uppercase;
+    --ty-caption-size: 12px;
+    --ty-caption-weight: 400;
+    --ty-caption-spacing: .4px;
+    --ty-caption-color: var(--color-detail-text);
+    --arc-font-quote: 'Glegoo', var(--font-family-text);
+    --arc-font-cta: 'Josefin', var(--font-family-text);
+    /* Button Settings */
+    --button-base-border-radius: 0px;
+    /* --button-big-border-radius: 24px; */
+    --button-big-border-radius: 0;
+    --button-base-transition: all .15s linear;
+    /* --button-all-padding: 0 var(--sds-c-button-brand-spacing-inline-start, var(--lwc-spacingMedium,1rem)); */
+    --button-base-padding: 4px 20px;
+    --button-big-padding: 10px 30px;
+    --button-primary-color-text: var(--color-overlay-text);
+    --button-primary-color-background: var(--color-primary);
+    --button-primary-hover-color-background: var(--color-primary-1);
+    --button-primary-active-color-background: var(--color-primary-2);
+    --button-primary-disabled-color-background: var(--color-background-2);
+    --button-primary-disabled-color-text: var(--color-detail-text);
+    --button-primary-disabled-border: 1px solid var(--color-background-2);
+    --button-primary-focus-outline: var(--color-primary);
+    --button-primary-color-border: var(--color-primary);
+    --button-primary-border: 1px solid var(--button-primary-color-border);
+    --button-primary-border-hover: 1px solid var(--color-primary-1);
+    --button-primary-border-active: 1px solid var(--color-primary-2);
+    --button-primary-border-radius: var(--button-base-border-radius);
+    --button-primary-transition: var(--button-base-transition);
+    --button-secondary-color-text: var(--color-text);
+    --button-secondary-color-background: var(--color-background);
+    --button-secondary-hover-color-background: var(--color-background-1);
+    --button-secondary-active-color-background: var(--color-background-2);
+    --button-secondary-disabled-color-background: var(--color-background-2);
+    --button-secondary-disabled-color-text: var(--color-detail-text);
+    --button-secondary-disabled-border: 1px solid var(--color-background-2);
+    --button-secondary-focus-outline: var(--color-text);
+    --button-secondary-color-border: var(--color-background-2);
+    --button-secondary-width-border: 1px;
+    --button-secondary-border: 1px solid var(--button-secondary-color-border);
+    --button-secondary-border-hover: 1px solid var(--color-background-2);
+    --button-secondary-border-active: 1px solid var(--color-background-2);
+    --button-secondary-border-thicc: 2px solid var(--color-primary);
+    --button-secondary-border-radius: var(--button-base-border-radius);
+    --button-secondary-transition: var(--button-base-transition);
+    --button-secondary-box-shadow: none;
+    --button-secondary-small-color-border: transparent;
+    --community-quick-actions-color: var(--color-primary); /* Color of quick action flexcard buttons */
+    /*///////////////// OTHER SETTINGS //////////////////////*/
+    /* Dark Theme */
+    /* Special settings for Dark Theme to be applied to the topbar 
+    --color-dark-topbar-text: var(--color-text);
+    --color-dark-topbar-background: var(--color-background);
+    --color-dark-topbar-background-1: var(--color-background-1);
+    --color-dark-topbar-icon-color: var(--color-text);
+    --color-dark-search-bar-background: rgba(255,255,255,.2);
+    --color-dark-topbar-bottom-border-color: transparent;*/
+    /* Community Topbar */
+    --topbar-logo-width: 140px; /* Width of tobar logo */
+    --topbar-max-width: 1920px; /* Not Jepson */
+    --search-max-width: 600px; /* Max-Width of expanded search bar */
+    --topbar-elements-horizontal-margin: 40px; /* Horizontal margin of topbar elements */
+    /* Community Footer */
+    --community-footer-color-font: var(--color-text); /* Footer text color */
+    --community-footer-color-background: var(--color-background-1); /* Footer background color */
+    --community-footer-max-width: var(--community-body-max-width); /* Footer max-width */
+    /* Community Tooltip */
+    --community-tooltip-color-text: var(--color-overlay-text); /* Color of Tooltip contents */
+    --community-tooltip-color-background: var(--color-primary-3); /* Background for tooltips */
+    /* Salesforce Card Sections */
+    --border-radius-medium: 4px; /* border radius of card sections */
+    --card-box-shadow: 0px 6px 5px -5px rgba(0,0,0,0.2); /* box-shadow of card sections */
+    --shadow-light: 0 0.5rem 1rem rgb(0 0 0 / 15%); /* lighter box-shadow of card sections */
+    /* Other */
+    --community-body-max-width: 1080px; /* Useful for pages not using Flexible layout */
+  }
+
+/**
+* Swiper 7.2.0
+* Most modern mobile touch slider and framework with hardware accelerated transitions
+* https://swiperjs.com
+*
+* Copyright 2014-2021 Vladimir Kharlampidi
+*
+* Released under the MIT License
+*
+* Released on: October 27, 2021
+*/
+ 
+@font-face{font-family:swiper-icons;src:url('data:application/font-woff;charset=utf-8;base64, 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');font-weight:400;font-style:normal}:root{--swiper-theme-color:#007aff}.swiper{margin-left:auto;margin-right:auto;position:relative;overflow:hidden;list-style:none;padding:0;z-index:1}.swiper-vertical>.swiper-wrapper{flex-direction:column}.swiper-wrapper{position:relative;width:100%;height:100%;z-index:1;display:flex;transition-property:transform;box-sizing:content-box}.swiper-android .swiper-slide,.swiper-wrapper{transform:translate3d(0px,0,0)}.swiper-pointer-events{touch-action:pan-y}.swiper-pointer-events.swiper-vertical{touch-action:pan-x}.swiper-slide{flex-shrink:0;width:100%;height:100%;position:relative;transition-property:transform}.swiper-slide-invisible-blank{visibility:hidden}.swiper-autoheight,.swiper-autoheight .swiper-slide{height:auto}.swiper-autoheight .swiper-wrapper{align-items:flex-start;transition-property:transform,height}.swiper-3d,.swiper-3d.swiper-css-mode .swiper-wrapper{perspective:1200px}.swiper-3d .swiper-cube-shadow,.swiper-3d .swiper-slide,.swiper-3d .swiper-slide-shadow,.swiper-3d .swiper-slide-shadow-bottom,.swiper-3d .swiper-slide-shadow-left,.swiper-3d .swiper-slide-shadow-right,.swiper-3d .swiper-slide-shadow-top,.swiper-3d .swiper-wrapper{transform-style:preserve-3d}.swiper-3d .swiper-slide-shadow,.swiper-3d .swiper-slide-shadow-bottom,.swiper-3d .swiper-slide-shadow-left,.swiper-3d .swiper-slide-shadow-right,.swiper-3d .swiper-slide-shadow-top{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:10}.swiper-3d .swiper-slide-shadow{background:rgba(0,0,0,.15)}.swiper-3d .swiper-slide-shadow-left{background-image:linear-gradient(to left,rgba(0,0,0,.5),rgba(0,0,0,0))}.swiper-3d .swiper-slide-shadow-right{background-image:linear-gradient(to right,rgba(0,0,0,.5),rgba(0,0,0,0))}.swiper-3d .swiper-slide-shadow-top{background-image:linear-gradient(to top,rgba(0,0,0,.5),rgba(0,0,0,0))}.swiper-3d .swiper-slide-shadow-bottom{background-image:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,0))}.swiper-css-mode>.swiper-wrapper{overflow:auto;scrollbar-width:none;-ms-overflow-style:none}.swiper-css-mode>.swiper-wrapper::-webkit-scrollbar{display:none}.swiper-css-mode>.swiper-wrapper>.swiper-slide{scroll-snap-align:start start}.swiper-horizontal.swiper-css-mode>.swiper-wrapper{scroll-snap-type:x mandatory}.swiper-vertical.swiper-css-mode>.swiper-wrapper{scroll-snap-type:y mandatory}.swiper-centered>.swiper-wrapper::before{content:'';flex-shrink:0;order:9999}.swiper-centered.swiper-horizontal>.swiper-wrapper>.swiper-slide:first-child{margin-inline-start:var(--swiper-centered-offset-before)}.swiper-centered.swiper-horizontal>.swiper-wrapper::before{height:100%;min-height:1px;width:var(--swiper-centered-offset-after)}.swiper-centered.swiper-vertical>.swiper-wrapper>.swiper-slide:first-child{margin-block-start:var(--swiper-centered-offset-before)}.swiper-centered.swiper-vertical>.swiper-wrapper::before{width:100%;min-width:1px;height:var(--swiper-centered-offset-after)}.swiper-centered>.swiper-wrapper>.swiper-slide{scroll-snap-align:center center}.swiper-virtual.swiper-css-mode .swiper-wrapper::after{content:'';position:absolute;left:0;top:0;pointer-events:none}.swiper-virtual.swiper-css-mode.swiper-horizontal .swiper-wrapper::after{height:1px;width:var(--swiper-virtual-size)}.swiper-virtual.swiper-css-mode.swiper-vertical .swiper-wrapper::after{width:1px;height:var(--swiper-virtual-size)}:root{--swiper-navigation-size:44px}.swiper-button-next,.swiper-button-prev{position:absolute;top:50%;width:calc(var(--swiper-navigation-size)/ 44 * 27);height:var(--swiper-navigation-size);margin-top:calc(0px - (var(--swiper-navigation-size)/ 2));z-index:10;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--swiper-navigation-color,var(--swiper-theme-color))}.swiper-button-next.swiper-button-disabled,.swiper-button-prev.swiper-button-disabled{opacity:.35;cursor:auto;pointer-events:none}.swiper-button-next:after,.swiper-button-prev:after{font-family:swiper-icons;font-size:var(--swiper-navigation-size);text-transform:none!important;letter-spacing:0;text-transform:none;font-variant:initial;line-height:1}.swiper-button-prev,.swiper-rtl .swiper-button-next{left:10px;right:auto}.swiper-button-prev:after,.swiper-rtl .swiper-button-next:after{content:'prev'}.swiper-button-next,.swiper-rtl .swiper-button-prev{right:10px;left:auto}.swiper-button-next:after,.swiper-rtl .swiper-button-prev:after{content:'next'}.swiper-button-lock{display:none}.swiper-pagination{position:absolute;text-align:center;transition:.3s opacity;transform:translate3d(0,0,0);z-index:10}.swiper-pagination.swiper-pagination-hidden{opacity:0}.swiper-horizontal>.swiper-pagination-bullets,.swiper-pagination-bullets.swiper-pagination-horizontal,.swiper-pagination-custom,.swiper-pagination-fraction{bottom:10px;left:0;width:100%}.swiper-pagination-bullets-dynamic{overflow:hidden;font-size:0}.swiper-pagination-bullets-dynamic .swiper-pagination-bullet{transform:scale(.33);position:relative}.swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active{transform:scale(1)}.swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-main{transform:scale(1)}.swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev{transform:scale(.66)}.swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev-prev{transform:scale(.33)}.swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next{transform:scale(.66)}.swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-next-next{transform:scale(.33)}.swiper-pagination-bullet{width:var(--swiper-pagination-bullet-width,var(--swiper-pagination-bullet-size,8px));height:var(--swiper-pagination-bullet-height,var(--swiper-pagination-bullet-size,8px));display:inline-block;border-radius:50%;background:var(--swiper-pagination-bullet-inactive-color,#000);opacity:var(--swiper-pagination-bullet-inactive-opacity, .2)}button.swiper-pagination-bullet{border:none;margin:0;padding:0;box-shadow:none;-webkit-appearance:none;appearance:none}.swiper-pagination-clickable .swiper-pagination-bullet{cursor:pointer}.swiper-pagination-bullet:only-child{display:none!important}.swiper-pagination-bullet-active{opacity:var(--swiper-pagination-bullet-opacity, 1);background:var(--swiper-pagination-color,var(--swiper-theme-color))}.swiper-pagination-vertical.swiper-pagination-bullets,.swiper-vertical>.swiper-pagination-bullets{right:10px;top:50%;transform:translate3d(0px,-50%,0)}.swiper-pagination-vertical.swiper-pagination-bullets .swiper-pagination-bullet,.swiper-vertical>.swiper-pagination-bullets .swiper-pagination-bullet{margin:var(--swiper-pagination-bullet-vertical-gap,6px) 0;display:block}.swiper-pagination-vertical.swiper-pagination-bullets.swiper-pagination-bullets-dynamic,.swiper-vertical>.swiper-pagination-bullets.swiper-pagination-bullets-dynamic{top:50%;transform:translateY(-50%);width:8px}.swiper-pagination-vertical.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,.swiper-vertical>.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet{display:inline-block;transition:.2s transform,.2s top}.swiper-horizontal>.swiper-pagination-bullets .swiper-pagination-bullet,.swiper-pagination-horizontal.swiper-pagination-bullets .swiper-pagination-bullet{margin:0 var(--swiper-pagination-bullet-horizontal-gap,4px)}.swiper-horizontal>.swiper-pagination-bullets.swiper-pagination-bullets-dynamic,.swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic{left:50%;transform:translateX(-50%);white-space:nowrap}.swiper-horizontal>.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet,.swiper-pagination-horizontal.swiper-pagination-bullets.swiper-pagination-bullets-dynamic .swiper-pagination-bullet{transition:.2s transform,.2s left}.swiper-horizontal.swiper-rtl>.swiper-pagination-bullets-dynamic .swiper-pagination-bullet{transition:.2s transform,.2s right}.swiper-pagination-progressbar{background:rgba(0,0,0,.25);position:absolute}.swiper-pagination-progressbar .swiper-pagination-progressbar-fill{background:var(--swiper-pagination-color,var(--swiper-theme-color));position:absolute;left:0;top:0;width:100%;height:100%;transform:scale(0);transform-origin:left top}.swiper-rtl .swiper-pagination-progressbar .swiper-pagination-progressbar-fill{transform-origin:right top}.swiper-horizontal>.swiper-pagination-progressbar,.swiper-pagination-progressbar.swiper-pagination-horizontal,.swiper-pagination-progressbar.swiper-pagination-vertical.swiper-pagination-progressbar-opposite,.swiper-vertical>.swiper-pagination-progressbar.swiper-pagination-progressbar-opposite{width:100%;height:4px;left:0;top:0}.swiper-horizontal>.swiper-pagination-progressbar.swiper-pagination-progressbar-opposite,.swiper-pagination-progressbar.swiper-pagination-horizontal.swiper-pagination-progressbar-opposite,.swiper-pagination-progressbar.swiper-pagination-vertical,.swiper-vertical>.swiper-pagination-progressbar{width:4px;height:100%;left:0;top:0}.swiper-pagination-lock{display:none}.swiper-scrollbar{border-radius:10px;position:relative;-ms-touch-action:none;background:rgba(0,0,0,.1)}.swiper-horizontal>.swiper-scrollbar{position:absolute;left:1%;bottom:3px;z-index:50;height:5px;width:98%}.swiper-vertical>.swiper-scrollbar{position:absolute;right:3px;top:1%;z-index:50;width:5px;height:98%}.swiper-scrollbar-drag{height:100%;width:100%;position:relative;background:rgba(0,0,0,.5);border-radius:10px;left:0;top:0}.swiper-scrollbar-cursor-drag{cursor:move}.swiper-scrollbar-lock{display:none}.swiper-zoom-container{width:100%;height:100%;display:flex;justify-content:center;align-items:center;text-align:center}.swiper-zoom-container>canvas,.swiper-zoom-container>img,.swiper-zoom-container>svg{max-width:100%;max-height:100%;object-fit:contain}.swiper-slide-zoomed{cursor:move}.swiper-lazy-preloader{width:42px;height:42px;position:absolute;left:50%;top:50%;margin-left:-21px;margin-top:-21px;z-index:10;transform-origin:50%;animation:swiper-preloader-spin 1s infinite linear;box-sizing:border-box;border:4px solid var(--swiper-preloader-color,var(--swiper-theme-color));border-radius:50%;border-top-color:transparent}.swiper-lazy-preloader-white{--swiper-preloader-color:#fff}.swiper-lazy-preloader-black{--swiper-preloader-color:#000}@keyframes swiper-preloader-spin{100%{transform:rotate(360deg)}}.swiper .swiper-notification{position:absolute;left:0;top:0;pointer-events:none;opacity:0;z-index:-1000}.swiper-free-mode>.swiper-wrapper{transition-timing-function:ease-out;margin:0 auto}.swiper-grid>.swiper-wrapper{flex-wrap:wrap}.swiper-grid-column>.swiper-wrapper{flex-wrap:wrap;flex-direction:column}.swiper-fade.swiper-free-mode .swiper-slide{transition-timing-function:ease-out}.swiper-fade .swiper-slide{pointer-events:none;transition-property:opacity}.swiper-fade .swiper-slide .swiper-slide{pointer-events:none}.swiper-fade .swiper-slide-active,.swiper-fade .swiper-slide-active .swiper-slide-active{pointer-events:auto}.swiper-cube{overflow:visible}.swiper-cube .swiper-slide{pointer-events:none;-webkit-backface-visibility:hidden;backface-visibility:hidden;z-index:1;visibility:hidden;transform-origin:0 0;width:100%;height:100%}.swiper-cube .swiper-slide .swiper-slide{pointer-events:none}.swiper-cube.swiper-rtl .swiper-slide{transform-origin:100% 0}.swiper-cube .swiper-slide-active,.swiper-cube .swiper-slide-active .swiper-slide-active{pointer-events:auto}.swiper-cube .swiper-slide-active,.swiper-cube .swiper-slide-next,.swiper-cube .swiper-slide-next+.swiper-slide,.swiper-cube .swiper-slide-prev{pointer-events:auto;visibility:visible}.swiper-cube .swiper-slide-shadow-bottom,.swiper-cube .swiper-slide-shadow-left,.swiper-cube .swiper-slide-shadow-right,.swiper-cube .swiper-slide-shadow-top{z-index:0;-webkit-backface-visibility:hidden;backface-visibility:hidden}.swiper-cube .swiper-cube-shadow{position:absolute;left:0;bottom:0px;width:100%;height:100%;opacity:.6;z-index:0}.swiper-cube .swiper-cube-shadow:before{content:'';background:#000;position:absolute;left:0;top:0;bottom:0;right:0;filter:blur(50px)}.swiper-flip{overflow:visible}.swiper-flip .swiper-slide{pointer-events:none;-webkit-backface-visibility:hidden;backface-visibility:hidden;z-index:1}.swiper-flip .swiper-slide .swiper-slide{pointer-events:none}.swiper-flip .swiper-slide-active,.swiper-flip .swiper-slide-active .swiper-slide-active{pointer-events:auto}.swiper-flip .swiper-slide-shadow-bottom,.swiper-flip .swiper-slide-shadow-left,.swiper-flip .swiper-slide-shadow-right,.swiper-flip .swiper-slide-shadow-top{z-index:0;-webkit-backface-visibility:hidden;backface-visibility:hidden}.swiper-creative .swiper-slide{-webkit-backface-visibility:hidden;backface-visibility:hidden;overflow:hidden;transition-property:transform,opacity,height}.swiper-cards{overflow:visible}.swiper-cards .swiper-slide{transform-origin:center bottom;-webkit-backface-visibility:hidden;backface-visibility:hidden;overflow:hidden}
+ 
+ 
+/***************** LWC Siblings *****************/
+:root{
+    --swiper-theme-color: var(--color-primary);
+}
+ 
+.swiper-pagination{
+    position: unset;
+    margin-top: 20px;
+    z-index: 4;
+}
+.swiper-button-next,
+.swiper-button-previous{
+    z-index: 4;
+}
+.swiper-pagination-bullet{
+    background: var(--color-text);
+}
+.swiper-pagination-bullet.swiper-pagination-bullet-active {
+    background: var(--swiper-pagination-color,var(--swiper-theme-color));
+}
+ 
+/* Salesforce Toasts */
+div.forceCommunityToastManager.forceToastManager .forceVisualMessageQueue {
+    display: flex;
+    flex-flow: column-reverse;
+    position: fixed;
+    top: unset;
+    bottom: 0;
+}
+div.forceCommunityToastManager .slds-notify_container{
+    text-align: right;
+}
+div.forceCommunityToastManager .toastContent{
+    margin-right: 20px;
+}
+div.forceCommunityToastManager .slds-notify--toast{
+    min-width: auto;
+}
+div.forceCommunityToastManager .slds-theme--warning{
+    background-color: rgb(229 119 27);
+}
+div.forceCommunityToastManager .slds-theme--warning .toastContent{
+    color: #fff;
+}
+div.slds-theme--warning svg.slds-icon,
+div.forceToastManager .slds-button svg,
+div.forceToastManager .slds-button:hover svg,
+div.forceToastManager .slds-button:focus svg{
+    fill: #fff;
+}
+div.forceCommunityToastManager button:focus {
+    box-shadow: none;
+    border: none;
+}
+ 
+ 
+/* ALL BELOW Added for UHSM Demo */
+.uhsm-hero-box{
+    padding: 40px 40px 20px;
+    background-color: rgba(255,255,255,0.85);
+}
+.uhsm-hero-box h2{
+    border-left: 8px solid var(--color-primary);
+    padding-left: 12px;
+    padding-bottom: 14px;
+}
+.uhsm-hero-box.uhsm-hero-numbers{
+    padding: 20px 40px 40px;
+    font-size: 56px;
+    text-align: center;
+}
+@media screen and (min-width: 600px){
+    .uhsm-hero-box{
+        padding: 60px 100px 20px;
+    }
+    .uhsm-hero-box.uhsm-hero-numbers{
+        padding: 20px 100px 60px;
+        display: flex;
+        justify-content: space-around;
+    }
+}
+.uhsm-hero-box.uhsm-hero-numbers .small{
+    font-size: 12px;
+    text-transform: uppercase;
+}
+ 
+/* Topbar Fix */
+.arc-showhide-topbar .linkBtn svg,
+.arc-showhide-topbar .linkBtn{
+    transition: color .5s linear, fill .5s linear;
+}
+@media only screen and (min-width: 48em){
+    .arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeHeaderCompact .search-triggerButton svg,
+    .arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeNav.jepsonInnerHeader .mainNavItem .linkBtn svg {
+        fill: #fff !important;
+    }
+    .arc-showhide-topbar:not(.arc-showhide-topbar-replacecolors) .forceCommunityThemeNav.jepsonInnerHeader .mainNavItem .linkBtn {
+        color: #fff !important;
+    }
+}
+ 
+h1 .uiOutputText{
+    font-size: var(--ty-h4-size) !important;
+    font-weight: var(--ty-h4-weight) !important;
+    letter-spacing: var(--ty-h4-spacing) !important;
+    margin-bottom: var(--ty-h4-mbottom) !important;
+}
+ 
+h3 .slds-section__title-action span{
+    font-size: var(--ty-h5-size) !important;
+    font-weight: var(--ty-h5-weight) !important;
+    letter-spacing: var(--ty-h5-spacing) !important;
+    margin-bottom: var(--ty-h5-mbottom) !important;
+}
+ 
+.themeLayoutStarterWrapper .actionsContainer .slds-button.slds-button--neutral{
+    padding-left: 0;
+    padding-right: 0;
+}
+ 
+.slds-page-header__title{
+    display: flex !important;
+}
+.forceActionsContainer .slds-button.slds-button--icon-border-filled.oneActionsDropDown{
+    height: 100%;
+}
+.forceActionsContainer .slds-button.slds-button--icon-border-filled.oneActionsDropDown .uiMenu a{
+    height: 40px;
+}
+ 
+/*Product Selection and Plan Summary*/
+div[vlocity_ins-insOsEnrolleeBenefitsSummaryRow_insOsEnrolleeBenefitsSummaryRow].vloc-ins-product-card{
+    background-color: var(--color-background-1);
+}
+ 
+div[vlocity_ins-insOsEnrolleeBenefitsSummaryRow_insOsEnrolleeBenefitsSummaryRow] div,div[vlocity_ins-insOsEnrolleeBenefitsSummaryRow_insOsEnrolleeBenefitsSummaryRow] p{
+    /*background-color: red;*/
+    color: var(--color-action) !important;
+}
+
+ 
+    
+
+</style>
+ 
+ 
+<script src="/sfsites/c/resource/ARC_CommunityScripts/vendors/jquery-3.6.0.min.js"></script>
+<script src="/sfsites/c/resource/ARC_CommunityScripts/ARC_Utility.js"></script>
+<script src="/sfsites/c/resource/ARC_CommunityScripts/vendors/svg-inject.min.js"></script>
+<script src="/sfsites/c/resource/ARC_CommunityScripts/ARC_SVGInject.js"></script>
+<script src="/sfsites/c/resource/ARC_CommunityScripts/ARC_OmniScriptScrollFix.js"></script>
+<script src="/sfsites/c/resource/ARC_CommunityScripts/vendors/jquery.countTo.js"></script>
+<script src="/sfsites/c/resource/ARC_CommunityScripts/ARC_Animations.js"></script>
+<script src="/sfsites/c/resource/ARC_CommunityScripts/vendors/swiper-bundle.min.js"></script>
+<script src="/sfsites/c/resource/ARC_CommunityScripts/ARC_Slider.js"></script>
+<script src="/sfsites/c/resource/ARC_CommunityScripts/ARC_FixedTopbar.js"></script>
+<script src="/sfsites/c/resource/ARC_ChatBot"></script><meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Service Not Available</title>
+
+<link rel="stylesheet" href="assets/styles/styles.css?0DB5f000001GDP6:22" />
+
+<!-- webruntime-branding-shared stylesheets -->
+<link rel="stylesheet" href="assets/styles/salesforce-lightning-design-system.min.css?0DB5f000001GDP6:22" />
+<link rel="stylesheet" href="assets/styles/dxp-site-spacing-styling-hooks.min.css?0DB5f000001GDP6:22" />
+<link rel="stylesheet" href="assets/styles/dxp-styling-hooks.min.css?0DB5f000001GDP6:22" />
+<link rel="stylesheet" href="assets/styles/dxp-slds-extensions.min.css?0DB5f000001GDP6:22" />
+
+
+<!-- webruntime-branding-shared stylesheets -->
+        <link rel="stylesheet" href="assets/styles/overrides.css?0DB5f000001GDP6:22" />
+        <link rel="stylesheet" href="assets/css/fonts-and-custom.css?0DB5f000001GDP6:22" />
+    </head>
+    <body>
+        <div id="webruntime-browser-not-supported-message" style="display: none;">
+            <section
+                role="alertdialog"
+                tabindex="-1"
+                aria-labelledby="prompt-heading-id"
+                aria-describedby="prompt-message-wrapper"
+                class="slds-modal slds-fade-in-open slds-modal_prompt"
+                aria-modal="true"
+                style="color: rgb(62, 62, 60);"
+            >
+            <div class="slds-modal__container">
+                <header class="slds-modal__header slds-theme_info slds-theme_alert-texture">
+                    <h2 class="slds-text-heading_medium" id="prompt-heading-id">
+                        Your browser isn't supported
+                    </h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+                    <p>
+                        Your browser doesn’t support some features on this site. For the best
+                        experience, update your browser to the latest version, or switch to another
+                        browser.
+                    </p>
+                </div>
+                <footer class="slds-modal__footer slds-theme_default">
+                    <button class="slds-button slds-button_neutral">Got It</button>
+                </footer>
+            </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+        <script type="text/javascript">
+            function displayBrowserUnsupportedModalIfNeeded() {
+                if (!window.isBrowserSupportedByWebruntime) {
+                    var WEBRUNTIME_UNSUPPORTED_BROWSER_MODAL_ID = 'webruntime-browser-not-supported-message';
+                    var modal = document.getElementById(WEBRUNTIME_UNSUPPORTED_BROWSER_MODAL_ID);
+                    if (modal) {
+                        modal.style.display = '';
+                        var okButton = document.querySelector(
+                            '#' + WEBRUNTIME_UNSUPPORTED_BROWSER_MODAL_ID + ' ' + '.slds-button'
+                        );
+                        okButton.addEventListener('click', function() {
+                            var modal = document.getElementById(WEBRUNTIME_UNSUPPORTED_BROWSER_MODAL_ID);
+                            if (modal) {
+                                document.body.removeChild(modal);
+                            }
+                        });
+                    }
+                }
+            }
+            displayBrowserUnsupportedModalIfNeeded();
+        </script>
+        <webruntime-app></webruntime-app>
+    </body>
+</html>

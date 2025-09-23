@@ -1,0 +1,19 @@
+<template>
+    <div lwc:ref="drawer" class={drawerClass}>
+        <div class="si-drawer-overlay" onclick={close}></div>
+        <div class="si-drawer-body">
+
+            <template lwc:if={isOpen}>
+                <div class="drawer-header">
+                    <div class="user-container">
+                        <span>Welcome {currentUserName}!</span>
+                    </div>
+                </div>
+                <div class="drawer-content">
+                    <c-a-r-c_-navigation menu-items={menuItems} current-page-reference={currentPageReference} class="topbar-navigation" drawer="true" onclosedrawer={close}></c-a-r-c_-navigation>
+                </div>
+            </template>
+
+        </div>
+    </div>
+</template>

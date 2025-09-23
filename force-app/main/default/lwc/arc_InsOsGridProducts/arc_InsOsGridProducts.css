@@ -1,0 +1,50 @@
+.vloc-ins-product-attributes {
+    margin-right: 0.75rem;
+    text-transform: uppercase;
+}
+
+.vloc-ins-product-attributes :not(:nth-child(n + 4)) {
+    border-bottom: 1px dotted lightgray;
+}
+
+.vloc-ins-product-attributes :not(:nth-child(3n + 1)) {
+    border-left: 1px dotted lightgray;
+    margin-left: -1px;
+}
+
+.program-details-button *{
+    text-transform:uppercase;
+}
+
+.program-details-button svg{
+    height:1.3rem !important;
+    width:1.3rem !important;
+    margin-right: 1px !important;
+}
+
+.group-name{
+    line-height: 1.5;
+    direction: ltr;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    font-family: var(--font-family-text);
+    text-transform: none!important;
+    white-space: nowrap;
+    text-align: left;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-sizing: border-box;
+    color: var(--product-color-nds);
+}
+
+.slds-table{
+    border-top: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,#D4D4D4) !important;
+    border-right: var(--lwc-borderWidthThin,1px) solid var(--lwc-colorBorder,#D4D4D4) !important;
+}
+
+.slds-table thead tr th{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    text-align: center;
+
+}

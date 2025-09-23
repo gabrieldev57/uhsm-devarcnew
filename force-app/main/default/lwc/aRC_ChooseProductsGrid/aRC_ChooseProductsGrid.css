@@ -1,0 +1,30 @@
+.customers th {
+    font-family: Arial;
+    text-align: center;
+	background-color: rgb(244 178 35); /* --color-action */
+	font-size: 14px; /* --ty-button-size */
+	font-weight: 500; /* --ty-button-weight */
+	letter-spacing: 1.25px; /* --ty-button-spacing */
+	text-transform: uppercase; /* --ty-button-transform */
+	border: none;
+	color: white; /* --button-primary-color-text */
+	padding: 4px 20px; /* --button-base-padding: 4px 20px; */
+}
+
+.lightning-cbx{
+	width: 90%;
+}
+
+td.depSummary h1 {
+    padding-top: 19px;
+}
+
+.lightning-inpt{
+	width: 81%;
+	padding-left: 10px !important;
+}
+
+.share-cbx{
+	user-select: none;
+	z-index: 999;
+}

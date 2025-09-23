@@ -1,0 +1,17 @@
+.contract-status{
+    font-size: var(--ty-h5-size) !important;
+    font-weight: 700 !important;
+}
+.contract-status::after{
+    content: "";
+    display: block;
+    width: 163px;
+    height: 4px;
+    margin: -3px;
+    background-color: var(--color-action-1);
+}
+
+.products-block{
+    margin: 0 auto var(--lwc-spacingXxLarge,3rem) auto;
+    max-width: 50rem;
+}

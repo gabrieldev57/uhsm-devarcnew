@@ -1,0 +1,18 @@
+<template>
+    <lightning-card title="CSV Member Uploader" icon-name="custom:custom63">
+        <div class="slds-p-around_medium">
+            <lightning-input type="file" label="Upload CSV File" accept=".csv" onchange={handleFileChange}></lightning-input>
+
+            <template if:true={isReadyToSubmit}>
+                <lightning-button class="slds-m-top_medium" label="Submit to Rate Members" onclick={handleSubmit}></lightning-button>
+            </template>
+
+            <template if:true={result}>
+                <div class="slds-m-top_medium">
+                    <h3 class="slds-text-heading_small">Rated Members Result:</h3>
+                    <lightning-formatted-rich-text value={result}></lightning-formatted-rich-text>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

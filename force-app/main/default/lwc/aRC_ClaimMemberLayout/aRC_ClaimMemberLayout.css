@@ -1,0 +1,61 @@
+.modal-text{
+    text-align: left;
+    margin: 10px 0px;
+    font-size: 17px;
+}
+
+section.slds-modal > div.slds-modal__container{
+    width: 100%;
+    max-width: 85rem; 
+}
+
+.reset-btn{
+    float: right;
+    margin: 10px;
+}
+
+.duplicate-btn{
+    float: right;
+}
+
+.search-header{
+    display: flex;
+    justify-content: center;
+}
+
+.search-header > lightning-input{
+    width: 20%;
+    margin: 0px 15px;
+}
+
+.search-header > lightning-button{
+    width: 6%;
+    height: 33px;
+    margin-top: 23px;
+}
+
+.header-policy{
+    background: #ffc570;
+    display: table;
+    text-align: center;
+    margin: auto;
+    height: 10%;
+    padding: 6px;
+    font-weight: bold;
+    border-radius: 30px;
+    border: 2px solid #f5a127;
+}
+
+.icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon_Message{
+    font-size: 17px;
+}
+
+.icon-container lightning-icon {
+    margin-right: 0.5rem;
+}

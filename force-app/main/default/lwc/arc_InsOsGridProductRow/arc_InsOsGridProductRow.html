@@ -1,0 +1,108 @@
+<template>
+    <!-- <div class={productRowTileClasses}> -->
+    <!-- <div class="slds-grid_align-spread slds-grid nds-box vloc-ins-product-tile-container">
+        <template if:false={isDisabled}>
+
+            <div class="slds-col" if:false={isDisabled}>
+                <vlocity_ins-button theme={theme} icon-name="standard:customer_portal_users" icon-position="left"
+                    label="Program Details" onclick={openDetailsProduct}></vlocity_ins-button>
+            </div>
+
+            <div class="slds-col slds-grid slds-grid_vertical-align-center" if:false={isDisabled}>
+                <vlocity_ins-icon icon-name="action:check" extraclass="" size="xx-small" theme={theme}>
+                </vlocity_ins-icon>
+                <span class="">{labels.InsStandoutFeatures}</span>
+            </div>
+            <div class="slds-col slds-grid_vertical-align-center">
+                <template for:each={filteredAttributes} for:item="attribute">
+                    <div if:false={attribute.hidden} class="" key={attribute.attributeId}>
+                        <c-poc_ins-os-grid-product-attribute theme={theme} attribute={attribute} is-cart={isCart}
+                            root-channel={rootChannel}>
+                        </c-poc_ins-os-grid-product-attribute>
+                    </div>
+                </template>
+            </div>
+
+
+            <div class="slds-col slds-grid slds-grid_vertical-align-center">
+                <span class={productColor}>
+                    <lightning-formatted-number value={price} format-style="currency" minimum-fraction-digits="2"
+                        maximum-fraction-digits="2"></lightning-formatted-number>
+                    <span class="vloc-ins-lowercase">/{labels.InsMonthAbrv}</span>
+                </span>
+            </div>
+
+            <div if:true={showCompareAction} class="slds-col slds-grid slds-grid_vertical-align-center">
+                <vlocity_ins-input class="compare-checkbox" type="checkbox" checked={product.isSelectedForCompare}
+                    theme={theme} onchange={toggleCompare} disabled={isCompareDisabled}></vlocity_ins-input>
+            </div>
+            <div class="slds-col slds-grid slds-grid_vertical-align-center">
+                <div if:true={showEditAction} class="">
+                    <vlocity_ins-button variant="neutral" theme={theme} label={labels.InsQuotesConfigurePlan}
+                        extraclass="slds-button_stretch nds-button_stretch"
+                        onclick={clickModalCustomConfigPlan}></vlocity_ins-button>
+                </div>
+
+                <div if:true={showCartAction} class="arc_cart-button">
+                    <vlocity_ins-button variant="brand" extraclass={isSelectedForCartClasses} onclick={selectProduct}
+                        onmouseenter={addHoverState} onmouseleave={removeHoverState} icon-name={isSelectedForCartIcon}
+                        icon-position="left" icon-fill="#ffffff" theme={theme} label={isSelectedForCartLabel}
+                        aria-live="assertive">
+                    </vlocity_ins-button>
+                    <div if:true={isCartFull}
+                        class="arc_cart-popup nds-popover nds-nubbin_bottom-left nds-popover_small">
+                        <div>Cart is full, current program:</div>
+                        <div>{inCartProgram}</div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div> -->
+
+
+
+    <td data-label="Product Name" class="product-name-td">
+        <div class="attribute-container" title={product.Name}>{product.Name}</div>
+    </td>
+    <!-- <td>
+        <div class="slds-col">
+            <vlocity_ins-button theme={theme} icon-name="standard:customer_portal_users" icon-position="left"
+                label="Program Details" onclick={openDetailsProduct}></vlocity_ins-button>
+        </div>
+    </td> -->
+
+    <template for:each={filteredAttributes} for:item="attribute">
+        <td data-label="Attributes" key={attribute.attributeId}>
+            <div class="attribute-container" title={attribute.attributeId} if:false={attribute.hidden}>
+                <c-arc_ins-os-grid-product-attribute theme={theme} attribute={attribute} is-cart={isCart}
+                    root-channel={rootChannel}>
+                </c-arc_ins-os-grid-product-attribute>
+            </div>
+        </td>
+    </template>
+    <td data-label="Price">
+        <!-- <div class="arc_attribute-grid slds-truncate attribute-container" title={price}>{price}</div> -->
+        <div class="attribute-container">
+            <lightning-formatted-number value={price} format-style="currency" minimum-fraction-digits="2"
+                maximum-fraction-digits="2"></lightning-formatted-number>
+            <span class="vloc-ins-lowercase">/{labels.InsMonthAbrv}</span>
+        </div>
+    </td>
+    <td data-label="Compare">
+        <div class="" title="Compare">
+            <vlocity_ins-input class="compare-checkbox" type="checkbox" checked={product.isSelectedForCompare}
+                theme={theme} onchange={toggleCompare} disabled={isCompareDisabled}></vlocity_ins-input>
+        </div>
+    </td>
+    <td data-label="Add to Cart">
+        <div class="slds-grid slds-grid_align-center" title="Add To Cart">
+            <vlocity_ins-button variant="brand" class="add-to-cart-button" extraclass={isSelectedForCartClasses}
+                onclick={selectProduct} onmouseenter={addHoverState} onmouseleave={removeHoverState}
+                icon-name={isSelectedForCartIcon} icon-position="left" icon-fill="#ffffff" theme={theme} label=""
+                aria-live="assertive">
+            </vlocity_ins-button>
+        </div>
+    </td>
+
+
+</template>

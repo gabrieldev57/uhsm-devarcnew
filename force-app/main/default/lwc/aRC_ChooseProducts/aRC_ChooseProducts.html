@@ -1,0 +1,59 @@
+<template>
+    <div class="container">
+        <div class="flex-container">
+            <div class="flex-item">
+                <c-a-r-c_-choose-products-grid inputmember={members} inputcore={coreProducts} inputsmart={smartProducts}
+                    inputaidd={aiddProducts} programchange={chooseProdProgramChange} lockedproduct={lockedProduct}
+                    coveragedep={coverageDependents} keep-smart={keepSmart} keep-aidd={keepAidd}
+                    onoutputjson={handleGetOuputGrid} onoutputdep={handleGetDepGrid}
+                    onhandlechangevalues={handleChangeValue} onshareaiddprograms={handleShareAiddProgam}
+                    onsharesmartprograms={handleShareSmartProgam} reason={reason}></c-a-r-c_-choose-products-grid>
+            </div>
+        </div>
+        <div class="flex-container">
+            <div class="flex-item">
+                <button class="action-button" onclick={handleSendDataToSummary}
+                    if:false={chooseProdProgramChange}>Reprice</button>
+            </div>
+            <div class="flex-item">
+                <div if:true={isLoading} class="spinner-container">
+                    <lightning-spinner class="table-spinner" alternative-text="Loading"
+                        size="medium"></lightning-spinner>
+                </div>
+                <template if:true={areProgramRepriced}>
+                    <c-a-r-c_-choose-product-summary if:false={isLoading}></c-a-r-c_-choose-product-summary>
+                </template>
+            </div>
+        </div>
+    </div>
+    <div class="nds-m-around_small">
+        <div class="nds-grid nds-grid_align-center" if:true={areProgramRepriced}>
+            <div
+                class="nds-grid nds-grid_align-center nds-wrap nds-button-group-row nds-size_1-of-1 nds-medium-size_8-of-12 nds-p-horizontal_medium">
+                <div class="omniscript-btn-next nds-size_12-of-12 nds-m-bottom_x-small nds-medium-size_3-of-12"><button
+                        type="button" aria-label="Next Step" onclick={handleNext}
+                        class="vlocity-btn nds-button nds-button_brand nds-button_stretch nds-p-around_xx-small nds-size_1-of-1"><span
+                            class="btnLabel">Next</span></button></div>
+            </div>
+        </div>
+
+        <!--  
+            <div
+                class="nds-grid nds-grid_align-center nds-wrap nds-button-group-row nds-size_1-of-1 nds-medium-size_8-of-12 nds-p-horizontal_medium">
+                <div class="omniscript-btn-next nds-size_12-of-12 nds-m-bottom_x-small nds-medium-size_3-of-12"><button
+                        type="button" aria-label="Next Step" onclick={handleNext}
+                        class="vlocity-btn nds-button nds-button_brand nds-button_stretch nds-p-around_xx-small nds-size_1-of-1"><span
+                            class="btnLabel">use this -> Next</span></button></div>
+            </div>  -->
+        <div class="nds-grid nds-grid_align-center">
+            <div
+                class="nds-grid nds-grid_align-center nds-wrap nds-button-group-row nds-size_1-of-1 nds-medium-size_8-of-12 nds-p-horizontal_medium">
+                <div class="omniscript-btn-previous nds-size_12-of-12 nds-m-bottom_x-small nds-medium-size_3-of-12">
+                    <button type="button" aria-label="Previous Step" onclick={handlePrev}
+                        class="vlocity-btn nds-button nds-button_neutral nds-button_stretch nds-p-around_xx-small nds-size_1-of-1"><span
+                            class="btnLabel">Previous</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

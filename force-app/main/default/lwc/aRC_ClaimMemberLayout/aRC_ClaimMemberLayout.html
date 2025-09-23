@@ -1,0 +1,182 @@
+<template>
+    <!-- Backdrop -->
+
+    <lightning-record-edit-form object-api-name="Claim" record-id={recordId}  onsubmit={handleSuccess}>
+        <div class="slds-grid">
+            <div class="slds-col slds-size_1-of-3">
+                <lightning-button
+                    class="slds-m-top_small"
+                    variant="brand"
+                    type="submit"
+                    name="update"
+                    label="Save"
+                ></lightning-button>
+                <lightning-button
+                    class="slds-m-top_small"
+                    style="margin: 0px 10px;"
+                    variant="brand"
+                    label="Find Patient"
+                    data-manage="open"
+                    disabled={policyPopulated}
+                    onclick={handleManageModal}
+                ></lightning-button>
+            </div>
+            <div class="slds-col slds-size_1-of-3">
+            </div>
+            <div class="slds-col slds-size_1-of-3">
+                <lightning-button
+                    class="slds-m-top_small reset-btn"
+                    variant="destructive"
+                    label="Reset Patient"
+                    onclick={handleManageAlert}
+                    data-manage="open"
+                ></lightning-button>
+            </div>
+        </div>
+        <div class="slds-grid">
+            <lightning-input-field field-name="ARC_MemberContact__c" class="slds-col slds-size_1-of-2" ></lightning-input-field>
+            <lightning-input-field field-name="ARC_MemberDOB__c" class="slds-col slds-size_1-of-2"></lightning-input-field>
+        </div>
+        <div class="slds-grid">
+            <lightning-input-field field-name="ARC_MemberGender__c" class="slds-col slds-size_1-of-2"></lightning-input-field>
+            <lightning-input-field field-name="ARC_MemberID__c" class="slds-col slds-size_1-of-2"></lightning-input-field>
+            
+        </div>
+        <div class="slds-grid">                                
+            <lightning-input-field field-name="ARC_MemberBenefitEffectiveDate__c" class="slds-col slds-size_1-of-2"></lightning-input-field>
+            <lightning-input-field field-name="ARC_MemberBenefitTermDate__c" class="slds-col slds-size_1-of-2"></lightning-input-field>
+        </div>
+        <div class="slds-grid">    
+            <lightning-input-field field-name="ARC_MemberBenefitPlan__c" class="slds-col slds-size_1-of-2"></lightning-input-field>
+            <lightning-input-field field-name="ARC_MemberControlNumber__c" class="slds-col slds-size_1-of-2" readonly=true></lightning-input-field>
+            
+        </div>
+        <div class="slds-grid">
+            <lightning-input-field field-name="ARC_ParticipantPolicyParticipant__c" class="slds-col slds-size_1-of-2"></lightning-input-field>
+            <lightning-input-field field-name="ARC_ParticipantAddress__c" class="slds-col slds-size_1-of-2"></lightning-input-field>
+        </div>
+        <div class="slds-grid">
+            <lightning-input-field field-name="ARC_MemberThereAnotherHealthBenefitPlan__c" class="slds-col slds-size_1-of-2"></lightning-input-field>                
+        </div>    
+    </lightning-record-edit-form>
+    <template if:true={modalOpen}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+            aria-describedby="modal-content-id-01" class="slds-modal slds-fade-in-open" style="background: #00000094;">
+            <div class="slds-modal__container">
+                <template if:true={isLoading}>
+                    <lightning-spinner class="spinner" alternative-text="Loading" size="medium"></lightning-spinner>
+                </template>
+                <template if:false={isLoading}>
+                    <template if:true={memberLayout}>
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                title="Close" onclick={handleManageModal} data-manage="close">
+                                <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                                    size="small"></lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                Find a member for this Shareable Medical Bill
+                            </h2>
+                            <div class="slds-p-around_medium" id="modal-content-id-1">
+                                <div class="search-header">
+                                    <lightning-input label='Name' value={memberName} data-id='memberName' onchange={handleChangeMember} required="true">
+                                    </lightning-input>                                
+                                    <lightning-input label='Birthdate' type='date' value={memberBirthdate} data-id='memberBirthdate' onchange={handleChangeMember} max={currentDate}  required="true">
+                                    </lightning-input>                       
+                                    <lightning-input label='Street' value={memberStreet} data-id='memberStreet' onchange={handleChangeMember}  required="true">
+                                    </lightning-input>
+                                    <lightning-input label='DOS From' type='date' value={dosFrom} data-id='dosFrom' onchange={handleChangeMember}  required="true">
+                                    </lightning-input>
+                                    <lightning-input label='DOS To' type='date' value={dosTo} data-id='dosTo' onchange={handleChangeMember}  required="true">
+                                    </lightning-input>
+                                    <lightning-button variant='brand' label='Search' onclick={handleSearch} disabled={disPayBtn}>
+                                    </lightning-button>                                    
+                                </div>
+                                <template if:true={searched}>
+                                    <p class="modal-text">The system found these members: </p>
+                                    <div style="height: 300px;">
+                                        <lightning-datatable
+                                                key-field="id"
+                                                data={dataParticipant}
+                                                columns={columnsParticipant}
+                                                max-row-selection="1"
+                                                onrowselection={handleSelectParticipant}
+                                                >
+                                        </lightning-datatable>
+                                    </div>
+                                </template>
+                            </div>
+                            <div if:true={participantsNotFound}>
+                                <span class="icon-container">
+                                    <lightning-icon icon-name="utility:resource_absence" alternative-text="NoMember" title="NoMember" size="small">></lightning-icon>
+                                    <span class="icon_Message">No members were found with the provided inputs. Please try again with different values.</span>
+                                </span>
+                            </div>
+                        </header>
+                        <footer class="slds-modal__footer">
+                            <button class="slds-button slds-button_neutral" onclick={handleManageModal} data-manage="close">Cancel</button>
+                            <button class="slds-button slds-button_brand" onclick={handleConfirmPolPart} if:true={isData}>Confirm</button>
+                        </footer>
+                    </template>
+                    <template if:true={policyLayout}>
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                title="Close" onclick={handleManageModal} data-manage="close">
+                                <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                                    size="small"></lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 id="modal-heading-02" class="header-policy slds-text-heading_medium slds-hyphenate">
+                                {memberPolicyMessage}
+                            </h2>
+                            <div if:false={noPolicy} class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                                <p class="modal-text">All Policies which the member applies for:</p>
+                                <div style="height: 300px;">
+                                    <lightning-datatable
+                                            key-field="id"
+                                            data={dataPolicy}
+                                            columns={columnsPolicy}
+                                            max-row-selection="1"
+                                            onrowselection={handleSelectPolicy}
+                                            >
+                                    </lightning-datatable>
+                                </div>
+                            </div>
+                        </header>
+                        <footer class="slds-modal__footer">
+                            <button class="slds-button slds-button_brand" data-id="nopolicy" onclick={handleConfirmPolicy} style="margin: 0px 25px;">Proceed without Policy</button>
+                            <button class="slds-button slds-button_neutral" onclick={handleManageModal} data-manage="close">Cancel</button>
+                            <button class="slds-button slds-button_brand" data-id="policy" onclick={handleConfirmPolicy}>Confirm</button>
+                        </footer>
+                    </template>
+                </template>
+            </div>
+        </section>
+    </template>
+    <template if:true={isReseting}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+            aria-describedby="modal-content-id-01" class="slds-modal slds-fade-in-open" style="background: #00000094;">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={handleManageModal} data-manage="close">
+                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">
+                        Reset Patient
+                    </h2>
+                    <div class="slds-p-around_medium">
+                        <p style="font-size: 17px;">Are you sure you want to reset the patient of this SMB?</p>
+                    </div>
+                </header>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={handleManageModal} data-manage="close">Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick={handleReset}>Confirm</button>
+                </footer>
+            </div>
+        </section>
+    </template>
+</template>

@@ -1,0 +1,12 @@
+<template>
+    <div class="comp-row">
+        <div class="reason-label">
+            <p>Reason:</p>
+        </div>
+        <div class="all-reasons">
+            <div for:each={reasonList} for:item="reason" key={reason}>
+                <p>{reason}</p>
+            </div>  
+        </div>
+    </div>
+</template>

@@ -1,0 +1,12 @@
+.sectionContainer{
+    margin-bottom: 3rem;
+}
+
+.previousButtonContainer{
+    position: relative;
+    margin-top: 2rem;
+}
+
+.previousButton{
+    background-color: rgb(244, 178, 35);
+}

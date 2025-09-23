@@ -1,0 +1,157 @@
+.header2:nth-child(1) lightning-combobox{
+    width: 190px;
+}
+
+.headers-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.btnPay {
+    margin-left: 20px;
+}
+.btn1{
+    margin-right:10px;
+}
+.header1{
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+}
+
+.header2{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.header2 lightning-button, .header2 lightning-button-icon{
+    height: 32px;
+    align-self: end;
+}
+
+.header3{
+    display: flex;
+    flex-direction: row;
+    margin: 10px 0px 30px 0px;
+}
+
+.header3 lightning-combobox{
+    width: 25%;
+}
+
+.header3 lightning-button{
+    align-self: end;
+    margin: 0px 15px;
+}
+
+.dropbtn {
+    padding: 0px 16px;
+    width: 450px;
+}
+    
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+  
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    width: 450px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 400px;
+}
+  
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+  
+.dropdown a:hover {background-color: #ddd;}
+
+.show {
+    display: block;
+    margin: 0px 16px;
+}
+
+.adj{
+    width: 50%;
+    display: inline-block;
+}
+
+.reason{
+    width: 100%;
+}
+
+.reason h1{
+    font-weight: bold;
+    display: inline-block;
+}
+
+.reason p{
+    display: inline-block;
+    margin: 0px 15px 0px 37px;
+}
+
+.divSpacer{
+    height: 170px;
+    background-color: white;
+}
+
+.spinnerDivPayment{
+    position: absolute;
+    height: 170px;
+    min-width: 0;
+    width: 100%;
+}
+
+.codeContainer{
+    border-radius: 10px;
+    border: 2px solid black;
+    width: 90px;
+    height: 30px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.codeContainer p {
+    margin: 2px -15px 0px -6px;
+}
+
+.codeContainer lightning-button-icon {
+    margin: -5px;
+}
+
+.right-align{
+    margin-left: auto;
+    display: flex;
+    gap: 16px;
+}
+
+.mgbt-10{
+    margin-bottom: 10px;
+}
+
+.btnHeader{
+    margin: 10px 5px;
+}
+
+.modal-container{
+    width: 100%;
+}
+
+.modal-title{
+    font-weight: bold;
+    font-size: 18px;
+    margin: 10px 0px;
+}

@@ -1,0 +1,90 @@
+<template>
+    <!-- <div style="height: 300px;">
+        <lightning-datatable key-field="id" data={data} columns={columns}>
+        </lightning-datatable>
+    </div> -->
+    <div class="card">
+        <div class="titleCont">
+            <h2 slot="title">
+                <lightning-icon icon-name="standard:email" size="small"></lightning-icon>
+                Email Messages ({recordCount})
+            </h2>
+            <lightning-button-icon style="margin-left: auto;" icon-name="utility:refresh"  size="x-small"  alternative-text="Refresh" onclick={refresh}></lightning-button-icon>
+        </div>
+
+        <div class="">
+            <div class="masterContainer">
+                <div class="tableContainer">
+                    <div class="uptop">
+                    <div class="top">
+                        <template for:each={columns} for:item="col">
+                            <div key={col.label}>
+                                {col.label}
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                    <div class="content">
+                        <div class="item-wrap" for:each={data} for:item="item" key={item.Id}>
+                            <div class="item" onclick={accordionFunctionality}>
+                                <div title={item.Subject}>
+                                    {item.Subject}
+                                </div>
+                                <div title={item.ToAddress}>
+                                    {item.ToAddress}
+                                </div>
+                                <div title={item.FromAddress}>
+                                    {item.FromAddress}
+                                </div>
+                                <div title={item.MessageDate}>
+                                    
+                                    <lightning-formatted-date-time
+                                    value={item.MessageDate}
+                                    year="numeric"
+                                    day="numeric"
+                                    month="numeric"
+                                    hour="2-digit"
+                                    minute="2-digit" 
+                                    hour12="true"
+                                >
+                                </lightning-formatted-date-time>
+                                </div>
+                                <div title={item.CreatedBy.Name}>
+                                    {item.CreatedBy.Name}
+                                </div>
+                                <div title={item.Type__c}>
+                                    {item.Type__c}
+                                </div>
+                                <!-- <span class="deletebutton">
+                                    <lightning-button-icon icon-name="utility:delete"  size="x-small" data-id={item.Id} alternative-text="Delete" onclick={deleteHandler}></lightning-button-icon>
+                                </span> -->
+                               
+                            </div>
+                            <!-- <span class="trashcan" >
+                                <lightning-icon icon-name="utility:delete" size="xx-small"  ></lightning-icon>
+                            </span> -->
+                            
+                            <div class="panel">
+                                <div class="htmlbody">
+                                    
+                                    <lightning-formatted-rich-text if:true={item.HtmlBody} value={item.HtmlBody}>
+                                    </lightning-formatted-rich-text>
+                                    <lightning-formatted-rich-text if:false={item.HtmlBody} value={item.TextBody}>
+                                    </lightning-formatted-rich-text>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottom">
+                        <!-- <a onclick={navigateToRelatedList}>View All</a> -->
+                        <template for:each={numberList} for:item="list">
+                        <a key={list} onclick={changePage} data-id={list}>{list}</a>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</template>

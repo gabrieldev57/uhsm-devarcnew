@@ -1,0 +1,94 @@
+h1{
+    font-size: 22px;
+    font-weight: bold;
+    margin: 0px 15px;
+}
+
+.icon-chevrondown {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.table-container {
+    overflow: auto;
+}
+.input-search{
+    width: 75%;
+}
+.button-search{
+    width: 25%;
+    align-self: end;
+    margin-left:10px;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.header-title {
+    margin: 0;
+}
+
+.search-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem; 
+}
+
+.aligned-left{
+    align-items:baseline;
+    align-content:flex-start;
+    width: 50%;
+}
+
+.aligned-right{
+    display: flex;
+    width: 50%;
+    justify-content: flex-end;
+}
+
+.header-button {
+    padding: 0.3rem;
+}
+
+.search-bar {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 1rem;
+    background-color: #f0f0f0;
+}
+
+
+.back-button {
+    margin-left: auto; 
+}
+
+.search-input-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 50%; 
+    margin-right: 0.5rem;
+}
+
+.error-message {
+    background-color: #f0f0f0; 
+    padding: 1rem; 
+    text-align: center; 
+    font-size: 18px; 
+    font-weight: bold; 
+}
+
+.table-column{
+    transition: 0.3s;
+}
+
+.table-column:hover{
+    background: #d2d2d2;
+    font-size: 14px;
+    cursor: pointer;
+}

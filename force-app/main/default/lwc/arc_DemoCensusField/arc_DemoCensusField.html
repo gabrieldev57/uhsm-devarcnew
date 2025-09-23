@@ -1,0 +1,111 @@
+<template>
+    <template if:true={isReadonly}>
+        <vlocity_ins-input read-only required={field.isRequired} label={field.label} value={value} type="text"
+            theme={theme}>
+        </vlocity_ins-input>            
+    </template>
+
+
+    <template if:false={isReadonly}>
+        <template if:true={isText}>
+            <vlocity_ins-input  required={field.isRequired} class="texts" disabled={field.isDisabled} label={field.label}
+                value={value} onclick={handleValueClicked} maxlength={field.maxlength} type="text" theme={theme}
+                onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+
+        <template if:true={isCheckbox}>
+            <div class="slds-grid">
+                <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label}
+                    checked={value} type="checkbox" theme={theme} onchange={handleValueChange}
+                    placeholder={field.placeholder}></vlocity_ins-input>
+                <div if:true={isSmokerField}>
+                    <lightning-helptext
+                        content="Smokers are subject to a $50 monthly fee per smoker"></lightning-helptext>
+                </div>
+            </div>
+        </template>
+        <template if:true={isNumber}>
+            <vlocity_ins-input required={field.isRequired} maxlength={field.maxlength} disabled={field.isDisabled}
+                label={field.label} value={value} type="number" theme={theme} onclick={handleValueClicked}
+                onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+
+        <!-- <template if:true={isDatetime}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+            field-name={field.fieldName} type="date" format={dateFormat} output-format={dateOutputFormat} theme={theme}
+            onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+       
+        <template if:true={isDate}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+            field-name={field.fieldName} type="date" format={dateFormat} output-format={dateOutputFormat} theme={theme}
+            onchange={handleValueChange} placeholder={field.placeholder}></vlocity_ins-input>
+        </template> -->
+
+        <template if:true={isPercent}>
+            <div class="slds-grid slds-grid_vertical-align-end nds-grid nds-grid_vertical-align-end">
+                <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label}
+                    value={value} type="number" theme={theme} onchange={handleValueChange}
+                    placeholder={field.placeholder}></vlocity_ins-input>
+                <span class="slds-p-bottom_x-small nds-p-bottom_x-small">%</span>
+            </div>
+        </template>
+        <template if:true={isCurrency}>
+            <vlocity_ins-masked-input type="currency" currency={currency.code} theme={theme} required={field.isRequired}
+                disabled={field.isDisabled} label={field.label} value={value} onblur={handleValueChange}
+                placeholder={field.placeholder}></vlocity_ins-masked-input>
+        </template>
+        <template if:true={isEmail}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+                type="email" theme={theme} onchange={handleValueChange}
+                placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+        <template if:true={isPhone}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+                minlength="10" maxlength="10" theme={theme} onchange={handleValueChange}
+                placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+
+        <template if:true={isUrl}>
+            <vlocity_ins-input required={field.isRequired} disabled={field.isDisabled} label={field.label} value={value}
+                type="url" theme={theme} onchange={handleValueChange}
+                placeholder={field.placeholder}></vlocity_ins-input>
+        </template>
+        <template if:true={isDropdown}>
+            <vlocity_ins-combobox required={field.isRequired} disabled={field.isDisabled} label={field.label}
+                options={options} value={value} theme={theme} onchange={handleValueChange}></vlocity_ins-combobox>
+        </template>
+        <template if:true={isPassword} id="ssnTemplate">
+            <div class="ssnClassWrapper slds-grid slds-grid_vertical-align-start">
+                <vlocity_ins-input id="ssn" minlength="9" label={field.label} class="ssnClass" maxlength="9"
+                    required={field.isRequired} disabled={field.isDisabled} value={value} type={inputTypeSSN}
+                    theme={theme} onchange={handleValueChange} placeholder="SSN"></vlocity_ins-input>
+                <lightning-button-icon data-id="confirmView" icon-name="utility:preview"
+                    class="slds-button slds-button_icon slds-input__icon slds-input__icon_right"
+                    alternative-text="Preview" title="See password" onclick={unmaskSSN}></lightning-button-icon>
+            </div>
+        </template>
+        <template if:true={isMultiPicklist}>
+            <lightning-dual-listbox label={field.label} source-label={labels.InsProductAvailable}
+                selected-label={labels.Selected} required={field.isRequired} value={value} disabled={field.isDisabled}
+                options={options} onchange={handleValueChange}>
+            </lightning-dual-listbox>
+        </template>
+
+        <lightning-record-edit-form if:true={isLookUp} object-api-name={field.objectApiName}>
+            <vlocity_ins-input id="lookupfield" required={field.isRequired} disabled={field.isDisabled}
+                label={field.label} value={value} field-name={field.fieldName} type="date" format={dateFormat}
+                output-format={dateOutputFormat} theme={theme} onchange={handleValueChange}
+                placeholder={field.placeholder} valueparent={bthDate}></vlocity_ins-input>
+        </lightning-record-edit-form>
+
+        <!-- <div if:true={isLookUp}>
+            <c-a-r-c_-date-of-birth-v2
+            ischild="true"
+            ondatechanged={handleDateChange}
+            valueparent={bthDate}
+            ></c-a-r-c_-date-of-birth-v2>
+
+        </div> -->
+    </template>
+</template>

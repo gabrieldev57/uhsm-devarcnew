@@ -1,0 +1,93 @@
+<template>
+
+    <template for:each={products} for:item="group" for:index="index">
+        <div key={group} class="slds-box slds-m-bottom_medium">
+            <span class="group-name">
+                {group.groupName}</span>
+            <div class="nds-form-element nds-form-container nds-text-block">
+                <div class={group.groupName} lwc:dom="manual">
+
+                </div>
+                <!-- <p>
+
+                </p> -->
+            </div>
+            <vlocity_ins-button class="nds-form-element nds-form-container program-details-button" theme={theme}
+                data-group={group.groupName} icon-name="standard:customer_portal_users" icon-position="left"
+                label="Program Details" onclick={openDetailsProduct}></vlocity_ins-button>
+            <div
+                class="nds-form-element nds-form-container vloc-ins-product-attributes slds-grid slds-wrap nds-grid nds-wrap">
+                <template for:each={group.generalAttributes} for:item="attribute">
+                    <div if:false={attribute.hidden}
+                        class="slds-p-vertical_small slds-size_1-of-3 nds-p-vertical_small nds-size_1-of-3"
+                        key={attribute.attributeId}>
+                        <c-arc_ins-os-grid-product-attribute is-general-attribute={isGeneralAttribute} theme={theme}
+                            attribute={attribute} is-cart={isCart} root-channel={rootChannel}>
+                        </c-arc_ins-os-grid-product-attribute>
+                    </div>
+                </template>
+
+            </div>
+            <!-- <div class="slds-col">
+                
+                <div key={group.groupName} class="slds-grid_align-spread slds-grid">
+                    <template for:each={group.uniqueAttributes} for:item="att">
+                        <p key={att}>{att}</p>
+                    </template>
+                    <p>monthly cost</p>
+                    <p>compare</p>
+                    <p>add to cart</p>
+                </div>
+                <template for:each={group.products} for:item="product" for:index="index">
+                    <div key={product.Id} data-id={index} class="slds-col slds-size_1-of-1 nds-col nds-size_1-of-1">
+                        <c-poc_-ins-os-grid-product-row onsenddata={handleDataFromChild} hidden-actions={hiddenActions}
+                            onselected={selectProduct} product={product} group-name={group.groupName}
+                            unique-attributes={group.uniqueAttributes} show-config-inline={showConfigInline}
+                            onexpand={expandProduct} invalidate-cache={invalidateCache}
+                            show-product-tile={showProductTile} is-cart={isCart} theme={theme}
+                            root-channel={rootChannel} reprice-action={repriceAction}>
+                        </c-poc_-ins-os-grid-product-row>
+                    </div>
+                </template>
+            </div> -->
+            <div class="nds-form-element nds-form-container">
+                <table class="slds-table slds-table_bordered plan-selection-table" aria-label="Plan Selection">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="arc_attribute-grid" scope="col">
+                                <div class="slds-truncate" title="Product Name">Product Name</div>
+                            </th>
+                            <template for:each={group.uniqueAttributes} for:item="att">
+                                <th key={att} class="arc_attribute-grid" scope="col">
+                                    <div class="slds-truncate" title="Attributes">{att}</div>
+                                </th>
+                            </template>
+
+                            <th class="arc_attribute-grid" scope="col">
+                                <div class="slds-truncate" title="Price">Price</div>
+                            </th>
+                            <th class="arc_attribute-grid" scope="col">
+                                <div class="slds-truncate" title="Compare">Compare</div>
+                            </th>
+                            <th class="arc_attribute-grid" scope="col">
+                                <div class="slds-truncate" title="Add to Cart">Add To Cart</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={group.products} for:item="product" for:index="index">
+                            <c-arc_-ins-os-grid-product-row key={product.Id} class="slds-hint-parent"
+                                onsenddata={handleDataFromChild} hidden-actions={hiddenActions}
+                                onselected={selectProduct} product={product} group-name={group.groupName}
+                                unique-attributes={group.uniqueAttributes} show-config-inline={showConfigInline}
+                                onexpand={expandProduct} invalidate-cache={invalidateCache}
+                                show-product-tile={showProductTile} is-cart={isCart} theme={theme}
+                                root-channel={rootChannel} reprice-action={repriceAction}>
+                            </c-arc_-ins-os-grid-product-row>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+</template>

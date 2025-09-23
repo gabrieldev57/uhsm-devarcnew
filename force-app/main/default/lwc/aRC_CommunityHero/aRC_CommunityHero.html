@@ -1,0 +1,47 @@
+<template>
+    <div class="community-hero" onscroll={handleScroll}>
+        <div class="community-hero-container">
+            <div class="community-hero-background-container">
+                <div class="community-hero-background-parallax">
+                    <div class="community-hero-media" if:false={isVideo}></div>
+                    <!-- <img class="community-hero-media" if:false={isVideo} src={backgroundMedia} /> -->
+                    <video class="community-hero-media" if:true={isVideo} autoplay muted loop>
+                        <source src={backgroundMedia} type={videoType}>
+                    </video>
+                </div>
+                <div class="community-hero-background-filter"></div>
+                <div if:true={backgroundVignette} class="community-hero-shadow"></div>
+            </div>
+            <div if:true={styleHeader} class="community-hero-bottom-arc">
+                <svg viewBox="0 0 1382 58" width="100%" preserveAspectRatio="none"><path d="M1.52.62s802.13,127,1380,0v56H.51Z"></path></svg>
+            </div>
+            <!-- <video width="100%" id="vidBack">
+            <source src="{!'../sfc/servlet.shepherd/document/download/' + file.Id}" type="video/mp4" />
+            </video> -->
+            <div class="community-hero-content-absolute">
+                <div class="community-hero-content">
+                    <div class="community-hero-content-alignment">
+                        <div class="community-hero-content-container">
+                            <h2 class="h3" if:true={title}><small>{caption}</small>{title}</h2>
+                            <p if:true={subtitle}>{subtitle}</p>
+                            <div if:true={displayButtons} class="hero-button-container">
+                                <div if:true={buttonLabel} if:false={scrollPrimary} class="arc-button-big hero-button">
+                                    <lightning-button variant={buttonVariant} label={buttonLabel} onclick={navigatePage}></lightning-button>
+                                </div>
+                                <div if:true={buttonLabel2} if:false={scrollSecondary} class="arc-button-big hero-button">
+                                    <lightning-button variant={buttonVariant2} label={buttonLabel2} onclick={navigatePage2}></lightning-button>
+                                </div>
+                                <div if:true={buttonLabel3} class="arc-button-big hero-button">
+                                    <lightning-button variant={buttonVariant3} label={buttonLabel3} onclick={navigatePage3}></lightning-button>
+                                </div>
+                                <div if:true={scrollButton} class="arc-button-big hero-button">
+                                    <button class="slds-button slds-button_outline-brand hero-scroll-button" onclick={handleScrollButton}>ᐯ</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,108 @@
+<template>
+    <div data-id="expandable-section" class="slds-card slds-theme_default slds-card--border slds-m-bottom--medium slds-section slds-is-open"> 
+        <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-col"> 
+                <h3 class="slds-section__title slds-truncate slds-p-around_xx-small slds-theme_shade label" onclick={handleClick}>
+                    <button class="slds-button slds-section__title-action">
+                        <lightning-icon icon-name="utility:switch" size="x-small" class="slds-section__title-action-icon slds-button__icon slds-button__icon_left"></lightning-icon>
+                        <span class="slds-truncate" title="Section Title">Member Info</span>
+                    </button>
+                </h3>
+                <template if:false={searchAccount}>
+                    <div class="slds-p-horizontal_small slds-p-vertical_x-small slds-section__content content">
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-2 first-column">
+                                <div class="slds-form-element_readonly slds-grid slds-wrap">
+                                    <label class="slds-form-element__label slds-col slds-size_1-of-1">Name <lightning-helptext content="Name of member associated with the case" data-cy="nameHelpText"></lightning-helptext> </label>
+                                    <div class="slds-col slds-size_11-of-12">
+                                        <a href="javascript:void(0);" onclick={navigateToPARecord}><input class="slds-input clickable-contract" type="url"  value={accountData.Name} readonly=""> </a>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-12 last-column">
+                                        <lightning-button-icon icon-name="utility:change_owner" alternative-text="Change Account" class="slds-shrink-none" variant="bare" size="medium" onclick={changeAccount}>></lightning-button-icon>
+                                    </div>
+                                </div>
+                                <div class="slds-form-element_readonly">
+                                    <label class="slds-form-element__label">Birthdate <lightning-helptext content="Birthdate of member" data-cy="birthdateHelpText"></lightning-helptext> </label>
+                                    <input class="slds-input" type="text" value={formattedBirthdate} readonly="">
+                                </div>
+                                <template if:true={isUW}>
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">State <lightning-helptext content="Member’s State" data-cy="stateHelpText"></lightning-helptext> </label>
+                                        <input class="slds-input" type="text" value={state} readonly="">
+                                    </div>
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">Zip code <lightning-helptext content="Member’s Zip Code" data-cy="zipCodeHelpText"></lightning-helptext> </label>
+                                        <input class="slds-input" type="text" value={zipCode} readonly="">
+                                    </div>
+                                </template>
+                                <div class="slds-form-element_readonly">
+                                    <label class="slds-form-element__label">Contract Plan <template if:true={isUW}>
+                                        <lightning-helptext content="UW Case Contract Plan" data-cy="plantHelpText"></lightning-helptext>
+                                    </template>
+                                    <template if:false={isUW}>
+                                        <lightning-helptext content="Program member is currently on" data-cy="plantHelpText"></lightning-helptext>
+                                    </template>
+                                    </label>
+                                    <input class="slds-input" type="text" value={activePlan} readonly="">
+                                </div>
+                            </div> 
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="slds-form-element_readonly">
+                                    <label class="slds-form-element__label">Phone <lightning-helptext content="Member’s phone number" data-cy="phoneHelpText"></lightning-helptext> </label>
+                                    <input class="slds-input" type="text"  value={accountData.Phone} readonly="">
+                                </div>
+                                <div class="slds-form-element_readonly">
+                                    <label class="slds-form-element__label">Email <lightning-helptext content="Member’s email address" data-cy="mailHelpText"></lightning-helptext> </label>
+                                    <input class="slds-input" type="text"  value={accountData.PersonEmail} readonly="">
+                                </div>
+                                <template if:true={isUW}>
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">Contract <lightning-helptext content="UW Case Contract" data-cy="uwCaseContractHelpText"></lightning-helptext> </label>
+                                        <a href="javascript:void(0);" onclick={navigateToContractRecord}><input class="slds-input clickable-contract" type="url"  value={contractNumber} readonly=""></a>
+                                    </div>
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">Contract Effective Date <lightning-helptext content="UW Case Contract Effective Date" data-cy="uwEffDateHelpText"></lightning-helptext> </label>
+                                        <input class="slds-input" type="text" value={formattedContractEffDate} readonly="">
+                                    </div>
+                                </template>
+                                <template if:false={isUW}>
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">Member Effective Date <lightning-helptext content="Member’s original effective date. Tells us how long a member has been a UHSM member, not necessarily how long they’ve been active on their current program. Restarts if break in coverage." data-cy="effDateHelpText"></lightning-helptext> </label>
+                                        <input class="slds-input" type="text"  value={formattedFirstDate} readonly="">
+                                    </div>
+                                </template>
+                            </div>
+                        </div> 
+                    </div>
+                </template>
+                <template if:true={isLoading}>
+                    <div>
+                        <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+                    </div>
+                </template>
+                <template if:false={isLoading}>
+                    <template if:true={searchAccount}>
+                        <div class="slds-grid slds-wrap no-account">
+                            <div class="slds-col slds-size_8-of-12">
+                                <lightning-record-picker
+                                field-api-name="Name"
+                                label="Member Account"  
+                                object-api-name="Account"
+                                value={selectedAccountId}
+                                filter = {personAccountFilter}
+                                onchange={handleRecordChange}
+                                ></lightning-record-picker>
+                            </div>
+                            <div class="slds-col slds-size_2-of-12 slds-p-horizontal_small">
+                                <button onclick={handleSave} class="slds-button slds-button_brand slds-button_stretch slds-text-align_center slds-flex">Save</button>
+                            </div>
+                            <div class="slds-col slds-size_2-of-12 slds-p-horizontal_small">
+                                <button class="slds-button slds-button_neutral slds-button_stretch slds-text-align_center slds-flex" onclick={handleCancel}>Cancel</button>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

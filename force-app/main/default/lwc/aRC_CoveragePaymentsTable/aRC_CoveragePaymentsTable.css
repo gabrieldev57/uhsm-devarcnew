@@ -1,0 +1,124 @@
+@font-face
+{
+    font-family:'SalesforceSansRegular';
+    src:url(/resource/ARC_SalesforceSansRegular);
+}
+
+*{
+    font-family: 'SalesforceSansRegular';
+    font-size: 13px;
+}
+
+.grid-container{
+    display: grid;
+    width: 100%;
+    text-align: center;
+    align-items: center;
+}
+
+.grid-container.title>.item-container{
+    background-color: lightgrey;
+}
+
+.item-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 0px;
+}
+
+.grid-container.values:last-child>.item-container{
+    border-bottom: 0.5px solid lightgrey;
+}
+
+.btnContainer{
+    border: none !important;
+}
+
+input[type="checkbox"]{
+    width: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.container2>h2 {
+    margin-left: 20px;
+}
+
+.container1 h1, a{
+    width: 100%;
+}
+
+ .container2{
+    display: flex;
+    flex-direction: row;
+}
+
+.title h1, .refund-row h1{
+    font-weight: bold;
+    font-size: 12px;
+}
+
+
+.spinner{
+    position: relative;
+    margin: 35px;
+
+}
+
+.noData{
+    text-align: center;
+    font-size: 22px;
+    color: black;
+}
+
+.spinnerDiv{
+    text-align: center;
+}
+
+.grid-container.values>.item-container {
+    border-right: 0.5px solid lightgrey;
+    border-bottom: 0.5px solid lightgrey;
+}
+
+.grid-container.values>.item-container:first-child{
+    border-left: 0.5px solid lightgrey;
+}
+
+.container2 {
+    padding-left: 25px;
+    border: 1px solid lightgrey;
+    border-top: none;
+}
+
+.numericValue {
+    margin-left: auto !important;
+    padding-right: 2px;
+}
+
+.styleRowRed{
+    background-color: #FEA2A2;
+}
+
+.styleRowGreen{
+    background-color: #ADE59E;
+}
+
+.styleRowNone{
+    background-color: none;
+}
+.refund-row{
+    border-left: 1px solid lightgrey;
+    border-right: 1px solid lightgrey;
+}
+
+.editing-mode{
+    width: 70%;
+    height: 136%;
+}
+
+.redText{
+    color: #BA0517; 
+}

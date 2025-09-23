@@ -1,0 +1,17 @@
+<template>
+    <template if:true={loading}>
+      <div class="loading-spinner-container">
+        <lightning-spinner size="large"></lightning-spinner>
+      </div>
+    </template>
+    <template if:false={loading}>
+      <c-a-r-c_-custom-table
+          tabledata={tableData}
+          tablecolumns={tableColumns}
+          tablename={tableName}
+          tableicon={tableIcon}
+          tablemodal={tableModal}
+          onrefreshdata={handleRefresh}
+      ></c-a-r-c_-custom-table>
+    </template>
+  </template>

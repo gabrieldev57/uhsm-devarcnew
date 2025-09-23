@@ -1,0 +1,19 @@
+button.arc_button-separator {
+    margin-left: 0.25rem;
+}
+
+button.arc_button-separator:first-child {
+    margin-left: 0;
+}
+
+button.arc_button-separator span::before {
+    content: '|';
+    color: #706e6b;
+    padding-right: 0.25rem;
+    font-size:1.1rem;
+}
+
+button.arc_button-separator:first-child span::before{
+    content: '';
+    padding-right: 0;
+}

@@ -1,0 +1,10 @@
+<template>
+    <lightning-card title="Age Up Report" icon-name="custom:custom14">
+        <div class="slds-m-around_medium">
+            <template if:true={hasData}>
+                <lightning-datatable data={filteredData} columns={columns} key-field="id"></lightning-datatable>
+            </template>
+        </div>
+    </lightning-card>
+
+</template>

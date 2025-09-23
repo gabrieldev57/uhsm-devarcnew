@@ -1,0 +1,35 @@
+.product-card{
+    border-radius: 0;
+    background-color: var(--color-background-1);
+    margin: var(--lwc-spacingMedium,1rem) 0;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+
+.product-card-price{
+    height: 40px;
+}
+
+.product-detail{
+    background: rgb(255, 255, 255);
+    /* color: var(--color-action) !important; */
+    width: 100%;
+}
+
+.text-bold{
+    font-weight: 700;
+}
+
+@media screen and (min-width: 450px) {
+    .product-detail{
+        width: 70%;
+    }
+    .product-card{
+        margin: var(--lwc-spacingMedium,1rem);
+    }
+}
+
+.labelsSameStyle{
+    font-weight: 700;
+    color: black;
+}

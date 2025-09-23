@@ -1,0 +1,21 @@
+.arc-component-background{
+    position: relative;
+}
+.arc-component-background-bg{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    background-size: contain !important;
+    opacity: .05;
+    z-index: 0;
+}
+.arc-component-background-image{
+    width: 100%;
+}
+
+/* @media screen and (min-width: 1259px){
+    .arc-component-background{
+        background-size: cover !important;
+    }
+} */

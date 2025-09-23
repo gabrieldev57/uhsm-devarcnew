@@ -1,0 +1,56 @@
+<template>
+    <template if:false={auto}>
+        <template if:true={isGuestUserProfile}>
+            <vlocity_ins-modal class="vlocityModal" data-omni-key="omnimodal" type={modalType} layout={modalLayout}
+                theme="nds" triggered-on-step=false is-modal-open=true>
+                <template if:false={loading}>
+                    <template if:false={emailSent}>
+                        <div slot="header" class="">
+                            <p class="slds-text-heading_small">Enrollment Saved</p>
+                        </div>
+                        <div slot="content">
+                            <div class="slds-m-bottom_x-small">Enter the email were you would like to receive the link
+                                to
+                                resume
+                                your enrollment</div>
+                            <vlocity_ins-input value={emailAddress} label="" type="email" required
+                                onchange={handleEmailChange} placeholder="Enter Email"></vlocity_ins-input>
+                        </div>
+                        <div slot="footer">
+                            <vlocity_ins-button label='Send Email' variant="brand" onclick={handleSendEmail}
+                                disable={emailSent}>
+                            </vlocity_ins-button>
+
+                        </div>
+                    </template>
+                    <template if:true={emailSent}>
+                        <div slot="header" class="">
+                            <p class="slds-text-heading_small">Enrollment Saved</p>
+                        </div>
+                        <div slot="content">
+                            <div class="slds-m-bottom_x-small">An email with a link to continue your enrollment has been
+                                sent to
+                                your email. If you don’t see it in your inbox, please
+                                check your junk folder.</div>
+                        </div>
+                        <div slot="footer">
+                            <vlocity_ins-button label='OK' onclick={handleCloseButton} variant="brand">
+                            </vlocity_ins-button>
+                        </div>
+                    </template>
+                </template>
+                <template if:true={loading}>
+                    <div slot="header" class="">
+                        <p class="slds-text-heading_small">Enrollment Saved</p>
+                    </div>
+                    <div slot="content">
+                        <vlocity_ins-spinner variant="base" alternative-text="Loading..." theme="nds" size="medium"
+                            class="sfl-spinner"></vlocity_ins-spinner>
+                    </div>
+                    <div slot="footer">
+                    </div>
+                </template>
+            </vlocity_ins-modal>
+        </template>
+    </template>
+</template>

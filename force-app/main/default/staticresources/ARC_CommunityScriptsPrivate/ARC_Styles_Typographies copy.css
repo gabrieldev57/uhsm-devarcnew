@@ -1,0 +1,81 @@
+div.via-nds,
+div.via-nds .nds-text-block{
+    font-family: var(--font-family-text);
+}
+
+/* H1 */
+h1,
+h1.h1,
+h1 *,
+.h1,
+div.via-nds h1,
+div.forceCommunityRichText h1,
+div.via-nds .slds-rich-text-editor__output h1,
+div.via-nds h1.nds-page-header__title{
+    font-size: 30px;
+    font-weight: 400;
+}
+/* H2 */
+h2,
+h2.h2,
+h2 *,
+.h2,
+div.via-nds h2,
+div.forceCommunityRichText h2,
+div.via-nds .slds-rich-text-editor__output h2,
+div.via-nds h2.nds-page-header__title{
+    font-size: 24px;
+    font-weight: 400;
+}
+/* H3 */
+h3,
+h3.h3,
+h3 *,
+.h3,
+div.via-nds h3,
+div.forceCommunityRichText h3,
+div.via-nds .slds-rich-text-editor__output h3,
+div.via-nds h3.nds-page-header__title{
+    font-size: 22px;
+    font-weight: 400;
+}
+/* H4 */
+h4,
+h4.h4,
+h4 *,
+.h4,
+div.via-nds h4,
+div.forceCommunityRichText h4,
+div.via-nds .slds-rich-text-editor__output h4,
+div.via-nds h4.nds-page-header__title{
+    font-size: 16px;
+    font-weight: 700;
+}
+/* H5 */
+h5,
+h5.h5,
+h5 *,
+.h5,
+div.via-nds h5,
+div.forceCommunityRichText h5,
+div.via-nds .slds-rich-text-editor__output h5,
+div.via-nds h5.nds-page-header__title{
+    font-size: 20px;
+    font-weight: 600;
+}
+/* H6 */
+h6,
+h6.h6,
+h6 *,
+.h6,
+div.via-nds h6,
+div.forceCommunityRichText h6,
+div.via-nds .slds-rich-text-editor__output h6,
+div.via-nds h6.nds-page-header__title{
+    font-size: 18px;
+    font-weight: 600;
+}
+div.forceCommunityRichText li,
+div.forceCommunityRichText p{
+    font-size: 16px;
+}

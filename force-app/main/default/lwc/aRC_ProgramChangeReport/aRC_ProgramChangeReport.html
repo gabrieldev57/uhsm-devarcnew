@@ -1,0 +1,27 @@
+<template>
+    <!--Table-->
+    <!--Spinner Loading-->
+    <div if:false={isLoaded} class="slds-is-relative spinner">
+        <lightning-spinner alternative-text="Loading...">
+        </lightning-spinner>
+    </div> 
+    <!--Data Table-->
+    <div if:true={isLoaded}  class="table-class">
+        <lightning-layout-item size="6" padding="around-small" >
+            <div class="search-class">            
+                <lightning-input type="search" onchange={handleSearch}></lightning-input>
+            </div>
+        </lightning-layout-item> 
+        <lightning-datatable
+                            key-field="id"
+                            columns={columns}
+                            data={outputData}
+                            hide-checkbox-column
+                            default-sort-direction={defaultSortDirection}
+                            sorted-direction={sortDirection}
+                            sorted-by={sortedBy}
+                            onsort={onHandleSort}>
+        </lightning-datatable>
+    </div>
+
+</template>

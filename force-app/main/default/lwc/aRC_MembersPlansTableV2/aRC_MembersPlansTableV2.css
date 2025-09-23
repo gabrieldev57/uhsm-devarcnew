@@ -1,0 +1,66 @@
+table{
+	table-layout: fixed;
+	width: 100%;
+}
+
+th{
+    color: #444444;
+    width: 10%; /* Era 10% */
+	background-color: #f3f3f3;
+	padding: 10px 10px;
+	border: 1px solid #c9c9c9;
+	text-overflow: ellipsis; /* enables ellipsis */
+    white-space: nowrap; /* keeps the text in a single line */
+    overflow: hidden; /* keeps the element from overflowing its parent */
+}
+
+tr{
+    /* display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto; */
+	background-color: #ffffff;
+    border-bottom: 1px solid #c9c9c9;
+}
+
+
+
+td{
+    padding: 0.25rem 0.5rem;
+	text-overflow: ellipsis; /* enables ellipsis */
+    white-space: nowrap; /* keeps the text in a single line */
+    overflow: hidden; /* keeps the element from overflowing its parent */
+}
+
+.activePlan{
+    color: #0b5cab;
+    fill: #0b5cab;
+    --slds-c-icon-color-foreground-default: #0b5cab;
+    /* --slds-c-icon-color-background: yellow; */
+}
+
+.arrow-down{
+    padding: 5px;
+}
+
+.arrow-down:hover{
+    --slds-c-icon-color-foreground-default: #355d96;
+}
+
+.active-inactive-divider{
+	width: 100%;
+	background-color: #f3f3f3;
+	text-align: center;
+    font-weight: bold;
+    padding: 5px 0px;
+}
+
+.arrow-down{
+	display: inline-flex;
+	transform: rotate(0deg);
+	transition: transform 0.5s ease-out;
+  }
+  
+.arrow-down.open{
+	transform: rotate(180deg);
+	transition: transform 0.5s ease-out;
+}

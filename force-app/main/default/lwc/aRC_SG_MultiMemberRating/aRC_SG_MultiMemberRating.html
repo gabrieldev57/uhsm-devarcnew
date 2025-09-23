@@ -1,0 +1,62 @@
+<template>
+    <lightning-card title="Member Rating Results" icon-name="custom:custom63" class="slds-m-around_medium">
+        <div class="slds-m-around_medium">
+            <lightning-input type="file" label="Upload CSV" onchange={handleFileChange} accept=".csv"></lightning-input>
+            <lightning-button
+                variant="brand"
+                label="Rate Members"
+                onclick={handleCallIP}
+                class="slds-m-top_medium"
+                disabled={isCallDisabled}>
+            </lightning-button>
+        </div>
+
+        <template if:true={members}>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th scope="col"><div class="slds-truncate" title="Full Name">Full Name</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Effective Date">Effective Date</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Use Dates Only">Use Dates Only</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Program">Program</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Tier">Tier</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Plan">Plan</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Program Type">Program Type</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Age">Age</div></th>
+                        <th scope="col"><div class="slds-truncate" title="State Code">State Code</div></th>
+                        <th scope="col"><div class="slds-truncate" title="State Name">State Name</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Curv Score">Curv Score</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Rate">Rate</div></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={members} for:item="member">
+                        <tr key={member.FullName}>
+                            <td><div class="slds-truncate" title={member.FullName}>{member.FullName}</div></td>
+                            <td><div class="slds-truncate" title={member.EffectiveDate}>{member.EffectiveDate}</div></td>
+                            <td><div class="slds-truncate" title={member.UseDatesOnly}>{member.UseDatesOnly}</div></td>
+                            <td><div class="slds-truncate" title={member.Program}>{member.Program}</div></td>
+                            <td><div class="slds-truncate" title={member.Tier}>{member.Tier}</div></td>
+                            <td><div class="slds-truncate" title={member.Plan}>{member.Plan}</div></td>
+                            <td><div class="slds-truncate" title={member.ProgramType}>{member.ProgramType}</div></td>
+                            <td><div class="slds-truncate" title={member.Age}>{member.Age}</div></td>
+                            <td><div class="slds-truncate" title={member.StateCode}>{member.StateCode}</div></td>
+                            <td><div class="slds-truncate" title={member.StateName}>{member.StateName}</div></td>
+                            <td><div class="slds-truncate" title={member.CurvScore}>{member.CurvScore}</div></td>
+                            <td><div class="slds-truncate" title={member.Rate}>$ {member.Rate}</div></td>
+                        </tr>
+                    </template>
+                    <!-- Total row -->
+                    <tr class="slds-text-title_caps slds-text-align_right">
+                        <td colspan="11"><strong>Total Rate</strong></td>
+                        <td><strong>$ {totalRate}</strong></td>
+                    </tr>
+                </tbody> 
+            </table>
+        </template>
+
+        <template if:true={error}>
+            <div class="slds-text-color_error slds-m-around_medium">{error}</div>
+        </template>
+    </lightning-card>
+</template>

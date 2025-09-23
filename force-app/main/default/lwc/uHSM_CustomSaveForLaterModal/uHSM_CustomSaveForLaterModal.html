@@ -1,0 +1,28 @@
+<template>
+    <template if:true={guestUserProfile}>
+        <vlocity_ins-modal 
+            class="vlocityModal"
+            data-omni-key="omnimodal"
+            type={modalType}
+            layout={modalLayout}
+            triggered-on-step=false
+            hide-footer={modalHideFooter} 
+            hide-header={modalHideHeader}
+            is-modal-open=true>
+            <span slot="header">Enrollment saved correctly</span>
+            <span slot="content"> 
+                Type the email where you want to recieve the link to resume yor Enrollment
+                <br>
+                <vlocity_ins-input type="email" onblur={handleBlurEmail} value={emailAddress}></vlocity_ins-input>
+            </span>
+            <span slot="footer">
+                <vlocity_ins-button
+                    label='Send Email'
+                    variant='brand'
+                    onclick={handleSendEmail}
+                    disable={disableEmailButton}>
+                </vlocity_ins-button>
+            </span>
+        </vlocity_ins-modal>
+    </template>
+</template>

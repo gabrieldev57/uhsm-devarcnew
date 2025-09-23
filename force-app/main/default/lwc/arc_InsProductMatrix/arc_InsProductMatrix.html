@@ -1,0 +1,111 @@
+<template>
+    <!-- <div class="vloc-ins-product-matrix slds-border_bottom nds-border_bottom vloc-ins-link"
+        if:true={displayProductsHeader}>
+        <c-arc_ins-product-matrix-row row={productsHeader} last-medical-selection-id={lastMedicalSelectionId}
+            onclick={handleSectionToggle} data-record-index="0" row-style="overviewrow" theme={theme}
+            select-btn-fn={selectBtnFn}></c-arc_ins-product-matrix-row>
+    </div> -->
+    <!-- <div style="overflow-y: auto; height: 60vh;" -->
+    <div style="overflow-y: auto"
+        class="vloc-ins-product-matrix slds-table slds-table_cell-buffer nds-table nds-table_cell-buffer">
+        <template if:true={isLoading}>
+            <div class="slds-spinner_container">
+                <lightning-spinner alternative-text="Loading" size="big"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={matrix}>
+            <template if:true={medicalWarning}>
+                <div class="slds-card slds-theme_shade">
+                    <div class="slds-card__header slds-grid">
+                        <div class="slds-notify slds-notify_alert slds-alert_warning">
+                            Warning: Please select up to one core program to continue.
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template if:true={smartWarning}>
+                <div class="slds-card slds-theme_shade">
+                    <div class="slds-card__header slds-grid">
+                        <div class="slds-notify slds-notify_alert slds-alert_warning">
+                            Warning: Please select up to two SMART programs to continue.
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template if:true={aiddWarning}>
+                <div class="slds-card slds-theme_shade">
+                    <div class="slds-card__header slds-grid">
+                        <div class="slds-notify slds-notify_alert slds-alert_warning">
+                            Warning: Please select up to two AIDD programs to continue.
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!--Overview Matrix-->
+
+            <template for:each={matrix} for:item="row" for:index="rowIndex">
+                <div key={row.key}>
+                    <div class="slds-border_bottom nds-border_bottom vloc-ins-link" if:false={row.hidden}>
+                        <c-arc_ins-product-matrix-row row={row} last-medical-selection-id={lastMedicalSelectionId}
+                            onclick={handleSectionToggle} data-record-index={rowIndex} row-style="overviewrow"
+                            theme={theme} select-btn-fn={selectBtnFn}></c-arc_ins-product-matrix-row>
+                    </div>
+                    <div if:true={row.showDetail}>
+                        <div if:true={row.attrMatrix} class="vloc-ins-row-detail">
+                            <template for:each={row.attrMatrix} for:item="row">
+                                <c-arc_ins-product-matrix-row is-editable={isEditable} row-style="attributerow"
+                                    key={row.key} row={row} theme={theme}>
+                                </c-arc_ins-product-matrix-row>
+                            </template>
+                        </div>
+                        <div class="slds-border_bottom nds-border_bottom vloc-ins-row-detail">
+                            <template if:true={row.matrix}>
+                                <!--Coverages Matrix:-->
+                                <template for:each={row.matrix} for:item="row" for:index="childIndex">
+                                    <!--Party Item Row:-->
+                                    <template if:true={row.isInsuredPartySpec}>
+                                        <div key={row.key} class="vloc-ins-link">
+                                            <c-arc_ins-product-matrix-row row={row} onclick={handleDetailSectionToggle}
+                                                data-child-index={childIndex} data-parent-index={rowIndex}
+                                                row-style="productrow" theme={theme}>
+                                            </c-arc_ins-product-matrix-row>
+                                        </div>
+                                        <template if:true={row.showDetail}>
+                                            <template if:true={row.attrMatrix}>
+                                                <!--Attribute Matrix-->
+                                                <template for:each={row.attrMatrix} for:item="row">
+                                                    <c-arc_ins-product-matrix-row is-editable={isEditable}
+                                                        row-style="attributerow" key={row.key} row={row} theme={theme}>
+                                                    </c-arc_ins-product-matrix-row>
+                                                </template>
+                                            </template>
+                                        </template>
+                                    </template>
+                                    <!--Non Party Item Row-->
+                                    <template if:false={row.isInsuredPartySpec}>
+                                        <c-arc_ins-product-matrix-row row-style="productrow" key={row.key} row={row}
+                                            theme={theme}>
+                                        </c-arc_ins-product-matrix-row>
+                                        <template if:true={row.attrMatrix}>
+                                            <!--Attribute Matrix-->
+                                            <template for:each={row.attrMatrix} for:item="row">
+                                                <c-arc_ins-product-matrix-row is-editable={isEditable}
+                                                    row-style="attributerow" key={row.key} row={row} theme={theme}>
+                                                </c-arc_ins-product-matrix-row>
+                                            </template>
+                                        </template>
+                                    </template>
+                                </template>
+                            </template>
+                            <template if:true={row.isLoading}>
+                                <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

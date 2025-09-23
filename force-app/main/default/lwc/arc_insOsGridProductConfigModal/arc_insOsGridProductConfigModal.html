@@ -1,0 +1,42 @@
+<template>
+    <template if:false={isLoaded}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    <vlocity_ins-modal size="medium">
+        <div slot="header">
+            <div class="nds-text-heading_medium slds-text-heading_medium">
+                {modalTitle}
+            </div>
+            <div if:true={disableAddToCart} class={alertStyles} role="alert">
+                <span class="nds-assistive-text slds-assistive-text">{labels.InsProductWarning}</span>
+                <vlocity_ins-icon icon-name="utility:warning" size="x-small" extraclass="nds-m-right_small slds-m-right_small"
+                    theme={theme}>
+                </vlocity_ins-icon>
+                <h2>{labels.InsInOrderToAddToCartPleaseUpdatePrice}</h2>
+            </div>
+        </div>
+        <div slot="content">
+            <c-arc_-ins-os-grid-product-config if:true={product} product={product} root-channel={rootChannel} theme={theme}
+                hide-actions="true" reprice-action={repriceAction}></c-arc_-ins-os-grid-product-config>
+        </div>
+        <div slot="footer">
+            <template if:true={product}>
+                <vlocity_ins-button theme={theme} onclick={reset} variant="destructive" label={labels.InsReset}
+                    extraclass="slds-m-right_small nds-m-right_small"></vlocity_ins-button>
+                <vlocity_ins-button theme={theme} onclick={rePriceProduct} variant="brand" disabled={disabledUpdatePrice}
+                    label="Update" extraclass="slds-m-right_small nds-m-right_small"></vlocity_ins-button>
+                    <div if:true={isCartFull} class="arc_cart-popup nds-popover nds-nubbin_bottom-left nds-popover_small">
+                        <div>Cart is full, current program:</div>
+                        <div>{inCartProgram}</div>
+                    </div>
+                    <vlocity_ins-button if:true={product.isSelected} theme={theme} disabled={disableAddToCart} onclick={addToCartProd}
+                        label={labels.Remove} extraclass="slds-m-right_small nds-m-right_small" variant="destructive">
+                    </vlocity_ins-button>
+                    <vlocity_ins-button if:false={product.isSelected} theme={theme} disabled={disableAddToCart}
+                        onclick={addToCartProd} label={labels.AddToCart} extraclass="slds-m-right_small nds-m-right_small"
+                        variant="brand">
+                    </vlocity_ins-button>
+            </template>
+        </div>
+    </vlocity_ins-modal>
+</template>

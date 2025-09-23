@@ -1,0 +1,119 @@
+<!-- sldsValidatorIgnore -->
+<template>
+	<div if:false={currentMemberIsEmpty} class="slds-card slds-p-around_small">
+		<button class="vlocity-btn slds-button" onclick={handleManageModal} data-manage="open">
+			<svg class="slds-icon slds-icon-text-default slds-icon_small" focusable="false" data-key="email"
+				aria-hidden="true" viewBox="0 0 52 52" style="fill: rgb(5, 166, 223); margin-right: 8px;">
+				<g>
+					<g>
+						<path
+							d="M24.9 30.1c.6.6 1.5.6 2.1 0l22.6-21c.4-.8.3-2.1-1.3-2.1l-44.7.1c-1.2 0-2.2 1.1-1.3 2.1l22.6 20.9z">
+						</path>
+						<path
+							d="M50 17.3c0-1-1.2-1.6-2-.9L30.3 32.7c-1.2 1.1-2.7 1.7-4.3 1.7s-3.1-.6-4.3-1.6L4.1 16.4c-.8-.7-2-.2-2 .9C2 17 2 40 2 40c0 2.2 1.8 4 4 4h40c2.2 0 4-1.8 4-4V17.3z">
+						</path>
+					</g>
+				</g>
+			</svg>
+			<span> Send Email Template</span>
+		</button>
+	</div>
+	<template if:true={isModalOpen}>
+		<!-- Modal/Popup Box LWC starts here -->
+		<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+			aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+				<!-- Modal/Popup Box LWC header here -->
+				<header class="slds-modal__header">
+					<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+						title="Close" onclick={handleManageModal} data-manage="close">
+						<lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+							size="small"></lightning-icon>
+						<span class="slds-assistive-text">Close</span>
+					</button>
+					<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Send Email Template</h2>
+				</header>
+				<!-- Modal/Popup Box LWC body starts here -->
+				<div class="content slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+					<div if:false={noMembers} class="dropdown-container">
+						<lightning-combobox label="Select Email Template" options={TemplateOptions} value={valTemplate}
+							onchange={handleChangeTemplate} class="dropdownSelector">
+						</lightning-combobox>
+						<lightning-combobox if:true={showDropdown} label="Select Email Address"
+							options={EmailAddressOptions} value={valTemplate} onchange={handleChangeEmailAddress}
+							class="dropdownSelector">
+						</lightning-combobox>
+						<ul class="memberList">
+							<li for:each={membersAvailable} for:item="member" key={member.value}>
+								<input type="checkbox" onclick={handleClickMember} data-id={member.value}
+									data-email={member.email} data-member="true" checked={member.isSelected}>
+								{member.label}
+								({member.relationship})
+							</li>
+							<li for:each={hipaasAvailable} for:item="member" key={member.value}>
+								<input type="checkbox" onclick={handleClickHipaa} data-id={member.value}
+									data-email={member.email} data-hipaa="true" checked={member.isSelected}>
+								{member.label}
+								({member.relationship})
+							</li>
+						</ul>
+
+					</div>
+					<div class="noMembers" if:true={noMembers}>There is no Active members to display.</div>
+
+					<div if:true={showError}>
+						<h6>Please finish reviewing the following errors before sending your email:</h6>
+						<div for:each={errorList} for:item="error" key={error} class="errorPopup">
+							<p>{error}</p>
+						</div>
+					</div>
+
+					<div if:true={showSubject} class="subject">
+						<div>Subject: {subject}</div>
+					</div>
+
+					<div if:true={showEFTForm} class="attachment-container">
+						<a class="attachment-link" target="_blank" href={EFTFormURL}>
+							<lightning-icon class="attachment-icon" icon-name="doctype:pdf"
+								alternative-text="Image file" title="Image"></lightning-icon>
+							EFT Form
+						</a>
+					</div>
+
+					<div if:true={showLabOrderForm} class="attachment-container">
+						<a class="attachment-link" target="_blank" href={LabOrderFormURL}>
+							<lightning-icon class="attachment-icon" icon-name="doctype:pdf"
+								alternative-text="Image file" title="Image"></lightning-icon>
+							UHSM Lab Order
+						</a>
+					</div>
+
+                    <div if:true={showNonLocatesLabOrderForm} class="attachment-container">
+                        <a class="attachment-link" target="_blank" href={NonLocatesLabOrderFormURL}>
+                            <lightning-icon class="attachment-icon" icon-name="doctype:pdf" alternative-text="Image file" title="Image"></lightning-icon>
+                            Non Locates Lab Order Form
+                        </a>
+                    </div>
+										
+					<div if:true={showhdlrc} class="attachment-container">
+						<a class="attachment-link" target="_blank" href={hdlrcURL}>
+							<lightning-icon class="attachment-icon" icon-name="doctype:pdf"
+								alternative-text="Image file" title="Image"></lightning-icon>
+							Healthy Discount Lab Results Criteria
+						</a>
+					</div>
+
+					<div class="preview" lwc:dom="manual"></div>
+				</div>
+				<!-- Modal/Popup Box LWC footer starts here -->
+				<footer class="slds-modal__footer">
+					<button class="slds-button slds-button_neutral" onclick={handleManageModal} data-manage="close"
+						title="Cancel">Cancel</button>
+					<button class="slds-button slds-button_brand" title="Send emails" disabled={enableSendButton}
+						onclick={handleSendEmail}>Send</button>
+				</footer>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open"></div>
+	</template>
+</template>

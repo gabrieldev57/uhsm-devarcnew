@@ -1,0 +1,76 @@
+<template>
+    <div lwc:ref="topbarContainer" class="si-topbar-container">
+        <header lwc:ref="topbar" class="si-topbar si-topbar-shadow hide-drawer-desktop" onmouseenter={handleMouseEnter} onmouseleave={handleMouseLeave}
+        data-logged-in={bIsUser} data-link-alignment={linkAlignment}>
+            <div class="topbar-content si-width">
+                <div class="topbar-left">
+                    <div class="logo-container">
+                        <div class="logo">
+                            <a class="si-button logo-button" href={homeUrl} onclick={handleNavigationHome} data-variation="none">
+                                <img src={logoUrl}/>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="topbar-center" lwc:if={bLinksCenter}>
+                </div>
+    
+                <div class="topbar-right">
+                    <!-- Phone Number Button -->
+                    <button class="si-button phone-button" onclick={handlePhoneClick} data-variation="none">
+                        <svg aria-hidden="true">
+                            <use xlink:href={iconPhone}></use>
+                        </svg>
+                        <span>Contact us 844-489-8476</span>
+                    </button>
+                    
+                    <!-- Create Profile Button -->
+                    <button class="si-button register-button" onclick={navigateToRegister} data-variation="none">
+                        <svg aria-hidden="true">
+                            <use xlink:href={iconProfile}></use>
+                        </svg>
+                        <span>Create Profile</span>
+                    </button>
+                    
+                    <!-- Log In Button -->
+                    <button class="si-button login-button" onclick={navigateToLogin}>
+                        <span>Log In</span>
+                    </button>
+                </div>
+    
+            </div>
+            
+            <button type="button" class="si-drawer-toggle" title="Toggle drawer" onclick={toggleDrawer}>
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <c-a-r-c_-side-drawer lwc:ref="drawer" top-offset={height} responsive-top-offset={responsiveHeight}>
+                <div class="si-drawer-links">
+                    <!-- Phone Number Button -->
+                    <button class="si-button phone-button" onclick={handlePhoneClick} data-variation="none">
+                        <svg aria-hidden="true">
+                            <use xlink:href={iconPhone}></use>
+                        </svg>
+                        <span>Contact us 844-489-8476</span>
+                    </button>
+                    
+                    <!-- Create Profile Button -->
+                    <button class="si-button register-button" onclick={navigateToRegister} data-variation="none">
+                        <svg aria-hidden="true">
+                            <use xlink:href={iconProfile}></use>
+                        </svg>
+                        <span>Create Profile</span>
+                    </button>
+                    
+                    <!-- Log In Button -->
+                    <button class="si-button login-button" onclick={navigateToLogin}>
+                        <span>Log In</span>
+                    </button>
+                </div>
+            </c-a-r-c_-side-drawer>
+        </header>
+        <div class="spacer"></div>
+    </div>
+</template>

@@ -1,0 +1,28 @@
+<template>
+    <div if:true={renderComponent} class="container">
+        <button onclick={addPrimaryInsurance}>Add Primary Insurance</button>
+        <template if:true={showModal}>
+            <c-a-r-c_-external-insurer-members-options onclose={handleModalClose} onsave={handleModalSave}>
+
+            </c-a-r-c_-external-insurer-members-options>
+        </template>
+    </div>
+        <div class="insurer-container" for:each={insurersList} for:item="insurer" key={insurer.InsurerName}>
+            <div class="header"><a data-id={insurer.Id} onclick={navigateToRecordPage}>{insurer.InsurerName}</a>
+                <div class="header-fields-container">
+                    <span>Source:&nbsp;</span><p>{insurer.Source}</p>
+                    <span>Policy Number:&nbsp;</span><p>{insurer.PolicyNumber}</p>
+                    <span>Insurer Phone:&nbsp;</span><p>{insurer.Phone}</p>
+                    <span>Effective Date:&nbsp;</span><p>{insurer.EffectiveDate}</p>
+                    <span>Expiration Date:&nbsp;</span><p>{insurer.ExpirationDate}</p>
+                </div>
+            </div>
+            <div class="main-content">
+                <span>Members:</span>
+                <div for:each={insurer.Members} for:item="member" key={member.Name}>
+                    <p class="member-name">{member.Name}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

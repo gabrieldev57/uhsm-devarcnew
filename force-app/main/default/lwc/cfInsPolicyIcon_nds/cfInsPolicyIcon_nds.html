@@ -1,0 +1,71 @@
+<template>
+            <div class="nds-grid nds-wrap nds-is-relative ">
+            <div style="position: fixed;z-index: 999999;top: 0;right: 0;">
+  <vlocity_ins-toast class="flexcard-toast-element" theme="nds" title="" message="" styletype=""> </vlocity_ins-toast>
+</div>
+            <div if:true={showLoader} class="nds-is-absolute vloc-loader_override" style="height: 100%; width: 100%; min-height:50px; background: transparent; z-index: 99;">
+  <div>
+   <vlocity_ins-spinner
+      variant="brand"
+      alternative-text="Loading content..."
+      size="small"
+      theme="nds"
+      ></vlocity_ins-spinner>
+  </div>
+</div>
+            <template if:false={hasPermission}>
+              You don't have required permissions to view this card.
+            </template>
+            <template if:true={hasPermission}>
+              <template if:true={hasRecords}>
+                        <template for:each={_records} for:item="record" for:index="rindex">
+                            <vlocity_ins-flex-card-state if:true={record}  key={record._flex.uniqueKey} data-recordid={record.Id} record={record} data-statue="true"  data-index="0" data-rindex={rindex} class="cf-vlocity-state-0 cf-vlocity-state nds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="nds-grid nds-wrap " style="             ">
+          <div data-style-id="state0element0" class="nds-col   nds-size_12-of-12 condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}' ><vlocity_ins-flex-img data-style-id="state0element0_child" card={card}  record={record}  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}'  extraclass="nds-align_absolute-center"  size=""  state-img='\{"alternativeText":"Image description","imgsrc":"/resource/{nsPrefix}newport/assets/images/communities/auto.svg"}'  theme="nds"  ></vlocity_ins-flex-img>
+      </div>
+        </div>
+      </vlocity_ins-flex-card-state><vlocity_ins-flex-card-state if:true={record}  key={record._flex.uniqueKey} data-recordid={record.Id} record={record} data-statue="true"  data-index="1" data-rindex={rindex} class="cf-vlocity-state-1 cf-vlocity-state nds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="nds-grid nds-wrap " style="             ">
+          <div data-style-id="state1element0" class="nds-col   nds-size_12-of-12 condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}' ><vlocity_ins-flex-img data-style-id="state1element0_child" card={card}  record={record}  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}'  extraclass="nds-align_absolute-center"  size=""  state-img='\{"alternativeText":"Image description","imgsrc":"/resource/{nsPrefix}newport/assets/images/communities/homeowners.svg"}'  theme="nds"  ></vlocity_ins-flex-img>
+      </div>
+        </div>
+      </vlocity_ins-flex-card-state><vlocity_ins-flex-card-state if:true={record}  key={record._flex.uniqueKey} data-recordid={record.Id} record={record} data-statue="true"  data-index="2" data-rindex={rindex} class="cf-vlocity-state-2 cf-vlocity-state nds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="nds-grid nds-wrap " style="             ">
+          <div data-style-id="state2element0" class="nds-col   nds-size_12-of-12 condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}' ><vlocity_ins-flex-img data-style-id="state2element0_child" card={card}  record={record}  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}'  extraclass="nds-align_absolute-center"  size=""  state-img='\{"alternativeText":"Image description","imgsrc":"/resource/{nsPrefix}newport/assets/images/communities/shield.svg"}'  theme="nds"  ></vlocity_ins-flex-img>
+      </div>
+        </div>
+      </vlocity_ins-flex-card-state>
+                        </template>
+                      </template>
+                      <template if:false={hasRecords}>
+                            <vlocity_ins-flex-card-state  record={record} data-statue="false"  data-index="0" data-rindex={rindex} class="cf-vlocity-state-0 cf-vlocity-state nds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="nds-grid nds-wrap " style="             ">
+          <div data-style-id="state0element0" class="nds-col   nds-size_12-of-12 condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}' ><vlocity_ins-flex-img data-style-id="state0element0_child" card={card}  record={record}  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}'  extraclass="nds-align_absolute-center"  size=""  state-img='\{"alternativeText":"Image description","imgsrc":"/resource/{nsPrefix}newport/assets/images/communities/auto.svg"}'  theme="nds"  ></vlocity_ins-flex-img>
+      </div>
+        </div>
+      </vlocity_ins-flex-card-state><vlocity_ins-flex-card-state  record={record} data-statue="false"  data-index="1" data-rindex={rindex} class="cf-vlocity-state-1 cf-vlocity-state nds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="nds-grid nds-wrap " style="             ">
+          <div data-style-id="state1element0" class="nds-col   nds-size_12-of-12 condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}' ><vlocity_ins-flex-img data-style-id="state1element0_child" card={card}  record={record}  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}'  extraclass="nds-align_absolute-center"  size=""  state-img='\{"alternativeText":"Image description","imgsrc":"/resource/{nsPrefix}newport/assets/images/communities/homeowners.svg"}'  theme="nds"  ></vlocity_ins-flex-img>
+      </div>
+        </div>
+      </vlocity_ins-flex-card-state><vlocity_ins-flex-card-state  record={record} data-statue="false"  data-index="2" data-rindex={rindex} class="cf-vlocity-state-2 cf-vlocity-state nds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="nds-grid nds-wrap " style="             ">
+          <div data-style-id="state2element0" class="nds-col   nds-size_12-of-12 condition-element" data-rindex={rindex} style=""  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}' ><vlocity_ins-flex-img data-style-id="state2element0_child" card={card}  record={record}  data-conditions='\{"group":[],"id":"state-condition-object","isParent":true}'  extraclass="nds-align_absolute-center"  size=""  state-img='\{"alternativeText":"Image description","imgsrc":"/resource/{nsPrefix}newport/assets/images/communities/shield.svg"}'  theme="nds"  ></vlocity_ins-flex-img>
+      </div>
+        </div>
+      </vlocity_ins-flex-card-state>
+                      </template>
+            </template>
+            <template if:true={hasError}>
+            {error}
+            </template>
+            
+      <vlocity_ins-action action-wrapperclass="slds-hide" re-render-flyout class="action-trigger slds-col" onupdateos={updateOmniscript} onselectcards={updateSelectedCards} onsetvalue={updateAction} onfireactionevent={actionEvtHandler}>
+      
+      </vlocity_ins-action>
+  
+            <vlocity_ins-action class="execute-action" re-render-flyout action-wrapperclass="slds-hide" onupdateos={updateOmniscript} onselectcards={updateSelectedCards} onsetvalue={updateAction} onfireactionevent={actionEvtHandler}>
+            
+            </vlocity_ins-action>
+            </div>
+          </template>

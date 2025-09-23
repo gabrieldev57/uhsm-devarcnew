@@ -1,0 +1,29 @@
+.report-container{
+    background-color: aliceblue;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    background-clip: padding-box;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.10), 0 2px 2px 0 rgba(0, 0, 0, 0.10);
+    height: auto;
+}
+
+.report-list{
+    list-style-type: disc;
+    margin: 0px 22px;
+}
+
+.report-list button{
+    color: rgb(0, 140, 255);
+    font-size: 18px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: 0.3s;
+}
+
+.report-list button:hover{
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}

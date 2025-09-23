@@ -1,0 +1,25 @@
+/* This file contains helper classes that Salesforce uses in runtime that I couldn't use */
+div.scroller-container__helper {
+    min-width: 0;
+    flex-basis: 1px;
+}
+
+div.scroller-wrapper__helper {
+    height: auto;
+}
+
+div.scroller-inner__helper {
+    position: static;
+    min-width: 100%;
+}
+
+div.scroller-inner__overflow-helper{
+    width: auto !important;
+    position: absolute;
+    transition-duration: 700ms;
+    transition-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
+}
+
+div.modal-content__helper {
+    overflow: visible;
+}

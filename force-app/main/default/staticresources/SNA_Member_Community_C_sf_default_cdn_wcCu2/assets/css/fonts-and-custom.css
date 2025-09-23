@@ -1,0 +1,722 @@
+.comm-page-custom-set-username-and-password>.themeLayoutStarterWrapper,
+.comm-page-custom-reset-password>.themeLayoutStarterWrapper{
+	background-color:#2c2b2c;
+    min-height:100vh;
+}
+
+.salesforceIdentityForgotPassword2>.inputContainer{
+	width:400px;
+	margin-left:auto;
+	margin-right:auto;
+}
+.salesforceIdentityForgotPassword2 button.uiButton{
+	display:block;
+	width:203px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+.salesforceIdentityLoginBody2 .cCenterPanel{
+    max-width:670px !important;
+}
+
+p.bhc{
+    color: #2b271f !important;
+    font-size:0.875rem !important;
+    font-family:'Lato',sans-serif !important;
+}
+
+[c-arc_mc_footer_arc_mc_footer] p b {
+    font-weight: bold;
+    color: #fff;
+}
+
+.slds-button.slds-button--brand.loginButton{
+	background-color:#2C2B2C;
+}
+
+.comm-page-login-home .body.isPageWidthFixed-true{
+    flex-grow:1;
+}
+.comm-page-login-home .themeLayoutStarterWrapper.isHeroUnderHeader-false.isHeaderPinned-false.siteforceThemeLayoutStarter {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-component .bottom-container p{
+    margin-bottom: 10px;
+    color: #fff !important;
+    font-size: 12px;
+}
+.arc-button-big.hero-button button{
+    font-weight: bold;
+}
+.uhsm-responsive-margin{
+    margin-left: calc(10% - 20px);
+    margin-right: calc(10% - 20px);
+}
+.uhsm-responsive-center{
+    text-align: center;
+}
+
+.back-to-login {
+    margin-top: 8px;
+    margin-bottom: 15px;
+    color: #ffffff !important;
+    cursor: pointer;
+    background-color: #2c2b2c !important;
+    display: block;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-style:normal;
+    font-family: Open Sans;
+    border-radius: 2px;
+    text-align:center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 150px;
+}
+
+.back-to-login:hover{
+    background-color: #e1a60e !important;
+    text-decoration:none !important;
+}
+
+div.ui-widget.C-INDIVIDUAL-SHOP-PRODUCTS-UPDATE-P-A-ENGLISH > c-individual-shop-products-update-p-a-english > div > div > c-a-r-c_-custom-save-for-later-modal > vlocity_ins-modal > div > section > div > header.nds-modal__header > button{
+    display: none !important;
+}
+
+@media screen and (min-width: 64em){
+    .uhsm-responsive-margin{
+        margin-left: unset;
+        margin-right: unset;
+    }
+    
+    .uhsm-responsive-center{
+    	text-align: unset;
+    }
+}
+
+@media  (max-width: 768px){
+    .title-com{
+        font-size:28px!important;
+    }
+    .title-com-mid{
+        font-size:28px!important;
+    }
+    .community-hero-content-container p{
+        font-size:14px
+    }
+}
+
+/* Forgot Password background */
+.salesforceIdentityLoginBody2{
+    background-color:#ffffff !important;
+}
+
+/*div.comm-layout-column{
+    width:50% !important;
+    margin:auto !important;
+}*/
+
+.inverseTextColor {
+  background-color: black; 
+  color: white; 
+  mix-blend-mode: difference;
+}
+
+/* ADDED FROM SR */
+.forceCommunityRichText .social-links li:before{
+    display: none !important;
+}
+.forceCommunityMultiLevelNavigationWrapper{
+    display: none !important;
+}
+
+
+.uhsm-p{
+    padding: 40px 20px !important;
+    background-color: rgba(255,255,255,.8) !important;
+}
+@media screen and (min-width: 64em){
+    .uhsm-p{
+        width: 620px !important;
+    	padding: 0 10px !important;
+        background-color: transparent !important;
+    }
+    .uhsm-p li,
+    .uhsm-p p {
+        font-size: 16px !important;
+    }
+}
+.uhsm-p a{
+    color: #008fee !important;
+}
+.uhsm-p a:hover,
+.uhsm-p a:focus{
+    color: #0079ca !important;
+}
+.uhsm-p ul{
+    padding: 0 !important;
+}
+.uhsm-p ul li{
+    margin-bottom: 16px !important;
+    padding-left: 0.6em !important;
+    line-height: 1.4 !important;
+}
+.uhsm-p ul li:last-child{
+    margin-bottom: 0 !important;
+}
+
+/*.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV,
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV{
+    width: 400px !important;
+    margin: auto !important;
+}*/
+/*.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .inputContainer{
+    border-radius: 10px !important;
+}*/
+/*.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .inputIcon{
+    display: none !important;
+}*/
+/*.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .slds-button{
+    background-color: #008fee !important;
+    border-radius: 10px !important;
+    text-align: left !important;
+    padding-left: 30px !important;
+}*/
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .slds-button:hover,
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .slds-button:focus,
+.comm-page-login-home .ui-widget.C-A-R-C_-SPACER+.DIV+.DIV .slds-button:active{
+    background-color: #F2BC30 !important;
+}
+
+
+div.nds-spinner_brand[vlocity_ins-spinner_spinner_nds]>div[vlocity_ins-spinner_spinner_nds]{
+    background-color: #F2BC30;
+}
+
+@media only screen and (max-width: 600px) {
+
+    div[c-individualshopproductsupdatepaenglish_individualshopproductsupdatepaenglish_nds].nds-card__body.nds-card__body_inner.nds-m-top_medium{
+        padding: 0 !important;
+    }
+
+    /* Hides the mm/dd/yyyy inital value from date fields when no date is selected yet so it doesn't overlap the birthdate label on mobile devices*/
+    .nds-input.nds-input_mask[type=date]{
+        color: transparent !important;
+    }
+
+    .nds-input.nds-input_mask.nds-not-empty.nds-is-dirty[type=date]{
+        color: rgba(0, 0, 0, 0.8) !important;
+    }
+
+    c-arc_-demo-census-row vlocity_ins-layout div.nds-grid{
+        flex-direction:column !important;
+    }
+    c-arc_-demo-census-row .nds-grid .vloc-ins-employee-name-block.nds-col.nds-size_3-of-12{
+        width:auto;
+        max-width:none;
+        min-height:auto;
+    }
+    c-arc_-demo-census-row .nds-grid .nds-col.nds-size_4-of-12{
+        width:auto;
+        max-width:none;
+        min-height:auto;
+    }
+    [data-omni-key=TextBlock2] p[style="text-align: right;"]{
+        text-align:left !important;
+    }
+    [aria-label="Plan Selection"] thead{
+        display:none;
+    }
+    
+    [aria-label="Plan Selection"] c-arc_-ins-os-grid-product-row{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    
+    [aria-label="Plan Selection"] td{
+        display: flex;
+        flex-wrap: wrap;
+        border: none !important;
+    }
+    
+    
+    [aria-label="Plan Selection"] .arc_attribute-grid{
+        padding: 0px !important;
+    }
+    
+    td.product-name-td>div {
+        font: bold 24px "Open Sans" !important;
+        color: #956807 !important;
+    }
+
+    td[data-label="Product Name"]{
+        width:100%;
+    }
+    
+    [aria-label="Plan Selection"] td::before{
+        width:100%;
+        font-weight:bold;
+    }
+    td[data-label="Attributes"]::before{
+        content: "AMCS Individual/Family";
+    }
+    td[data-label="Price"]::before{
+        content: "Price";
+    }
+    td[data-label="Compare"]{
+
+    }
+    td[data-label="Compare"]::before{
+        margin-top: 3px;
+        content: "Compare";
+    }
+    
+    c-arc_-ins-os-grid-products div[c-arc_insosgridproducts_arc_insosgridproducts].slds-box.slds-m-bottom_medium {
+        padding: 0;
+        border: 0;
+    }
+
+    c-arc_-ins-os-grid-products div[c-arc_insosgridproducts_arc_insosgridproducts]>.nds-size_1-of-3 {
+        width: 100%;
+        flex: none;
+        max-width: none;
+        border: none !important;
+    }
+
+    c-arc_-ins-os-grid-products .group-name{
+        display: block;
+        text-align: center !important;
+    }
+
+    c-arc_-ins-os-grid-product-row.slds-hint-parent {
+        border-bottom: 1px solid lightgray;
+    }
+
+    [aria-label="Plan Selection"] td[data-label="Attributes"], [aria-label="Plan Selection"] td[data-label="Price"], [aria-label="Plan Selection"] td[data-label="Compare"] {
+        width: 37%;
+    }
+
+    [aria-label="Plan Selection"] td[data-label="Add to Cart"]{
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    td[data-label="Add to Cart"]>div,
+    td[data-label="Add to Cart"]>div>vlocity_ins-button{
+        width: 100%;
+    }
+
+    td[data-label="Compare"] {
+        flex-wrap: nowrap;
+    }
+
+    .add-to-cart-button c-icon{
+        align-items: center;
+    }
+
+    .add-to-cart-button c-icon::after{
+        content: "Add To Cart";
+        margin-left: 10px;
+    }
+
+    .compare-checkbox .nds-checkbox_faux{
+        width: 25px !important;
+        height: 25px !important;
+    }
+
+    .compare-checkbox nds-checkbox_faux::after{
+        height: 0.45rem !important;
+        width: 0.8rem !important;
+    }
+
+    c-arc_-ins-os-grid-product-row.slds-hint-parent {
+        border: 1px solid lightgray;
+        margin-bottom: 15px;
+    }
+
+    .arc_attribute-popup[c-arc_insOsGridProductAttribute_arc_insOsGridProductAttribute]{
+        left: unset !important;
+        right: -2rem !important;
+        width: 100% !important;
+    }
+    
+    .via-nds .nds-nubbin_bottom-left:before,
+    .via-nds .nds-nubbin_bottom-left:after{
+        left: 72% !important;
+    }
+
+    c-arc_-ins-os-grid-product-selection-sugg .vloc-ins-sort-combo[c-arc_InsOsGridProductSelectionSugg_arc_InsOsGridProductSelectionSugg]{
+        width: 100%;
+        margin: auto;
+    }
+
+    c-arc_-ins-os-grid-product-selection-sugg .slds-grid.slds-grid_align-end.nds-grid.nds-grid_align-end{
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    table.slds-table.slds-table_bordered.plan-selection-table {
+        border: none !important;
+    }
+
+    c-arc_-ins-os-grid-product-selection-sugg[data-omni-key="LWC_ProductSelectionMedical"]>div.slds-grid.slds-grid_align-end.slds-m-vertical_medium.nds-grid.nds-grid_align-end.nds-m-vertical_medium,
+    c-arc_-ins-os-grid-product-selection-sugg[data-omni-key="LWC_ProductSelectionSMART"]>div.slds-grid.slds-grid_align-end.slds-m-vertical_medium.nds-grid.nds-grid_align-end.nds-m-vertical_medium,
+    c-arc_-ins-os-grid-product-selection-sugg[data-omni-key="LWC_ProductSelectionAIDD"]>div.slds-grid.slds-grid_align-end.slds-m-vertical_medium.nds-grid.nds-grid_align-end.nds-m-vertical_medium{
+        flex-direction: column;
+        align-items: center;
+    }
+
+   .slds-m-left_medium.nds-m-left_medium .vlocity-btn.nds-button.nds-button_brand
+    {
+        margin-bottom: 20px !important;
+    }
+
+    c-arc_ins-os-enrollee-benefits-summary-row-shopv2 div.vloc-ins-product-card{
+    	flex-direction: column;
+    }
+
+    c-arc_ins-os-enrollee-benefits-summary-row-shopv2 div.vloc-ins-product-card>.vloc-ins-product-detail{
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .attribute-container div[c-arc_insosgridproductattribute_arc_insosgridproductattribute] {
+        overflow: visible;
+    }
+
+    .demo-only.demo-only--sizing.slds-grid.slds-wrap{
+        flex-direction: column;
+    }
+    
+    .demo-only.demo-only--sizing.slds-grid.slds-wrap>div{
+    	width: 100%;
+    }
+
+    .demo-only.demo-only--sizing.slds-grid.slds-wrap label{
+        font-size: 0.75rem;
+        font-family: 'Open Sans';
+        color: rgba(132,132,132,255);
+    }
+
+    div[c-arc_insosgridproductrow_arc_insosgridproductrow].attribute-container {
+    	overflow: visible;
+	}
+    
+    div[vlocity_ins-insosgridproductrow_insosgridproductrow_compact].nds-size_2-of-8 {
+        width: 100%;
+        max-width: 100%;
+	}
+    
+    div[vlocity_ins-insosgridproductattribute_insosgridproductattribute].slds-truncate.nds-truncate.vloc-ins-prod-value{
+        overflow:visible !important;
+        text-overflow:visible !important;
+        white-space:wrap !important;
+    }
+    
+    div[vlocity_ins-insosgridproductrow_insosgridproductrow_compact].slds-size_5-of-6.slds-grid.nds-size_5-of-6.nds-grid{
+        flex-direction:column;
+    }
+
+    .termsAndConditionsScrollable[c-arc_TermsAndConditions_arc_TermsAndConditions]{
+        width: 100% !important;
+    }
+
+    .ssnClassWrapper{
+        display: flex;
+    }
+
+    [data-id="datePickerBtn"]{
+        display: none !important;
+    }
+
+    vlocity_ins-button[c-arc_democensusrow_arc_democensusrow] button{
+        width: 100%;
+    }
+
+    [data-omni-key="STEP_MedicalQuestions"] vlocity_ins-omniscript-text{
+        flex: 0 0 80% !important;
+    }
+    
+    [data-omni-key="STEP_MedicalQuestions"] vlocity_ins-omniscript-checkbox{
+        flex: 0 0 20% !important;
+    }
+
+    vlocity_ins-omniscript-block[data-omni-key="BLK_FuturePayment"] .nds-form-element.nds-clearfix.nds-block.nds-p-around_small.nds-is-open{
+        display: none !important;
+    }
+
+    .via-nds .nds-modal_custom .nds-modal .nds-modal__container {
+        width: unset !important;
+    }
+
+    vlocity_ins-button[c-individualenrollproductsupdatepaenglish_individualenrollproductsupdatepaenglish_nds].nds-medium-size_0-of-12,vlocity_ins-button[c-individualshopproductsupdatepaenglish_individualshopproductsupdatepaenglish_nds].nds-medium-size_0-of-12{
+        display: none !important;
+        padding: 0 !important;
+    }
+
+    vlocity_ins-button[c-individualenrollproductsupdatepaenglish_individualenrollproductsupdatepaenglish_nds].nds-medium-size_0-of-12 button,vlocity_ins-button[c-individualshopproductsupdatepaenglish_individualshopproductsupdatepaenglish_nds].nds-medium-size_0-of-12 button{
+        padding: 0 !important;
+        border: none !important;
+    }
+
+    c-a-r-c_-choose-products-enrollment [part=input-text] [part=label],
+    c-a-r-c_-choose-products-enrollment [part=combobox]>label{
+        display: none !important;
+    }
+
+    .omniscript-article [data-omni-key='STEP_SelectMedical'] .nds-size_2-of-8, .omniscript-article [data-omni-key='STEP_SelectSMART'] .nds-size_2-of-8, .omniscript-article [data-omni-key='STEP_DowngradeOrUpdatePlan'] .nds-size_2-of-8, .omniscript-article [data-omni-key='STEP_SelectAIDD'] .nds-size_2-of-8{
+        flex: unset !important;
+    }
+
+    table.customers .slds-combobox__input {
+        align-items: center !important;
+    }
+    
+    [data-omni-key="STEP_PlansSummary"] vlocity_ins-omniscript-text.nds-medium-size_10-of-12 {
+        flex: 0 0 65% !important;
+    }
+    
+    [data-omni-key="STEP_PlansSummary"] vlocity_ins-omniscript-text.nds-medium-size_2-of-12 {
+        flex: 0 0 35% !important;
+    }
+    
+    [data-omni-key=TXT_AppFeePrice] {
+    	height: 20px !important;
+	}
+
+    .add-to-cart-button .nds-is-selected c-icon::after {
+        content: "Added";
+        color: #f4b223;
+    }
+    
+    .nds-spinner_brand.nds-spinner.nds-is-absolute{
+        left:50% !important;
+        top:46% !important;
+    }
+
+    .via-nds .nds-col_bump-left{
+        margin: auto !important;
+    }
+
+    [data-omni-key="STEP_MedicalQuestions"] .omniscript-step__body-nds{
+        padding: 0 !important;
+    }
+    
+    .slds-col.slds-size_1-of-2{
+    	width: 100% !important;
+ 	}
+    
+    vlocity_ins-button[c-arc_externalinsurermembersoptions_arc_externalinsurermembersoptions].nds-m-horizontal_small.slds-m-horizontal_small{
+        width:100% !important; 
+    }
+    
+    vlocity_ins-button[c-arc_externalinsurermembersoptions_arc_externalinsurermembersoptions].nds-m-horizontal_small.slds-m-horizontal_small>button{
+        width:100% !important;
+    }
+
+    /* EDIT BLOCKS VLOCITY */
+
+    /* [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton].nds-grid.nds-grid_vertical{
+        display: grid !important;
+        grid-template-columns: 50% 50% !important;
+        grid-template-rows: auto !important;
+    }
+
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-m-bottom_x-small.nds-grid.nds-m-top_small {
+        grid-column: 1/3 !important;
+    }
+
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-size_10-of-12.nds-grid {
+        display: grid !important;
+        grid-template-rows: auto !important;
+        grid-template-columns: 100% !important;
+        align-items: center !important;
+    } */
+
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-border_top.nds-border_bottom.nds-border_left.nds-border_right.nds-grid.nds-p-vertical_xx-small {
+        padding: 0 !important;
+    }
+
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-truncate {
+        text-overflow: unset !important;
+        overflow: visible !important;
+    }
+
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-size_2-of-12.nds-grid.nds-grid--vertical-align-center{
+        position: absolute !important;
+        bottom: -50px !important;
+        left: 0% !important;
+        width: 100% !important;
+        max-width: none !important;
+        justify-content: center !important;
+        background-color: #f8b424 !important;
+    }
+
+    c-arc_-edit-block-override-edit-button{
+        margin-bottom: 75px !important;
+    }
+
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] button.nds-button.arc_button-separator{
+        color: #ffffff !important;
+    }
+
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-border_top.nds-border_bottom.nds-border_left.nds-border_right.nds-grid.nds-p-vertical_xx-small {
+        display: none;
+    }
+    
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-size_10-of-12.nds-grid {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .via-nds .nds-size--4-of-12, .via-nds .nds-size_4-of-12 {
+        width: 100% !important;
+        flex: unset !important;
+        max-width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+    }
+    
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .via-nds .nds-size--10-of-12, .via-nds .nds-size_10-of-12 {
+        width: 100% !important;
+        -ms-flex: 0 0 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+    
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-size_10-of-12.nds-grid>:nth-child(1):before {
+        content: "MEMBER NAME:";
+        font-weight: bold;
+    }
+    
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-size_10-of-12.nds-grid>:nth-child(2):before {
+        content: "PHYSICIAN'S NAME:";
+        font-weight: bold;
+    }
+    
+    [c-arc_editblockoverrideeditbutton_arc_editblockoverrideeditbutton] .nds-size_10-of-12.nds-grid>:nth-child(3):before {
+        content: "CITY:";
+        font-weight: bold;
+    }
+
+
+
+}
+
+div.cb-section_background{
+    z-index: -1;
+    /*height: 87vh !important;*/
+}
+
+div.cb-section_background[style="background: rgba(255,255,255,0) url(/members/s/sfsites/c/file-asset/MemberPortalHome2?v=1) top center /cover"]{
+    min-width: 90vh!important;
+    width: 105% !important;
+    height: 77vh !important;
+}
+
+
+@media (min-width:1720px) and (max-width:1957px) {
+    div.forceCommunitySection .cb-section_column, div.forceCommunitySection .cb-section_column:first-child, div.forceCommunitySection .cb-section_column:last-child, div.forceCommunitySection .cb-section_column:only-child{
+        margin-left: 90px;
+    }
+}
+
+@media (min-width:1000px) and (max-width:1720px) {
+    div.forceCommunitySection .cb-section_column, div.forceCommunitySection .cb-section_column:first-child, div.forceCommunitySection .cb-section_column:last-child, div.forceCommunitySection .cb-section_column:only-child{
+        margin-left: 195px;
+    }
+}
+
+div.salesforceIdentityLoginForm2>div:last-child{
+    display: flex;
+    flex-direction: column;
+}
+
+
+@media  (max-width:1600px) {
+    div.cb-section_background[style="background: rgba(255,255,255,0) url(/members/s/sfsites/c/file-asset/MemberPortalHome2?v=1) top center /cover"]{
+        width: 90% !important;
+    }
+}
+
+.cb-section.forceCommunitySection{
+    min-height: 63vh;
+}
+
+
+@media (max-width: 1200px) and (min-width: 1024px){
+    div.cb-section_background[style="background: rgba(0,0,0,0) url(/members/s/sfsites/c/file-asset/iStock1156152037?v=1) center right /cover"] {
+         left: 60% !important; 
+         width: 115vw;
+    }
+}
+@media (max-width: 1100px) and (min-width: 1000px){
+    div.forceCommunitySection .cb-section_column, div.forceCommunitySection .cb-section_column:first-child, div.forceCommunitySection .cb-section_column:last-child, div.forceCommunitySection .cb-section_column:only-child {
+        margin-left: 0 !important;
+    }
+}
+
+
+@media (max-width: 1023.5px) {
+    div.cb-section_background[style="background: rgba(0,0,0,0) url(/members/s/sfsites/c/file-asset/iStock1156152037?v=1) center right /cover"] {
+        margin-top:260px;
+        height:595px;
+    }
+    div.cb-section{
+        height: 764px !important;
+    }
+}
+@media (max-width: 850px) {
+    div.cb-section_background[style="background: rgba(0,0,0,0) url(/members/s/sfsites/c/file-asset/iStock1156152037?v=1) center right /cover"] {
+        margin-top:320px;
+        height:423px;
+    }
+    div.cb-section{
+        height: 680px !important;
+    }
+}
+@media (max-width: 500px) {
+    div.cb-section_background[style="background: rgba(0,0,0,0) url(/members/s/sfsites/c/file-asset/iStock1156152037?v=1) center right /cover"] {
+        margin-top: 349px;
+        height: 350px;
+        width: 540px;
+    }
+    div.cb-section{
+        height: 680px !important;
+    }
+}
+
+@media (max-width: 420px) {
+    div.cb-section_background[style="background: rgba(0,0,0,0) url(/members/s/sfsites/c/file-asset/iStock1156152037?v=1) center right /cover"] {
+        margin-top: 450px;
+        height: 43vh;
+        width: 500px;
+    }
+    div.cb-section{
+        height: 749px !important;
+    }
+}
+@media (min-width: 1000px) and (max-width: 1720px){
+    div.forceCommunitySection .cb-section_column, div.forceCommunitySection .cb-section_column:first-child, div.forceCommunitySection .cb-section_column:last-child, div.forceCommunitySection .cb-section_column:only-child {
+        margin-left: 0 !important;
+    }
+}
+@media (max-width: 990px) {
+    div.cb-section_background[style="background: rgba(0,0,0,0) url(/members/s/sfsites/c/file-asset/MemberPortalLogin075x?v=3) top right /cover"] {
+        display: none;
+    }
+    .salesforceIdentityLoginForm2{
+    	background-color: white;
+    }
+}
+:root { --dxp-c-section-columns-max-width: 1440px; }

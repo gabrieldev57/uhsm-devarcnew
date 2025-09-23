@@ -1,0 +1,44 @@
+<template>
+    
+    <div class="slds-notify slds-notify_alert slds-alert_error" style="font-size : 15px">
+        <p><b>Please, do not close this screen.</b> Send email and continue to the confirmation page.</p>
+    </div>
+    <template if:false={signError}>
+        <div class={className}>
+            <h3>You need to send the document to continue</h3>
+            <button type="button" class="close" onclick={closeAlert}><span>&times;</span></button>
+        </div>
+    </template>
+    <template if:false={sendError}>
+        <div class={className}>
+            <h3>You need to sign the document to continue</h3>
+            <button type="button" class="close" onclick={closeAlert}><span>&times;</span></button>
+        </div>
+    </template>
+    <template if:false={agreementError}>
+        <div class={className}>
+            <h3>You need accept the terms and conditions to continue</h3>
+            <button type="button" class="close" onclick={closeAlert}><span>&times;</span></button>
+        </div>
+    </template>
+    <template if:true={isMemberServiceManager}>
+        <lightning-input type="checkbox" label="Do not send Email" name="noEmail" onchange={noEmailChange}></lightning-input>
+        <template if:true={noEmail}>
+            <p>Email will not be sent to customer.</p>
+        </template>
+    </template>
+    
+    <div class="nds-m-around_small">
+        <div class="nds-grid nds-grid_align-center">
+            <div class="nds-grid nds-grid_align-center nds-wrap nds-button-group-row nds-size_1-of-1 nds-medium-size_8-of-12 nds-p-horizontal_medium" style={nextBtnStyle}>
+                <div class="omniscript-btn-next nds-size_12-of-12 nds-m-bottom_x-small nds-medium-size_3-of-12">
+                    <button if:false={loadingNext} type="button" aria-label="Next Step" onclick={handleNext} class="vlocity-btn nds-button nds-button_brand nds-button_stretch nds-p-around_xx-small nds-size_1-of-1">
+                        <span class="btnLabel">{nextBtnLabel}</span>
+                    </button>
+                    <lightning-spinner if:true={loadingNext} alternative-text="Loading" style="position:relative; display:flex; padding: 1em"></lightning-spinner>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="margin-bottom:-30px;"></div>
+</template>

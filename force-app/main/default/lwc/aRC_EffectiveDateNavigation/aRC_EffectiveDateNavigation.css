@@ -1,0 +1,36 @@
+.button-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+.button-container>button {
+    margin: 0px;
+}
+
+@media (max-width: 767px) {
+    /* Styles for mobile or small screens */
+    .button-container>button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+    /* Styles for tablets, laptops, desktops */
+    .button-container>button {
+        width: 25%;
+    }
+}
+
+div[slot="content"] {
+    height: 200px;
+}
+
+div[slot="footer"] {
+    display: flex;
+    gap: 15px;
+    justify-content: end;
+}

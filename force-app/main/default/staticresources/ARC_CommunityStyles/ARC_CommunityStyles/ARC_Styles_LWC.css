@@ -1,0 +1,455 @@
+.lwc-card-list .slds-card{
+    border-width: 0;
+    border-style: solid;
+    border-color: transparent;
+    border-radius: 0;
+}
+.lwc-card-list .slds-card__header{
+    display: none;
+}
+
+.lwc-card-list .actions a svg{
+    fill: var(--color-text, initial);
+}
+.lwc-card-list .actions a:hover svg,
+.lwc-card-list .actions a:focus svg{
+    fill: var(--color-link, initial);
+}
+@media only screen and (min-width: 48em){
+    c-a-r-c_-dinamic-table .slds-scrollable_x,
+    c-arc_-community-dynamic-table .slds-scrollable_x{
+        overflow-x: hidden !important;
+    }
+}
+
+/* Product Selection */
+[c-arc_InsOsGridProductRow_arc_InsOsGridProductRow-host],
+[c-arc_ProductRow_arc_ProductRow_tile-host],
+[vlocity_ins-insOsGridProductRow_insOsGridProductRow_tile-host]{
+    --product-color-nds: var(--color-primary-2) !important;
+    --renewal-bg-color: var(--color-primary) !important;
+    --action-bg-color: var(--color-page-background) !important;
+    --bg-color: var(--color-page-background) !important;
+}
+.via-nds .vloc-ins-prod-value[vlocity_ins-insOsGridProductAttribute_insOsGridProductAttribute]{
+    color: var(--color-text);
+}
+.via-nds .vloc-ins-prod-label[vlocity_ins-insOsGridProductAttribute_insOsGridProductAttribute]{
+    color: var(--color-detail-text);
+}
+.via-nds .vloc-ins-product-info button.nds-button{
+    color: var(--color-link);
+}
+.via-nds .vloc-ins-product-info button.nds-button:hover,
+.via-nds .vloc-ins-product-info button.nds-button:focus,
+.via-nds .vloc-ins-product-info button.nds-button:active{
+    text-decoration: underline;
+}
+.via-nds .vloc-ins-product-info svg.nds-button__icon{
+    fill: var(--color-link);
+}
+.via-nds .vloc-ins-row-detail[vlocity_ins-insProductMatrix_insProductMatrix]{
+    background: var(--color-background);
+}
+.via-nds .vloc-ins-cart-empty[vlocity_ins-insOsGridCart_insOsGridCart]{
+    background: var(--color-background);
+    color: var(--color-detail-text);
+}
+.via-nds .vloc-ins-product-price[vlocity_ins-insOsGridProductRow_insOsGridProductRow_compact],
+.via-nds .vloc-ins-admin-text[vlocity_ins-insAttribute_insAttribute]{
+    color: var(--color-detail-text);
+}
+.via-nds button.nds-button_icon-border-filled.nds-is-selected{
+    background-color: var(--button-primary-color-background);
+    border-color: var(--button-primary-color-background);
+    color: var(--button-primary-color-text);
+}
+.via-nds button.nds-button_icon-border-filled.nds-is-selected:hover,
+.via-nds button.nds-button_icon-border-filled.nds-is-selected:focus{
+    background-color: var(--button-primary-hover-color-background);
+    border-color: var(--button-primary-hover-color-background);
+
+}
+.via-nds button.nds-button_icon-border-filled.nds-is-selected:active{
+    background-color: var(--button-primary-active-color-background);
+    border-color: var(--button-primary-active-color-background);
+}
+.via-nds button.nds-button_icon-border-filled.nds-is-selected .nds-button__icon{
+    fill: var(--button-primary-color-text) !important;
+}
+div.via-nds .vloc-ins-orange[vlocity_ins-insOsEnrolleeBenefitsSummaryRow_insOsEnrolleeBenefitsSummaryRow]{
+    color: var(--product-color-nds);
+}
+div.via-nds .vloc-ins-product-actions{
+    width: 80%;
+}
+.vloc-ins-product-matrix h2,
+.vloc-ins-product-matrix h2 *{
+    font-size: 24px !important;
+    font-weight: 500 !important;
+    letter-spacing: .5px !important;
+    margin-bottom: 0 !important;
+}
+
+/* --- PRODUCT SELECTION MODAL STYLES BEGIN --- */
+
+div.vloc-ins-product-matrix.slds-table.slds-table_cell-buffer.nds-table.nds-table_cell-buffer 
+> div:first-child {
+    top: -18px;
+    position: sticky;
+    z-index: 1;
+    background: white;
+    margin-top: -155px;
+}
+
+div.vloc-ins-product-matrix.slds-table.slds-table_cell-buffer.nds-table.nds-table_cell-buffer 
+> div:first-child 
++ div{
+    margin-top: 158px;
+}
+
+
+div.vloc-ins-product-matrix.slds-table.slds-table_cell-buffer.nds-table.nds-table_cell-buffer 
+> div:first-child 
+> div:first-child
+> div.slds-border_bottom.nds-border_bottom.vloc-ins-row-detail:first-child{
+    display: none;
+}
+
+div.slds-border_bottom.slds-p-bottom_small.slds-text-align_right.slds-p-right_small.nds-border_bottom.nds-p-bottom_small.nds-text-align_right.nds-p-right_small.slds-text-heading_large.nds-text-heading_large
++ *
+>div:first-child
+>div:first-child{
+    top: 0px;
+    position: relative;
+    z-index: 1;
+    background: white;
+    margin-top: 0px;
+}
+
+div.slds-border_bottom.slds-p-bottom_small.slds-text-align_right.slds-p-right_small.nds-border_bottom.nds-p-bottom_small.nds-text-align_right.nds-p-right_small.slds-text-heading_large.nds-text-heading_large
++ *
+>div:first-child
+>div:first-child
++div{
+    margin-top: 0;
+}
+
+/* --- PRODUCT SELECTION MODAL STYLES END --- */
+
+/* TODO: ADDED FOR DEMO */
+.via-nds .vloc-ins-product-actions button[label^='Configure']{
+    display: none !important;
+}
+
+/* Census */
+div.via-nds .nds-accordion__section button span{
+    margin-left: 10px;
+    font-size: 20px;
+}
+div.via-nds .nds-block .nds-block_container>label~.nds-block_body,
+div.via-nds .nds-accordion__section button span{
+    color: var(--color-text);
+}
+div.via-nds .vloc-ins-employee-active{
+    position: relative;
+    background-color: transparent;
+}
+div.via-nds .vloc-ins-employee-active>vlocity_ins-layout{
+    z-index: 1;
+}
+div.via-nds .vloc-ins-employee-active:before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-primary);
+    z-index: 0;
+    opacity: .15;
+    border-top-left-radius: var(--border-radius-medium);
+    border-top-right-radius: var(--border-radius-medium);
+}
+div.via-nds svg.nds-button__icon{
+    fill: var(--color-link);
+}
+div.via-nds .vloc-ins-delete-census svg.nds-button__icon{
+    fill: var(--color-link) !important;
+}
+div.via-nds .nds-block .nds-block_container>label~.nds-block_body[id^=content]{
+    padding: 0;
+}
+/* Added for Test Census */
+div.via-nds .vloc-ins-employee-name-block,
+div.via-nds .vloc-ins-members-wrapper>div>vlocity_ins-layout>div{
+    display: flex;
+    align-items: center;
+}
+div.via-nds .vloc-ins-members-wrapper a.slds-tabs_default__link,
+div.via-nds .slds-tabs_default__item.slds-is-active .slds-tabs_default__link:hover{
+    color: var(--color-text);
+    text-decoration: none;
+}
+div.via-nds .vloc-ins-members-wrapper .slds-tabs_default__item:after{
+    background-color: var(--color-primary);
+    width: 0;
+    margin: auto;
+    height: 2px;
+    transition: width .15s ease;
+}
+div.via-nds .vloc-ins-members-wrapper .slds-tabs_default__item.slds-is-active:after,
+div.via-nds .vloc-ins-members-wrapper .slds-tabs_default__item:hover:after{
+    width: 100%;
+    height: 2px;
+}
+div.via-nds .census-search .slds-input{
+    border-radius: 0;
+}
+div.via-nds .census-search>div{
+    border-radius: 0;
+}
+div.via-nds .census-search>div>li{
+    border-radius: 0;
+    line-height: 2;
+}
+div.via-nds .census-search>div>li:hover,
+div.via-nds .census-search>div>li:focus{
+    background-color: var(--color-background-1);
+}
+div.via-nds .census-save-button button{
+    display: flex;
+    align-items: center;
+}
+div.via-nds .census-save-button button span{
+    margin-left: 6px;
+}
+
+
+/* User Picture */
+.footer[aria-hidden="true"] .user-profile-initials{
+    visibility: hidden;
+}
+
+
+/* Hero */
+.siteforceDesignTimeSection:first-child .ui-widget:first-child .community-hero,
+.ui-widget:first-child .ui-widget:first-child .community-hero{
+    margin-top: calc(var(--community-body-content-margin-top) * -1);
+}
+.comm-content-header .community-hero{
+    margin-top: calc(var(--community-body-content-margin-top) * -1);
+}
+.siteforceDesignTimeSection:first-child .cb-section:first-child .ui-widget:first-child .community-hero,
+.ui-widget:first-child .cb-section:first-child .ui-widget:first-child .community-hero{
+    margin-top: calc(var(--section-vertical-spacing) * -.5);
+}
+.community-hero .slds-button.slds-button_outline-brand,
+.community-hero .slds-button.slds-button_outline-brand:hover,
+.community-hero .slds-button.slds-button_outline-brand:focus,
+.community-hero .slds-button.slds-button_outline-brand:active,
+.community-hero .slds-button.slds-button_neutral,
+.community-hero .slds-button.slds-button_neutral:hover,
+.community-hero .slds-button.slds-button_neutral:focus,
+.community-hero .slds-button.slds-button_neutral:active{
+    background-color: transparent;
+    color: inherit;
+    border-color: inherit;
+}
+
+/* Map Data (Temp) */
+.component-map-data .map-data-value-number *:last-child{
+    opacity: 0;transition: opacity .6s ease-in;
+}
+.component-map-data .map-data-value-number .arc-scrollanim-in+*{
+    opacity: 1;
+}
+
+/* Call To Action */
+.arc-cta{
+    min-height: 300px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none !important;
+    margin-bottom: 16px;
+    background-color: var(--color-primary);
+}
+.arc-cta *{
+    color: #fff;
+    font-family: var(--arc-font-cta);
+}
+.arc-cta-inner{
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    padding: 20px;
+    z-index: 1;
+}
+@media screen and (min-width:1024px) {
+    .arc-cta-inner{
+        padding: 40px;
+    }
+}
+.arc-cta-bg{
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    transition: all .5s ease;
+}
+.arc-cta:hover .arc-cta-bg{
+    transform: translate(-50%,-50%) scale(1.02);
+}
+.arc-cta-title, .arc-cta-title *{
+    font-size: 28px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+}
+.arc-cta-text{
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+.arc-cta-arrow{
+    display: inline-block;
+    transition: all .5s ease;
+}
+.arc-cta:hover .arc-cta-arrow{
+    transform: translateX(10px);
+}
+.arc-cta:hover .arc-cta-arrow-back{
+    transform: translateX(-10px);
+}
+.arc-cta-button{
+    margin-top: 20px;
+    font-size: 16px;
+    padding: 10px 30px !important;
+}
+
+.arc-cta-card .arc-cta-bg{
+    width: auto;
+    height: unset;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    transform: none;
+}
+.arc-cta-card:focus .arc-cta-bg,
+.arc-cta-card:hover .arc-cta-bg{
+    transform: none;
+}
+.arc-cta-card .arc-cta-title{
+    font-size: 16px !important;
+    text-transform: uppercase;
+}
+.arc-cta-card>*:first-child{
+    opacity: .1 !important;
+}
+
+/* Quote Slider */
+.arc-quotes{
+    position: relative;
+}
+.arc-quotes .swiper-wrapper{
+    z-index: 0;
+}
+.arc-quotes .arc-slider-box{
+    margin: auto;
+    border: 4px solid var(--color-border);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.arc-quotes.arc-quotes-borders{
+    padding: 40px 0;
+}
+.arc-quotes.arc-quotes-borders,
+.arc-quotes.arc-quotes-fade .arc-slider-box{
+    border: none;
+    border-top: 4px solid var(--color-border);
+    border-bottom: 4px solid var(--color-border);
+}
+.arc-quotes .arc-slider-box .before{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: calc(-100% - 4px);
+    background: var(--color-background);
+}
+.arc-quotes .arc-slider-box .after{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: calc(-100% - 4px);
+    background: var(--color-background);
+}
+.arc-quotes.arc-quotes-fade .arc-slider-box .before{
+    left: -100%;
+    background: linear-gradient(90deg, var(--color-background) 94%, transparent 100%);
+}
+.arc-quotes.arc-quotes-fade .arc-slider-box .after{
+    right: -100%;
+    background: linear-gradient(270deg, var(--color-background) 94%, transparent 100%);
+}
+.arc-quotes .swiper-slide{
+    padding: 50px 40px;
+}
+.arc-quotes blockquote{
+    margin: 0;
+    font-family: var(--arc-font-quote);
+}
+.arc-quotes blockquote p{
+    font-size: 48px;
+    line-height: 56px;
+    text-align: center;
+}
+
+.arc-quotes blockquote p:before {
+    content:"\201C";
+}
+.arc-quotes blockquote p:after {
+    content:"\201D";
+}
+.arc-quotes blockquote + p{
+    text-align: right;
+    margin-top: 20px;
+    font-size: 24px;
+    line-height: 40px;
+    text-transform: uppercase;
+}
+.arc-quotes .swiper-pagination{
+    transform: translateY(8px);
+    margin-top: 0;
+}
+.arc-quotes .swiper-pagination .swiper-pagination-bullet{
+    position: relative;
+    opacity: 1;
+}
+.arc-quotes .swiper-pagination .swiper-pagination-bullet::before{
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    padding: 8px 30px;
+    background-color: var(--color-background);
+    z-index: -1;
+}
+
+/* LWC */
+.C-A-R-C_-BACKGROUND,
+.C-A-R-C_-SPACER{
+    margin: 0 !important;
+}
+
+/***************** LWC Siblings *****************/

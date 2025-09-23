@@ -1,0 +1,91 @@
+.customers th {
+    font-family: Arial;
+    text-align: center;
+	background-color: var(--color-action); /* rgb(244 178 35); --color-action */
+	font-size: 14px; /* --ty-button-size */
+	font-weight: 500; /* --ty-button-weight */
+	letter-spacing: 1.25px; /* --ty-button-spacing */
+	text-transform: uppercase; /* --ty-button-transform */
+	border: none;
+	color: white; /* --button-primary-color-text */
+	padding: 4px 20px; /* --button-base-padding: 4px 20px; */
+}
+
+.lightning-cbx{
+	width: 90%;
+}
+
+.share-cbx{
+	margin-bottom: -10px;
+    margin-top: 6px;
+	user-select: none;
+	z-index: 999;
+}
+
+td.depSummary h1 {
+    padding-top: 19px;
+}
+
+.lightning-inpt{
+	width: 81%;
+	padding-left: 10px;
+}
+
+@media only screen and (max-width: 600px) {
+	.slds-combobox__input.slds-input_faux.slds-is-disabled.slds-combobox__input-value{
+		background-color: transparent;
+		border: none;
+	}
+
+	lightning-input{
+		padding: 0 !important;
+	}
+
+	.headers{
+		display: none;
+	}
+
+	tr:not(.headers){
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 30px;
+	}
+
+	.name:before{
+		content: "MEMBER";
+		font-weight: bold;
+	}
+
+	.medical:before{
+		content: "MEDICAL";
+		font-weight: bold;
+	}
+
+	.smart:before{
+		content: "SMART";
+		font-weight: bold;
+	}
+
+	.aidd:before{
+		content: "AIDD";
+		font-weight: bold;
+	}
+
+	.primaryorspouse:before{
+		content: "Primary or Spouse plans";
+		font-weight: bold;
+	}
+
+	.member{
+		margin-bottom: 38px;
+	}
+
+	.share-cbx.mb{
+		margin-bottom: 10px;
+	}
+
+}
+
+.depSummary>h1[value="None"] {
+	background-color: red;
+}

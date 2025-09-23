@@ -1,0 +1,58 @@
+<template>
+    <template if:true={noRecordsAfterQuery}>
+        <div class="slds-box slds-theme_default slds-p-horizontal_xx-large">
+            <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center">
+                <div class="slds-col">
+                    <lightning-button-icon class="slds-m-right_medium" icon-name="utility:refresh" variant="brand"
+                        alternative-text="Refresh" onclick={handleRefresh}></lightning-button-icon>
+                    <b>No Records Available.</b>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template if:false={noRecordsAfterQuery}>
+        <template if:true={noRecords}>
+            <lightning-spinner alternative-text="Loading" size="large" class="slds-m-top_x-large"
+                variant="brand"></lightning-spinner>
+        </template>
+        <template if:false={noRecords}>
+            <div class="slds-box slds-theme_default slds-p-horizontal_xx-large component-dynamic-table">
+
+                <div class="container slds-grid slds-grid_vertical">
+                    <div class="slds-grid slds-grid_vertical-align-end slds-grid_align-left slds-m-bottom_medium">
+                        <lightning-input class="" type="search" label="Search" value={searchTerm}
+                            onchange={handleSearch}>
+                        </lightning-input>
+                        <lightning-button-icon class="slds-m-left_medium" icon-name="utility:refresh" variant="brand"
+                            alternative-text="Refresh" onclick={handleRefresh}></lightning-button-icon>
+                    </div>
+                    <div class="table-container slds-col slds-size_1-of-1 slds-m-top_medium">
+                        <lightning-datatable role="grid" key-field="id" data={displayedData} columns={tableColumns}
+                            onrowaction={handleRowAction} hide-checkbox-column column-widths-mode="auto"
+                            sorted-by={sortBy} sorted-direction={sortDirection} onsort={doSorting}
+                            class="slds-has-bottom-magnet slds-table_col-bordered"
+                            style="width: -webkit-fill-available">
+                        </lightning-datatable>
+                    </div>
+                    <template if:false={noRecords}>
+                        <div
+                            class="slds-grid slds-grid_vertical-align-center slds-grid_align-center slds-size_1-of-1 slds-m-top_medium">
+                            <lightning-button class=" slds-m-right_medium" label="Prev" title="Previous Page"
+                                icon-name="utility:chevronleft" onclick={handlePreviousPage} disabled={disablePrevious}
+                                value="Previous">
+                            </lightning-button>
+                            <span>
+                                Page {currentPage} of {numberOfPages}
+                            </span>
+                            <lightning-button class=" slds-m-left_medium" label="Next" title="Next Page"
+                                icon-name="utility:chevronright" icon-position="right" onclick={handleNextPage}
+                                disabled={disableNext} value="Next">
+                            </lightning-button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </template>
+
+</template>

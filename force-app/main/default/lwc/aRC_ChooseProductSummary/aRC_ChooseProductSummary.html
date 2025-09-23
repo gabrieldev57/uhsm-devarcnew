@@ -1,0 +1,36 @@
+<template>
+    <template if:true={dataExists}>
+        <table class="customers">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Coverages</th>
+                    <th>Members</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="name">{product.Name}</td>
+                    <td class="coverage">{product.CoverageList}</td>
+                    <td class="members">{product.CensusMemberNameList}</td>
+                    <td class="price">{product.Price}</td>
+                </tr>
+
+                <tr for:each={product.childProductList} for:item="p" key={p.Name}>
+                    <td class="name">{p.Name}</td>
+                    <td class="coverage">{p.CoverageList}</td>
+                    <td class="members">{p.CensusMemberNameList}</td>
+                    <td class="price">{p.Price}</td>
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align: right;">Total:</td>
+                    <td style="font-weight: bold;">{product.totalPrice}</td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+</template>

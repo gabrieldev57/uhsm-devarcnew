@@ -1,0 +1,35 @@
+<apex:component access="global" controller="CustomCaseController">
+    <!-- Component attributes -->
+    <apex:attribute name="caseId" type="Id" description="The Id of the Case to be displayed"/>
+    
+    <apex:outputPanel >
+        <!-- Handle cases where relatedTo is null -->
+        <apex:outputText rendered="{!relatedTo.Id != null}">
+            <p>Case Number: {!relatedTo.CaseNumber}</p>
+        </apex:outputText>
+        
+        <apex:outputText rendered="{!relatedTo.Id == null}">
+            <p>No case found for the given Case ID.</p>
+        </apex:outputText>
+
+        <!-- Handle cases where there are no case members -->
+        <apex:outputText rendered="{!NOT(ISNULL(caseMembers)) && caseMembers.size > 0}">
+            <table border="1" cellpadding="5" cellspacing="0">
+                <tr>
+                    <th>Case Member Id</th>
+                    <th>Status</th>
+                </tr>
+                <apex:repeat var="caseMem" value="{!caseMembers}">
+                    <tr>
+                        <td><a href="https://uhsm.lightning.force.com/{!caseMem.Id}">{!caseMem.Id}</a></td>
+                        <td>{!caseMem.ARC_ApprovalResolution__c}</td>
+                    </tr>
+                </apex:repeat>
+            </table>
+        </apex:outputText>
+
+        <apex:outputText rendered="{!ISNULL(caseMembers) || caseMembers.size == 0}">
+            <p>No case members found for this case.</p>
+        </apex:outputText>
+    </apex:outputPanel>
+</apex:component>

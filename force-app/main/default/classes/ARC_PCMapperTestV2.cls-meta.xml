@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApexClass xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <packageVersions>
+        <majorNumber>7</majorNumber>
+        <minorNumber>75</minorNumber>
+        <namespace>ChargentBase</namespace>
+    </packageVersions>
+    <packageVersions>
+        <majorNumber>7</majorNumber>
+        <minorNumber>75</minorNumber>
+        <namespace>ChargentOrders</namespace>
+    </packageVersions>
+    <packageVersions>
+        <majorNumber>890</majorNumber>
+        <minorNumber>446</minorNumber>
+        <namespace>vlocity_ins</namespace>
+    </packageVersions>
+    <status>Active</status>
+</ApexClass>

@@ -1,0 +1,27 @@
+<template>
+        <lightning-record-edit-form onsuccess={handleSuccess} columns="2" object-api-name="Case"
+            record-type-id={recordTypeId} fields={fields}>
+            <div class="slds-grid">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input-field required field-name="Status"></lightning-input-field>
+                    <lightning-input-field required field-name="Case_Type__c"></lightning-input-field>
+                    <lightning-input-field field-name="ARC_Reason__c"></lightning-input-field>
+                    <lightning-input-field field-name="ARC_CaseReasonOther__c"></lightning-input-field>
+                    <lightning-input-field required field-name="Subject"></lightning-input-field>
+                    <lightning-input-field required field-name="Description"></lightning-input-field>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input-field required field-name="Origin"></lightning-input-field>
+                    <lightning-input-field required field-name="ARC_Type__c"></lightning-input-field>
+                    <lightning-input-field field-name="Priority"></lightning-input-field>
+                    <lightning-input-field field-name="ARC_SMB__c" value={smbId}></lightning-input-field>
+                    <lightning-input-field field-name="ARC_PersonAccount__c" value={personAccountId}></lightning-input-field>
+                </div>
+            </div>
+            <div class="flex-row-center">
+                <lightning-button variant="Neutral" type="button" onclick={handleCancel} label="Cancel"></lightning-button>
+                <lightning-button variant="Neutral" type="button" onclick={handleBack} label="Back"></lightning-button>
+                <lightning-button variant="brand" type="submit" label="Create new"></lightning-button>
+            </div>
+        </lightning-record-edit-form>
+</template>

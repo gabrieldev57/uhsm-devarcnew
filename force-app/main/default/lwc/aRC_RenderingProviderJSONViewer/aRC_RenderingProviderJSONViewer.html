@@ -1,0 +1,19 @@
+<template>
+    <div style="padding:30px">
+        <div style="font-size: 15px; padding:8px">Rendering Provider</div>
+        <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered slds-table_striped">            
+            <tbody>
+                <template for:each={mapProvider} for:item="mapKey">
+                    <tr key={mapKey.key}>
+                        <th scope="col">
+                            <div title={mapKey.key}>{mapKey.key}</div>
+                        </th>
+                        <th scope="col">
+                            <div title={mapKey.value}>{mapKey.value}</div>
+                        </th>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>   
+</template>

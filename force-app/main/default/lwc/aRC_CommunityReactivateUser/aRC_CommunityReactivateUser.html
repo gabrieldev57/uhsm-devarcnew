@@ -1,0 +1,36 @@
+<template>
+    <template if:false={loading}>
+        <!-- Error Message -->
+        <template if:true={error}>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <p>{errorMessage}</p>
+            </div>
+        </template>
+        <!-- Success Message -->
+        <template if:true={success}>
+            <div class="slds-grid slds-grid--vertical slds-align--absolute-center slds-container--large"
+                data-aura-rendered-by="402:0">
+                <h4 class="slds-text-align--center slds-text-heading--large slds-text-color--weak slds-m-bottom--small">
+                    Account Reactivated Successfully</h4>
+                <div>
+                    <p class="slds-text-align--center slds-text-heading--medium slds-text-color--weak">
+                        Your account has been reactivated successfully. You can now log in with your username and
+                        password.
+                        <br>
+                        <a href="/members/s/login">Go to the login page</a>
+                    </p>
+                </div>
+            </div>
+        </template>
+    </template>
+    <!-- Loading -->
+    <template if:true={loading}>
+        <div class="loading-container">
+            <lightning-spinner if:true={loading} class="spinner" alternative-text="Activating User..."
+                size="medium"></lightning-spinner>
+        </div>
+
+    </template>
+
+</template>

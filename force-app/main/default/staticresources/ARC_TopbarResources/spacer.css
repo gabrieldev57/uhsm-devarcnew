@@ -1,0 +1,5 @@
+/* //////////// ////////// Simple Spacer //////////// //////////  */
+/* Adds visibility of spacers while on editing Experience Builder pages */
+body.interactions-enabled .simple-spacer .preview{
+    display: flex;
+}

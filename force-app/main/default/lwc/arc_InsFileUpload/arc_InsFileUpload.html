@@ -1,0 +1,90 @@
+<template>
+    <div class="nds-file-selector nds-file-selector_files slds-file-selector slds-file-selector_files">
+        <input
+            class="nds-file-selector__input nds-assistive-text slds-file-selector__input slds-assistive-text vloc-ins-file-selector"
+            type="file"
+            accept=".csv, .xlsx, .xls"
+            onchange={readHandler}
+            id="file-upload"
+        />
+        <label class="nds-file-selector__body slds-file-selector__body" for="file-upload">
+            <span class={buttonClasses}>
+                <vlocity_ins-icon icon-name="utility:upload"
+                    parenttype="button"
+                    extraclass="nds-button__icon_left slds-button__icon_left"
+                    color="currentColor"
+                    theme={theme}></vlocity_ins-icon>
+                {label}
+            </span>
+        </label>
+    </div>
+    <vlocity_ins-modal class="vloc-ins-file-mapper" size="medium" hideheader hidefooter>
+        <div slot="content" class="nds-p-horizontal_xx-large slds-p-horizontal_xx-large nds-p-vertical_large slds-p-vertical_large">
+            <vlocity_ins-layout
+                multiple-rows
+                extraclass="nds-grid nds-gutters nds-gutters_large nds-wrap slds-grid slds-gutters slds-gutters_large slds-wrap"
+                theme={theme}
+                vertical-align="stretch"
+            >
+                <vlocity_ins-layout-item size="12" padding="bottom-medium">
+                    <div class="vloc-ins-modal-title nds-text-heading_medium nds-text-align_center slds-text-heading_medium slds-text-align_center">{title}</div>
+                </vlocity_ins-layout-item>
+                <div if:false={isLoaded} class="slds-size_1-of-1">
+                    <div class="nds-is-relative slds-is-relative slds-p-top_small nds-p-top_small">
+                        <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                    </div>
+                </div>
+                <template if:true={isLoaded}>
+                    <div class="slds-size_1-of-1">
+                        <vlocity_ins-layout-item size="12" padding="bottom-large">
+                            <div class="nds-text-title slds-text-title nds-align_absolute-center nds-text-heading_x-small slds-align_absolute-center slds-text-heading_x-small">
+                                {rowCountInfo}
+                            </div>
+                        </vlocity_ins-layout-item>
+                        <vlocity_ins-layout-item size="12" padding="bottom-medium">
+                            <div class="vloc-ins-content-title nds-m-horizontal_x-large nds-p-vertical_medium slds-p-vertical_medium nds-text-heading_small slds-text-heading_small nds-border_top slds-border_top">
+                                {labels.InsOSCensusIdentifyFileMappings}
+                            </div>
+                        </vlocity_ins-layout-item>
+                    </div>
+                    <template for:each={sheetHeaders} for:item="header">
+                        <div class="nds-col slds-col nds-size_1-of-3 slds-size_1-of-3 nds-p-bottom_medium slds-p-bottom_medium" key={header.key}>
+                            <vlocity_ins-combobox
+                                theme={theme}
+                                label={header.label}
+                                value={header.value}
+                                options={availableFieldsUI}
+                                onchange={onChangeMappingCombobox}
+                                data-header={header.label}
+                                max-count=5
+                                searchable="true"
+                            >
+                            </vlocity_ins-combobox>
+                        </div>
+                    </template>
+                    <div class="slds-size_1-of-1">
+                        <vlocity_ins-layout-item size="12">
+                            <div class="nds-float_right slds-float_right">
+                                <vlocity_ins-button
+                                    variant="neutral"
+                                    label={labels.InsButtonCancel}
+                                    onclick={closeMapper}
+                                    theme={theme}
+                                    class="nds-p-right_x-small slds-p-right_x-small"
+                                >
+                                </vlocity_ins-button>
+                                <vlocity_ins-button
+                                    variant="brand"
+                                    label={saveLabel}
+                                    onclick={handleSaveClick}
+                                    theme={theme}
+                                >
+                                </vlocity_ins-button>
+                            </div>
+                        </vlocity_ins-layout-item>
+                    </div>
+                </template>
+            </vlocity_ins-layout>
+        </div>
+    </vlocity_ins-modal>
+</template>

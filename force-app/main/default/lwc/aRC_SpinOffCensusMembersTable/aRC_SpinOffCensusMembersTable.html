@@ -1,0 +1,87 @@
+<template>
+    <div class="table-container">
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-no-row-hover">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th class="slds-text-title_caps text-header-so" scope="col">
+                        <div title="First Name">First Name</div>
+                    </th>
+                    <th class="slds-text-title_caps text-header-so" scope="col">
+                        <div title="Last Name">Last Name</div>
+                    </th>
+                    <th class="slds-text-title_caps text-header-so" scope="col">
+                        <div title="Contract">Relationship</div>
+                    </th>
+                    <th class="slds-text-title_caps text-header-so" scope="col">
+                        <div title="Contract">Age</div>
+                    </th>
+                    <th class="slds-text-title_caps text-header-so" scope="col">
+                        <div title="Contract">Contract</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={membersToDisplay} for:item="member">
+                    <tr key={member.TXT_contractParticipantId}>
+                        <td class="text-color-so">
+                            <span class="text-color-so">{member.TXT_FirstName}</span>
+                        </td>
+                        <td class="text-color-so">
+                            <span class="text-color-so">{member.TXT_LastName}</span>
+                        </td>
+                        <td class="text-color-so">
+                            <span class="text-color-so">{member.TXT_ContractParticipantRelationship}</span>
+                        </td>
+                        <td class="text-color-so">
+                            <span class="text-color-so">{member.NUM_Age}</span>
+                        </td>
+                        <td class="text-color-so">
+
+                        <!-- Read-Only for Primary Member -->
+                            <template if:true={member.isPrimary}>
+                                <span class="text-color-rm">Remove Member</span>
+                            </template>
+
+                        <!-- Read-Only for Spouse not selected -->
+                         <template if:true={member.isSpouseNotSelected}>
+                            <span class="text-color-rm">Remove Member</span>
+                         </template>
+                            
+                        <!-- Show Name´s + Spin Off for Spin Off members -->
+                         <template if:true={member.isSpinOffSelected}>
+                            <template if:false={member.isPrimary}>
+                                <template if:false={member.isSpouseNotSelected}>
+                                   <span class="text-color-rm">{member.spinOffText}</span> 
+                                </template>
+                            </template>
+                         </template>
+
+                         <!-- Show Dropdown for non Primary, no Spouse selected and non Spin Off members -->
+                        <template if:true={member.showDropdown}>
+                            <div class="custom-select-container">
+                                <div class="slds-form-element__control">
+                                    <div class="slds-select_container">
+                                        <select class="slds-select text-color-so" 
+                                                data-member-index={member.originalIndex}
+                                                onchange={handleDropdownChange}>
+                                            <template for:each={member.filteredOptions} for:item="option">
+                                                <option key={option.value} 
+                                                        value={option.value}
+                                                        selected={option.selected}>
+                                                    {option.label}
+                                                </option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                         
+                        </td>
+
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</template>

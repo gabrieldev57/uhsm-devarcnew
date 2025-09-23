@@ -1,0 +1,91 @@
+<template>
+    <template if:false={isLoaded}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    <template if:false={hideActions}>
+        <div if:true={disableAddToCart} class={alertStyles} role="alert">
+            <span class="nds-assistive-text slds-assistive-text">{labels.InsProductWarning}</span>
+            <vlocity_ins-icon icon-name="utility:warning" size="x-small" extraclass="nds-m-right_small slds-m-right_small"
+                theme={theme}>
+            </vlocity_ins-icon>
+            <!-- <h2>{labels.InsInOrderToAddToCartPleaseUpdatePrice}</h2> -->
+            <h1>custom modal</h1>
+        </div>
+    </template>
+    <div class={summaryStyles}>
+        <div class="slds-size_1-of-2 nds-size_1-of-2">
+            <div class="slds-text-heading_small nds-text-heading_small" if:true={product.Family}>
+                {labels.InsFamily}:&nbsp;<span class="vloc-ins-color-primary vloc-ins-text-bold">{product.Family}</span>
+            </div>
+            <div class="slds-text-heading_small nds-text-heading_small slds-p-top_small nds-p-top_small"
+                if:true={product.LineOfBusiness__c}>
+                {labels.InsLineOfBusiness}:&nbsp;<span
+                    class="vloc-ins-color-primary vloc-ins-text-bold">{product.LineOfBusiness__c}</span>
+            </div>
+        </div>
+        <div class="slds-size_1-of-2 nds-size_1-of-2 slds-text-align_right nds-text-align_right nds-p-right_small">
+            <template if:true={hideActions}>
+                <div
+                    class="nds-text-heading_medium slds-text-heading_medium slds-p-bottom_xxx-small nds-p-bottom_xxx-small">
+                    {labels.InsConfiguredPrice}:
+                </div>
+                <div class="slds-text-heading_large nds-text-heading_large">
+                    <lightning-formatted-number value={price} format-style="currency" currency-code={currency.code}
+                        minimum-fraction-digits="2" maximum-fraction-digits="2">
+                    </lightning-formatted-number>/{labels.InsMonthAbrv}
+                </div>
+            </template>
+            <div if:false={hideActions} class="slds-p-top_x-small nds-p-top_x-small">
+                <lightning-button theme={theme} onclick={reset} variant="destructive" label={labels.InsReset}
+                    extraclass="slds-m-right_small nds-m-right_small"></lightning-button>
+                <lightning-button theme={theme} onclick={rePriceProduct} variant="brand" disabled={disabledUpdatePrice}
+                    label={labels.InsUpdatePrice} extraclass="slds-m-right_small nds-m-right_small"></lightning-button>
+                <lightning-button if:true={product.isSelected} theme={theme} disabled={disableAddToCart} onclick={addToCartProd}
+                    label={labels.Remove} extraclass="slds-m-right_small nds-m-right_small" variant="destructive">
+                </lightning-button>
+                <lightning-button if:false={product.isSelected} theme={theme} disabled={disableAddToCart}
+                    onclick={addToCartProd} label={labels.AddToCart} variant="brand"></lightning-button>
+            </div>
+        </div>
+        <div class="slds-vertical_small nds-vertical_small slds-size_1-of-1 nds-size_1-of-1">
+            <template if:true={placeholders.length}>
+                <template for:each={placeholders} for:item="placeholder">
+                    <span key={placeholder.url} if:false={placeholder.isHidden}>
+                        <a href={placeholder.url} data-url={placeholder.url}
+                            class="slds-button nds-button">{placeholder.label}</a>
+                        <span if:false={placeholder.lastEl}
+                            class="slds-p-horizontal_small nds-p-horizontal_small">|</span>
+                    </span>
+                </template>
+            </template>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap nds-grid nds-wrap nds-m-top_small slds-m-top_small">
+        <div class={sectionLabel}>
+            {labels.ConfigureItemAttrs}
+        </div>
+        <template if:true={attributes} for:each={attributes} for:item="attribute">
+            <span key={uniqueKey} class={cellLabel}>
+                <vlocity_ins-ins-attribute currency={currency} theme={theme} root-channel={rootChannel}
+                    attribute-style="recordEditor" attribute={attribute}>
+                </vlocity_ins-ins-attribute>
+            </span>
+        </template>
+    </div>
+    <div class="slds-grid slds-wrap nds-grid nds-wrap" if:true={optionals.length}>
+        <div class={sectionLabel}>{labels.InsRiders}</div>
+        test
+        <template for:each={optionals} for:item="optional" for:index="index">
+            <lightning-input 
+            key={uniqueKey} 
+            class={cellLabel} 
+            disabled={optional.isExcluded} 
+            label={optional.Name}
+            checked={optional.isSelected} 
+            type="checkbox" theme={theme} 
+            onchange={updateOptional}
+            data-record-index={index}
+            ></lightning-input>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,65 @@
+<template>
+    <div class="container">
+        <div class="flex-container">
+            <div class="flex-item">
+                <c-a-r-c_-choose-products-grid-enrollment inputmember={members} inputcore={coreProducts}
+                    inputsmart={smartProducts} inputaidd={aiddProducts} programchange={chooseProdProgramChange}
+                    lockedproduct={lockedProduct} coveragedep={coverageDependents} onoutputjson={handleGetOuputGrid}
+                    onoutputdep={handleGetDepGrid} onhandlechangevalues={handleChangeValue}
+                    omni-json-data={omniJsonData} onshareaiddprograms={handleShareAiddProgam}
+                    onsharesmartprograms={handleShareSmartProgam}></c-a-r-c_-choose-products-grid-enrollment>
+            </div>
+        </div>
+        <div class="flex-container">
+            <div class="flex-item slds-align_absolute-center" if:false={isLoading}>
+                <!-- <button class="action-button" onclick={handleSendDataToSummary}
+                    if:false={chooseProdProgramChange}>Reprice</button> -->
+                <!-- <vlocity_ins-button theme="nds" onclick={handleSendDataToSummary}
+                    if:false={chooseProdProgramChange}>Reprice</vlocity_ins-button> -->
+                <vlocity_ins-button class="slds-m-bottom_large slds-align_absolute-center" theme="nds" variant="brand"
+                    onclick={handleSendDataToSummary} label="Reprice" title="Reprice">
+                </vlocity_ins-button>
+            </div>
+            <div class="flex-item">
+                <div if:true={isLoading} class="spinner-container">
+                    <lightning-spinner class="table-spinner" alternative-text="Loading"
+                        size="medium"></lightning-spinner>
+                    <!-- <vlocity_ins-spinner variant="base" alternative-text="Loading..." theme="nds" size="medium"
+                        class="sfl-spinner"></vlocity_ins-spinner> -->
+                </div>
+                <template if:true={areProgramRepriced}>
+                    <c-a-r-c_-choose-product-summary if:false={isLoading}></c-a-r-c_-choose-product-summary>
+                </template>
+            </div>
+        </div>
+    </div>
+    <div class="nds-m-around_small">
+        <div class="nds-grid nds-grid_align-center" if:true={areProgramRepriced}>
+            <div
+                class="nds-grid nds-grid_align-center nds-wrap nds-button-group-row nds-size_1-of-1 nds-medium-size_8-of-12 nds-p-horizontal_medium">
+                <div class="omniscript-btn-next nds-size_12-of-12 nds-m-bottom_x-small nds-medium-size_3-of-12"><button
+                        type="button" aria-label="Next Step" onclick={handleNext}
+                        class="vlocity-btn nds-button nds-button_brand nds-button_stretch nds-p-around_xx-small nds-size_1-of-1"><span
+                            class="btnLabel">Next</span></button></div>
+            </div>
+        </div>
+        <!--  
+            <div
+                class="nds-grid nds-grid_align-center nds-wrap nds-button-group-row nds-size_1-of-1 nds-medium-size_8-of-12 nds-p-horizontal_medium">
+                <div class="omniscript-btn-next nds-size_12-of-12 nds-m-bottom_x-small nds-medium-size_3-of-12"><button
+                        type="button" aria-label="Next Step" onclick={handleNext}
+                        class="vlocity-btn nds-button nds-button_brand nds-button_stretch nds-p-around_xx-small nds-size_1-of-1"><span
+                            class="btnLabel">use this -> Next</span></button></div>
+            </div>  -->
+        <div class="nds-grid nds-grid_align-center">
+            <div
+                class="nds-grid nds-grid_align-center nds-wrap nds-button-group-row nds-size_1-of-1 nds-medium-size_8-of-12 nds-p-horizontal_medium">
+                <div class="omniscript-btn-previous nds-size_12-of-12 nds-m-bottom_x-small nds-medium-size_3-of-12">
+                    <button type="button" aria-label="Previous Step" onclick={handlePrev}
+                        class="vlocity-btn nds-button nds-button_neutral nds-button_stretch nds-p-around_xx-small nds-size_1-of-1"><span
+                            class="btnLabel">Previous</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

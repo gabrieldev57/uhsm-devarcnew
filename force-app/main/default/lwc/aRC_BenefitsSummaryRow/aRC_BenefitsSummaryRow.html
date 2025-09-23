@@ -1,0 +1,104 @@
+<template>
+    <div
+        class="product-card slds-box slds-grid slds-wrap slds-p-around_none slds-m-horizontal_medium slds-m-vertical_medium">
+        <div class="product-detail">
+            <div class="information">
+                <div if:true={product.type} class="slds-text-body_regular slds-truncate bottom_small slds-p-bottom_x-small">
+                    {product.type}
+                </div>
+                <div class="slds-text-heading_medium text-bold slds-p-bottom_x-small">{product.name}</div>
+                <!-- Applies for Benefits Summary 360 LWC -->
+                <div lwc:if={hideeffectivedates}>
+
+                    <a href={product.link} class="custom-action" target="_blank">
+                        <lightning-icon icon-name="standard:customer_portal_users" variant="bare" size="x-small" ></lightning-icon>
+                        <span>{labels.InsPlanDetails}</span>
+                    </a>
+                </div>
+                <!-- Applies for Benefit Summary Community LWC -->
+                <div lwc:else class="slds-m-top_medium">
+                    <div class="slds-text-body_regular">
+                        {labels.EffectiveDate}
+                    </div>
+                    <div class="covered-people slds-text-title_bold">
+                        {product.effectiveDate}
+                    </div>
+                </div>
+                <div class="slds-m-top_medium">
+                    <div class="slds-text-body_regular">
+                        {labels.InsWhosCovered}
+                    </div>
+                    <div class="covered-people slds-text-title_bold">
+                        {product.members}
+                    </div>
+                </div>
+            </div>
+            <div lwc:if={showprogramdetails}>
+            </div>
+            <!-- Applies for Benefit Summary Community LWC -->
+            <div lwc:else class="pdf-icon">
+                <div style="position:relative;">
+                    <svg version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900.000000 898.000000"
+                    preserveAspectRatio="xMidYMid meet">
+                        <g transform="translate(0.000000,898.000000) scale(0.100000,-0.100000)"
+                        fill="#000000" stroke="none">
+                        <path d="M2255 8540 c-202 -27 -387 -114 -528 -249 -115 -110 -179 -201 -230
+                        -331 -55 -137 -59 -176 -64 -588 -4 -341 -3 -385 11 -407 l16 -25 188 0 c133
+                        0 192 4 200 12 9 9 12 103 12 364 0 193 4 375 10 404 24 127 127 264 246 329
+                        114 62 74 60 1263 61 781 1 1087 -2 1095 -10 8 -8 13 -239 17 -788 l5 -777 27
+                        -90 c31 -104 73 -209 99 -247 10 -14 18 -29 18 -33 0 -12 63 -100 128 -177
+                        149 -179 349 -305 600 -380 l107 -32 767 -6 c687 -4 769 -7 783 -21 15 -14 16
+                        -68 15 -500 0 -396 2 -488 13 -503 13 -17 29 -19 201 -18 128 1 192 5 202 13
+                        12 10 14 126 14 750 l0 738 -32 38 c-44 50 -225 240 -483 503 -115 118 -386
+                        397 -600 620 -215 223 -483 499 -596 615 -113 115 -250 257 -305 314 -54 58
+                        -171 178 -259 268 l-160 163 -1360 -1 c-748 -1 -1387 -5 -1420 -9z m2907 -737
+                        c101 -104 235 -242 298 -308 63 -66 200 -208 305 -315 105 -107 249 -256 320
+                        -330 71 -74 269 -278 440 -453 170 -175 314 -325 319 -334 5 -9 4 -19 -2 -25
+                        -11 -11 -1243 -12 -1292 -1 -257 56 -476 239 -562 468 -14 39 -29 86 -32 105
+                        -8 50 -10 1356 -2 1369 4 6 11 11 16 11 5 0 91 -84 192 -187z"/>
+                        <path fill="red" d="M830 6713 c-86 -15 -159 -77 -180 -151 -7 -28 -10 -324 -8 -964 l3
+                        -923 26 -45 c15 -25 36 -53 47 -63 52 -48 -4 -46 1717 -47 1133 0 1632 3 1660
+                        11 47 13 111 70 131 117 12 27 14 187 14 971 0 649 -3 947 -10 967 -15 39 -67
+                        93 -110 113 -32 15 -179 16 -1650 17 -888 1 -1626 0 -1640 -3z m709 -409 c153
+                        -28 245 -107 298 -257 35 -99 36 -243 3 -343 -62 -190 -200 -274 -449 -274
+                        -150 0 -141 16 -141 -254 0 -122 -4 -226 -8 -233 -15 -23 -65 -33 -166 -33
+                        -89 0 -107 3 -130 21 l-26 20 0 665 c0 651 0 664 20 684 19 19 33 20 267 20
+                        181 0 269 -4 332 -16z m983 0 c138 -23 215 -62 297 -150 113 -121 163 -282
+                        163 -524 1 -386 -156 -647 -420 -696 -42 -8 -169 -17 -283 -21 -215 -6 -271 1
+                        -284 35 -3 9 -6 313 -6 677 l0 660 22 18 c19 15 46 17 220 17 135 0 229 -5
+                        291 -16z m1466 0 c20 -14 22 -23 22 -111 0 -141 15 -133 -257 -133 -282 0
+                        -263 13 -263 -175 0 -175 -10 -168 211 -164 196 4 189 9 189 -128 0 -135 3
+                        -133 -201 -133 -93 0 -169 -4 -180 -10 -19 -10 -19 -22 -19 -248 1 -130 -2
+                        -244 -5 -253 -11 -28 -53 -39 -155 -39 -98 0 -148 10 -162 33 -4 7 -8 312 -8
+                        679 l0 667 22 15 c19 14 75 16 403 16 328 0 384 -2 403 -16z"/>
+                        <path fill="red" d="M1263 6059 c-9 -9 -13 -60 -13 -181 0 -163 1 -168 23 -182 17 -12 36
+                        -13 89 -6 115 14 148 57 148 190 0 88 -11 119 -55 160 -23 21 -38 25 -103 28
+                        -53 3 -81 0 -89 -9z"/>
+                        <path fill="red" d="M2336 6044 c-14 -13 -16 -66 -16 -425 0 -400 0 -409 21 -430 23 -23
+                        50 -21 134 12 65 25 98 67 131 166 25 73 27 90 27 258 0 169 -2 184 -27 255
+                        -33 93 -80 144 -150 165 -64 19 -101 19 -120 -1z"/>
+                        <path fill="red" d="M5941 4294 c-25 -9 -55 -23 -68 -32 -55 -35 -53 6 -53 -1022 0 -957
+                        -1 -980 -34 -1002 -6 -4 -153 -8 -327 -8 -264 0 -319 -2 -329 -14 -9 -12 7
+                        -35 92 -127 57 -61 126 -137 153 -168 28 -31 189 -209 359 -396 170 -187 363
+                        -400 430 -474 124 -138 409 -451 502 -554 28 -31 58 -57 64 -57 15 0 24 9 307
+                        324 125 138 258 285 297 326 39 41 127 138 196 214 162 181 528 584 639 706
+                        159 172 173 191 160 206 -9 11 -69 14 -330 14 -317 0 -318 0 -333 22 -14 20
+                        -16 129 -16 979 l0 956 -29 41 c-22 30 -44 46 -86 61 -55 21 -68 21 -803 21
+                        -649 -1 -753 -3 -791 -16z"/>
+                        <path d="M1475 4290 c-48 -19 -46 33 -42 -1236 4 -1315 0 -1245 64 -1404 119
+                        -301 410 -529 727 -570 55 -7 656 -10 1836 -8 1671 3 1755 4 1758 21 2 11 -35
+                        59 -105 135 -59 64 -134 147 -167 184 -32 37 -66 70 -75 75 -9 4 -738 10
+                        -1621 13 l-1605 5 -80 34 c-67 29 -93 48 -160 115 -63 64 -86 96 -110 151
+                        l-30 70 -5 1200 -5 1199 -25 13 c-29 14 -321 17 -355 3z"/>
+                        </g>
+                    </svg>
+                    <div data-link={product.link} onclick={handleDownloadPdfFile} class="overlay"></div>
+                </div>
+            </div>
+        </div>
+        <div class="product-card-price slds-align_absolute-center slds-text-heading_medium text-bold">
+            <lightning-formatted-number value={product.price} format-style="currency" minimum-fraction-digits="2"
+                maximum-fraction-digits="2"></lightning-formatted-number>/{labels.InsMonthAbrv}
+        </div>
+    </div>
+</template>

@@ -1,0 +1,98 @@
+<template>
+    <lightning-record-edit-form object-api-name="Claim" record-id={recordId}  onsubmit={handleSuccess} 
+    onerror={handleError}>
+        <div>
+            <lightning-button
+                class="slds-m-top_small"
+                variant="brand"
+                type="submit"
+                name="update"
+                label="Save"
+            ></lightning-button>
+        </div>
+        <div class="slds-grid">
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="1">
+                <lightning-input-field field-name="DX_A__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxA" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="A">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxA} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="2">
+                <lightning-input-field field-name="DX_B__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxB" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="B">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxB} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid">
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="3">
+                <lightning-input-field field-name="DX_C__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxC" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="C">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxC} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="4">
+                <lightning-input-field field-name="DX_D__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxD" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="D">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxD} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid">
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="5">
+                <lightning-input-field field-name="DX_E__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxE" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="E">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxE} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="6">
+                <lightning-input-field field-name="DX_F__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxF" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="F">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxF} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid">
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="7">
+                <lightning-input-field field-name="DX_G__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxG" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="G">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxG} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="8">
+                <lightning-input-field field-name="DX_H__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxH" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="H">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxH} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid">    
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="9">
+                <lightning-input-field field-name="DX_I__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxI" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="I">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxI} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="10">
+                <lightning-input-field field-name="DX_J__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxJ" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="J">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxJ} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid">    
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="11">
+                <lightning-input-field field-name="DX_K__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxK" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="K">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxK} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+            <div onmouseleave={handleMouseout} onmouseenter={handleMouseover} style="width: 100%;" data-display="12">
+                <lightning-input-field field-name="DX_L__c" class="slds-col slds-size_1-of-2" style="width: 100%;" data-code="dxL" onchange={handleChangeCode}></lightning-input-field>
+                <div style="display:none;position: absolute;opacity:0" data-display="L">
+                    <c-a-r-c_-compact-layout-on-hover record-id={dxL} layout-name="Code Details"></c-a-r-c_-compact-layout-on-hover>
+                </div>
+            </div>
+        </div>
+    </lightning-record-edit-form>
+</template>
