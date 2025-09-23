@@ -611,7 +611,8 @@
             }
         }
 
-        Boolean isSOLegacy = (Boolean)manager.inputMap.get('SV_EnforceLegacyEffectiveDate');
+        // Boolean isSOLegacy = (Boolean)manager.inputMap.get('SV_EnforceLegacyEffectiveDate');
+        Boolean isSOLegacy = manager.inputMap.containsKey('SV_EnforceLegacyEffectiveDate') ? (Boolean)manager.inputMap.get('SV_EnforceLegacyEffectiveDate') : false;
         Date effectiveDate;
 
         if (isSOLegacy) {
@@ -697,7 +698,7 @@
         }
         Id accountId = (Id)selectedContract.get('GroupAccountId');
 
-        Boolean isSOLegacy = (Boolean)manager.inputMap.get('SV_EnforceLegacyEffectiveDate');
+        Boolean isSOLegacy = manager.inputMap.containsKey('SV_EnforceLegacyEffectiveDate') ? (Boolean)manager.inputMap.get('SV_EnforceLegacyEffectiveDate') : false;
         Date contractEffectiveDate;
 
         if (isSOLegacy) {

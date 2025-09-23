@@ -1688,27 +1688,38 @@ public with sharing class ARC_SODML {
             }
             
             // Extract Effective Date && Spin-off Members
-            Map<String, Object> stepData = (Map<String, Object>) inputData.get('STEP_AccountSelection');
-            if (stepData != null) {
+            Boolean isSOLegacy = inputData.containsKey('SV_EnforceLegacyEffectiveDate') ? (Boolean)inputData.get('SV_EnforceLegacyEffectiveDate') : false;
+            String effectiveDate = '';
+
+            if (isSOLegacy) {
+                effectiveDate = (String) inputData.get('EffectiveDate');
+            } else {
+                Map<String, Object> STEP_AccountSelection = (Map<String, Object>) inputData.get('STEP_AccountSelection');
+                Map<String, Object> aRC_DatePicker = (Map<String, Object>)STEP_AccountSelection.get('aRC_DatePicker');
+                effectiveDate = (String)aRC_DatePicker.get('DATE_SubscriberEffectiveDate');
+            }
+            
+            if (effectiveDate != null) {
                 
                 // Extract Effective Date
-                try {
-                    if (inputData.containsKey('STEP_AccountSelection')) {
-                        Map<String, Object> STEP_AccountSelection = (Map<String, Object>)inputData.get('STEP_AccountSelection');
-                        Map<String, Object> aRC_DatePicker = (Map<String, Object>)STEP_AccountSelection.get('aRC_DatePicker');
-                        String effectiveDate = (String)aRC_DatePicker.get('DATE_SubscriberEffectiveDate');
+                // try {
+                //     if (inputData.containsKey('STEP_AccountSelection')) {
+                //         Map<String, Object> STEP_AccountSelection = (Map<String, Object>)inputData.get('STEP_AccountSelection');
+                //         Map<String, Object> aRC_DatePicker = (Map<String, Object>)STEP_AccountSelection.get('aRC_DatePicker');
+                //         String effectiveDate = (String)aRC_DatePicker.get('DATE_SubscriberEffectiveDate');
                         
-                        if (String.isNotBlank(effectiveDate)) {
+                //         if (String.isNotBlank(effectiveDate)) {
                             result.put('effectiveDate', effectiveDate);
-                        }
-                    } else {
-                        System.debug('EffectiveDate not found in JSON');
-                    }
-                } catch (Exception e) {
-                    System.debug('Error extracting effective date: ' + e.getMessage());
-                }
+                //         }
+                //     } else {
+                //         System.debug('EffectiveDate not found in JSON');
+                //     }
+                // } catch (Exception e) {
+                //     System.debug('Error extracting effective date: ' + e.getMessage());
+                // }
                 
                 // Extract Spin-off Members
+                Map<String, Object> stepData = (Map<String, Object>) inputData.get('STEP_AccountSelection');
                 List<Object> membersTable = (List<Object>) stepData.get('LWC_SpinOffCensusMembersTable');
                 if (membersTable != null) {
                     List<String> spinOffNames = (List<String>) result.get('spinOffMemberNames');
@@ -1733,7 +1744,6 @@ public with sharing class ARC_SODML {
             System.debug('Error in extractSpinOffDataFromJson LINE: ' + e.getLineNumber() + ' ' + e.getMessage());
             System.debug('Stack trace: ' + e.getStackTraceString());
         }
-        
         return result;
     }
 
