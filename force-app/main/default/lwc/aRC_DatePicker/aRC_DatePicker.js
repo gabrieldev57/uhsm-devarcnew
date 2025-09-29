@@ -162,7 +162,7 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
         console.log('refreshDateNodes Effective Date:', effectiveDate + ' refreshDateNodes dateOld: ' + olContractReason);
 
         let spinOffEffectiveDateObj;
-        if(JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('SpinOffSelectionRefactor')))){
+        if(JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('SpinOffSelectionRefactor'))) || this.omniJsonData.hasOwnProperty('IsPCSpinOff')){
             let spinOffOldContractEfectiveDate = this.osData?.ContractList[0]?.EffectiveDate;
             const [month, day, year] = spinOffOldContractEfectiveDate.split('/');
             spinOffEffectiveDateObj = new Date(parseInt(year), parseInt(month, 10) - 1, parseInt(day, 10));
@@ -193,15 +193,21 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                         }
                     }        
                     //SCENARIO 2: SpinOffSelectionRefactor - Only use old efective date day
-                    else if (JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('SpinOffSelectionRefactor')))) {
+                    else if (JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('SpinOffSelectionRefactor'))) || this.omniJsonData.hasOwnProperty('IsPCSpinOff')) {
                         if (this.isLegacy == true){
-                            const minStartDate = this.today;
-                                                    
+                            let minStartDate;
+                            if (this.omniJsonData?.IsPCSpinOff === true) {
+                                minStartDate = spinOffEffectiveDateObj;
+                            } else {
+                                minStartDate = this.today;
+                            }
+                            console.log('TEST BY GABRIEL ------> linea 204')                        
                             if (day >= minStartDate && day >= this.today && (day.getDate() === 1)) {
                                 if (day.getTime() === this.selectedDate.getTime()) {
                                     className = 'selected';
                                 } else if (day >= this.today) {
                                     className = 'date';
+                                    console.log('TEST BY GABRIEL ------> className = date, day: ' + day + ', minStartDate: ' + minStartDate)
                                 }
                             } else {
                                 className = 'padder';
@@ -257,8 +263,11 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                     //SCENARIO 4: Legacy true, only day 1
                     else if (this.isLegacy == true) {
                         if(JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('datePickerProgramChange')))){
+                            // Check parse and stringify
                             this.formattedSelectedDate = '';
                             this.minimumStartDate = this.today
+                        } else if (this.omniJsonData.hasOwnProperty('IsPCSpinOff')){
+
                         }
                         const minStartDate = new Date(this.minimumStartDate);
           
@@ -283,7 +292,6 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                         text: String(day.getDate()).padStart(2, '0')
                     });
                 });
-
         }
 
         let todayNoTime = new Date();
@@ -519,8 +527,15 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
             if (effDate !== '') {
                 this.dateContext = new Date(effDate);
             } else if (this.osData.isLegacy) {
-							  this.dateContext = new Date(this.osData.minimumStartDate);
-						} else {
+				this.dateContext = new Date(this.osData.minimumStartDate);
+                if(this.osData?.IsPCSpinOff === true){
+                    let effDateSplit = this.osData?.SelectedContractInfo?.EffectiveDate?.split('/')
+                    if(effDateSplit.length > 0){
+                        effDate = effDateSplit[2] + '-' + effDateSplit[0] + '-' + effDateSplit[1];
+                    }
+                    this.dateContext = new Date(effDate);
+                }
+			} else {
                 this.dateContext = this.today;
             }
 

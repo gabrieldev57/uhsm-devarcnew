@@ -667,14 +667,18 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         }
         this.cartProductCount();
 
+        let wantsAncillaryFromJson = this.omniJsonData?.STEP_PlanSelection?.RAD_WantsAncillary;
+        let enforceWantsAncillarySelection = this.omniJsonData?.STEP_PlanSelection?.EnforceWantsAncillarySelection;
         let selectedProducts = this.omniJsonData?.selectedProducts;
         let isLegacyProductSelected = selectedProducts.some(product => product.Name === 'WeShare Legacy')
 
         if (isLegacyProductSelected) {
             this.wantsAncillary = 'No'
             this.disableAncillary = true
-        } else if (this.hadAncillaries) {
+        } else if (this.hadAncillaries && !this.wantsAncillary && enforceWantsAncillarySelection != true) {
             this.wantsAncillary = this.hadAncillaries;
+        } else {
+            this.wantsAncillary = wantsAncillaryFromJson;
         }
         
         this.omniApplyCallResp({
@@ -869,7 +873,8 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         this.showWarning = this.wantsAncillary === 'No' && this.hadAncillaries === 'Yes';
         this.omniApplyCallResp({
             STEP_PlanSelection: {
-                RAD_WantsAncillary: this.wantsAncillary
+                RAD_WantsAncillary: this.wantsAncillary,
+                EnforceWantsAncillarySelection: true
             }
         });
     }
