@@ -166,6 +166,8 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
             let spinOffOldContractEfectiveDate = this.osData?.ContractList[0]?.EffectiveDate;
             const [month, day, year] = spinOffOldContractEfectiveDate.split('/');
             spinOffEffectiveDateObj = new Date(parseInt(year), parseInt(month, 10) - 1, parseInt(day, 10));
+            let spinOffEffectiveDateObjTest = new Date(spinOffEffectiveDateObj)
+            console.log('TEST BY GABRIEL ------------> spinOffEffectiveDateObj: ' + spinOffEffectiveDateObjTest);
         }
 
         console.log('this.isLegacy 1 ' + this.omniJsonData?.isLegacy)
@@ -193,26 +195,8 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                         }
                     }        
                     //SCENARIO 2: SpinOffSelectionRefactor - Only use old efective date day
-                    else if (JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('SpinOffSelectionRefactor'))) || this.omniJsonData.hasOwnProperty('IsPCSpinOff')) {
-                        if (this.isLegacy == true){
-                            let minStartDate;
-                            if (this.omniJsonData?.IsPCSpinOff === true) {
-                                minStartDate = spinOffEffectiveDateObj;
-                            } else {
-                                minStartDate = this.today;
-                            }
-                            console.log('TEST BY GABRIEL ------> linea 204')                        
-                            if (day >= minStartDate && day >= this.today && (day.getDate() === 1)) {
-                                if (day.getTime() === this.selectedDate.getTime()) {
-                                    className = 'selected';
-                                } else if (day >= this.today) {
-                                    className = 'date';
-                                    console.log('TEST BY GABRIEL ------> className = date, day: ' + day + ', minStartDate: ' + minStartDate)
-                                }
-                            } else {
-                                className = 'padder';
-                            }
-                        }else if (day >= this.today && (day.getDate() === spinOffEffectiveDateObj.getDate())) {
+                    else if (JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('SpinOffSelectionRefactor'))) && this.isLegacy == false) {
+                        if (day >= this.today && (day.getDate() === spinOffEffectiveDateObj.getDate())) {
                             if (day.getTime() === this.selectedDate.getTime()) {
                                 className = 'selected';
                             } else {
@@ -266,9 +250,10 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                             // Check parse and stringify
                             this.formattedSelectedDate = '';
                             this.minimumStartDate = this.today
-                        } else if (this.omniJsonData.hasOwnProperty('IsPCSpinOff')){
-
+                        } else if (this.omniJsonData?.IsPCSpinOff === true || this.omniJsonData?.SpinOffSelectionRefactor == true){
+                            this.minimumStartDate = spinOffEffectiveDateObj;
                         }
+                        console.log('TEST BY GABRIEL --------> this.minimumStartDate: ' + this.minimumStartDate)
                         const minStartDate = new Date(this.minimumStartDate);
           
                         console.log('minStartDate', minStartDate);
