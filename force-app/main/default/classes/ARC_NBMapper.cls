@@ -1112,13 +1112,18 @@ public without sharing class ARC_NBMapper {
             }
         }
 
+        List<vlocity_ins__ContractLineItem__c> listCLIMedProd = [SELECT vlocity_ins__Product2Id__c FROM vlocity_ins__ContractLineItem__c WHERE vlocity_ins__ContractId__c IN :listIdCnt AND vlocity_ins__ProductType__c = 'Medical' AND vlocity_ins__ParentItemId__c = null];
+
+        List<String> medProdId = new List<String>();
+
+        for (vlocity_ins__ContractLineItem__c cliMedProd: listCLIMedProd) medProdId.add(cliMedProd.vlocity_ins__Product2Id__c);
+
         manager.listContractsTNB = [
             SELECT Id, ARC_MedicalPlan__c, ARC_MedicalPlan__r.Name, Status, ARC_EffectiveDate__c, ARC_Inactive_Date__c, vlocity_ins__EnrollmentCensusId__c, vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__c, vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.ARC_NewCensusMember__c, vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.vlocity_ins__MemberIdentifier__c, vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.ARC_NewCensusMember__r.vlocity_ins__MemberIdentifier__c, ARC_ContractReason__c,
                 (SELECT Id, 
                     (SELECT Id 
                     FROM InsurancePolicyCoverages 
-                    WHERE vlocity_ins_fsc__Product2Id__r.vlocity_ins__RecordTypeName__c = 'Product' 
-                        AND vlocity_ins_fsc__Product2Id__r.vlocity_ins__SubType__c = 'PPO'
+                    WHERE vlocity_ins_fsc__Product2Id__c IN :medProdId
                     LIMIT 1) 
                 FROM Insurance_Policies__r
                 LIMIT 1)
