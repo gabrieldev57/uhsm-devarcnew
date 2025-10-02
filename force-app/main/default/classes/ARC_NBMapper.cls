@@ -8,7 +8,7 @@
  * @Version: 1.0
  */
 
-public with sharing class ARC_NBMapper {  
+public without sharing class ARC_NBMapper {  
     private ARC_NBManager manager; 
     private Set<String> actionsToExecute = new Set<String>();
 
@@ -140,38 +140,47 @@ public with sharing class ARC_NBMapper {
      */
     private void mapGCM() { 
         try{
-            Map<String,String> oldPrimaryValues = getOldPrimaryValues();
-            for (Map<String,Object> member : manager.censusMembersMap) {
-                vlocity_ins__GroupCensusMember__c newGCM = new vlocity_ins__GroupCensusMember__c();
+            for (Id censusId : manager.primaryValuesCnt.keySet()) {
+                Map<String, Object> primaryValue = manager.primaryValuesCnt.get(censusId);
 
-                newGCM.vlocity_ins__RelatedCensusMemberId__c = oldPrimaryValues.get('Id');
-                newGCM.vlocity_ins__PrimaryMemberIdentifier__c = oldPrimaryValues.get('vlocity_ins__MemberIdentifier__c');
-                newGCM.vlocity_ins__CensusId__c = manager.inputMap.containsKey('EligibleCensusId') ? (String)manager.inputMap.get('EligibleCensusId') : null;
-                newGCM.ARC_DependentRelationship__c = 'Temporary Newborn';
-                newGCM.vlocity_ins__IsPrimaryMember__c = false;
-                newGCM.vlocity_ins__IsSpouse__c = false;
-                newGCM.vlocity_ins__Birthdate__c = member.containsKey('vlocity_ins__Birthdate__c') ? Date.valueOf((String)member.get('vlocity_ins__Birthdate__c')) : null;
-                newGCM.ARC_ActiveMember__c = (manager.allContractsTerminated == false) && (newGCM.vlocity_ins__Birthdate__c != null) && (newGCM.vlocity_ins__Birthdate__c.daysBetween(Date.today()) <= 30) ? true : false;
-                newGCM.vlocity_ins__FirstName__c = member.containsKey('vlocity_ins__FirstName__c') ? (String)member.get('vlocity_ins__FirstName__c') : null;
-                newGCM.vlocity_ins__LastName__c = member.containsKey('vlocity_ins__LastName__c') ? (String)member.get('vlocity_ins__LastName__c') : null;
-                if (newGCM.vlocity_ins__FirstName__c != null && newGCM.vlocity_ins__LastName__c != null) {
-                    newGCM.Name = newGCM.vlocity_ins__FirstName__c + ' ' + newGCM.vlocity_ins__LastName__c;
+                Map<String, vlocity_ins__GroupCensusMember__c> fakeIdToGcm = new Map<String, vlocity_ins__GroupCensusMember__c>();
+
+                for (Map<String,Object> member : manager.censusMembersMap) {
+                    vlocity_ins__GroupCensusMember__c newGCM = new vlocity_ins__GroupCensusMember__c();
+
+                    newGCM.vlocity_ins__RelatedCensusMemberId__c = (Id)primaryValue.get('Id');
+                    newGCM.vlocity_ins__PrimaryMemberIdentifier__c =  (String)primaryValue.get('vlocity_ins__MemberIdentifier__c');
+                    newGCM.vlocity_ins__CensusId__c = censusId;
+                    newGCM.ARC_DependentRelationship__c = 'Temporary Newborn';
+                    newGCM.vlocity_ins__IsPrimaryMember__c = false;
+                    newGCM.vlocity_ins__IsSpouse__c = false;
+                    newGCM.vlocity_ins__Birthdate__c = member.containsKey('vlocity_ins__Birthdate__c') ? Date.valueOf((String)member.get('vlocity_ins__Birthdate__c')) : null;
+                    newGCM.ARC_ActiveMember__c = (censusId == manager.censusIdActiveCnt) && (manager.allContractsTerminated == false) && (newGCM.vlocity_ins__Birthdate__c != null) && (newGCM.vlocity_ins__Birthdate__c.daysBetween(Date.today()) <= 30) ? true : false;
+
+                    newGCM.vlocity_ins__FirstName__c = member.containsKey('vlocity_ins__FirstName__c') ? (String)member.get('vlocity_ins__FirstName__c') : null;
+                    newGCM.vlocity_ins__LastName__c = member.containsKey('vlocity_ins__LastName__c') ? (String)member.get('vlocity_ins__LastName__c') : null;
+                    if (newGCM.vlocity_ins__FirstName__c != null && newGCM.vlocity_ins__LastName__c != null) {
+                        newGCM.Name = newGCM.vlocity_ins__FirstName__c + ' ' + newGCM.vlocity_ins__LastName__c;
+                    }
+                    
+                    newGCM.ARC_MiddleInitial__c = member.containsKey('ARC_MiddleInitial__c') ? (String)member.get('ARC_MiddleInitial__c') : null;
+                    newGCM.vlocity_ins__Gender__c = member.containsKey('vlocity_ins__Gender__c') ? (String)member.get('vlocity_ins__Gender__c') : null;
+                    newGCM.vlocity_ins__SocialSecurityNumber__c = member.containsKey('vlocity_ins__SocialSecurityNumber__c') ? (String)member.get('vlocity_ins__SocialSecurityNumber__c') : null;
+                    newGCM.ARC_HeightFeet__c = member.containsKey('ARC_HeightFeet__c') ? String.valueOf((Integer)member.get('ARC_HeightFeet__c')) : null;
+                    newGCM.ARC_HeightInches__c = member.containsKey('ARC_HeightInches__c') ? String.valueOf((Integer)member.get('ARC_HeightInches__c')) : null;
+                    newGCM.ARC_Weight__c = member.containsKey('ARC_Weight__c') ? String.valueOf((Integer)member.get('ARC_Weight__c')) : null;
+
+                    newGCM.ARC_PhysicalAddressCity__c = member.containsKey('ARC_PhysicalAddressCity__c') ? (String)member.get('ARC_PhysicalAddressCity__c') : null;
+                    newGCM.ARC_PhysicalAddressState__c = member.containsKey('ARC_PhysicalAddressState__c') ? (String)member.get('ARC_PhysicalAddressState__c') : null;
+                    newGCM.ARC_PhysicalAddressStreet__c = member.containsKey('ARC_PhysicalAddressStreet__c') ? (String)member.get('ARC_PhysicalAddressStreet__c') : null;
+                    newGCM.ARC_PhysicalAddressZipCode__c = member.containsKey('ARC_PhysicalAddressZipCode__c') ? (String)member.get('ARC_PhysicalAddressZipCode__c') : null;
+                    
+                    fakeIdToGcm.put((String)member.get('Id'), newGCM);
+
+                    System.debug('gcm' + JSON.serializePretty(newGCM));
                 }
-                
-                newGCM.ARC_MiddleInitial__c = member.containsKey('ARC_MiddleInitial__c') ? (String)member.get('ARC_MiddleInitial__c') : null;
-                newGCM.vlocity_ins__Gender__c = member.containsKey('vlocity_ins__Gender__c') ? (String)member.get('vlocity_ins__Gender__c') : null;
-                newGCM.vlocity_ins__SocialSecurityNumber__c = member.containsKey('vlocity_ins__SocialSecurityNumber__c') ? (String)member.get('vlocity_ins__SocialSecurityNumber__c') : null;
-                newGCM.ARC_HeightFeet__c = member.containsKey('ARC_HeightFeet__c') ? String.valueOf((Integer)member.get('ARC_HeightFeet__c')) : null;
-                newGCM.ARC_HeightInches__c = member.containsKey('ARC_HeightInches__c') ? String.valueOf((Integer)member.get('ARC_HeightInches__c')) : null;
-                newGCM.ARC_Weight__c = member.containsKey('ARC_Weight__c') ? String.valueOf((Integer)member.get('ARC_Weight__c')) : null;
-
-                newGCM.ARC_PhysicalAddressCity__c = member.containsKey('ARC_PhysicalAddressCity__c') ? (String)member.get('ARC_PhysicalAddressCity__c') : null;
-                newGCM.ARC_PhysicalAddressState__c = member.containsKey('ARC_PhysicalAddressState__c') ? (String)member.get('ARC_PhysicalAddressState__c') : null;
-                newGCM.ARC_PhysicalAddressStreet__c = member.containsKey('ARC_PhysicalAddressStreet__c') ? (String)member.get('ARC_PhysicalAddressStreet__c') : null;
-                newGCM.ARC_PhysicalAddressZipCode__c = member.containsKey('ARC_PhysicalAddressZipCode__c') ? (String)member.get('ARC_PhysicalAddressZipCode__c') : null;
-                
-                manager.gcmFakeIdToInsertNB.put((String)member.get('Id') , newGCM);
-            }
+                manager.censusGroupToGCM.put(censusId, fakeIdToGcm);
+            }    
         }
         catch(Exception e){
             System.debug('Error mapping GCM: ' + e.getLineNumber() + ' ' + e.getMessage());
@@ -185,8 +194,9 @@ public with sharing class ARC_NBMapper {
     private void mapGCMPlan() {
         try {
             if (!manager.listContractsTNB.isEmpty()) {
+                Map<String, vlocity_ins__GroupCensusMember__c> censusActiveToGCM = (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.censusIdActiveCnt);
                 for (Contract cnt : manager.listContractsTNB) {
-                    for (String fakeId : manager.gcmFakeIdToInsertNB.keySet()) {
+                    for (String fakeId : censusActiveToGCM.keySet()) {
                         vlocity_ins__GroupCensusMemberPlan__c gcmPlan = new vlocity_ins__GroupCensusMemberPlan__c();
 
                         gcmPlan.vlocity_ins__ContractLineId__c = cnt.ARC_MedicalPlan__c;
@@ -211,8 +221,8 @@ public with sharing class ARC_NBMapper {
     private void mapPolicyParticipant() {
         try {
             if (!manager.listContractsTNB.isEmpty()) {
-                Date firstDate = Date.valueOf((String)manager.inputMap.get('YoungestNewbornBirthdate'));
-                Date lastDate = firstDate + 30; 
+                Date firstDate = Date.valueOf((String)manager.inputMap.get('OldestNewbornBirthdate'));
+                Date lastDate = Date.valueOf((String)manager.inputMap.get('YoungestNewbornBirthdate')) + 30; 
 
                 for (Contract cnt : manager.listContractsTNB) {
                     for (String fakeId : manager.accountFakeIdToInsertNB.keySet()) {
@@ -230,26 +240,24 @@ public with sharing class ARC_NBMapper {
 
                         if (cnt.Status == 'Terminated') {
                             if (cnt.ARC_Inactive_Date__c < lastDate) {
-                                newPolPart.ExpirationDate = cnt.ARC_Inactive_Date__c;
+                                newPolPart.ARC_EndDate__c = cnt.ARC_Inactive_Date__c;
                             } else {
-                                newPolPart.ExpirationDate = lastDate;
+                                newPolPart.ARC_EndDate__c = lastDate;
                             }
                             if (cnt.ARC_EffectiveDate__c < firstDate) {
-                                newPolPart.EffectiveDate = firstDate;
+                                newPolPart.ARC_StartDate__c = firstDate;
                             } else {
-                                newPolPart.EffectiveDate = cnt.ARC_EffectiveDate__c;
+                                newPolPart.ARC_StartDate__c = cnt.ARC_EffectiveDate__c;
                             }
                         } else {
                             if (cnt.ARC_EffectiveDate__c < firstDate) {
-                                newPolPart.EffectiveDate = firstDate;
-                                newPolPart.ExpirationDate = lastDate;
+                                newPolPart.ARC_StartDate__c = firstDate;
+                                newPolPart.ARC_EndDate__c = lastDate;
                             } else {
-                                newPolPart.EffectiveDate = cnt.ARC_EffectiveDate__c;
-                                newPolPart.ExpirationDate = lastDate;
+                                newPolPart.ARC_StartDate__c = cnt.ARC_EffectiveDate__c;
+                                newPolPart.ARC_EndDate__c = lastDate;
                             }    
                         }
-                        newPolPart.EffectiveDate = newPolPart.EffectiveDate.addHours(7);
-                        newPolPart.ExpirationDate = newPolPart.ExpirationDate.addHours(7);
 
                         Map<String, InsurancePolicyParticipant> innerMapPolPart = manager.contractIdToPolPart.containsKey(cnt.Id) ? manager.contractIdToPolPart.get(cnt.Id) : new Map<String, InsurancePolicyParticipant>();
 
@@ -276,7 +284,7 @@ public with sharing class ARC_NBMapper {
                     for (String fakeId : manager.contractIdToPolPart.get(IdlastCnt).keySet()) {
                         if (manager.inputMap.containsKey('EffectiveDate')) {
                             Date newDate = Date.valueOf((String)manager.inputMap.get('EffectiveDate'));
-                            (manager.contractIdToPolPart.get(IdlastCnt)).get(fakeId).ExpirationDate = Datetime.newInstance(newDate.year(), newDate.month(), newDate.day()).addDays(-1);
+                            (manager.contractIdToPolPart.get(IdlastCnt)).get(fakeId).ARC_EndDate__c = Date.today().addDays(-1);
                         }
                     }
                 } 
@@ -1090,8 +1098,8 @@ public with sharing class ARC_NBMapper {
      * @Description: Retrieves and processes contracts, policy and contract line items information for newborns
      */
     private void getContractPolAndCLI() {
-        Date firstDate = Date.valueOf((String)manager.inputMap.get('YoungestNewbornBirthdate'));
-        Date lastDate = firstDate + 30; 
+        Date firstDate = Date.valueOf((String)manager.inputMap.get('OldestNewbornBirthdate'));
+        Date lastDate = Date.valueOf((String)manager.inputMap.get('YoungestNewbornBirthdate')) + 30; 
         
         List<String> listIdCnt = new List<String>();
         Object contracts = manager.inputMap.get('ContractsIdforMothers');
@@ -1105,7 +1113,7 @@ public with sharing class ARC_NBMapper {
         }
 
         manager.listContractsTNB = [
-            SELECT Id, ARC_MedicalPlan__c, ARC_MedicalPlan__r.Name, Status, ARC_EffectiveDate__c, ARC_Inactive_Date__c,
+            SELECT Id, ARC_MedicalPlan__c, ARC_MedicalPlan__r.Name, Status, ARC_EffectiveDate__c, ARC_Inactive_Date__c, vlocity_ins__EnrollmentCensusId__c, vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__c, vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.ARC_NewCensusMember__c, vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.vlocity_ins__MemberIdentifier__c, vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.ARC_NewCensusMember__r.vlocity_ins__MemberIdentifier__c, ARC_ContractReason__c,
                 (SELECT Id, 
                     (SELECT Id 
                     FROM InsurancePolicyCoverages 
@@ -1122,11 +1130,42 @@ public with sharing class ARC_NBMapper {
                     (Status != 'Terminated' AND ARC_EffectiveDate__c <= :lastDate))
                 ORDER BY CreatedDate ASC
         ];
-        System.debug('listContracts: ' + manager.listContractsTNB);
 
         Integer aux = 0;
+       // Boolean isSpinOffActive = false;
+       // String censusIdSpinOffInactive = null;
         for (Contract cnt : manager.listContractsTNB) {
             if (cnt.Status == 'Terminated') aux++;
+           
+            if (cnt.Status == 'Activated') {
+                manager.censusIdActiveCnt = cnt.vlocity_ins__EnrollmentCensusId__c;
+            }
+
+            Id censusId;
+            Id relatedCensusMemberId;
+            String primaryMemberIdentifier;
+
+            if (cnt.vlocity_ins__EnrollmentCensusId__c != null) {
+                manager.cntIdtoCensusId.put(cnt.Id, cnt.vlocity_ins__EnrollmentCensusId__c);
+                censusId = cnt.vlocity_ins__EnrollmentCensusId__c;
+
+                if (cnt.ARC_ContractReason__c.contains('Spin Off')) {
+                    relatedCensusMemberId = cnt.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.ARC_NewCensusMember__c;
+                    primaryMemberIdentifier = cnt.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.ARC_NewCensusMember__r.vlocity_ins__MemberIdentifier__c;
+                }
+                else {
+                    relatedCensusMemberId = cnt.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__c;
+                    primaryMemberIdentifier = cnt.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.vlocity_ins__MemberIdentifier__c;
+                }
+            }
+
+            manager.primaryValuesCnt.put(
+                censusId,
+                new Map<String, Object>{
+                    'Id' => relatedCensusMemberId,
+                    'vlocity_ins__MemberIdentifier__c' => primaryMemberIdentifier
+                }
+            );
         }
         manager.allContractsTerminated = aux == manager.listContractsTNB.size();
     }
@@ -1239,47 +1278,6 @@ public with sharing class ARC_NBMapper {
             }
         }        
         return productToMembersMap;
-    }
-
-    /**
-    * @Description: Retrieves old census members from the input data
-    * @return Map<String,String>: Map of census member data 
-    */
-    Map<String,String> getOldPrimaryValues() {
-        Map<String,String> oldPrimaryValues = new Map<String,String>();Object oldProductsObject = manager.inputMap.get('oldProducts');
-        List<Object> oldProductsList = new List<Object>();
-        if (oldProductsObject != null) {
-            if (oldProductsObject instanceof Map<String,Object>) {               
-                oldProductsList.add(oldProductsObject);
-            } 
-            else if(oldProductsObject instanceof List<Object>){
-                oldProductsList = (List<Object>)oldProductsObject;
-            }
-        }
-        for(Object productObj : oldProductsList) {
-            Map<String,Object> product = (Map<String,Object>)productObj;
-            if((String)product.get('Type__c') == 'Medical') {               
-                Object censusMembers = product.get('census_members');
-                List<Object> censusMembersList = new List<Object>();
-                if (censusMembers != null) {                    
-                    if (censusMembers instanceof Map<String,Object>) {
-                        censusMembersList.add(censusMembers);
-                    }
-                    else if(censusMembers instanceof List<Object>){
-                        censusMembersList = (List<Object>)censusMembers;
-                    }
-                }
-                for(Object memberObj : censusMembersList) {
-                    Map<String,Object> member = (Map<String,Object>)memberObj;                    
-                    if(member.containsKey('vlocity_ins__IsPrimaryMember__c') && (Boolean)member.get('vlocity_ins__IsPrimaryMember__c') == true) {                       
-                        oldPrimaryValues.put('Id', (String)member.get('Id'));
-                        oldPrimaryValues.put('vlocity_ins__MemberIdentifier__c', (String)member.get('vlocity_ins__MemberIdentifier__c'));
-                        break;
-                    }
-                }
-            }
-        }
-        return oldPrimaryValues;
     }
     
     /**

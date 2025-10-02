@@ -166,8 +166,6 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
             let spinOffOldContractEfectiveDate = this.osData?.ContractList[0]?.EffectiveDate;
             const [month, day, year] = spinOffOldContractEfectiveDate.split('/');
             spinOffEffectiveDateObj = new Date(parseInt(year), parseInt(month, 10) - 1, parseInt(day, 10));
-            let spinOffEffectiveDateObjTest = new Date(spinOffEffectiveDateObj)
-            console.log('TEST BY GABRIEL ------------> spinOffEffectiveDateObj: ' + spinOffEffectiveDateObjTest);
         }
 
         console.log('this.isLegacy 1 ' + this.omniJsonData?.isLegacy)
@@ -253,7 +251,6 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                         } else if (this.omniJsonData?.IsPCSpinOff === true || this.omniJsonData?.SpinOffSelectionRefactor == true){
                             this.minimumStartDate = spinOffEffectiveDateObj;
                         }
-                        console.log('TEST BY GABRIEL --------> this.minimumStartDate: ' + this.minimumStartDate)
                         const minStartDate = new Date(this.minimumStartDate);
           
                         console.log('minStartDate', minStartDate);

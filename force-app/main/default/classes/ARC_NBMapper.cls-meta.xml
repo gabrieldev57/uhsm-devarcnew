@@ -3,7 +3,7 @@
     <apiVersion>64.0</apiVersion>
     <packageVersions>
         <majorNumber>7</majorNumber>
-        <minorNumber>90</minorNumber>
+        <minorNumber>70</minorNumber>
         <namespace>ChargentOrders</namespace>
     </packageVersions>
     <packageVersions>
