@@ -8,7 +8,7 @@
  * @Version: 1.0
  */
 
-public without sharing class ARC_NBMapper {  
+public without sharing class ARC_NBMapperGabo {  
     private ARC_NBManager manager; 
     private Set<String> actionsToExecute = new Set<String>();
 
@@ -176,6 +176,8 @@ public without sharing class ARC_NBMapper {
                     newGCM.ARC_PhysicalAddressZipCode__c = member.containsKey('ARC_PhysicalAddressZipCode__c') ? (String)member.get('ARC_PhysicalAddressZipCode__c') : null;
                     
                     fakeIdToGcm.put((String)member.get('Id'), newGCM);
+
+                    System.debug('gcm' + JSON.serializePretty(newGCM));
                 }
                 manager.censusGroupToGCM.put(censusId, fakeIdToGcm);
             }    
@@ -282,10 +284,7 @@ public without sharing class ARC_NBMapper {
                     for (String fakeId : manager.contractIdToPolPart.get(IdlastCnt).keySet()) {
                         if (manager.inputMap.containsKey('EffectiveDate')) {
                             Date newDate = Date.valueOf((String)manager.inputMap.get('EffectiveDate'));
-                            (manager.contractIdToPolPart.get(IdlastCnt)).get(fakeId).ARC_EndDate__c = newDate.addDays(-1);
-
-                            (manager.accountFakeIdToInsertNB.get(fakeId)).IsActive = true;
-                            ((manager.censusGroupToGCM.get(manager.censusIdActiveCnt)).get(fakeId)).ARC_ActiveMember__c = true;
+                            (manager.contractIdToPolPart.get(IdlastCnt)).get(fakeId).ARC_EndDate__c = Date.today().addDays(-1);
                         }
                     }
                 } 
@@ -579,7 +578,7 @@ public without sharing class ARC_NBMapper {
                 newCase.Type = 'Program Change';
             } 
 
-            if (contractInfo != null && (contractStatus.contains('Awaiting Signature') || contractStatus.contains('Awaiting Approval'))) {
+            if (contractInfo != null && (contractStatus.contains('Awaiting Singature') || contractStatus.contains('Awaiting Approval'))) {
                 List<Contract> existingContract = [SELECT ARC_Case__c, ARC_Case__r.Case_Type__c FROM Contract WHERE Id = :contractId];
 
                 if (!existingContract.isEmpty() && existingContract[0].ARC_Case__r?.Case_Type__c == 'Underwriting'){
@@ -664,7 +663,6 @@ public without sharing class ARC_NBMapper {
 
                     newCaseMember = new ARC_UnderwritingCaseMember__c();
                     newCaseMember.ARC_ApprovalResolution__c = 'Approved';
-                    newCaseMember.ARC_Description__c = 'Newborn is automatically approved';
                     newCasemember.Name = (String)member.get('vlocity_ins__FirstName__c') + ' ' + (String)member.get('vlocity_ins__LastName__c');                
                     newCaseMember.ARC_Reason__c = 'Add Member';
                     manager.censusMemberIdOrFakeIdToUWCM.put((String)member.get('Id'), newCaseMember);

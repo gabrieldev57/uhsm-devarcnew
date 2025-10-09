@@ -9,7 +9,7 @@
  * @Version: 1.0
  */
 
- public with sharing class ARC_NBManager {
+ public without sharing class ARC_NBManager {
 
     /**
      * Constructor for ARC_NBManager
@@ -30,6 +30,7 @@
     public Set<String> actionsToPerform = new Set<String>();
     public Boolean isPermanentNewborn = false;
     public Boolean allContractsTerminated = false; // Flag to check if all contracts are terminated
+    public Boolean isUnderwritingCase = false;
     
     // Object Lists for DML Operations
     public List<Account> accountsToUpsert = new List<Account>();
@@ -59,6 +60,10 @@
     public List<Map<String,Object>> censusMembersMap = new List<Map<String,Object>>(); // List of Map of Newborns
     public List<Map<String,Object>> allMembersToContPart = new List<Map<String,Object>>(); // List of Map Of ALL MEMBERS to Contract Participant
     public Map<String, vlocity_ins__GroupCensusMember__c> gcmFakeIdToInsertNB = new Map<String, vlocity_ins__GroupCensusMember__c>(); // Map of fake Id to actual record
+    public Map<String, Map<String, vlocity_ins__GroupCensusMember__c>> censusGroupToGCM = new Map<String, Map<String, vlocity_ins__GroupCensusMember__c>>();
+    public Map<Id, Map<String, Object>> primaryValuesCnt = new Map<Id, Map<String, Object>>();
+    public Map<String, String> cntIdtoCensusId = new Map<String, String>();
+    public String censusIdActiveCnt = null;
     public Map<String, Account> accountFakeIdToInsertNB = new Map<String, Account>(); // Map of fake Id to actual record
 
     public Map<String, Map<String, vlocity_ins__GroupCensusMemberPlan__c>> contractIdToGCMP = new Map<String, Map<String, vlocity_ins__GroupCensusMemberPlan__c>>();

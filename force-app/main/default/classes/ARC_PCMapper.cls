@@ -251,7 +251,10 @@ public without sharing class ARC_PCMapper {
                 //actionsToExecute.add('createChargentOrders');
                 actionsToExecute.add('insertHipaaAuthorization');
             }             
-        }        
+        }  
+        if(manager.pcReasons.containsKey('addExistingNewborn') && (Boolean) manager.inputMap.get('extendNewbornPolicyCoverage'))  {
+            actionsToExecute.add('updatePolicyEndDateForNewborns');
+        }    
          executeActions(actionsToExecute);        
     }
 
@@ -336,6 +339,9 @@ public without sharing class ARC_PCMapper {
                     }
                     when 'updatePersonMedicareInformation' {
                         updatePersonMedicareInformation();
+                    }
+                    when 'updatePolicyEndDateForNewborns' {
+                        updatePolicyEndDateForNewborns();
                     }
                 }
             } catch (Exception e) {
@@ -2298,6 +2304,34 @@ public without sharing class ARC_PCMapper {
         }        
         return productToMembersMap;
     } 
+/**
+    * @Description: Process the newborns and update the policy end date to match effectiveDate
+    * @return void
+    */
+    public void updatePolicyEndDateForNewborns(){
+        List<Map<String,Object>> censusMembers  = getCensusMembers();
+        Date effectiveDate = (Date)manager.inputMap.get('EffectiveDate');
+        Set<Id> newbornCensusMemberIds = new Set<Id>();
+        for(Map<String,Object> member : censusMembers){
+            if(member.containsKey('IsNewborn') && (Boolean)member.get('IsNewborn') == true && member.containsKey('Id')){
+                newbornCensusMemberIds.add((Id)member.get('Id'));
+            }
+
+        }
+        if(!newbornCensusMemberIds.isEmpty()){
+            List<InsurancePolicyParticipant> ippToUpdate = [SELECT Id, ARC_EndDate__c, PrimaryParticipantContactId 
+                                                FROM InsurancePolicyParticipant 
+                                                WHERE PrimaryParticipantContactId IN :newbornCensusMemberIds AND 
+                                                (InsurancePolicy.ARC_Contract__r.Status = 'Activated' OR
+                                                InsurancePolicy.ARC_Contract__r.Status LIKE 'Awaiting%')];
+            for(InsurancePolicyParticipant ipp : ippToUpdate){
+                ipp.ARC_EndDate__c = effectiveDate;
+            }
+            if(!ippToUpdate.isEmpty()){
+                update ippToUpdate;
+            }
+        }
+    }
 
     ///////////////////////
     // Auxiliary Methods //
@@ -2444,4 +2478,6 @@ public without sharing class ARC_PCMapper {
         }
         else return null;
     }
+
+    
 }
