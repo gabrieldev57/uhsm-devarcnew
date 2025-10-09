@@ -2,6 +2,107 @@
 public with sharing class ARC_NewBorn_BaseServiceTest {
 
     private static Map<String, Object> createInputMap(){
+        // Create the test data for the inputMap
+        Contract enrollmentContract = ARC_TestUtility.createCompleteEnrollments(1)[0];
+        enrollmentContract.ARC_EffectiveDate__c = Date.valueOf('2025-09-01');
+        enrollmentContract.ARC_ContractReason__c = 'New Application';
+        update enrollmentContract;
+
+        enrollmentContract.Status = 'Activated';
+        update enrollmentContract;
+
+        
+        Product2 productTest = [SELECT Id
+        FROM Product2
+        WHERE Name = 'Test Product UHSM0'];
+        productTest.vlocity_ins__SubType__c = 'PPO';
+        productTest.ProductCode = 'PROG_UHSM_Access5k';
+        update productTest;
+        
+        InsurancePolicy ipTest = ARC_TestUtility.createTestPolicies(1)[0];
+        ipTest.ARC_Contract__c = enrollmentContract.Id;
+        ipTest.ProductId = productTest.Id;
+
+        update ipTest;
+
+        InsurancePolicyCoverage ipcTest = new InsurancePolicyCoverage(
+            InsurancePolicyId = ipTest.Id,
+            vlocity_ins_fsc__Product2Id__c = productTest.Id
+        );
+
+        insert ipcTest;
+
+        Contract enrollmentContractTest = [SELECT vlocity_ins__EnrollmentCensusId__c
+                                           FROM Contract
+                                           WHERE Id = :enrollmentContract.Id][0];
+
+        // 1. Get the census members
+        List<ARC_ContractParticipant__c> censusMembersList = [SELECT ARC_PersonAccount__c, ARC_PersonAccount__r.Census_Member__c
+                                                              FROM ARC_ContractParticipant__c
+                                                              WHERE ARC_Contract__c = :enrollmentContract.Id];
+
+        // 2. Get the primary group census
+        vlocity_ins__GroupCensus__c primaryGroupCensus = [SELECT Id 
+                                                          FROM vlocity_ins__GroupCensus__c
+                                                          WHERE Name = 'census test 0'];
+        primaryGroupCensus.ARC_PrimaryAccount__c = censusMembersList[0].ARC_PersonAccount__c;
+        update primaryGroupCensus;
+
+        ChargentBase__Gateway__c gateway = new ChargentBase__Gateway__c(
+            Name = 'Old Gateway',
+            ChargentBase__Available_Payment_Methods__c = 'Credit Card',
+            ChargentBase__Active__c = true
+        );
+        insert gateway;
+
+        ChargentOrders__ChargentOrder__c existingOrder = new ChargentOrders__ChargentOrder__c(
+            ARC_Contract__c = enrollmentContract.Id,
+            ChargentOrders__Billing_First_Name__c = 'OneMember',
+            ChargentOrders__Billing_Last_Name__c = 'Member',
+            ChargentOrders__Card_Number__c = '4111111111111111',
+            ChargentOrders__Card_Expiration_Month__c = '12',
+            ChargentOrders__Card_Expiration_Year__c = '2026',
+            ChargentOrders__Card_Last_4__c = '1111',
+            ChargentOrders__Card_Type__c = 'Visa',
+            ChargentOrders__Card_Month_Indicator__c = '12',
+            ChargentOrders__Card_Year_Indicator__c = '2026',
+            ChargentOrders__Charge_Amount__c = 99,
+            ChargentOrders__Gateway__c = gateway.Id,
+            ChargentOrders__Payment_Method__c = 'Credit Card',
+            //ChargentOrders__Charge_Date__c = '10-11-2024',
+            ChargentOrders__Charge_Date__c = null,
+            ARC_FirstMonthPayed__c = true,
+            ChargentOrders__Manual_Charge__c = true,
+            ChargentOrders__Description__c = 'Recurring'
+        );
+        insert existingOrder;
+
+        ChargentBase__Chargent_Settings__c feeAmounts = new ChargentBase__Chargent_Settings__c();
+        feeAmounts.ARC_DowngradeChangeFee__c = 50;
+        feeAmounts.ARC_AddMemberChangeFee__c = 99;
+        feeAmounts.ARC_UpgradeChangeFee__c = 99;
+        insert feeAmounts;
+
+        ARC_DocuSignTemplates__c templateSettingsTest = new ARC_DocuSignTemplates__c(); 
+        
+        templateSettingsTest.Name = 'Spin Off';
+        templateSettingsTest.ARC_Template_Name__c = 'Spin Off';
+        templateSettingsTest.ARC_Contract_Reasons__c = 'Spin Off';
+        templateSettingsTest.ARC_DRTransform__c = 'Transform for Test';
+        templateSettingsTest.ARC_Min_Dependents__c = 1;
+        templateSettingsTest.ARC_Max_Dependents__c = 5;
+        templateSettingsTest.ARC_State__c = 'CA';
+
+        insert templateSettingsTest;
+
+        vlocity_ins__VlocityDocuSignTemplate__c vlocityDocuSignTest = new vlocity_ins__VlocityDocuSignTemplate__c(
+            Name =  'Spin Off',
+            vlocity_ins__templateidentifier__c = 'vlocity-template-test'
+        );
+        
+        insert vlocityDocuSignTest;
+
+        // Create the inputMap
         Map<String, Object> inputMapNewborn = new Map<String, Object>{
                 'execute_reprice_flag' => false,
                 'EffectiveDate' => '2025-10-01',
@@ -9,7 +110,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                     new Map<String, Object>{
                         'userInputs' => new List<Object>{
                             new Map<String, Object>{
-                                'Id' => 'a3qcb00000C5tLJAAZ',
+                                'Id' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                                 'RF_Census.CM_Age' => 25,
                                 'RF_Census.CRF_PrimaryMemberDOB' => '2000-01-01',
                                 'RF_Census.CM_State' => 'CA',
@@ -27,7 +128,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'RF_Census.CRF_Dependants' => 3
                             },
                             new Map<String, Object>{
-                                'Id' => 'a3qcb00000C5ihSAAR',
+                                'Id' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                                 'RF_Census.CM_Age' => 25,
                                 'RF_Census.CRF_PrimaryMemberDOB' => '2000-02-02',
                                 'RF_Census.CM_State' => 'CA',
@@ -45,7 +146,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'RF_Census.CRF_Dependants' => 3
                             },
                             new Map<String, Object>{
-                                'Id' => 'a3qcb00000C5ihTAAR',
+                                'Id' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                                 'RF_Census.CM_Age' => 5,
                                 'RF_Census.CRF_PrimaryMemberDOB' => '2020-03-03',
                                 'RF_Census.CM_State' => 'CA',
@@ -101,21 +202,21 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'LastName' => 'LN Primary Test by Gabriel #17',
                                 'FirstName' => 'FN Primary Test by Gabriel #17',
                                 'CensusMemberLastName' => 'LN Primary Test by Gabriel #17',
-                                'CensusMemberId' => 'a3qcb00000C5tLJAAZ',
+                                'CensusMemberId' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                                 'CensusMemberFirstName' => 'FN Primary Test by Gabriel #17'
                             },
                             new Map<String, Object>{
                                 'LastName' => 'LN Spouse Test by Gabriel #17',
                                 'FirstName' => 'FN Spouse Test by Gabriel #17',
                                 'CensusMemberLastName' => 'LN Spouse Test by Gabriel #17',
-                                'CensusMemberId' => 'a3qcb00000C5ihSAAR',
+                                'CensusMemberId' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                                 'CensusMemberFirstName' => 'FN Spouse Test by Gabriel #17'
                             },
                             new Map<String, Object>{
                                 'LastName' => 'LN Child Test by Gabriel #17',
                                 'FirstName' => 'FN Child Test by Gabriel #17',
                                 'CensusMemberLastName' => 'LN Child Test by Gabriel #17',
-                                'CensusMemberId' => 'a3qcb00000C5ihTAAR',
+                                'CensusMemberId' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                                 'CensusMemberFirstName' => 'FN Child Test by Gabriel #17'
                             }
                         }
@@ -125,7 +226,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                     new Map<String, Object>{
                         'census_members' => new List<Object>{
                             new Map<String, Object>{
-                                'Id' => 'a3qcb00000C5tLJAAZ',
+                                'Id' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                                 'ARC_Smoker__c' => false,
                                 'ARC_Relationship__c' => 'Primary',
                                 'ARC_PhysicalAddressState__c' => 'CA',
@@ -136,7 +237,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'vlocity_ins__FirstName__c' => 'FN Primary Test by Gabriel #17'
                             },
                             new Map<String, Object>{
-                                'Id' => 'a3qcb00000C5ihSAAR',
+                                'Id' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                                 'ARC_Smoker__c' => false,
                                 'ARC_Relationship__c' => 'Spouse',
                                 'ARC_PhysicalAddressState__c' => 'CA',
@@ -147,7 +248,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'vlocity_ins__FirstName__c' => 'FN Spouse Test by Gabriel #17'
                             },
                             new Map<String, Object>{
-                                'Id' => 'a3qcb00000C5ihTAAR',
+                                'Id' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                                 'ARC_Smoker__c' => false,
                                 'ARC_Relationship__c' => 'Child',
                                 'ARC_PhysicalAddressState__c' => 'CA',
@@ -174,21 +275,21 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'LastName' => 'LN Primary Test by Gabriel #17',
                                 'FirstName' => 'FN Primary Test by Gabriel #17',
                                 'CensusMemberLastName' => 'LN Primary Test by Gabriel #17',
-                                'CensusMemberId' => 'a3qcb00000C5tLJAAZ',
+                                'CensusMemberId' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                                 'CensusMemberFirstName' => 'FN Primary Test by Gabriel #17'
                             },
                             new Map<String, Object>{
                                 'LastName' => 'LN Spouse Test by Gabriel #17',
                                 'FirstName' => 'FN Spouse Test by Gabriel #17',
                                 'CensusMemberLastName' => 'LN Spouse Test by Gabriel #17',
-                                'CensusMemberId' => 'a3qcb00000C5ihSAAR',
+                                'CensusMemberId' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                                 'CensusMemberFirstName' => 'FN Spouse Test by Gabriel #17'
                             },
                             new Map<String, Object>{
                                 'LastName' => 'LN Child Test by Gabriel #17',
                                 'FirstName' => 'FN Child Test by Gabriel #17',
                                 'CensusMemberLastName' => 'LN Child Test by Gabriel #17',
-                                'CensusMemberId' => 'a3qcb00000C5ihTAAR',
+                                'CensusMemberId' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                                 'CensusMemberFirstName' => 'FN Child Test by Gabriel #17'
                             },
                             new Map<String, Object>{
@@ -576,7 +677,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                             },
                             'userInputs' => new List<Object>{
                                 new Map<String, Object>{
-                                    'Id' => 'a3qcb00000C5tLJAAZ',
+                                    'Id' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                                     'RF_Census.CM_Age' => 25,
                                     'RF_Census.CRF_PrimaryMemberDOB' => '2000-01-01',
                                     'RF_Census.CM_State' => 'CA',
@@ -594,7 +695,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                     'RF_Census.CRF_Dependants' => 3
                                 },
                                 new Map<String, Object>{
-                                    'Id' => 'a3qcb00000C5ihSAAR',
+                                    'Id' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                                     'RF_Census.CM_Age' => 25,
                                     'RF_Census.CRF_PrimaryMemberDOB' => '2000-02-02',
                                     'RF_Census.CM_State' => 'CA',
@@ -612,7 +713,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                     'RF_Census.CRF_Dependants' => 3
                                 },
                                 new Map<String, Object>{
-                                    'Id' => 'a3qcb00000C5ihTAAR',
+                                    'Id' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                                     'RF_Census.CM_Age' => 5,
                                     'RF_Census.CRF_PrimaryMemberDOB' => '2020-03-03',
                                     'RF_Census.CM_State' => 'CA',
@@ -700,30 +801,101 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
 
                 },
                 'STEP_MedicalQuestions' => new Map<String, Object>{
-                    'BLK_ParentSiblingDiagnosed' => null,
+                    'BLK_ParentSiblingDiagnosed' => new Map<String, Object>{
+                        'CHKBOX_MemberParentDiagnosed' => true,
+                        'DATE_MemberParentDiagnosed' => '2025-09-02',
+                        'TXTAREA_MemberParentDiagnosed' => 'Question #1 Test',
+                        'memberId' => 'MEM-41110220858522095',
+                        'TXT_hasErrorParentDiagnosed' => 'false',
+                        'TXT_MemberIdParentDiagnosed' => 'MEM-41110220858522095',
+                        'TXT_MemberParentDiagnosed' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                    },
                     'FRML_ParentSiblingDiagnosedNull' => false,
                     'MSG_WrongUnexpectedDate' => null,
-                    'BLK_UnexpectedSymptoms' => null,
+                    'BLK_UnexpectedSymptoms' => new Map<String, Object>{
+                        'CHKBOX_UnexpectedSymptoms' => true,
+                        'DATE_MemberUnexpectedSymptoms' => '2025-09-02',
+                        'TXTAREA_MemberUnexpectedSymptoms' => 'Question #2 Test',
+                        'memberId' => 'MEM-41110220858522095',
+                        'TXT_hasError' => 'false',
+                        'TXT_MemberIdUnexpectedSymptoms' => 'MEM-41110220858522095',
+                        'TXT_MemberUnexpectedSymptoms' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                    },
                     'FRML_CheckSymptoms' => false,
                     'FRML_DateUnexpectedWrong' => false,
-                    'BLK_PendingTests' => null,
+                    'BLK_PendingTests' => new Map<String, Object>{
+                        'CHKBOX_PendingTests' => true,
+                        'DATE_MemberPendingTests' => '2025-09-02',
+                        'TXTAREA_MemberPendingTests' => 'Question #3 Test',
+                        'memberId' => 'MEM-41110220858522095',
+                        'TXT_MemberIdPendingTests' => 'MEM-41110220858522095',
+                        'TXT_MemberPendingTests' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                    },
                     'FRML_CheckPendingTests' => false,
-                    'LWC_SelectCensusMemberCancer' => null,
-                    'EB_Cancer' => null,
+                    'LWC_SelectCensusMemberCancer' => new Map<String, Object>{
+                        'SelectedCensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                        'SelectedCensusMemberId' => 'MEM-41110220858522095',
+                        'SelectedCensusMemberBirthdate' => '2025-09-01'
+                    },
+                    'EB_Cancer' => new Map<String, Object>{
+                        'FRML_MemberIdCancerBirthdate' => '2025-09-01T00:00:00.000Z',
+                        'CHK_CheckCancer' => true,
+                        'CHK_MemberBeenDiagnosedWithCancer' => true,
+                        'TXT_MemberNameCancer' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                        'TXT_MemberIdCancer' => 'MEM-41110220858522095',
+                        'TXT_hasErrorCancer' => 'false',
+                        'TXT_TypeOfCancer' => 'Type of Cancer Test',
+                        'DATE_Cancer' => '2025-09-02'
+                    },
                     'FRML_CheckCancer' => false,
                     'MSG_DateWrongCancer' => null,
                     'FRML_DateWrongCancer' => false,
                     'MSG_WrongDateAddiction' => null,
-                    'BLK_Addictions' => null,
+                    'BLK_Addictions' => new Map<String, Object>{
+                        'CHKBOX_Addictions' => true,
+                        'DATE_MemberAddictions' => '2025-09-02',
+                        'TXTAREA_MemberAddictions' => 'Question #4 Test',
+                        'memberId' => 'MEM-41110220858522095',
+                        'TXT_hasErrorAdiction' => 'false',
+                        'TXT_MemberIdAddictions' => 'MEM-41110220858522095',
+                        'TXT_MemberAddictions' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                    },
                     'FRML_CheckAddictions' => false,
                     'FMRL_WrongDateAddictions' => false,
-                    'BLK_LicenceSuspended' => null,
+                    'BLK_LicenceSuspended' => new Map<String, Object>{
+                        'CHKBOX_LicenceSuspended' => true,
+                        'DATE_MemberLicenceSuspended' => '2025-09-02',
+                        'TXTAREA_MemberLicenceSuspended' => 'Question #5 Test',
+                        'memberId' => 'MEM-41110220858522095',
+                        'TXT_hasErrorLicenceSuspended' => 'false',
+                        'TXT_MemberIdLicenceSuspended' => 'MEM-41110220858522095',
+                        'TXT_MemberLicenceSuspended' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                    },
                     'FRML_LicenceSuspended' => false,
-                    'EB_PastConditions' => null,
+                    'EB_PastConditions' => new Map<String, Object>{
+                        'memberId' => 'MEM-41110220858522095',
+                        'TXT_MemberIdPastConditions' => 'MEM-41110220858522095',
+                        'TXT_MemberPastConditions' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                        'MULSEL_Conditions' => 'Alcohol Abuse;ALS;Alzheimer’s Disease;Abdominal Aortic Aneurysm;Aneurysm, Cerebral;Autism Spectrum Disorders;Bipolar with 2 or more current medications;Cerebral Palsy;Chronic Obstructive Pulmonary Disease (COPD);Chronic Kidney Disease, stage 3b, 4 or 5;Cystic Fibrosis;Dementia;Diabetes, Type I;Diabetes, Type 2 when taking 2 heart medications, or have kidney/liver disease;Down’s Syndrome;Ectasia;Emphysema;Fragile X Syndrome;Fibromyalgia (w/ treatment);Hepatitis (Chronic Viral B & C);HIV/AIDS;Lupus;Macular Degeneration (wet or dry);Marfan’s Syndrome;Morbid Obesity (BMI > 40);Multiple Sclerosis;Muscular Dystrophy;Paralysis;Parkinson’s Disease;Rheumatoid Arthritis w/ biologic treatment;Schizophrenia with 2 or more current medications;Sickle-Cell Disease;Sjogren Syndrome;Spina Bifida;Systemic Lupus Erythematosus;Typhoid;Underweight (BMI <15);Inpatient Psychiatric Treatment within past 5 years;Treatment with Naloxone, Suboxone, Methadone or any other medication to treat addiction within the past 5 years',
+                        'TXT_MemberOtherPastConditions' => 'Other Conditions Test'
+                    },
                     'FRML_CheckPastConditionsNull' => false,
                     'MSG_DateWrongPrescription' => null,
-                    'LWC_SelectCensusMember' => null,
-                    'ED_MemberPrescription' => null,
+                    'LWC_SelectCensusMember' => new Map<String, Object>{
+                        'SelectedCensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                        'SelectedCensusMemberId' => 'MEM-41110220858522095'
+                    },
+                    'ED_MemberPrescription' => new Map<String, Object>{
+                        'FRML_MemberBirthdate' => null,
+                        'TXT_MemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                        'TXT_MemberIdPrescription' => 'MEM-41110220858522095',
+                        'TXT_hasErrorMedication' => 'false',
+                        'TXT_NameOfMedication' => 'Name of Medication Test',
+                        'TXT_DatePrescribed' => '2025-09-02',
+                        'TXT_DateDiscontinued' => '2025-09-03',
+                        'TXT_ReasonForMedication' => 'Reason of Medication Test',
+                        'TXT_PrescribingPhysician' => 'Prescribing Physician Test'
+                    },
                     'FRML_CheckPrescriptionsIsNull' => false,
                     'FRML_DateWrongPrescription' => false,
                     'MSG_WrongDatePCP' => null,
@@ -731,16 +903,19 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                     'EB_Physicians' => new Map<String, Object>{
                         'memberId' => 'MEM-41110220858522095',
                         'TXT_hasErrorPCP' => 'false',
-                        'TXT_CensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        'TXT_CensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                        'TXT_PhysicianName' => 'Physician\'s Name Test',
+                        'TXT_PhysicianCity' => 'City Test',
+                        'TXT_PhysicianPhone' => '1111111111'
                     },
-                    'RAD_PrescriptionMedications' => 'No',
-                    'RAD_PastConditions' => 'No',
-                    'RAD_LicenceSuspended' => 'No',
-                    'RAD_Addictions' => 'No',
-                    'RAD_Cancer' => 'No',
-                    'RAD_PendingTests' => 'No',
-                    'RAD_UnexplainedSymptoms' => 'No',
-                    'RAD_ParentSiblingDiagnosed' => 'No',
+                    'RAD_PrescriptionMedications' => 'Yes',
+                    'RAD_PastConditions' => 'Yes',
+                    'RAD_LicenceSuspended' => 'Yes',
+                    'RAD_Addictions' => 'Yes',
+                    'RAD_Cancer' => 'Yes',
+                    'RAD_PendingTests' => 'Yes',
+                    'RAD_UnexplainedSymptoms' => 'Yes',
+                    'RAD_ParentSiblingDiagnosed' => 'Yes',
                     'aRC_showErrorInMedicationStep' => new Map<String, Object>{
                         'hasErrorPCP' => false,
                         'hasErrorUnexpected' => false,
@@ -761,7 +936,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                 'EligibleContract' => new Map<String, Object>{
                     'ContractMembers' => new List<Object>{
                         new Map<String, Object>{
-                            'CensusMemberId' => 'a3qcb00000C5tLJAAZ',
+                            'CensusMemberId' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                             'CensusId' => 'a3rcb000001sNWvAAM',
                             'IsActiveMember' => true,
                             'Email' => 'gm.arcsona@yopmail.com',
@@ -773,7 +948,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                             'Gender' => 'Male'
                         },
                         new Map<String, Object>{
-                            'CensusMemberId' => 'a3qcb00000C5ihSAAR',
+                            'CensusMemberId' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                             'CensusId' => 'a3rcb000001sNWvAAM',
                             'IsActiveMember' => true,
                             'Email' => 'gm.arcsona@yopmail.com',
@@ -785,7 +960,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                             'Gender' => 'Female'
                         },
                         new Map<String, Object>{
-                            'CensusMemberId' => 'a3qcb00000C5ihTAAR',
+                            'CensusMemberId' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                             'CensusId' => 'a3rcb000001sNWvAAM',
                             'IsActiveMember' => true,
                             'AccountId' => '001cb00000BiT1mAAF',
@@ -803,6 +978,22 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                         },
                         'Status' => 'Activated',
                         'GroupAccountName' => 'FN Primary Test by Gabriel #17  LN Primary Test by Gabriel #17  Family',
+                        'Id' => enrollmentContract.Id,
+                        'GroupAccountId' => '001cb00000BiVmcAAF',
+                        'RecurringMonthlyOrderId' => 'aBacb0000001nhpCAA',
+                        'HasGuardian' => false,
+                        'Reasons' => 'New Application',
+                        'EffectiveDate' => '2025-09-01',
+                        'Selling_Agent' => '005cb000006lvU2AAI',
+                        'CensusId' => enrollmentContractTest.vlocity_ins__EnrollmentCensusId__c
+                    },
+                    'SV_FilterMembersForEachContractStatus' => true,
+                    'LoopBlockIterationStatus' => true,
+                    'LoopBlockIterationIndex' => 1
+                },
+                'EligibleContractInfo' => new Map<String, Object> {
+                    'Status' => 'Activated',
+                        'GroupAccountName' => 'FN Primary Test by Gabriel #17  LN Primary Test by Gabriel #17  Family',
                         'Id' => '800cb000009zP4RAAU',
                         'GroupAccountId' => '001cb00000BiVmcAAF',
                         'RecurringMonthlyOrderId' => 'aBacb0000001nhpCAA',
@@ -811,10 +1002,6 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                         'EffectiveDate' => '2025-09-01',
                         'Selling_Agent' => '005cb000006lvU2AAI',
                         'CensusId' => 'a3rcb000001sNWvAAM'
-                    },
-                    'SV_FilterMembersForEachContractStatus' => true,
-                    'LoopBlockIterationStatus' => true,
-                    'LoopBlockIterationIndex' => 1
                 },
                 'ActiveEffectiveDate' => '2025-09-01',
                 'TerminatedEffectiveDate' => '',
@@ -824,7 +1011,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                     new Map<String, Object>{
                         'ContractMembers' => new List<Object>{
                             new Map<String, Object>{
-                                'CensusMemberId' => 'a3qcb00000C5tLJAAZ',
+                                'CensusMemberId' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                                 'CensusId' => 'a3rcb000001sNWvAAM',
                                 'IsActiveMember' => true,
                                 'Email' => 'gm.arcsona@yopmail.com',
@@ -836,7 +1023,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'Gender' => 'Male'
                             },
                             new Map<String, Object>{
-                                'CensusMemberId' => 'a3qcb00000C5ihSAAR',
+                                'CensusMemberId' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                                 'CensusId' => 'a3rcb000001sNWvAAM',
                                 'IsActiveMember' => true,
                                 'Email' => 'gm.arcsona@yopmail.com',
@@ -848,7 +1035,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'Gender' => 'Female'
                             },
                             new Map<String, Object>{
-                                'CensusMemberId' => 'a3qcb00000C5ihTAAR',
+                                'CensusMemberId' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                                 'CensusId' => 'a3rcb000001sNWvAAM',
                                 'IsActiveMember' => true,
                                 'AccountId' => '001cb00000BiT1mAAF',
@@ -883,10 +1070,26 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                 'ActiveCensusId' => 'a3rcb000001sNWvAAM',
                 'MotherInActivatedContract' => true,
                 'MotherInTerminatedContract' => false,
-                'ContractsIdforMothers' => '800cb000009zP4RAAU',
-                'EligibleCensusId' => 'a3rcb000001sNWvAAM',
+                'ContractsIdforMothers' => enrollmentContract.Id, //'800cb000009zP4RAAU'
+                'EligibleCensusId' => primaryGroupCensus.Id,
                 'EligibleContractId' => '800cb000009zP4RAAU',
                 'STEP_AddNewborn' => new Map<String, Object>{
+                    'MinimumValidDate' => '2024-09-11',
+                    'EB_TemporaryNewborn' => new Map<String, Object>{
+                        'Id' => 'MEM-41110220858522095',
+                        'ARC_Relationship__c' => 'Child',
+                        'vlocity_ins__FirstName__c' => 'FN Newborn Test by Gabriel #17',
+                        'ARC_MiddleInitial__c' => 'A',
+                        'vlocity_ins__LastName__c' => 'LN Newborn Test by Gabriel #17',
+                        'vlocity_ins__Birthdate__c' => '2025-09-01',
+                        'vlocity_ins__Gender__c' => 'Male',
+                        'vlocity_ins__SocialSecurityNumber__c' => '444444444',
+                        'ARC_HeightFeet__c' => 4,
+                        'ARC_HeightInches__c' => 4,
+                        'ARC_Weight__c' => 4
+                    }
+                },
+                'addedNewborn' => new Map<String, Object> {
                     'MinimumValidDate' => '2024-09-11',
                     'EB_TemporaryNewborn' => new Map<String, Object>{
                         'Id' => 'MEM-41110220858522095',
@@ -952,7 +1155,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                         'PersonAccountId' => '001cb00000BiT1nAAF',
                         'vlocity_ins__LastName__c' => 'LN Primary Test by Gabriel #17',
                         'vlocity_ins__FirstName__c' => 'FN Primary Test by Gabriel #17',
-                        'Id' => 'a3qcb00000C5tLJAAZ'
+                        'Id' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c
                     },
                     new Map<String, Object>{
                         'vlocity_ins__Gender__c' => 'Female',
@@ -989,7 +1192,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                         'PersonAccountId' => '001cb00000BiT1lAAF',
                         'vlocity_ins__LastName__c' => 'LN Spouse Test by Gabriel #17',
                         'vlocity_ins__FirstName__c' => 'FN Spouse Test by Gabriel #17',
-                        'Id' => 'a3qcb00000C5ihSAAR'
+                        'Id' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c
                     },
                     new Map<String, Object>{
                         'vlocity_ins__Gender__c' => 'Male',
@@ -1026,7 +1229,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                         'PersonAccountId' => '001cb00000BiT1mAAF',
                         'vlocity_ins__LastName__c' => 'LN Child Test by Gabriel #17',
                         'vlocity_ins__FirstName__c' => 'FN Child Test by Gabriel #17',
-                        'Id' => 'a3qcb00000C5ihTAAR'
+                        'Id' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c
                     },
                     new Map<String, Object>{
                         'vlocity_ins__Gender__c' => 'Male',
@@ -1083,7 +1286,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                         'RF_Census.CM_State' => 'CA',
                         'RF_Census.CRF_PrimaryMemberDOB' => '2000-01-01',
                         'RF_Census.CM_Age' => 25,
-                        'Id' => 'a3qcb00000C5tLJAAZ'
+                        'Id' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c
                     },
                     new Map<String, Object>{
                         'RF_Census.CRF_Dependants' => 3,
@@ -1101,7 +1304,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                         'RF_Census.CM_State' => 'CA',
                         'RF_Census.CRF_PrimaryMemberDOB' => '2000-02-02',
                         'RF_Census.CM_Age' => 25,
-                        'Id' => 'a3qcb00000C5ihSAAR'
+                        'Id' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c
                     },
                     new Map<String, Object>{
                         'RF_Census.CRF_Dependants' => 3,
@@ -1119,7 +1322,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                         'RF_Census.CM_State' => 'CA',
                         'RF_Census.CRF_PrimaryMemberDOB' => '2020-03-03',
                         'RF_Census.CM_Age' => 5,
-                        'Id' => 'a3qcb00000C5ihTAAR'
+                        'Id' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c
                     },
                     new Map<String, Object>{
                         'RF_Census.CRF_Dependants' => 3,
@@ -1145,7 +1348,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                     new Map<String, Object>{
                         'userInputs' => new List<Object>{
                             new Map<String, Object>{
-                                'Id' => 'a3qcb00000C5tLJAAZ',
+                                'Id' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                                 'RF_Census.CM_Age' => 25,
                                 'RF_Census.CRF_PrimaryMemberDOB' => '2000-01-01',
                                 'RF_Census.CM_State' => 'CA',
@@ -1163,7 +1366,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'RF_Census.CRF_Dependants' => 3
                             },
                             new Map<String, Object>{
-                                'Id' => 'a3qcb00000C5ihSAAR',
+                                'Id' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                                 'RF_Census.CM_Age' => 25,
                                 'RF_Census.CRF_PrimaryMemberDOB' => '2000-02-02',
                                 'RF_Census.CM_State' => 'CA',
@@ -1181,7 +1384,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                 'RF_Census.CRF_Dependants' => 3
                             },
                             new Map<String, Object>{
-                                'Id' => 'a3qcb00000C5ihTAAR',
+                                'Id' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                                 'RF_Census.CM_Age' => 5,
                                 'RF_Census.CRF_PrimaryMemberDOB' => '2020-03-03',
                                 'RF_Census.CM_State' => 'CA',
@@ -1291,30 +1494,101 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
 
                     },
                     'STEP_MedicalQuestions' => new Map<String, Object>{
-                        'BLK_ParentSiblingDiagnosed' => null,
+                        'BLK_ParentSiblingDiagnosed' => new Map<String, Object>{
+                            'CHKBOX_MemberParentDiagnosed' => true,
+                            'DATE_MemberParentDiagnosed' => '2025-09-02',
+                            'TXTAREA_MemberParentDiagnosed' => 'Question #1 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_hasErrorParentDiagnosed' => 'false',
+                            'TXT_MemberIdParentDiagnosed' => 'MEM-41110220858522095',
+                            'TXT_MemberParentDiagnosed' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
                         'FRML_ParentSiblingDiagnosedNull' => false,
                         'MSG_WrongUnexpectedDate' => null,
-                        'BLK_UnexpectedSymptoms' => null,
+                        'BLK_UnexpectedSymptoms' => new Map<String, Object>{
+                            'CHKBOX_UnexpectedSymptoms' => true,
+                            'DATE_MemberUnexpectedSymptoms' => '2025-09-02',
+                            'TXTAREA_MemberUnexpectedSymptoms' => 'Question #2 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_hasError' => 'false',
+                            'TXT_MemberIdUnexpectedSymptoms' => 'MEM-41110220858522095',
+                            'TXT_MemberUnexpectedSymptoms' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
                         'FRML_CheckSymptoms' => false,
                         'FRML_DateUnexpectedWrong' => false,
-                        'BLK_PendingTests' => null,
+                        'BLK_PendingTests' => new Map<String, Object>{
+                            'CHKBOX_PendingTests' => true,
+                            'DATE_MemberPendingTests' => '2025-09-02',
+                            'TXTAREA_MemberPendingTests' => 'Question #3 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_MemberIdPendingTests' => 'MEM-41110220858522095',
+                            'TXT_MemberPendingTests' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
                         'FRML_CheckPendingTests' => false,
-                        'LWC_SelectCensusMemberCancer' => null,
-                        'EB_Cancer' => null,
+                        'LWC_SelectCensusMemberCancer' => new Map<String, Object>{
+                            'SelectedCensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'SelectedCensusMemberId' => 'MEM-41110220858522095',
+                            'SelectedCensusMemberBirthdate' => '2025-09-01'
+                        },
+                        'EB_Cancer' => new Map<String, Object>{
+                            'FRML_MemberIdCancerBirthdate' => '2025-09-01T00:00:00.000Z',
+                            'CHK_CheckCancer' => true,
+                            'CHK_MemberBeenDiagnosedWithCancer' => true,
+                            'TXT_MemberNameCancer' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'TXT_MemberIdCancer' => 'MEM-41110220858522095',
+                            'TXT_hasErrorCancer' => 'false',
+                            'TXT_TypeOfCancer' => 'Type of Cancer Test',
+                            'DATE_Cancer' => '2025-09-02'
+                        },
                         'FRML_CheckCancer' => false,
                         'MSG_DateWrongCancer' => null,
                         'FRML_DateWrongCancer' => false,
                         'MSG_WrongDateAddiction' => null,
-                        'BLK_Addictions' => null,
+                        'BLK_Addictions' => new Map<String, Object>{
+                            'CHKBOX_Addictions' => true,
+                            'DATE_MemberAddictions' => '2025-09-02',
+                            'TXTAREA_MemberAddictions' => 'Question #4 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_hasErrorAdiction' => 'false',
+                            'TXT_MemberIdAddictions' => 'MEM-41110220858522095',
+                            'TXT_MemberAddictions' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
                         'FRML_CheckAddictions' => false,
                         'FMRL_WrongDateAddictions' => false,
-                        'BLK_LicenceSuspended' => null,
+                        'BLK_LicenceSuspended' => new Map<String, Object>{
+                            'CHKBOX_LicenceSuspended' => true,
+                            'DATE_MemberLicenceSuspended' => '2025-09-02',
+                            'TXTAREA_MemberLicenceSuspended' => 'Question #5 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_hasErrorLicenceSuspended' => 'false',
+                            'TXT_MemberIdLicenceSuspended' => 'MEM-41110220858522095',
+                            'TXT_MemberLicenceSuspended' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
                         'FRML_LicenceSuspended' => false,
-                        'EB_PastConditions' => null,
+                        'EB_PastConditions' => new Map<String, Object>{
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_MemberIdPastConditions' => 'MEM-41110220858522095',
+                            'TXT_MemberPastConditions' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'MULSEL_Conditions' => 'Alcohol Abuse;ALS;Alzheimer’s Disease;Abdominal Aortic Aneurysm;Aneurysm, Cerebral;Autism Spectrum Disorders;Bipolar with 2 or more current medications;Cerebral Palsy;Chronic Obstructive Pulmonary Disease (COPD);Chronic Kidney Disease, stage 3b, 4 or 5;Cystic Fibrosis;Dementia;Diabetes, Type I;Diabetes, Type 2 when taking 2 heart medications, or have kidney/liver disease;Down’s Syndrome;Ectasia;Emphysema;Fragile X Syndrome;Fibromyalgia (w/ treatment);Hepatitis (Chronic Viral B & C);HIV/AIDS;Lupus;Macular Degeneration (wet or dry);Marfan’s Syndrome;Morbid Obesity (BMI > 40);Multiple Sclerosis;Muscular Dystrophy;Paralysis;Parkinson’s Disease;Rheumatoid Arthritis w/ biologic treatment;Schizophrenia with 2 or more current medications;Sickle-Cell Disease;Sjogren Syndrome;Spina Bifida;Systemic Lupus Erythematosus;Typhoid;Underweight (BMI <15);Inpatient Psychiatric Treatment within past 5 years;Treatment with Naloxone, Suboxone, Methadone or any other medication to treat addiction within the past 5 years',
+                            'TXT_MemberOtherPastConditions' => 'Other Conditions Test'
+                        },
                         'FRML_CheckPastConditionsNull' => false,
                         'MSG_DateWrongPrescription' => null,
-                        'LWC_SelectCensusMember' => null,
-                        'ED_MemberPrescription' => null,
+                        'LWC_SelectCensusMember' => new Map<String, Object>{
+                            'SelectedCensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'SelectedCensusMemberId' => 'MEM-41110220858522095'
+                        },
+                        'ED_MemberPrescription' => new Map<String, Object>{
+                            'FRML_MemberBirthdate' => null,
+                            'TXT_MemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'TXT_MemberIdPrescription' => 'MEM-41110220858522095',
+                            'TXT_hasErrorMedication' => 'false',
+                            'TXT_NameOfMedication' => 'Name of Medication Test',
+                            'TXT_DatePrescribed' => '2025-09-02',
+                            'TXT_DateDiscontinued' => '2025-09-03',
+                            'TXT_ReasonForMedication' => 'Reason of Medication Test',
+                            'TXT_PrescribingPhysician' => 'Prescribing Physician Test'
+                        },
                         'FRML_CheckPrescriptionsIsNull' => false,
                         'FRML_DateWrongPrescription' => false,
                         'MSG_WrongDatePCP' => null,
@@ -1322,16 +1596,19 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                         'EB_Physicians' => new Map<String, Object>{
                             'memberId' => 'MEM-41110220858522095',
                             'TXT_hasErrorPCP' => 'false',
-                            'TXT_CensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                            'TXT_CensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'TXT_PhysicianName' => 'Physician\'s Name Test',
+                            'TXT_PhysicianCity' => 'City Test',
+                            'TXT_PhysicianPhone' => '1111111111'
                         },
-                        'RAD_PrescriptionMedications' => 'No',
-                        'RAD_PastConditions' => 'No',
-                        'RAD_LicenceSuspended' => 'No',
-                        'RAD_Addictions' => 'No',
-                        'RAD_Cancer' => 'No',
-                        'RAD_PendingTests' => 'No',
-                        'RAD_UnexplainedSymptoms' => 'No',
-                        'RAD_ParentSiblingDiagnosed' => 'No',
+                        'RAD_PrescriptionMedications' => 'Yes',
+                        'RAD_PastConditions' => 'Yes',
+                        'RAD_LicenceSuspended' => 'Yes',
+                        'RAD_Addictions' => 'Yes',
+                        'RAD_Cancer' => 'Yes',
+                        'RAD_PendingTests' => 'Yes',
+                        'RAD_UnexplainedSymptoms' => 'Yes',
+                        'RAD_ParentSiblingDiagnosed' => 'Yes',
                         'aRC_showErrorInMedicationStep' => new Map<String, Object>{
                             'hasErrorPCP' => false,
                             'hasErrorUnexpected' => false,
@@ -1350,21 +1627,21 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                     'LastName' => 'LN Primary Test by Gabriel #17',
                                     'FirstName' => 'FN Primary Test by Gabriel #17',
                                     'CensusMemberLastName' => 'LN Primary Test by Gabriel #17',
-                                    'CensusMemberId' => 'a3qcb00000C5tLJAAZ',
+                                    'CensusMemberId' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                                     'CensusMemberFirstName' => 'FN Primary Test by Gabriel #17'
                                 },
                                 new Map<String, Object>{
                                     'LastName' => 'LN Spouse Test by Gabriel #17',
                                     'FirstName' => 'FN Spouse Test by Gabriel #17',
                                     'CensusMemberLastName' => 'LN Spouse Test by Gabriel #17',
-                                    'CensusMemberId' => 'a3qcb00000C5ihSAAR',
+                                    'CensusMemberId' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                                     'CensusMemberFirstName' => 'FN Spouse Test by Gabriel #17'
                                 },
                                 new Map<String, Object>{
                                     'LastName' => 'LN Child Test by Gabriel #17',
                                     'FirstName' => 'FN Child Test by Gabriel #17',
                                     'CensusMemberLastName' => 'LN Child Test by Gabriel #17',
-                                    'CensusMemberId' => 'a3qcb00000C5ihTAAR',
+                                    'CensusMemberId' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                                     'CensusMemberFirstName' => 'FN Child Test by Gabriel #17'
                                 },
                                 new Map<String, Object>{
@@ -1398,21 +1675,269 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                                     'LastName' => 'LN Primary Test by Gabriel #17',
                                     'FirstName' => 'FN Primary Test by Gabriel #17',
                                     'CensusMemberLastName' => 'LN Primary Test by Gabriel #17',
-                                    'CensusMemberId' => 'a3qcb00000C5tLJAAZ',
+                                    'CensusMemberId' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                                     'CensusMemberFirstName' => 'FN Primary Test by Gabriel #17'
                                 },
                                 new Map<String, Object>{
                                     'LastName' => 'LN Spouse Test by Gabriel #17',
                                     'FirstName' => 'FN Spouse Test by Gabriel #17',
                                     'CensusMemberLastName' => 'LN Spouse Test by Gabriel #17',
-                                    'CensusMemberId' => 'a3qcb00000C5ihSAAR',
+                                    'CensusMemberId' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                                     'CensusMemberFirstName' => 'FN Spouse Test by Gabriel #17'
                                 },
                                 new Map<String, Object>{
                                     'LastName' => 'LN Child Test by Gabriel #17',
                                     'FirstName' => 'FN Child Test by Gabriel #17',
                                     'CensusMemberLastName' => 'LN Child Test by Gabriel #17',
-                                    'CensusMemberId' => 'a3qcb00000C5ihTAAR',
+                                    'CensusMemberId' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
+                                    'CensusMemberFirstName' => 'FN Child Test by Gabriel #17'
+                                }
+                            }
+                        }
+                    },
+                    'pcChangesOld' => new Map<String, Object>{
+                        'pcReasonsString' => 'Add Member',
+                        'feeApplicable' => false,
+                        'feeAmount' => '',
+                        'createNewContract' => true
+                    },
+                    'pcChanges' => new Map<String, Object>{
+                        'pcReasons' => new Map<String, Object>{
+                            'Add Newborn' => true
+                        },
+                        'pcReasonsString' => 'Add Newborn',
+                        'feeApplicable' => false,
+                        'feeAmount' => 0,
+                        'createNewContract' => true
+                    },
+                    'userId' => '005cb000006lvU2AAI'
+                },
+                'DocuSign' => new Map<String, Object>{
+                    'SelectedContractInfo' => new Map<String, Object>{
+                        'ContractID' => enrollmentContract.Id
+                    },
+                    'Medicare' => '',
+                    'Hipaa' => new List<Object>{
+
+                    },
+                    'PlanSummary' => new Map<String, Object>{
+                        'BLK_ProductSummary' => new Map<String, Object>{
+                            'TXT_ProgramSummaryFeeText' => 'One Time Change Fee (Add Newborn):',
+                            'TXT_FeeAmount' => '$0.00',
+                            'BLK_ProductsPrices' => new Map<String, Object>{
+                                'TXT_EffDate' => '2025-10-01',
+                                'BLK_IndividualProducts' => new List<Object>{
+                                    new Map<String, Object>{
+                                        'TXT_PlanSelected' => 'WeShare Access 5k',
+                                        'TXT_PlanSelectedPrice' => '$389.91',
+                                        'Type' => 'Medical'
+                                    }
+                                }
+                            },
+                            'TXT_MonthlyPrice' => '$389.91'
+                        }
+                    },
+                    'STEP_EffectiveDate' => '',
+                    'Step_PaymentChangeFee' => new Map<String, Object>{
+
+                    },
+                    'STEP_MedicalQuestions' => new Map<String, Object>{
+                        'BLK_ParentSiblingDiagnosed' => new Map<String, Object>{
+                            'CHKBOX_MemberParentDiagnosed' => true,
+                            'DATE_MemberParentDiagnosed' => '2025-09-02',
+                            'TXTAREA_MemberParentDiagnosed' => 'Question #1 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_hasErrorParentDiagnosed' => 'false',
+                            'TXT_MemberIdParentDiagnosed' => 'MEM-41110220858522095',
+                            'TXT_MemberParentDiagnosed' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
+                        'FRML_ParentSiblingDiagnosedNull' => false,
+                        'MSG_WrongUnexpectedDate' => null,
+                        'BLK_UnexpectedSymptoms' => new Map<String, Object>{
+                            'CHKBOX_UnexpectedSymptoms' => true,
+                            'DATE_MemberUnexpectedSymptoms' => '2025-09-02',
+                            'TXTAREA_MemberUnexpectedSymptoms' => 'Question #2 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_hasError' => 'false',
+                            'TXT_MemberIdUnexpectedSymptoms' => 'MEM-41110220858522095',
+                            'TXT_MemberUnexpectedSymptoms' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
+                        'FRML_CheckSymptoms' => false,
+                        'FRML_DateUnexpectedWrong' => false,
+                        'BLK_PendingTests' => new Map<String, Object>{
+                            'CHKBOX_PendingTests' => true,
+                            'DATE_MemberPendingTests' => '2025-09-02',
+                            'TXTAREA_MemberPendingTests' => 'Question #3 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_MemberIdPendingTests' => 'MEM-41110220858522095',
+                            'TXT_MemberPendingTests' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
+                        'FRML_CheckPendingTests' => false,
+                        'LWC_SelectCensusMemberCancer' => new Map<String, Object>{
+                            'SelectedCensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'SelectedCensusMemberId' => 'MEM-41110220858522095',
+                            'SelectedCensusMemberBirthdate' => '2025-09-01'
+                        },
+                        'EB_Cancer' => new Map<String, Object>{
+                            'FRML_MemberIdCancerBirthdate' => '2025-09-01T00:00:00.000Z',
+                            'CHK_CheckCancer' => true,
+                            'CHK_MemberBeenDiagnosedWithCancer' => true,
+                            'TXT_MemberNameCancer' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'TXT_MemberIdCancer' => 'MEM-41110220858522095',
+                            'TXT_hasErrorCancer' => 'false',
+                            'TXT_TypeOfCancer' => 'Type of Cancer Test',
+                            'DATE_Cancer' => '2025-09-02'
+                        },
+                        'FRML_CheckCancer' => false,
+                        'MSG_DateWrongCancer' => null,
+                        'FRML_DateWrongCancer' => false,
+                        'MSG_WrongDateAddiction' => null,
+                        'BLK_Addictions' => new Map<String, Object>{
+                            'CHKBOX_Addictions' => true,
+                            'DATE_MemberAddictions' => '2025-09-02',
+                            'TXTAREA_MemberAddictions' => 'Question #4 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_hasErrorAdiction' => 'false',
+                            'TXT_MemberIdAddictions' => 'MEM-41110220858522095',
+                            'TXT_MemberAddictions' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
+                        'FRML_CheckAddictions' => false,
+                        'FMRL_WrongDateAddictions' => false,
+                        'BLK_LicenceSuspended' => new Map<String, Object>{
+                            'CHKBOX_LicenceSuspended' => true,
+                            'DATE_MemberLicenceSuspended' => '2025-09-02',
+                            'TXTAREA_MemberLicenceSuspended' => 'Question #5 Test',
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_hasErrorLicenceSuspended' => 'false',
+                            'TXT_MemberIdLicenceSuspended' => 'MEM-41110220858522095',
+                            'TXT_MemberLicenceSuspended' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17'
+                        },
+                        'FRML_LicenceSuspended' => false,
+                        'EB_PastConditions' => new Map<String, Object>{
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_MemberIdPastConditions' => 'MEM-41110220858522095',
+                            'TXT_MemberPastConditions' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'MULSEL_Conditions' => 'Alcohol Abuse;ALS;Alzheimer’s Disease;Abdominal Aortic Aneurysm;Aneurysm, Cerebral;Autism Spectrum Disorders;Bipolar with 2 or more current medications;Cerebral Palsy;Chronic Obstructive Pulmonary Disease (COPD);Chronic Kidney Disease, stage 3b, 4 or 5;Cystic Fibrosis;Dementia;Diabetes, Type I;Diabetes, Type 2 when taking 2 heart medications, or have kidney/liver disease;Down’s Syndrome;Ectasia;Emphysema;Fragile X Syndrome;Fibromyalgia (w/ treatment);Hepatitis (Chronic Viral B & C);HIV/AIDS;Lupus;Macular Degeneration (wet or dry);Marfan’s Syndrome;Morbid Obesity (BMI > 40);Multiple Sclerosis;Muscular Dystrophy;Paralysis;Parkinson’s Disease;Rheumatoid Arthritis w/ biologic treatment;Schizophrenia with 2 or more current medications;Sickle-Cell Disease;Sjogren Syndrome;Spina Bifida;Systemic Lupus Erythematosus;Typhoid;Underweight (BMI <15);Inpatient Psychiatric Treatment within past 5 years;Treatment with Naloxone, Suboxone, Methadone or any other medication to treat addiction within the past 5 years',
+                            'TXT_MemberOtherPastConditions' => 'Other Conditions Test'
+                        },
+                        'FRML_CheckPastConditionsNull' => false,
+                        'MSG_DateWrongPrescription' => null,
+                        'LWC_SelectCensusMember' => new Map<String, Object>{
+                            'SelectedCensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'SelectedCensusMemberId' => 'MEM-41110220858522095'
+                        },
+                        'ED_MemberPrescription' => new Map<String, Object>{
+                            'FRML_MemberBirthdate' => null,
+                            'TXT_MemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'TXT_MemberIdPrescription' => 'MEM-41110220858522095',
+                            'TXT_hasErrorMedication' => 'false',
+                            'TXT_NameOfMedication' => 'Name of Medication Test',
+                            'TXT_DatePrescribed' => '2025-09-02',
+                            'TXT_DateDiscontinued' => '2025-09-03',
+                            'TXT_ReasonForMedication' => 'Reason of Medication Test',
+                            'TXT_PrescribingPhysician' => 'Prescribing Physician Test'
+                        },
+                        'FRML_CheckPrescriptionsIsNull' => false,
+                        'FRML_DateWrongPrescription' => false,
+                        'MSG_WrongDatePCP' => null,
+                        'FRML_WrongDatePCP' => false,
+                        'EB_Physicians' => new Map<String, Object>{
+                            'memberId' => 'MEM-41110220858522095',
+                            'TXT_hasErrorPCP' => 'false',
+                            'TXT_CensusMemberName' => 'FN Newborn Test by Gabriel #17 LN Newborn Test by Gabriel #17',
+                            'TXT_PhysicianName' => 'Physician\'s Name Test',
+                            'TXT_PhysicianCity' => 'City Test',
+                            'TXT_PhysicianPhone' => '1111111111'
+                        },
+                        'RAD_PrescriptionMedications' => 'Yes',
+                        'RAD_PastConditions' => 'Yes',
+                        'RAD_LicenceSuspended' => 'Yes',
+                        'RAD_Addictions' => 'Yes',
+                        'RAD_Cancer' => 'Yes',
+                        'RAD_PendingTests' => 'Yes',
+                        'RAD_UnexplainedSymptoms' => 'Yes',
+                        'RAD_ParentSiblingDiagnosed' => 'Yes',
+                        'aRC_showErrorInMedicationStep' => new Map<String, Object>{
+                            'hasErrorPCP' => false,
+                            'hasErrorUnexpected' => false,
+                            'hasErrorAddictions' => false,
+                            'hasErrorCancer' => false,
+                            'hasErrorMedication' => false
+                        }
+                    },
+                    'STEP_SignTheDocument' => new Map<String, Object>{
+
+                    },
+                    'NewProductList' => new List<Object>{
+                        new Map<String, Object>{
+                            'userInputs' => new List<Object>{
+                                new Map<String, Object>{
+                                    'LastName' => 'LN Primary Test by Gabriel #17',
+                                    'FirstName' => 'FN Primary Test by Gabriel #17',
+                                    'CensusMemberLastName' => 'LN Primary Test by Gabriel #17',
+                                    'CensusMemberId' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
+                                    'CensusMemberFirstName' => 'FN Primary Test by Gabriel #17'
+                                },
+                                new Map<String, Object>{
+                                    'LastName' => 'LN Spouse Test by Gabriel #17',
+                                    'FirstName' => 'FN Spouse Test by Gabriel #17',
+                                    'CensusMemberLastName' => 'LN Spouse Test by Gabriel #17',
+                                    'CensusMemberId' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
+                                    'CensusMemberFirstName' => 'FN Spouse Test by Gabriel #17'
+                                },
+                                new Map<String, Object>{
+                                    'LastName' => 'LN Child Test by Gabriel #17',
+                                    'FirstName' => 'FN Child Test by Gabriel #17',
+                                    'CensusMemberLastName' => 'LN Child Test by Gabriel #17',
+                                    'CensusMemberId' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
+                                    'CensusMemberFirstName' => 'FN Child Test by Gabriel #17'
+                                },
+                                new Map<String, Object>{
+                                    'LastName' => 'LN Newborn Test by Gabriel #17',
+                                    'FirstName' => 'FN Newborn Test by Gabriel #17',
+                                    'CensusMemberLastName' => 'LN Newborn Test by Gabriel #17',
+                                    'CensusMemberId' => 'MEM-41110220858522095',
+                                    'CensusMemberFirstName' => 'FN Newborn Test by Gabriel #17'
+                                }
+                            },
+                            'selectedProduct' => new Map<String, Object>{
+                                'productId' => '01t5f000003zEucAAE',
+                                'Type__c' => 'Medical',
+                                'Price' => 389.91,
+                                'Name' => 'WeShare Access 5k',
+                                'Id' => '01t5f000003zEucAAE'
+                            }
+                        }
+                    },
+                    'OldProductList' => new List<Object>{
+                        new Map<String, Object>{
+                            'selectedProduct' => new Map<String, Object>{
+                                'productId' => '01t5f000003zEucAAE',
+                                'Type__c' => 'Medical',
+                                'Price' => 389.91,
+                                'Name' => 'WeShare Access 5k',
+                                'Id' => 'a2Wcb000000913JEAQ'
+                            },
+                            'userInputs' => new List<Object>{
+                                new Map<String, Object>{
+                                    'LastName' => 'LN Primary Test by Gabriel #17',
+                                    'FirstName' => 'FN Primary Test by Gabriel #17',
+                                    'CensusMemberLastName' => 'LN Primary Test by Gabriel #17',
+                                    'CensusMemberId' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
+                                    'CensusMemberFirstName' => 'FN Primary Test by Gabriel #17'
+                                },
+                                new Map<String, Object>{
+                                    'LastName' => 'LN Spouse Test by Gabriel #17',
+                                    'FirstName' => 'FN Spouse Test by Gabriel #17',
+                                    'CensusMemberLastName' => 'LN Spouse Test by Gabriel #17',
+                                    'CensusMemberId' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
+                                    'CensusMemberFirstName' => 'FN Spouse Test by Gabriel #17'
+                                },
+                                new Map<String, Object>{
+                                    'LastName' => 'LN Child Test by Gabriel #17',
+                                    'FirstName' => 'FN Child Test by Gabriel #17',
+                                    'CensusMemberLastName' => 'LN Child Test by Gabriel #17',
+                                    'CensusMemberId' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                                     'CensusMemberFirstName' => 'FN Child Test by Gabriel #17'
                                 }
                             }
@@ -1473,7 +1998,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                             'Dependent1.FirstName' => 'FN Child Test by Gabriel #17',
                             'Dependent1.Email' => null,
                             'Dependent1.DOB' => '2020-03-03',
-                            'Dependent1.Id' => 'a3qcb00000C5ihTAAR',
+                            'Dependent1.Id' => censusMembersList[2].ARC_PersonAccount__r.Census_Member__c,
                             'Dependent1.Height' => '3\'3',
                             'Dependent1.Weight' => '3',
                             'Dependent1.MI' => 'A',
@@ -1482,7 +2007,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                             'Spouse.FirstName' => 'FN Spouse Test by Gabriel #17',
                             'Spouse.Email' => 'gm.arcsona@yopmail.com',
                             'Spouse.DOB' => '2000-02-02',
-                            'Spouse.Id' => 'a3qcb00000C5ihSAAR',
+                            'Spouse.Id' => censusMembersList[1].ARC_PersonAccount__r.Census_Member__c,
                             'Spouse.Height' => '2\'2',
                             'Spouse.Weight' => '2',
                             'Spouse.MI' => 'A',
@@ -1493,7 +2018,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
                             'Primary.DOB' => '2000-01-01',
                             'Primary.YearOfBirth' => 2000,
                             'Primary.MonthOfBirth' => 1,
-                            'Primary.Id' => 'a3qcb00000C5tLJAAZ',
+                            'Primary.Id' => censusMembersList[0].ARC_PersonAccount__r.Census_Member__c,
                             'Primary.Height' => '1\'1',
                             'Primary.DayOfBirth' => 1,
                             'Primary.Weight' => '1',
@@ -1559,7 +2084,7 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
 
     // Scenario #1 : Add a Temporary Newborn | Actions to perform: mapAccounts, mapGCM, mapGCMPlan, mapPolicyParticipant
     @isTest
-    public static void addTemporaryNewbornTest(){
+    public static void NB_NewBornDMLTest(){
         Map<String, Object> inputMap = createInputMap();
         Map<String, Object> outputMap = new Map<String, Object>();
         Map<String, Object> options = new Map<String, Object>();
@@ -1570,12 +2095,115 @@ public with sharing class ARC_NewBorn_BaseServiceTest {
         baseService.invokeMethod('NB_NewBornDML', inputMap, outputMap, options);
         Test.stopTest();
 
-        Assert.areEqual(JSON.serialize(outputMap), JSON.serialize(''));
+        Assert.areEqual(JSON.serialize(outputMap.get('success')), 'true');
     }
 
-    // Scenario #2 : Add a Permanent Newborn | Actions to perform: mapContract, mapContractLineItem, mapContractParticipants, mapChargentOrders, insertHipaaAuthorization, mapMedicalQuestions, mapCases, mapCaseMember, insertPromotionDiscount, insertCaseForFeeSkipped
     @isTest
-    public static void addPermanentNewbornTest(){
+    public static void NB_NewBornDMLTestNegative(){
+        Map<String, Object> inputMap = createInputMap();
 
+        List<Object> censusMembersList = (List<Object>) inputMap.get('census_members');
+
+        for (Object censusMemberObj : censusMembersList) {
+            Map<String, Object> censusMemberMap = (Map<String, Object>) censusMemberObj;
+            if (censusMemberMap.get('IsNewMember') == true) {
+                censusMemberMap.put('ARC_HeightFeet__c', 'NotANumber');
+                censusMemberMap.put('ARC_Weight__c', 'NotANumber');
+
+            }
+        }
+
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        ARC_NewBorn_BaseService baseService = new ARC_NewBorn_BaseService();
+
+        Test.startTest();
+        try{
+            baseService.invokeMethod('NB_NewBornDML', inputMap, outputMap, options);
+        } catch(Exception e) {
+            Assert.areEqual(e.getMessage(), 'Script-thrown exception');
+        }
+        Test.stopTest();
+    }
+
+    @isTest
+    public static void populateMedicalQuestionsTest(){
+        Map<String, Object> inputMap = createInputMap();
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        ARC_NewBorn_BaseService baseService = new ARC_NewBorn_BaseService();
+
+        Test.startTest();
+        baseService.invokeMethod('populateMedicalQuestions', inputMap, outputMap, options);
+        Test.stopTest();
+
+        Assert.areEqual(outputMap.containsKey('STEP_MedicalQuestions'), true);
+        Assert.areEqual(outputmap.containsKey('CensusMember'), true);
+    }
+
+    @isTest
+    public static void TRANSFORM_CensusMemberToUserInputsTest(){
+        Map<String, Object> inputMap = createInputMap();
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        ARC_NewBorn_BaseService baseService = new ARC_NewBorn_BaseService();
+
+        Test.startTest();
+        baseService.invokeMethod('TRANSFORM_CensusMemberToUserInputs', inputMap, outputMap, options);
+        Test.stopTest();
+
+        Assert.areEqual(outputMap.containsKey('applyExtraDependentFee'), true);
+        Assert.areEqual(outputmap.containsKey('userInputs'), true);
+    }
+
+    @isTest
+    public static void TRANSFORM_ChooseProductSelectionDataTest(){
+        Map<String, Object> inputMap = createInputMap();
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        ARC_NewBorn_BaseService baseService = new ARC_NewBorn_BaseService();
+
+        Test.startTest();
+        baseService.invokeMethod('TRANSFORM_ChooseProductSelectionData', inputMap, outputMap, options);
+        Test.stopTest();
+
+        Assert.areEqual(outputMap.containsKey('LWC_ChooseProductSelectionOutput'), true);
+    }
+
+    @isTest
+    public static void populateReasonsTest(){
+        Map<String, Object> inputMap = createInputMap();
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        ARC_NewBorn_BaseService baseService = new ARC_NewBorn_BaseService();
+
+        Test.startTest();
+        baseService.invokeMethod('populateReasons', inputMap, outputMap, options);
+        Test.stopTest();
+
+        Assert.areEqual(outputMap.containsKey('nbChanges'), true);
+        Assert.areEqual(outputMap.containsKey('mapChargentOrders'), true);
+    }
+
+    @isTest
+    public static void getDocuSignDataTest(){
+        Map<String, Object> inputMap = createInputMap();
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        ARC_NewBorn_BaseService baseService = new ARC_NewBorn_BaseService();
+
+        Test.startTest();
+        baseService.invokeMethod('getDocuSignData', inputMap, outputMap, options);
+        Test.stopTest();
+
+        Assert.areEqual(outputMap.containsKey('DocuSignTemplateId'), true);
+        Assert.areEqual(outputMap.containsKey('SignerList'), true);
+        Assert.areEqual(outputMap.containsKey('RAresponse'), true);
     }
 }
