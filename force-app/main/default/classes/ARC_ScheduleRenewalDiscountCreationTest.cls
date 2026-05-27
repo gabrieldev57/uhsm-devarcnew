@@ -22,7 +22,7 @@ public class ARC_ScheduleRenewalDiscountCreationTest {
 		censMemb[0].ARC_PhysicalAddressState__c = 'CA';
 		censMemb[0].vlocity_ins__IsPrimaryMember__c = true;
 		censMemb[0].ARC_ActiveMember__c = true;
-        censMemb[0].ARC_ContinuousMembershipStartDate__c = Date.newInstance(2023, 10, 01);
+        censMemb[0].ARC_ContinuousMembershipStartDate__c = Date.today().addYears(-1).addDays(-1);
 		censMemb[0].vlocity_ins__ContactId__c = conta[0].Id; 
 		censMemb[0].vlocity_ins__FirstName__c = 'TestFirstName';
 		censMemb[0].vlocity_ins__Birthdate__c = Date.newInstance(1980, 11, 1); 
@@ -30,9 +30,11 @@ public class ARC_ScheduleRenewalDiscountCreationTest {
 
         //Create Contract
 		List<Contract> cont = ARC_TestUtility.createContractsAA(1);
+        Id individualAndFamilyRecordTypeId = Schema.SObjectType.Contract.getRecordTypeInfosByDeveloperName().get('ARC_IndividualAndFamily').getRecordTypeId();
 		cont[0].vlocity_ins__EnrollmentCensusId__c = censMemb[0].vlocity_ins__CensusId__c;
-		cont[0].ARC_EffectiveDate__c = System.today();
-        cont[0].ARC_PaidThroughDate__c = System.today();
+		cont[0].ARC_EffectiveDate__c = Date.today().addYears(-1).addDays(-1);
+        cont[0].ARC_PaidThroughDate__c = System.today().addDays(1);
+        cont[0].RecordTypeId = individualAndFamilyRecordTypeId;
 		insert cont;
 		cont[0].Status = 'Activated';
 		update cont;
@@ -95,6 +97,19 @@ public class ARC_ScheduleRenewalDiscountCreationTest {
 
     @isTest
     static void testCreateRenewalDiscounts() {
+        List<vlocity_ins__GroupCensusMember__c> censMembers = [SELECT Id, vlocity_ins__CensusId__c FROM vlocity_ins__GroupCensusMember__c];
+        for(vlocity_ins__GroupCensusMember__c cm : censMembers) {
+            cm.ARC_ContinuousMembershipStartDate__c = Date.today().addYears(-1).addDays(-1);
+            cm.ARC_ActiveMember__c = true;
+            System.debug('CENSUS MEMB: '+cm.vlocity_ins__CensusId__c);
+        }
+        update censMembers;
+
+        List<Contract> c = [SELECT Id,vlocity_ins__EnrollmentCensusId__c, vlocity_ins__EnrollmentCensusId__r.ARC_MinContinuousMembershipStartDate__c FROM Contract];
+        for(Contract con : c) {
+            System.debug('census: '+con.vlocity_ins__EnrollmentCensusId__c);
+            System.debug ('MIN CMSD: '+con.vlocity_ins__EnrollmentCensusId__r?.ARC_MinContinuousMembershipStartDate__c);
+        }
         Test.startTest();
         ARC_ScheduleRenewalDiscountCreation schedulableJob = new ARC_ScheduleRenewalDiscountCreation();
         schedulableJob.execute(null);

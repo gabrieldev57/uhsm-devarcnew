@@ -1,0 +1,47 @@
+/* RadioGroup Styles */
+
+:host {
+    display: block;
+}
+
+.radio-group-container {
+    width: 100%;
+}
+
+/* Styled box background for radio groups */
+.radio-box {
+    background-color: #EBF5FE;
+    border: 1px solid #d8dde6;
+    border-radius: 4px;
+    padding: 0.875rem 1rem;
+}
+
+.radio-box .slds-form-element__legend {
+    font-size: 0.875rem;
+    color: #181818;
+    font-weight: 400;
+}
+
+/* Horizontal radio layout */
+.radio-control {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.radio-box.backgound-general {
+    background-color: #F8FAFC;
+}
+
+.radio-group-container.radio-box.slds-m-bottom_small {
+    background-color: #F8FAFC;
+}
+
+.radio-group-container.radio-box.slds-m-bottom_medium {
+    background-color: #F8FAFC;
+}
+
+.radio-group-container.radio-box {
+    background-color: #F8FAFC;
+}

@@ -13,11 +13,11 @@ global without sharing class ARC_MultiSpinOff_BaseService implements vlocity_ins
     global Boolean invokeMethod(String methodName, Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
         if (methodName == 'TRANSFORM_CensusMemberToUserInputs') {
             TRANSFORM_CensusMemberToUserInputs(inputMap, outputMap, options);
-        }
-        else if (methodName == 'censusPlanSelectionChanges') {
+        } else if (methodName == 'censusPlanSelectionChanges') {
             censusPlanSelectionChanges(inputMap, outputMap, options);
-        }
-        else if (methodName == 'spinOffMethodB') {
+        } else if (methodName == 'getMemberBeneficiaries') {
+            getMemberBeneficiaries(inputMap, outputMap, options);
+        } else if (methodName == 'spinOffMethodB') {
             // TODO: Implement Method B functionality
             // Example: return B(inputMap, outputMap);
         }
@@ -41,6 +41,12 @@ global without sharing class ARC_MultiSpinOff_BaseService implements vlocity_ins
     public static Map<String, Object> censusPlanSelectionChanges(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
         ARC_SpinOff_Utilities.censusPlanSelectionChanges(inputData, outputMap, options);
         outputMap.put('soChanges', outputMap.get('soChanges'));
+        return outputMap;
+    }
+
+    public static Map<String, Object> getMemberBeneficiaries(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
+        Map<String, Object> response = ARC_PCSpinOff_Utilities.getMemberBeneficiaries(inputData, outputMap, options);
+        outputMap.put('census_component', response.get('census_component'));
         return outputMap;
     }
 

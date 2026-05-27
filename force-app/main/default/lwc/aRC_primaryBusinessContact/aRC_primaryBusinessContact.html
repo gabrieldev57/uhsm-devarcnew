@@ -1,0 +1,78 @@
+<template>
+    <lightning-card title="Primary Business Contact">
+        <template if:true={hasContact}>
+            <div class="business-contact-card">
+                <div class="avatar-wrapper">
+                    <div class="avatar-circle">
+                        <lightning-icon
+                            icon-name="standard:contact"
+                            size="small"
+                            alternative-text="Contact">
+                        </lightning-icon>
+                    </div>
+                </div>
+
+                <div class="content-wrapper">
+                    <div class="header-block">
+                        <div class="contact-name">
+                            <a href={contactUrl} target="_blank">{contact.name}</a>
+                        </div>
+
+                        <template if:true={contact.title}>
+                            <div class="contact-title">{contact.title}</div>
+                        </template>
+                    </div>
+
+                    <div class="details-grid">
+                        <template if:true={contact.phone}>
+                            <div class="detail-item">
+                                <lightning-icon
+                                    icon-name="utility:call"
+                                    size="x-small"
+                                    alternative-text="Phone">
+                                </lightning-icon>
+                                <span>{contact.phone}</span>
+                            </div>
+                        </template>
+
+                        <template if:true={contact.email}>
+                            <div class="detail-item">
+                                <lightning-icon
+                                    icon-name="utility:email"
+                                    size="x-small"
+                                    alternative-text="Email">
+                                </lightning-icon>
+                                <a href={emailHref}>{contact.email}</a>
+                            </div>
+                        </template>
+
+                        <template if:true={contact.address}>
+                            <div class="detail-item address-item">
+                                <lightning-icon
+                                    icon-name="utility:checkin"
+                                    size="x-small"
+                                    alternative-text="Address">
+                                </lightning-icon>
+                                <div class="address-text">
+                                    <lightning-formatted-text value={contact.address}></lightning-formatted-text>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template if:true={noData}>
+            <div class="state-message">
+                No Primary Business Contact found.
+            </div>
+        </template>
+
+        <template if:true={error}>
+            <div class="state-message error-message">
+                Error loading Primary Business Contact.
+            </div>
+        </template>
+    </lightning-card>
+</template>

@@ -3,7 +3,6 @@
 * @Description        :   Manages logic for: 
                             * Renewal Membership Start Date – Start of continuous WeShare coverage period for renewal discount (capped at 1/1/24).
                             * Continuous Coverage Start Date – Start of continuous coverage period - including UHSM and WeShare programs
-                            * Last Aggregator Reset Date – Tracks the start date of yearly benefits for a user. Same as Continuous Coverage, but also updates on Program Upgrades.
 * @MethodName         :   updateContinuousMembershipStartDateBulk
 ********************************************************************/
 
@@ -14,152 +13,166 @@ public without sharing class ARC_ContinuousMembershipDateBulk {
         public list<Id> listRecordIds;
     }
 
+    // Comment for testing purposes
+
     /*******************************************************************
     * @MethodName         :   updateContinuousMembershipStartDateBulk
     * @Description        :   Used in PersonAccount Activation & Update Continuous Membership Start Date flows. 
                                 Populates fields:
                                 * Renewal Membership Date. 
                                 * Continuous Coverage Date. 
-                                * Last Aggregator Reset Date. 
     ********************************************************************/
     @InvocableMethod(label='Continuous Membership Date Bulk' description='description' category='Person Account')
     public static void updateContinuousMembershipStartDateBulk (List<RequestsVariables> requests) {
 
-        List<Id> recordIds = new List<Id>();
+        Set<Id> recordIds = new Set<Id>();
 
         for (RequestsVariables request : requests) {
             if (request.listRecordIds != null && !request.listRecordIds.isEmpty()) {
-                recordIds = request.listRecordIds;
+                recordIds.addAll(request.listRecordIds);
             }
         }
 
-        System.debug('records: ' + recordIds);
         if (!recordIds.isEmpty()) {
             Map<Id, Map<String, Date>> memberSinceDateMap = new Map<Id, Map<String, Date>>();
             List<Account> resultList = new List<Account>();
-            List<vlocity_ins__GroupCensusMemberPlan__c> gcmpRelatedToEach;
-            List<InsurancePolicyParticipant> policyParticipants;
-            Map<String, Map<String, InsurancePolicyParticipant>> policyParticipantsMap = new Map<String, Map<String, InsurancePolicyParticipant>>();
+            List<ARC_CoverageParticipant__c> coverageParticipants;
             try {
-                // Get all the medical GCMP of each record id
-                gcmpRelatedToEach = [
-                    SELECT vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c,
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status,
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.ARC_EffectiveDate__c,
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.ARC_Inactive_Date__c,
-                        vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId,
-                        vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.Name,
-                        vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.Account.PersonBirthdate,
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.ARC_ContractReason__c,
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.CreatedDate,
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.ARC_AwaitingActivationDate__c,
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.vlocity_ins__ExpiredContractId__c,
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.vlocity_ins__ExpiredContractId__r.ARC_MedicalPlan__r.Name,
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.ARC_MedicalPlan__r.Name,
-                        vlocity_ins__ContractLineId__r.Name
-                    FROM vlocity_ins__GroupCensusMemberPlan__c
-                    WHERE vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId IN :recordIds
-                    AND vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c = 'Medical'
-                    AND (
-                        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status = 'Activated' 
-                        OR vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status = 'Terminated'
-                        OR (vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.ARC_EffectiveDate__c <= TODAY
-                            AND vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status = 'Awaiting Activation'))
-                    ORDER BY vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.ARC_EffectiveDate__c ASC, vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.CreatedDate ASC];
-
-                policyParticipants = [
-                    SELECT Id, EffectiveDate, ExpirationDate, InsurancePolicy.ARC_Contract__c, PrimaryParticipantContact.AccountId
-                    FROM InsurancePolicyParticipant
-                    WHERE PrimaryParticipantContact.AccountId IN :recordIds
+                coverageParticipants = [
+                    SELECT Id, 
+                           ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId,
+                           ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.Name,
+                           ARC_PolicyParticipant__r.ARC_StartDate__c, 
+                           ARC_PolicyParticipant__r.ARC_EndDate__c,
+                           ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.ARC_LastWPResetDate__c,
+                           ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.Name, 
+                           ARC_PolicyCoverage__r.ARC_Reason__c,
+                           ARC_Policy__r.RecordType.DeveloperName, 
+                           ARC_Policy__r.Status, 
+                           ARC_Policy__r.ARC_Contract__r.Status,
+                           ARC_Policy__r.ARC_PolicyReason__c,
+                           ARC_Policy__r.ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.vlocity_ins__GroupId__c,
+                           ARC_Policy__r.ARC_SpinnedFromPolicy__r.ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.vlocity_ins__GroupId__c
+                    FROM ARC_CoverageParticipant__c
+                    WHERE ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId IN :recordIds
+                        AND ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.vlocity_ins__Type__c = 'Medical'
+                        AND ARC_PolicyCoverage__r.ARC_ParentProduct__c = null
+                        AND (
+                            (
+                                ARC_Policy__r.RecordType.DeveloperName = 'ARC_IndividualAndFamily'
+                                AND (
+                                    ARC_Policy__r.ARC_Contract__r.Status IN ('Activated', 'Terminated', 'Awaiting Activation')
+                                    AND ARC_Policy__r.ARC_Contract__r.ARC_EffectiveDate__c <= TODAY
+                                )
+                            )
+                            OR
+                            (
+                                ARC_Policy__r.RecordType.DeveloperName = 'ARC_SmallGroup'
+                                AND (
+                                    ARC_Policy__r.Status IN ('Activated', 'Terminated', 'Awaiting Activation')
+                                    AND ARC_Policy__r.ARC_EffectiveDate__c <= TODAY
+                                )
+                            )
+                        )
+                    ORDER BY ARC_Policy__r.ARC_EffectiveDate__c ASC, ARC_Policy__r.CreatedDate ASC
                 ];
-                
-                for (InsurancePolicyParticipant polPart : policyParticipants) {
-                    if (!policyParticipantsMap.containsKey(polPart.InsurancePolicy.ARC_Contract__c)) {
-                        policyParticipantsMap.put(polPart.InsurancePolicy.ARC_Contract__c, new Map<String, InsurancePolicyParticipant>());
-                    }
-                    policyParticipantsMap.get(polPart.InsurancePolicy.ARC_Contract__c).put(polPart.PrimaryParticipantContact.AccountId, polPart);
-                }
             } catch (Exception e) {
                 throw new FlowException('error querying records: ' + e.getMessage());
             }
 
             try {
-                if (gcmpRelatedToEach.size() == 0) throw new FlowException('No records found');
-                for (vlocity_ins__GroupCensusMemberPlan__c plan: gcmpRelatedToEach) {
-                    Map<String, Date> datesMap = memberSinceDateMap.containsKey(plan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId)? memberSinceDateMap.get(plan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId): new Map<String, Date>();
-                    InsurancePolicyParticipant polPart = policyParticipantsMap.get(plan.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c).get(plan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId);
-                    System.debug('polPart.EffectiveDate: ' + polPart.EffectiveDate);
-                    System.debug('polPart.ExpirationDate: ' + polPart.ExpirationDate);
-                    Date effectiveDate = polPart.EffectiveDate != null ? Date.valueOf(polPart.EffectiveDate) : null;
-                    Date expirationDate = polPart.ExpirationDate != null ? Date.valueOf(polPart.ExpirationDate) : null;
-                    System.debug('effectiveDate: ' + effectiveDate);
-                    System.debug('expirationDate: ' + expirationDate);
-                    // saves last upgrade date for lastAggReset date
-                    Boolean isUpgrade = plan?.vlocity_ins__ContractLineId__r?.vlocity_ins__ContractId__r?.ARC_ContractReason__c.contains('Program Upgrade') 
-                        || plan?.vlocity_ins__ContractLineId__r?.vlocity_ins__ContractId__r?.ARC_ContractReason__c.contains('New Application')
-                        || plan?.vlocity_ins__ContractLineId__r?.vlocity_ins__ContractId__r?.ARC_ContractReason__c.contains('Upgraded Spin Off')
-                        || (
-                            plan?.vlocity_ins__ContractLineId__r?.vlocity_ins__ContractId__r?.vlocity_ins__ExpiredContractId__r?.ARC_MedicalPlan__r?.Name.contains('UHSM') 
-                            && plan?.vlocity_ins__ContractLineId__r?.vlocity_ins__ContractId__r?.ARC_MedicalPlan__r?.Name.contains('WeShare')
-                        );
-                    if (isUpgrade) {    
-                        // LARD : Last Aggregators Reset Date //
-                        if (!datesMap.containsKey('LARD')) {
-                            datesMap.put('LARD', effectiveDate);
-                        } else if (datesMap.get('LARD') < effectiveDate) {
-                            datesMap.put('LARD', effectiveDate);
-                        }
+                for (ARC_CoverageParticipant__c covPart : coverageParticipants) {
+                    Id accountId = covPart.ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId;
+                    Date lastWPResetDate = covPart.ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.ARC_LastWPResetDate__c;
+                    Date effectiveDate = covPart.ARC_PolicyParticipant__r.ARC_StartDate__c != null ? covPart.ARC_PolicyParticipant__r.ARC_StartDate__c : null;
+                    Date expirationDate = covPart.ARC_PolicyParticipant__r.ARC_EndDate__c != null ? covPart.ARC_PolicyParticipant__r.ARC_EndDate__c : null;
+                    String planName = covPart.ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.Name;
+                    String status;
+                    String reasons = '';
+                    List<String> reasonsList = new List<String>();
+                    Id familyAccountId = covPart.ARC_Policy__r.ARC_Contract__r.vlocity_ins__EnrollmentCensusId__c != null ? covPart.ARC_Policy__r.ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.vlocity_ins__GroupId__c : null;
+                    Id renewedFamilyAccountId = covPart.ARC_Policy__r.ARC_SpinnedFromPolicy__c != null ? covPart.ARC_Policy__r.ARC_SpinnedFromPolicy__r.ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.vlocity_ins__GroupId__c : null;
+                    Boolean isSpinnedOffFamily = false;
+
+                    if (covPart.ARC_Policy__r.RecordType.DeveloperName == 'ARC_IndividualAndFamily') {
+                        // Get the Policy Status
+                        status = covPart.ARC_Policy__r.ARC_Contract__r.Status;
+                        // Get the Policy Reasons
+                        reasons = covPart.ARC_Policy__r.ARC_PolicyReason__c;
+                        //reasonsList = reasons.split('<br>');
+                        reasonsList = String.isNotBlank(reasons) ? reasons.split('<br>') : new List<String>();
+                        isSpinnedOffFamily = reasonsList.contains('Spin Off') && familyAccountId != null && familyAccountId != renewedFamilyAccountId;
+                    } else if (covPart.ARC_Policy__r.RecordType.DeveloperName == 'ARC_SmallGroup') {
+                        // Get the Policy Status
+                        status = covPart.ARC_Policy__r.Status;
+                        // Get the Policy Reasons
+                        reasons = covPart.ARC_PolicyCoverage__r.ARC_Reason__c;
+                        //reasonsList = reasons.split('<br>');
+                        reasonsList = String.isNotBlank(reasons) ? reasons.split('<br>') : new List<String>();
                     }
 
-                    // program is UHSM or WeShare, counts for Continuous Coverage Start Date & Last Aggregators Reset Date
+                    Map<String, Date> datesMap = memberSinceDateMap.containsKey(accountId) ? memberSinceDateMap.get(accountId): new Map<String, Date>();
+
+                    // Program is UHSM or WeShare, counts for Continuous Coverage Start Date
                     if (
                         !datesMap.containsKey('inactiveDateForCCD')
                         || datesMap.get('inactiveDateForCCD').addDays(1) < effectiveDate
                     ) {
                         datesMap.put('sinceDateForCCD', effectiveDate);
-                        datesMap.put('LARD', effectiveDate);
                     }
 
-                    if (
-                        plan.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status == 'Terminated'
-                        && expirationDate != null
-                    ) { 
+                    if (status == 'Terminated' && expirationDate != null) { 
                         datesMap.put('inactiveDateForCCD', expirationDate);
                     }
 
-                    // set Renewal Membership Start Date applicable for (WeShare Only)
-                    if (plan.vlocity_ins__ContractLineId__r.Name.contains('WeShare')) {
-                        if (
-                            !datesMap.containsKey('inactiveDateForRMD')
+                    // Set Renewal Membership Start Date applicable for (WeShare Only)
+                    if (
+                        planName.contains('WeShare')
+                        && (
+                            !datesMap.containsKey('sinceDateForRMD') 
+                            || !datesMap.containsKey('inactiveDateForRMD')
                             || datesMap.get('inactiveDateForRMD').addDays(1) < effectiveDate
-                        ) {
-                            datesMap.put('sinceDateForRMD', effectiveDate);
-                        }
+                        )
+                    ) {
+                        datesMap.put('sinceDateForRMD', effectiveDate);
                     }
                     
-                    if (
-                        plan.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status == 'Terminated'
-                        && expirationDate != null
-                    ) {
+                    if (status == 'Terminated' && expirationDate != null) {
                         datesMap.put('inactiveDateForRMD', expirationDate);
                     }
 
-                    memberSinceDateMap.put(plan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId, datesMap); 
+                    
+                    // Get the best Policy for Last Waiting Period Reset Date field
+                    if (
+                        !datesMap.containsKey('lastWPReset') ||
+                        (reasonsList.contains('Program Upgrade') || reasonsList.contains('Upgraded Spin Off') || (reasonsList.contains('New Application'))) ||
+                        isSpinnedOffFamily ||
+                        (datesMap.containsKey('lastPolicyInactiveDate') && datesMap.get('lastPolicyInactiveDate').addDays(1) < effectiveDate)
+                        ) 
+                    {
+                        datesMap.put('lastWPReset', effectiveDate);
+                    }
+
+                    // Store the last Policy Inactive Date
+                    if (status == 'Terminated' && expirationDate != null) {
+                        datesMap.put('lastPolicyInactiveDate', expirationDate);
+                    }
+
+                    memberSinceDateMap.put(accountId, datesMap); 
                 }
                 
                 // THE RENEWAL DISCOUNTS IN PROD WERE CREATED FROM 01/01/2025 GRANTING THE 1ST RENEWALS FOR MEMBERS WITH START DATE <= 01/01/24. 
                 Date firstRenewalDate = Date.newInstance(2024, 01, 01);
-                for (Id recordId: recordIds) {
-                    System.debug('>>>debug control 1');
+                for (Id recordId : recordIds) {
                     Account acc = new Account(Id=recordId);
-                    Map<String, Date> datesMap = memberSinceDateMap.containsKey(acc.Id)? memberSinceDateMap.get(acc.Id): new Map<String, Date>();
-                    System.debug('>>>debug datesMap' + datesMap);
-                    acc.ARC_ContinuousMembershipStartDate__c = datesMap.containsKey('sinceDateForRMD') ? (datesMap.get('sinceDateForRMD') < firstRenewalDate ? firstRenewalDate : datesMap.get('sinceDateForRMD')) : null;
-                    System.debug('>>>debug control 1.1');
+                    Map<String, Date> datesMap = memberSinceDateMap.containsKey(acc.Id) ? memberSinceDateMap.get(acc.Id): new Map<String, Date>();
+                    acc.ARC_ContinuousMembershipStartDate__c = datesMap.containsKey('sinceDateForRMD') 
+                        ? (datesMap.get('sinceDateForRMD') < firstRenewalDate 
+                            ? firstRenewalDate 
+                            : datesMap.get('sinceDateForRMD')) 
+                        : null;
                     acc.ARC_ContinuousCoverageStartDate__c = datesMap.containsKey('sinceDateForCCD') ? datesMap.get('sinceDateForCCD') : null;
-                    System.debug('>>>debug control 1.2');
-                    acc.ARC_Last_Aggregator_Reset_Date__c = datesMap.containsKey('LARD') ? datesMap.get('LARD') : null;
-                    System.debug('>>>debug control 1.3');
+                    acc.ARC_LastWPResetDate__c = datesMap.containsKey('lastWPReset') ? datesMap.get('lastWPReset') : null;
                     resultList.add(acc);
                 }
             } catch (Exception e) {

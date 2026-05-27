@@ -1,0 +1,73 @@
+<template>
+    <div class="program-wrapper">
+
+        <div class="header">Programs</div>
+
+        <!-- No programs message -->
+        <template if:false={hasPrograms}>
+            <template if:false={isLoading}>
+                <div class="no-programs">
+                    <h3>No Program details available to show.</h3>
+                </div>
+            </template>
+        </template>
+
+        <!-- Plan cards -->
+        <template if:true={hasPrograms}>
+            <template for:each={programs} for:item="plan">
+                <div key={plan.Id} class="plan-card">
+
+                    <!-- Plan header: name + Member ID Card button -->
+                    <div class="plan-header">
+                        <span class="plan-name">{plan.ProductName}</span>
+                        <button class="member-id-btn" data-coverage-token={plan.CoverageToken} onclick={handleMemberIdCard}>Member ID Card</button>
+                    </div>
+
+                    <!-- Plan body -->
+                    <div class="plan-body">
+
+                        <!-- Row 1: financials -->
+                        <div class="plan-row">
+                            <div class="plan-field">
+                                <span class="label">Total Per Pay Period</span>
+                                <div class="value">{plan.TotalPerPayPeriod}</div>
+                            </div>
+                            <div class="plan-field">
+                                <span class="label">Employee Contribution</span>
+                                <div class="value">{plan.EmployeeContribution}</div>
+                            </div>
+                            <div class="plan-field">
+                                <span class="label">Employer Contribution</span>
+                                <div class="value">{plan.EmployerContribution}</div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: dates + member ID -->
+                        <div class="plan-row">
+                            <div class="plan-field">
+                                <span class="label">Effective Date</span>
+                                <div class="value">{plan.EffectiveDateFormatted}</div>
+                            </div>
+                            <div class="plan-field">
+                                <span class="label">Member ID</span>
+                                <div class="value">{plan.MemberId}</div>
+                            </div>
+                            <div class="plan-field">
+                            </div>
+                        </div>
+
+                        <!-- Row 3: members -->
+                        <div class="plan-row">
+                            <div class="plan-field">
+                                <span class="label">Members</span>
+                                <div class="value">{plan.Members}</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </template>
+        </template>
+
+    </div>
+</template>

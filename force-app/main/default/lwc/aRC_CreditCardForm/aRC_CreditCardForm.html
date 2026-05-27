@@ -1,0 +1,44 @@
+<template>
+    <div class="credit-card-form">
+        <!-- Credit Card Fee Notice -->
+        <div class="credit-card-notice slds-box slds-box_x-small slds-m-bottom_medium">
+            <div class="alert slds-grid slds-grid_vertical-center">
+                <lightning-icon icon-name="utility:warning" alternative-text="Warning" size="x-small" class="icon slds-m-right_x-small"></lightning-icon>
+                <span class="notice-text slds-text-body_small"><strong>Please note:</strong> A 3.5% fee will apply to all transactions.</span>
+            </div>
+        </div>
+
+        <!-- Card Details -->
+        <div class="slds-grid slds-wrap slds-gutters_small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="text"
+                    label="Card Number"
+                    name="cardNumber"
+                    value={displayCardNumber}
+                    placeholder="XXXX XXXX XXXX XXXX"
+                    required
+                    read-only={readOnly}
+                    maxlength="19"
+                    onchange={handleCardNumberChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="text"
+                    label="Expiration Date (MM/YY)"
+                    name="expirationDate"
+                    value={internalCardData.expirationDate}
+                    placeholder="MM/YY"
+                    required
+                    read-only={readOnly}
+                    maxlength="5"
+                    pattern="(0[1-9]|1[0-2])\/[0-9]{2}"
+                    message-when-pattern-mismatch="Please enter a valid date in MM/YY format"
+                    onchange={handleExpirationChange}>
+                </lightning-input>
+            </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,4 @@
+/* Modal styling is handled by SLDS classes */
+.slds-modal__close{
+    border-radius: 4px;
+}

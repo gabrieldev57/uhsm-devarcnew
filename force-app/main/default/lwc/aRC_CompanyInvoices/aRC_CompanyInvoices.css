@@ -1,0 +1,268 @@
+/* .main-container {
+    margin-bottom: 1.5rem;
+    padding: 2rem;
+    width: auto;
+    padding-left: 8rem;
+    overflow: overlay;
+    position: sticky;
+    margin-left: 100px;
+    z-index: auto;
+} */
+
+.main-container {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: Aktiv Grotesk Ex;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #666;
+    margin: 4px 0 0 0;
+}
+
+.export-all-button {
+    display: flex;
+    align-items: center;
+    background: #2C2B2C;
+    padding: 6.4px 12.8px;
+    color: #FFFFFE;
+    height: fit-content;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.export-all-icon {
+    --sds-c-icon-color-foreground-default: white;
+    margin-right: 7px;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: white;
+}
+
+.filter-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.filter-icon {
+    --sds-c-icon-color-foreground-default: #F2C45F;
+    margin-right: 7px;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+}
+
+.individual-filter {
+    flex: 1;
+}
+
+.data-table-container {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+.data-table-header {
+    background-color: #fafafa;
+}
+
+.data-table-header th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.data-table-content td {
+    padding: 1rem;
+    border-bottom: 2px solid #ddd;
+    white-space: nowrap;
+}
+
+.download-icon {
+    margin-left: 15px;
+}
+
+.status-style {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 25px;
+    padding: 4px 12px;
+    color: white;
+    font-size: 12px;
+    min-width: 80px;
+}
+
+.paid-color { background-color: #F2BC30; }
+.pending-color { background-color: #5E6061; }
+.overdue-color { background-color: #CF2919; }
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #5e6061;
+}
+
+.pagination-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.actions-pagination {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.actions-pagination div:not(.page-number-container) {
+    border: 1px solid #2C2B2C;
+    padding: 6.4px 12.8px;
+    background-color:white ;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1;
+    height: 30px;
+}
+
+.page-number-container {
+    padding: 6.4px 12.8px;
+    background-color: #2C2B2C;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1;
+    height: 30px;
+}
+
+.clickable-element {
+    cursor: pointer;
+    user-select: none;
+}
+
+@media (max-width: 1366px) {
+    .main-container {
+        padding-top: 120px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .main-container {
+        padding-top: 150px;
+    }
+
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+    }
+
+    .export-all-container {
+        padding-bottom: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding-top: 40%;
+    }
+
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+    }
+
+    .export-all-button {
+        width: 100%;
+        justify-content: center;
+        padding-bottom: 10px;
+    }
+
+    .export-all-container{
+        padding-bottom: 10px;
+        width: 100%;
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .individual-filter {
+        width: 100%;
+        padding-right: 0;
+    }
+
+    .pagination-section {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .start-to-end-pagination {
+        order: 2;
+        font-size: 12px;
+    }
+
+    .actions-pagination {
+        order: 1;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: end;
+        gap: 5px;
+    }
+}

@@ -1,0 +1,20 @@
+.error-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.error-item {
+    word-break: break-word;
+}
+
+.preview-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+}
+
+.slds-modal__container {
+    max-width: 90%;
+    margin: auto;
+}

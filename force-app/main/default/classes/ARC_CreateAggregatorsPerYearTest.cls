@@ -38,7 +38,7 @@ global class ARC_CreateAggregatorsPerYearTest {
         insert testPolicy;
 
         ARC_Aggregator__c testAggregator1 = new ARC_Aggregator__c();
-        testAggregator1.Name = 'Individual Max AMCS';
+        testAggregator1.Name = 'Individual AMCS';
         testAggregator1.ARC_Year__c = '2024';
         testAggregator1.ARC_CreatedIn__c = testPolicy.Id;
 

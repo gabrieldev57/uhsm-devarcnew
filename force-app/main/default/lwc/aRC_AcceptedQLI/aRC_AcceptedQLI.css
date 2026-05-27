@@ -1,0 +1,209 @@
+.pageTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: #1f1f1f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 22px;
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.titleLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0px;
+}
+
+.titleRight{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sectionIconWrap{
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-right: 10px;
+  border: 1px solid #dbe7ff;
+}
+
+.sectionIconWrap.blue { background: #e0e7ff; }
+
+.sectionIconSvg{
+  --slds-c-icon-color-foreground-default: #2563eb;
+}
+
+.titleContainer{
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.product-name{
+    font-size: 15px;
+    font-weight: 300;
+}
+
+.quote-card {
+  background: #ffffff;
+  border: 1px solid #e6e8eb;
+  border-radius: 16px;
+  box-shadow: 0px 2px 10px rgba(0,0,0,0.06);
+  padding: 12px;
+}
+
+.quote-table-wrap {
+  border: 1px solid #e6e8eb;
+  border-radius: 14px;
+  overflow: visible;
+  background: #ffffff;
+}
+
+:host .quote-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0px;
+}
+.title-product{
+    font-size: 15px !important;
+}
+
+:host .quote-table thead th {
+  background: #f8fafc !important;
+  color: #111827 !important;
+  font-size: 12x !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px;
+  padding: 12px 12px !important;
+  border-bottom: 1px solid #e6e8eb !important;
+}
+
+:host .quote-table tbody td {
+  padding: 5px 12px !important;
+  font-size: 13px;
+  color: #111827;
+  border-bottom: 1px solid #eef0f3;
+  vertical-align: middle;
+}
+
+:host .quote-table tbody tr:nth-child(even) td {
+  background: #fbfdff;
+}
+
+:host .quote-table tbody tr.quote-row:hover td {
+  background: #f3f4f6;
+}
+
+.pill-combobox {
+  --slds-c-input-radius-border: 10px;
+  --slds-c-input-sizing-height: 32px;
+}
+
+.pill-combobox :global(.slds-input) {
+  border-color: #d7dbe0 !important;
+  box-shadow: none !important;
+  padding-left: 12px;
+  padding-right: 30px;
+  background: #ffffff;
+}
+
+.pill-combobox :global(.slds-input:focus) {
+  border-color: #2563eb !important;
+  box-shadow: 0px 0px 0px 3px rgba(37,99,235,0.15) !important;
+}
+
+.pill-combobox :global(.slds-input__icon) {
+  right: 10px;
+}
+
+.sg-quote{
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #fff7ed;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.product-cell{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.status-icon{
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 20px;
+}
+
+.current-badge{
+  background-color: #dee9fc;
+  color:#2941a9;
+  height: min-content;
+  margin-left: 10px;
+}
+
+.status-icon--selected{
+  background: #014486;
+}
+
+.status-icon--declined{
+  background: #9faab5;
+}
+
+.status-icon--pending{
+  background: #ffffff;
+  border: 1.5px solid #9faab5;
+}
+
+.status-icon :global(svg){
+  width: 12px;
+  height: 12px;
+  fill: #ffffff;
+}
+
+.status-icon--pending :global(svg){
+  fill: #9faab5;
+}
+
+.status-icon {
+  color: #fff;
+}
+
+.status-icon--pending {
+  color: #9faab5;
+}
+
+.status-icon :global(svg) {
+  fill: currentColor !important;
+}
+
+.status-icon--selected :global(.status-icon-svg),
+.status-icon--declined :global(.status-icon-svg) {
+  --slds-c-icon-color-foreground-default: #ffffff;
+  --slds-c-icon-color-foreground: #ffffff;
+}
+
+.status-icon--pending :global(.status-icon-svg) {
+  --slds-c-icon-color-foreground-default: #9faab5;
+  --slds-c-icon-color-foreground: #9faab5;
+}

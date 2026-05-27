@@ -1,0 +1,49 @@
+/* .picklist-edit-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px;
+}
+
+.picklist-edit-container lightning-combobox {
+    flex: 1;
+    min-width: 120px;
+}
+
+.picklist-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.save-btn, .cancel-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s;
+}
+
+.save-btn {
+    background-color: #22c55e;
+    color: white;
+}
+
+.save-btn:hover {
+    background-color: #16a34a;
+}
+
+.cancel-btn {
+    background-color: #ef4444;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #dc2626;
+} */

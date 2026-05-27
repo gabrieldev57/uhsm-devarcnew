@@ -7,6 +7,7 @@ import { chunk5 } from './omnidef_chunk5.js';
 import { chunk6 } from './omnidef_chunk6.js';
 import { chunk7 } from './omnidef_chunk7.js';
 import { chunk8 } from './omnidef_chunk8.js';
+import { chunk9 } from './omnidef_chunk9.js';
 
 
                 let def = '';
@@ -19,6 +20,7 @@ def += chunk5;
 def += chunk6;
 def += chunk7;
 def += chunk8;
+def += chunk9;
 
 
                 def = decodeURIComponent(atob(def));

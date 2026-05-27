@@ -67,7 +67,8 @@ global without sharing class ARC_PersonAccount360view implements vlocity_ins.Vlo
                                         ARC_PrimaryMemberAccount__r.ARC_E123MemberIdFromPolicy__c,
                                         ARC_PrimaryMemberAccount__r.ARC_Member_Id__c,
                                         Census_Member__c,
-                                        PersonGender FROM Account WHERE Id =: personAccountId LIMIT 1];    
+                                        PersonGender,
+                                        HealthCloudGA__SourceSystemId__c FROM Account WHERE Id =: personAccountId LIMIT 1];    
             if(personAcc != null){
                 //Sort Contracts ascending to get the newest at the end of the list.
                 List<Contract> contracts = [SELECT Id, Status, ARC_Selling_Agent__r.Name, ARC_EffectiveDate__c, ARC_RecurringMonthlyOrder__c, ARC_ContractReason__c, vlocity_ins__EnrollmentCensusId__c FROM Contract WHERE vlocity_ins__EnrollmentCensusId__c =: personAcc.Census_Member__r.vlocity_ins__CensusId__c ORDER BY ARC_EffectiveDate__c ASC,ARC_Inactive_Date__c ASC];
@@ -104,6 +105,7 @@ global without sharing class ARC_PersonAccount360view implements vlocity_ins.Vlo
                 //Member Information
                 if(personAcc.vlocity_ins__Age__pc != null)outputMap.put('CensusMemberAge', personAcc.vlocity_ins__Age__pc);
                 if(personAcc.Phone != null) outputMap.put('Phone',personAcc.Phone);
+                if(personAcc.HealthCloudGA__SourceSystemId__c != null) outputMap.put('AppUsername',personAcc.HealthCloudGA__SourceSystemId__c);
                 if(personAcc.BillingCity != null) outputMap.put('City',personAcc.BillingCity );
                 if(personAcc.BillingState != null) outputMap.put('State',personAcc.BillingState);
                 if(personAcc.BillingStreet != null) outputMap.put('Street',personAcc.BillingStreet);

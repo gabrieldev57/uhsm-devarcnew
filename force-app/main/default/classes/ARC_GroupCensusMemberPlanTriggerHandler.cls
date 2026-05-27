@@ -16,12 +16,18 @@ global without sharing class ARC_GroupCensusMemberPlanTriggerHandler{
         Map<String, Decimal> fees = setExtraMemberAndSmokerFees();
 
         for (vlocity_ins__GroupCensusMemberPlan__c g : gcmpNewMap.values()) {
+            if(g.ARC_IsTemporaryNewborn__c) continue;
             cliMap.put(g.vlocity_ins__ContractLineId__c, new List<vlocity_ins__GroupCensusMember__c>());
         }
 
-        for (vlocity_ins__GroupCensusMemberPlan__c g : [SELECT Id, vlocity_ins__ContractLineId__c, vlocity_ins__ContractLineId__r.vlocity_ins__Product2Id__r.vlocity_ins__RatingCalcProcedureName__c, vlocity_ins__ContractLineId__r.ARC_OriginalPrice__c ,vlocity_ins__ContractLineId__r.vlocity_ins__UnitPrice__c, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__IsPrimaryMember__c, vlocity_ins__GroupCensusMemberId__r.ARC_Smoker__c, vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressState__c, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__IsSpouse__c, vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c FROM vlocity_ins__GroupCensusMemberPlan__c WHERE vlocity_ins__ContractLineId__c IN :cliMap.keySet() AND vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c = 'Medical' AND vlocity_ins__GroupCensusMemberId__c != null]) {
+        for (vlocity_ins__GroupCensusMemberPlan__c g : [SELECT Id, vlocity_ins__ContractLineId__c, vlocity_ins__ContractLineId__r.vlocity_ins__Product2Id__r.vlocity_ins__RatingCalcProcedureName__c, vlocity_ins__ContractLineId__r.ARC_OriginalPrice__c ,vlocity_ins__ContractLineId__r.vlocity_ins__UnitPrice__c, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__IsPrimaryMember__c, vlocity_ins__GroupCensusMemberId__r.ARC_Smoker__c, vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressState__c, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__IsSpouse__c, vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c, ARC_IsTemporaryNewborn__c, vlocity_ins__GroupCensusMemberId__r.ARC_GroupCensusRecordTypeName__c FROM vlocity_ins__GroupCensusMemberPlan__c WHERE vlocity_ins__ContractLineId__c IN :cliMap.keySet() AND vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c = 'Medical' AND vlocity_ins__GroupCensusMemberId__c != null]) {
+            // Skip if is not Individual And Family or if is a temporary newborn
+            if (g.vlocity_ins__GroupCensusMemberId__r.ARC_GroupCensusRecordTypeName__c != 'ARC_IndividualAndFamily') continue;
+            if(g.ARC_IsTemporaryNewborn__c) continue;
+
             Id cliId = g.vlocity_ins__ContractLineId__c;
             Id contractId = g.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c;
+      
             if (!clisToUpdateMap.containsKey(cliId)) {
                 clisToUpdateMap.put(cliId, new vlocity_ins__ContractLineItem__c(Id = cliId));
             }
@@ -50,6 +56,7 @@ global without sharing class ARC_GroupCensusMemberPlanTriggerHandler{
                 cli.ARC_SmokerFee__c = smokersMap.get(cliId) * fees.get(SMOKER_PROPERTY);
             }
         }
+
         for(Id cliId: clisToUpdateMap.keySet()){
             vlocity_ins__ContractLineItem__c cli = clisToUpdateMap.get(cliId);
             Decimal totalFees =0;

@@ -1,0 +1,66 @@
+/* PaymentInfoSection Styles */
+
+:host {
+    display: block;
+}
+
+/* Info Banner */
+.info-banner {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%);
+    border-radius: 0.5rem;
+}
+
+.info-banner .info-icon {
+    flex-shrink: 0;
+    margin-right: 0.75rem;
+    --slds-c-icon-color-foreground-default: #0369A1;
+}
+
+.info-banner .info-text {
+    color: #0C4A6E;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+    position: relative;
+    min-height: 200px;
+}
+
+/* Saving Overlay */
+.saving-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(2px);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+
+.saving-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.billing-address{
+    background: #EFF6FF;
+    border: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}

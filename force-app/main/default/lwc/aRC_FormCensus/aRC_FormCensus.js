@@ -279,6 +279,12 @@ export default class ARC_FormCensus extends OmniscriptBaseMixin(LightningElement
             return;
         }
         const census_member_details = await GET_InactiveCensusMemberDetails(this, this.select_existing_member_value);
+        census_member_details.IsNewborn = census_member_details.ARC_Relationship__c.value == 'Temporary Newborn';
+        if(census_member_details.ARC_Relationship__c.value == 'Temporary Newborn'){
+            census_member_details.ARC_Relationship__c.value = 'Child';
+        }
+        
+
         let [census_members, census_errors, is_form_valid] = addExistingMember(this.census_members, census_member_details, this.census_errors);
         this.refreshCensusUI(census_members, census_errors, is_form_valid);
         this.template.querySelector('.add-inactive-member-modal')?.closeModal();

@@ -70,6 +70,7 @@ public without sharing class ARC_LeadSourceTriggerHandler {
             'utm_term' => 'search_term__c',
             'utm_content' => 'content__c',
             'campaignid' => 'google_campaign_id__c',
+            'gc_id' => 'google_campaign_id__c',
             'adgroupid' => 'google_ad_group_id__c',
             'targetid' => 'google_target_id__c',
             'loc_interest_ms' => 'google_loc_interest_ms__c',
@@ -82,7 +83,7 @@ public without sharing class ARC_LeadSourceTriggerHandler {
             'keyword' => 'keyword__c',
             'placement' => 'google_placement__c',
             'adposition' => 'google_ad_position__c',
-            'gc_id' => 'click_id__c',
+            'gclid' => 'click_id__c',
             'ad_id' => 'ad_id__c',
             'fbclid' => 'meta_pixel_id__c'
             };

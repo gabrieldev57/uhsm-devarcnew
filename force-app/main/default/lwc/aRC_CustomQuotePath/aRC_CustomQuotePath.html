@@ -1,0 +1,63 @@
+<template>
+    <section class="slds-card">
+        <div class="slds-card__body slds-card__body_inner slds-p-top_small">
+            <div class="slds-path">
+                <div class="slds-grid slds-path__track">
+                    <div class="slds-grid slds-path__scroller-container">
+                        <div class="slds-path__scroller">
+                            <div class="slds-path__scroller_inner">
+                                <ul class="slds-path__nav" role="listbox" aria-orientation="horizontal">
+                                    <template for:each={steps} for:item="s">
+                                        <li key={s.value} class={s.className} role="presentation">
+                                            <a class="slds-path__link" href="javascript:void(0);" tabindex="0"
+                                                role="option" aria-selected={s.isSelected} data-value={s.value}
+                                                onclick={handleStepClick}>
+                                                <span class="slds-path__stage">
+                                                    <lightning-icon icon-name="utility:check" size="x-small"
+                                                        variant="inverse"></lightning-icon>
+                                                </span>
+
+                                                <span class="slds-path__title">{s.label}</span>
+                                            </a>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="slds-path__action">
+                        <lightning-button variant="brand" label={actionLabel} onclick={handleSave}
+                            disabled={isActionDisabled}>
+                        </lightning-button>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <template if:true={showConfirmModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">Confirm status change</h2>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p>You’re moving from <b>{currentStatus}</b> to <b>Accepted</b>.</p>
+                    <p class="slds-m-top_small">Program selection cannot be undone. Once you approve program selections,
+                        the contract record is created. Please ensure program selections are accurate and approved by
+                        the employer.</p>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={closeModal} class="cancel-btn"></lightning-button>
+                    <lightning-button variant="brand" label="Confirm" onclick={confirmAccepted}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

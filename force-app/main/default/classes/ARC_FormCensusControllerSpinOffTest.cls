@@ -297,8 +297,7 @@ public with sharing class ARC_FormCensusControllerSpinOffTest{
                 }
             }
         };
-        System.debug(JSON.serializePretty(expectedOutputMap));
-        System.debug(JSON.serializePretty(outputMap));
+
         // Asserts
         Assert.areEqual(JSON.serialize(outputMap), JSON.serialize(expectedOutputMap));
     }

@@ -5,31 +5,35 @@
 * @MethodName         :   getRenewalDiscountCodes, getContractsApplicableForRenewalDiscounts, createRenewalDiscounts
 ********************************************************************/
 public without sharing class ARC_ScheduleRenewalDiscountCreation implements Schedulable {
-    //HOW TO EXECUTE THIS JOB FOR A SPECIFIC RENEWAL DATE
+    // HOW TO EXECUTE THIS JOB FOR A SPECIFIC RENEWAL DATE
     // ARC_ScheduleRenewalDiscountCreation renewalDisc = new ARC_ScheduleRenewalDiscountCreation();
     // renewalDisc.hardCodedDate = Date.newInstance(2025,01,01);
     // renewalDisc.execute(null);   
 
-    private  List<ARC_PromotionCode__c> renewalDiscountCodes = [SELECT Id, name,ARC_DiscountRate__c,ARC_RenewalDiscountNumber__c FROM ARC_PromotionCode__c WHERE RecordType.Name = 'Renewal Discount' AND ARC_Active__c = TRUE ORDER BY ARC_RenewalDiscountNumber__c ASC];
-    private ARC_PromotionCode__c lastRenewalDiscount = new ARC_PromotionCode__c();
     public Date hardCodedDate;
      
     public void execute(SchedulableContext SC) {
+        //Get all the Renewal Discount Codes
+        List<ARC_PromotionCode__c> renewalDiscountCodes = [SELECT Id, name,ARC_DiscountRate__c,ARC_RenewalDiscountNumber__c FROM ARC_PromotionCode__c WHERE RecordType.Name = 'Renewal Discount' AND ARC_Active__c = TRUE ORDER BY ARC_RenewalDiscountNumber__c ASC];
+        // Get the last renewal discount dynamically
+        ARC_PromotionCode__c lastRenewalDiscount = renewalDiscountCodes.isEmpty() ? null : renewalDiscountCodes[renewalDiscountCodes.size() - 1];
+        System.debug('lastRenewalDiscount ' + lastRenewalDiscount);
+
         Map<Integer,List<Contract>> renewalNumberContractsMap = new Map<Integer,List<Contract>>();
-        //Get all the Renewal Discounts Codes
+        // Get all the Renewal Discounts Codes
         Map<Integer,ARC_PromotionCode__c> renewalDiscountCodesMap = getRenewalDiscountCodes(renewalDiscountCodes);
-        //Validates that no more than 50 querys areg going to be executed to not exeed the Governor Limits
-        if(renewalDiscountCodesMap.size() <= 50){
-            //Get all the Contracts applicable for Renewal Discounts
-            for(Integer renewalNumber: renewalDiscountCodesMap.keySet()){
-                List<Contract> contractsToCreateRD = getContractsApplicableForRenewalDiscounts(renewalNumber);
-                if(contractsToCreateRD != null && contractsToCreateRD.size()>0){
+        // Validates that no more than 50 querys areg going to be executed to not exeed the Governor Limits
+        if (renewalDiscountCodesMap.size() <= 50) {
+            // Get all the Contracts applicable for Renewal Discounts
+            for (Integer renewalNumber : renewalDiscountCodesMap.keySet()) {
+                List<Contract> contractsToCreateRD = getContractsApplicableForRenewalDiscounts(renewalNumber, lastRenewalDiscount);
+                if (contractsToCreateRD != null && contractsToCreateRD.size() > 0) {
                     renewalNumberContractsMap.put(renewalNumber,contractsToCreateRD);
                 }
             }
             //Create the Renewal Discounts and deactivate the previous one if exist
-            if(renewalNumberContractsMap != null && !renewalNumberContractsMap.isEmpty()){
-                createRenewalDiscounts(renewalNumberContractsMap,renewalDiscountCodesMap);
+            if (renewalNumberContractsMap != null && !renewalNumberContractsMap.isEmpty()) {
+                createRenewalDiscounts(renewalNumberContractsMap, renewalDiscountCodesMap);
             }
         }
     }
@@ -37,12 +41,11 @@ public without sharing class ARC_ScheduleRenewalDiscountCreation implements Sche
     * @MethodName         :   getRenewalDiscountCodes
     * @Description        :   Build a Map of Renewal Number and Renewal Discount Code
     ********************************************************************/    
-    public Map<Integer,ARC_PromotionCode__c> getRenewalDiscountCodes(List<ARC_PromotionCode__c> renewalCodes){
-        if(renewalCodes.isEmpty()) return null;
-        Map<Integer,ARC_PromotionCode__c> renewalMaps = new Map<Integer,ARC_PromotionCode__c>();
-        for(ARC_PromotionCode__c rc: renewalCodes){
-            renewalMaps.put(Integer.valueOf(rc.ARC_RenewalDiscountNumber__c),rc);
-            this.lastRenewalDiscount=rc;
+    public Map<Integer, ARC_PromotionCode__c> getRenewalDiscountCodes(List<ARC_PromotionCode__c> renewalCodes) {
+        if (renewalCodes.isEmpty()) return null;
+        Map<Integer,ARC_PromotionCode__c> renewalMaps = new Map<Integer, ARC_PromotionCode__c>();
+        for (ARC_PromotionCode__c rc : renewalCodes) {
+            renewalMaps.put(Integer.valueOf(rc.ARC_RenewalDiscountNumber__c), rc);
         }
         return renewalMaps;
     }
@@ -50,16 +53,17 @@ public without sharing class ARC_ScheduleRenewalDiscountCreation implements Sche
     * @MethodName         :   getContractsApplicableForRenewalDiscounts
     * @Description        :   Get all the Contracts applicable for any of the Renewal Discounts
     ********************************************************************/ 
-    public List<Contract> getContractsApplicableForRenewalDiscounts(Integer renewalNumber){
+    public List<Contract> getContractsApplicableForRenewalDiscounts(Integer renewalNumber, ARC_PromotionCode__c lastRenewalDiscount) {
         System.debug('Renewal number '+ renewalNumber);
         Date nYearsAgoDate = Date.Today().addYears(-renewalNumber); 
-        if(this.hardCodedDate != null) nYearsAgoDate = this.hardCodedDate.addYears(-renewalNumber);
+        if (this.hardCodedDate != null) nYearsAgoDate = this.hardCodedDate.addYears(-renewalNumber);
         Date oneYearBeforeNYearsAgoDate = nYearsAgoDate.addYears(-1);
         List<Contract> contractList;
 
 
         Id rtRenewalDiscount = Schema.SObjectType.ARC_PromotionDiscount__c.getRecordTypeInfosByDeveloperName().get('Renewal_Discount').getRecordTypeId();
-        List<ARC_PromotionDiscount__c> excludedActiveRenewals = [SELECT Id, ARC_Contract__c FROM ARC_PromotionDiscount__c WHERE RecordTypeId = :rtRenewalDiscount AND ARC_RenewalDiscountNumber__c = :renewalNumber AND (ARC_Status__c = 'Activated' OR ARC_Status__c = 'Awaiting Activation')];
+        List<ARC_PromotionDiscount__c> excludedActiveRenewals = [SELECT Id, ARC_Contract__c FROM ARC_PromotionDiscount__c WHERE RecordTypeId = :rtRenewalDiscount AND ARC_RenewalDiscountNumber__c = :renewalNumber AND (ARC_Status__c = 'Activated' OR ARC_Status__c = 'Awaiting Activation') AND (ARC_Contract__r.Status LIKE 'Awaiting%' OR ARC_Contract__r.Status = 'Activated')];
+        
         Set<Id> excludedContractIds = new Set<Id>();
         for (ARC_PromotionDiscount__c discount : excludedActiveRenewals) {
             if (discount.ARC_Contract__c != null) {
@@ -68,7 +72,7 @@ public without sharing class ARC_ScheduleRenewalDiscountCreation implements Sche
         }
 
 
-        if(renewalNumber == this.lastRenewalDiscount?.ARC_RenewalDiscountNumber__c){
+        if (renewalNumber == lastRenewalDiscount?.ARC_RenewalDiscountNumber__c) {
             contractList = [SELECT  Id,
                                     vlocity_ins__EnrollmentCensusId__r.ARC_MinContinuousMembershipStartDate__c
                             FROM Contract 
@@ -76,9 +80,10 @@ public without sharing class ARC_ScheduleRenewalDiscountCreation implements Sche
                                     AND vlocity_ins__EnrollmentCensusId__r.ARC_MinContinuousMembershipStartDate__c <= :nYearsAgoDate 
                                     AND Status = 'Activated'
                                     AND ARC_PaidThroughDate__c >= TODAY
+                                    AND (NOT (ARC_MedicalPlan__r.vlocity_ins__ProductCode__c LIKE '%Premier%'))
+                                    AND RecordType.DeveloperName = 'ARC_IndividualAndFamily'
                             ];
-        }
-        else{
+        } else {
             contractList = [SELECT  Id ,
                                     vlocity_ins__EnrollmentCensusId__r.ARC_MinContinuousMembershipStartDate__c
                             FROM Contract 
@@ -87,12 +92,14 @@ public without sharing class ARC_ScheduleRenewalDiscountCreation implements Sche
                                     AND vlocity_ins__EnrollmentCensusId__r.ARC_MinContinuousMembershipStartDate__c > :oneYearBeforeNYearsAgoDate
                                     AND Status = 'Activated'
                                     AND ARC_PaidThroughDate__c >= TODAY
+                                    AND (NOT (ARC_MedicalPlan__r.vlocity_ins__ProductCode__c LIKE '%Premier%'))
+                                    AND RecordType.DeveloperName = 'ARC_IndividualAndFamily'
                             ];
         }
         System.debug('contractList ' + contractList);
-        if (contractList != null && contractList.size()>0){
+        if (contractList != null && contractList.size() > 0) {
             String apexErrorEmail = System.Label.ARC_ApexErrorEmail;
-            ARC_QueableSendFileBatch.sendEmailNotification(('excludedContractIds '+ excludedContractIds + ' - contractList '+ contractList), 'excludedContractIds -- ScheduleRenewalDiscountCreation RENEWAL NUMBER ' + renewalNumber, apexErrorEmail);
+            ARC_QueableSendFileBatch.sendEmailNotification(('excludedContractIds ' + excludedContractIds + ' - contractList ' + contractList), 'excludedContractIds -- ScheduleRenewalDiscountCreation RENEWAL NUMBER ' + renewalNumber, apexErrorEmail);
         }
         return contractList;
     }
@@ -102,8 +109,8 @@ public without sharing class ARC_ScheduleRenewalDiscountCreation implements Sche
                               Deactivate the previous Renewal Discount if exist.
                               Also send the Email to the Primary Member of the contract
     ********************************************************************/ 
-    public void createRenewalDiscounts(Map<Integer,List<Contract>> renewalContractsMap, Map<Integer,ARC_PromotionCode__c> renewalCodesMap){
-        if(renewalContractsMap != null && !renewalContractsMap.isEmpty() ){
+    public void createRenewalDiscounts(Map<Integer,List<Contract>> renewalContractsMap, Map<Integer,ARC_PromotionCode__c> renewalCodesMap) {
+        if (renewalContractsMap != null && !renewalContractsMap.isEmpty()) {
             Id rtRenewalDiscount = Schema.SObjectType.ARC_PromotionDiscount__c.getRecordTypeInfosByDeveloperName().get('Renewal_Discount').getRecordTypeId();
             List<ARC_PromotionDiscount__c> renewalDiscountsToCreate = new List<ARC_PromotionDiscount__c>();
             List<ARC_PromotionDiscount__c> renewalDiscountsToDeactivate = new List<ARC_PromotionDiscount__c>();
@@ -111,10 +118,10 @@ public without sharing class ARC_ScheduleRenewalDiscountCreation implements Sche
             Map<Id,ARC_PromotionDiscount__c> contractRenewalToDeactivate = new Map<Id,ARC_PromotionDiscount__c>();
             Set<Id> newRenewalIds = new Set<Id>();
             
-            for(Integer renewalNumber: renewalContractsMap.keySet()){
+            for (Integer renewalNumber: renewalContractsMap.keySet()) {
                 ARC_PromotionCode__c renewalCode = renewalCodesMap.get(renewalNumber);
                 List<Contract> contractsApplicableForRenewals = renewalContractsMap.get(renewalNumber);
-                for(Contract con: contractsApplicableForRenewals){
+                for (Contract con: contractsApplicableForRenewals) {
                     ARC_PromotionDiscount__c renDiscount = new ARC_PromotionDiscount__c(
                         ARC_Contract__c = con.Id,
                         ARC_PromoCode__c = renewalCode.Id,
@@ -122,16 +129,16 @@ public without sharing class ARC_ScheduleRenewalDiscountCreation implements Sche
                         RecordTypeId = rtRenewalDiscount,
                         ARC_StartDate__c = Date.Today()
                     );
-                    if(this.hardCodedDate != null) renDiscount.ARC_StartDate__c = this.hardCodedDate;
+                    if (this.hardCodedDate != null) renDiscount.ARC_StartDate__c = this.hardCodedDate;
                     renewalDiscountsToCreate.add(renDiscount);
                 }
             }
-            try{
+            try {
                 ARC_CreateDiscountsBatch batch = new ARC_CreateDiscountsBatch(renewalDiscountsToCreate);
                 Database.executeBatch(batch, 200); // 200 is the batch size
-            }catch(Exception e){
+            } catch (Exception e) {
                 String apexErrorEmail = System.Label.ARC_ApexErrorEmail;
-                ARC_QueableSendFileBatch.sendEmailNotification(('Error in ARC_ScehduleRenewalDiscountCreation: '+e.getMessage()), 'ERROR ScheduleRenewalDiscountCreation', apexErrorEmail);
+                ARC_QueableSendFileBatch.sendEmailNotification(('Error in ARC_ScehduleRenewalDiscountCreation: ' + e.getMessage()), 'ERROR ScheduleRenewalDiscountCreation', apexErrorEmail);
             }
         }
     }

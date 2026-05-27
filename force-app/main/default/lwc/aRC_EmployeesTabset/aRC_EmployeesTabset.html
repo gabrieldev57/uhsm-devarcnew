@@ -1,0 +1,18 @@
+<template>
+    <div class="tabs-container">
+        <div class="tabs-header">
+            <ul class="tab-list" role="tablist">
+                <li for:each={tabs} for:item="tab" key={tab.value} class={tab.headerClass} onclick={handleTabClick} 
+                       data-value={tab.value}>
+                    <a href="javascript:void(0);" 
+                       role="tab" >
+                        {tab.label}
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="tabs-content">
+            <slot></slot>
+        </div>
+    </div>
+</template>

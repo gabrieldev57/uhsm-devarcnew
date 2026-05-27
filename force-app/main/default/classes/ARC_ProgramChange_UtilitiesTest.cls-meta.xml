@@ -3,7 +3,7 @@
     <apiVersion>63.0</apiVersion>
     <packageVersions>
         <majorNumber>7</majorNumber>
-        <minorNumber>70</minorNumber>
+        <minorNumber>75</minorNumber>
         <namespace>ChargentBase</namespace>
     </packageVersions>
     <packageVersions>

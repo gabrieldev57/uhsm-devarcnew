@@ -2,6 +2,7 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
     global Boolean invokeMethod(String methodName, Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
         switch on methodName {
             when 'DocuSignDataTransform'                         { DocuSignDataTransform(inputMap, outputMap, options); }
+            when 'getDocuSignData'                               { getDocuSignData(inputMap, outputMap, options); }
             when else                                            { throw new AuraHandledException('Unknown method: ' + methodName); }
         }
         return true;
@@ -66,7 +67,6 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
     private static List<Object> oldProductList = new List<Object>();
     private static List<Object> newProductList = new List<Object>();
     private static List<String> pcReasons = new List<String>();
-    private static Set<String> oldProductNames = new Set<String>();
     private static Map<String,Object> medicalQuestions = new Map<String,Object>();
     private static List<Object> trueQuestionsList = new List<Object>();
     private static List<Object> pastConditionsList = new List<Object>();
@@ -79,6 +79,346 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
     private static String keepCurrentPaymentMethod;
     private static List<String> fullAddressList = new List<String>();
 
+    private static Integer dependentCount = 0;
+    private static String docuSignToBeSent;
+    private static Boolean medicareInfoChanged = false;
+    private static List<Map<String,Object>> signerList = new List<Map<String,Object>>();
+    private static List<String> templatesIdList = new List<String>();
+    private static Map<String,Object> docuSignDataMap = new Map<String,Object>();
+    private static Map<String,Object> docuSignOutputMap = new Map<String,Object>();
+    private static Map<String,Object> docuSignOptionsMap = new Map<String,Object>();
+    private static Map<String,Object> signerInfoMap = new Map<String,Object>();
+    private static Map<String,Object> oldPrimary = new Map<String,Object>();
+    private static Map<String,Object> pcReasonsMap = new Map<String,Object>();
+    private static Map<String,Object> legalGuardian = new Map<String,Object>();
+
+
+    /*******************************************************************
+    * @MethodName         :   getDocuSignData
+    * @Description        :   method to get and format all required information for DS
+    ********************************************************************/
+    public static void getDocuSignData(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        // BUILD ALL THE REQUIRED DATA
+
+        // Get signer info from JSON
+        if (inputMap.containsKey('STEP_SignTheDocument') && inputMap.get('STEP_SignTheDocument') != null) {
+            if (((Map<String,Object>)inputMap.get('STEP_SignTheDocument')).get('Recipient-Block') != null) {
+                signerInfoMap = (Map<String,Object>)((Map<String,Object>)inputMap.get('STEP_SignTheDocument')).get('Recipient-Block');
+            } else if (((Map<String,Object>)inputMap.get('STEP_SignTheDocument')).get('RecipientReadOnly-Block') != null) {
+                signerInfoMap = (Map<String,Object>)((Map<String,Object>)inputMap.get('STEP_SignTheDocument')).get('RecipientReadOnly-Block');
+            }
+        }
+
+        // Get pcChanges from input JSON
+        Map<String,Object> pcChangesMap = inputMap.containsKey('pcChanges') ? (Map<String,Object>)inputMap.get('pcChanges') : new Map<String,Object>();
+        pcReasonsMap = pcChangesMap.containsKey('pcReasons') ? (Map<String,Object>)pcChangesMap.get('pcReasons') : new Map<String,Object>();
+        docuSignToBeSent = pcChangesMap.containsKey('docuSign') ? (String)pcChangesMap.get('docuSign') : null;
+        Boolean isProgramUpgrade = pcReasonsMap.containsKey('programUpgrade') ? (Boolean)pcReasonsMap.get('programUpgrade') : false;
+        Boolean isAddMember = pcReasonsMap.containsKey('addMember') ? (Boolean)pcReasonsMap.get('addMember') : false;
+        Boolean isAddExistingMember = pcReasonsMap.containsKey('addExistingMember') ? (Boolean)pcReasonsMap.get('addExistingMember') : false;
+
+        memberList = inputMap.containsKey('census_component') ? (List<Object>)((Map<String,Object>)inputMap.get('census_component')).get('census_members'): new List<Object>();
+        Map<String,Object> memberInfo = new Map<String,Object>();
+        List<Object> allMembersInfo = new List<Object>();
+        for (Object member : memberList) {
+            Map<String,Object> memberMap = transformMemberMapKeys((Map<String,Object>)member);
+            if ((Boolean)memberMap.get('IsRemoveMember') == false) {
+                String memberRelationship = (String)memberMap.get('Relationship');
+                if (memberRelationship == 'Primary') primaryMember = memberMap;
+                if (memberRelationship == 'Spouse') spouseMember = memberMap;
+                if (memberRelationship == 'Child') dependents.add(memberMap);
+                dependentCount = memberRelationship == 'Primary' || memberRelationship == 'Spouse' ? dependentCount : dependentCount + 1;
+            }
+            allMembersInfo.add(memberMap);
+        }
+        memberInfo.put('primaryMember', primaryMember);
+        memberInfo.put('spouseMember', !spouseMember.isEmpty() ? spouseMember : null);
+        memberInfo.put('dependentMembers', !dependents.isEmpty() ? dependents : null);
+        // Get old primary member if primaryChange is TRUE
+        Boolean primaryChange = pcReasonsMap.containsKey('primaryChange') ? (Boolean)pcReasonsMap.get('primaryChange') : false;
+        if (primaryChange) {
+            List<Object> initialMemberList = inputMap.containsKey('census_component') ? (List<Object>)((Map<String,Object>)inputMap.get('census_component')).get('initial_values'): new List<Object>();
+            for (Object initialMember : initialMemberList) {
+                Map<String,Object> tempMemberMap = (Map<String,Object>)initialMember;
+                if ((String)((Map<String,Object>)tempMemberMap.get('ARC_Relationship__c')).get('value') == 'Primary') {
+                    oldPrimary = tempMemberMap;
+                    if (Integer.valueOf(tempMemberMap.get('ARC_Age__c')) < 18 && inputMap.containsKey('FinalHipaaRecipients') && inputMap.get('FinalHipaaRecipients') != null) {
+                        for (Object hipaa : (List<Object>)inputMap.get('FinalHipaaRecipients')) {
+                            Map<String,Object> hipaaMap = (Map<String,Object>)hipaa;
+                            if (hipaaMap.get('role') == 'Legal Guardian') legalGuardian = hipaaMap;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Get medical program complete map
+        newProductList = (List<Object>)inputMap.get('NewProductList');
+        Map<String,Object> medicalProgramMap = new Map<String,Object>();
+        for (Object product : newProductList) {
+            Map<String,Object> productMap = (Map<String,Object>)((Map<String,Object>)product).get('selectedProduct');
+            if ((String)productMap.get('Type__c') == 'Medical') medicalProgramMap = (Map<String,Object>)product;
+        }
+
+        // Check if Medicare Step has data and medicare info has been changed
+        Map<String,Object> medicareInfoMap = new Map<String,Object>();
+        if (inputMap.containsKey('STEP_MedicareCoverage') && inputMap.get('STEP_MedicareCoverage') != null) {
+            if (((Map<String,Object>)inputMap.get('STEP_MedicareCoverage')).get('BLK_MedicareId') != null) {
+                medicareInfoMap = (Map<String,Object>)((Map<String,Object>)inputMap.get('STEP_MedicareCoverage')).get('BLK_MedicareId');
+                medicareInfoChanged = medicareInfoMap.get('FRML_MedicareInformationChange') != null ? (Boolean)medicareInfoMap.get('FRML_MedicareInformationChange') : false;
+            }
+        }
+
+        // Build Medical Questions Step
+        Boolean isCarryOverMedicalQuestions = pcChangesMap.containsKey('carryOverMedicalQuestions') ? (Boolean)pcChangesMap.get('carryOverMedicalQuestions') : false;
+        Map<String,Object> medicalQuestionsMap = (Map<String,Object>)inputMap.get('STEP_MedicalQuestions');
+        if (!isProgramUpgrade && !isCarryOverMedicalQuestions) {
+            Map<String,Object> MQinputMap = new Map<String,Object>(); Map<String,Object> MQoutputMap = new Map<String,Object>(); Map<String,Object> MQoptionsMap = new Map<String,Object>();
+            MQinputMap.put('censusMembers', memberList);
+            MQinputMap.put('oldContractId', (String)((Map<String,Object>)inputMap.get('SelectedContractInfo')).get('ContractID'));
+            Map<String,Object> tmpPcChangesMap = pcChangesMap;
+            tmpPcChangesMap.put('carryOverMedicalQuestions', true);
+            ((Map<String,Object>)tmpPcChangesMap.get('pcReasons')).put('addExistingMember', false);
+            MQinputMap.put('pcChanges', tmpPcChangesMap);
+            ARC_ProgramChange_Utilities.readMedicalQuestions(MQinputMap, MQoutputMap, MQoptionsMap);
+            System.debug('PC Utilities MQ output: ' + JSON.serializePretty((Map<String,Object>)MQoutputMap.get('STEP_MedicalQuestions')) );
+            medicalQuestionsMap = (Map<String,Object>)MQoutputMap.get('STEP_MedicalQuestions');
+            if (isAddMember || isAddExistingMember) {
+                Map<String,Object> addMemberMQ = inputMap.containsKey('STEP_MedicalQuestions') ? (Map<String,Object>)inputMap.get('STEP_MedicalQuestions') : null;
+                if (addMemberMQ != null) {
+                    Map<String,Object> mergedMedicalQuestionsMap = mergeMedicalQuestions(addMemberMQ, medicalQuestionsMap);
+                    medicalQuestionsMap = mergedMedicalQuestionsMap;
+                    System.debug(JSON.serializePretty(medicalQuestionsMap));
+                }
+            }
+        }
+
+        // Get Guardian information if step is not displayed
+        String guardianId = ((Map<String,Object>)inputMap.get('SelectedContractInfo')).containsKey('GuardianId') && ((Map<String,Object>)inputMap.get('SelectedContractInfo')).get('GuardianId') != null ? (String)((Map<String,Object>)inputMap.get('SelectedContractInfo')).get('GuardianId'): null;
+        System.debug('Guardin ID: ' + guardianId);
+        Map<String,Object> guardianMap = new Map<String,Object>();
+        if (inputMap.get('STEP_GuardiansInfo') == null) guardianMap = getGuardianInfo(guardianId);
+
+        if (docuSignToBeSent == 'Amendment') {
+            docuSignDataMap.put('amendmentReasons', pcChangesMap.containsKey('amendmentReasons') ? pcChangesMap.get('amendmentReasons') : '');
+            docuSignDataMap.put('primaryMember', inputMap.containsKey('PrimaryMember') ? inputMap.get('PrimaryMember') : new Map<String,Object>());
+            docuSignDataMap.put('selectedContractInfo', inputMap.containsKey('SelectedContractInfo') ? inputMap.get('SelectedContractInfo') : new Map<String,Object>());
+            docuSignDataMap.put('medicareInfo', medicareInfoMap);
+        } else {
+            Map<String,Object> docuSignMap = new Map<String,Object>();
+            docuSignMap.put('Hipaa', inputMap.get('FinalHipaaRecipients'));
+            docuSignMap.put('Medicare', inputMap.get('STEP_MedicareCoverage'));
+            docuSignMap.put('NewProductList', inputMap.get('NewProductList'));
+            docuSignMap.put('OldProductList', inputMap.get('OldProductList'));
+            docuSignMap.put('PlanSummary', inputMap.get('PlansSummary'));
+            docuSignMap.put('STEP_EffectiveDate', inputMap.get('STEP_EffectiveDate'));
+            docuSignMap.put('STEP_MedicalQuestions', medicalQuestionsMap);
+            docuSignMap.put('STEP_SignTheDocument', inputMap.get('STEP_SignTheDocument'));
+            docuSignMap.put('SelectedContractInfo', inputMap.get('SelectedContractInfo'));
+            docuSignMap.put('Step_PaymentChangeFee', inputMap.get('Step_PaymentChangeFee'));
+            docuSignMap.put('pcChanges', inputMap.get('pcChanges'));
+            docuSignMap.put('userId', String.valueOf(inputMap.get('userId')));
+            docuSignMap.put('guardianInfo', inputMap.get('STEP_GuardiansInfo') == null ? guardianMap : inputMap.get('STEP_GuardiansInfo'));
+
+
+            // Build map to pass to mapping method
+            docuSignDataMap.put('MembersInfo', memberInfo);
+            docuSignDataMap.put('MembersList', memberList);
+            docuSignDataMap.put('allMembersInfo', allMembersInfo);
+            docuSignDataMap.put('primaryState', (String)primaryMember.get('State'));
+            docuSignDataMap.put('EffectiveDate', (String)inputMap.get('EffectiveDate'));
+            docuSignDataMap.put('UpdateType', (String)inputMap.get('UpdateTypes'));
+            docuSignDataMap.put('newMedicalProduct', medicalProgramMap);
+            docuSignDataMap.put('DocuSign', docuSignMap);
+        }
+
+        // BUILD THE SIGNER LIST
+        getSignerList();
+
+        // GET ALL THE REQUIRED TEMPLATES
+        getDocuSignTemplateIds();
+
+        // MAP ALL THE PROGRAM CHANGE INFORMATION
+        if (docuSignToBeSent == 'Amendment') {
+            DocuSignAmendmentDataTransform(docuSignDataMap, docuSignOutputMap, docuSignOptionsMap);
+        } else {
+            DocuSignDataTransform(docuSignDataMap, docuSignOutputMap, docuSignOptionsMap);
+        }
+        
+        System.debug('OUTPUT MAP: ' + docuSignOutputMap);
+        System.debug('SIGNER LIST: ' + signerList);
+        System.debug('TEMPLATES IDS LIST: ' + templatesIdList);
+        Map<String,Object> envelopeMap = new Map<String,Object>{
+            'signerList' => signerList,
+            'templateIdList' => templatesIdList,
+            'tabs' => docuSignOutputMap.get('tabs')
+        };
+        outputMap.put('EnvelopeInformation', envelopeMap);
+    }
+
+    /*******************************************************************
+    * @MethodName         :   getSignerList
+    * @Description        :   method to get the signer list
+    ********************************************************************/
+    private static void getSignerList() {
+        System.debug('Getting signer list...');
+
+        // First build selected signer map
+        Integer recipientCount = 0;
+        Map<String,Object> selectedSignerMap = new Map<String,Object>();
+        selectedSignerMap.put('recipientId', '1');
+        selectedSignerMap.put('name', (String)signerInfoMap.get('Name'));
+        selectedSignerMap.put('email', (String)signerInfoMap.get('value'));
+        selectedSignerMap.put('deliveryMethod', 'Email');
+        selectedSignerMap.put('roleName', 'Primary');
+        signerList.add(selectedSignerMap);
+        recipientCount++;
+
+        Integer signerDependentCount = 0;
+        if (oldPrimary != null && !oldPrimary.isEmpty() && (Boolean)pcReasonsMap.get('primaryChange')) {
+            signerDependentCount++;
+            recipientCount++;
+            Integer oldPrimaryAge = Integer.valueOf(oldPrimary.get('ARC_Age__c'));
+            if (oldPrimaryAge >= 18) {
+                Map<String,Object> signerMap = new Map<String,Object>{
+                    'recipientId' => String.valueOf(recipientCount),
+                    'roleName' => 'Dependent' + String.valueOf(signerDependentCount),
+                    'name' => (String)oldPrimary.get('fullName'),
+                    'email' => (String)((Map<String,Object>)oldPrimary.get('vlocity_ins__Email__c')).get('value'),
+                    'deliveryMethod' => 'Email'
+                };
+                signerList.add(signerMap);
+            } else if (legalGuardian != null && !legalGuardian.isEmpty()) {
+                Map<String,Object> signerMap = new Map<String,Object>{
+                    'recipientId' => String.valueOf(recipientCount),
+                    'roleName' => 'Dependent' + String.valueOf(signerDependentCount),
+                    'name' => (String)legalGuardian.get('Name'),
+                    'email' => (String)legalGuardian.get('value'),
+                    'deliveryMethod' => 'Email'
+                };
+                signerList.add(signerMap);
+            }            
+        }
+        for (Object member : memberList) {
+            Map<String,Object> memberMap = (Map<String,Object>)member;
+            Integer memberAge = Integer.valueOf(memberMap.get('ARC_Age__c'));
+            String memberRelationship = (String)memberMap.get('ARC_Relationship__c'); System.debug('Relationship: ' + memberRelationship);
+            System.debug('Member Age: ' + memberAge + ' and is new member? ' + (Boolean)memberMap.get('IsNewMember'));
+            // ADD TO SIGNER LIST ONLY IF IT IS ADD MEMBER AND +18
+            if (memberAge >= 18 && (Boolean)memberMap.get('IsNewMember') && memberRelationship != 'Primary') {
+                if (memberRelationship == 'Child') signerDependentCount++;
+                recipientCount++;
+                Map<String,Object> signerMap = new Map<String,Object>{
+                    'recipientId' => String.valueOf(recipientCount),
+                    'roleName' => memberRelationship == 'Spouse' ? memberRelationship : 'Dependent' + String.valueOf(signerDependentCount),
+                    'name' => memberMap.containsKey('fullName') ? (String)memberMap.get('fullName') : (String)memberMap.get('vlocity_ins__FirstName__c') + ' ' + (String)memberMap.get('vlocity_ins__LastName__c'),
+                    'email' => (String)memberMap.get('vlocity_ins__Email__c'),
+                    'deliveryMethod' => 'Email'
+                };
+                signerList.add(signerMap);
+            }
+        }
+        System.debug('Signer List Size: ' + signerList.size());
+        System.debug('Signer List: ' + signerList);
+    }
+
+    /**************************************************************************
+    * @MethodName         :   getDocuSignTemplateIds
+    * @Description        :   method to get the templates than need to be used
+    ***************************************************************************/
+    private static void  getDocuSignTemplateIds() {
+        System.debug('Getting DocuSign templates...');
+
+        Integer primaryAge = (Integer)primaryMember.get('Age'); System.debug('Primary Age: ' + primaryAge);
+        Boolean isChildFamily = primaryAge < 18 ? true : false; System.debug('isChildFamily: ' + isChildFamily);
+        Integer dependents = dependentCount; System.debug('Dependents: ' + dependents);
+        String primaryState = (String)primaryMember.get('State'); System.debug('Primary State: ' + primaryState);
+        String medicalPlanName = '';
+
+        for (Object product : newProductList) {
+            Map<String,Object> productMap = (Map<String,Object>)((Map<String,Object>)product).get('selectedProduct');
+            if ((String)productMap.get('Type__c') == 'Medical') medicalPlanName = (String)productMap.get('Name');
+        }
+        System.debug('Medical Plan Name: ' + medicalPlanName); 
+
+        String programType = medicalPlanName.contains('Legacy') ? 'Senior' : medicalPlanName.contains('Premier') ? 'Premier' : medicalPlanName.contains('Access') ? 'Essential' : 'Enhanced';
+        System.debug('Program Type: ' + programType);
+        Boolean isLegacy = medicalPlanName.contains('Legacy') ? true : false;
+
+        System.debug('DocuSign To Be Sent: ' + docuSignToBeSent);
+
+        List<String> clausesList = new List<String>();
+        Map<String,Integer> orderMap = new Map<String,Integer>();
+        if (docuSignToBeSent == 'Amendment') {
+            orderMap = new Map<String,Integer> {
+                'Amendment' => 1
+            };
+
+            for (String section : orderMap.keySet()) {
+                String sectionStr = '(ARC_Section__c = ' + '\'' + section +'\')';
+                clausesList.add(sectionStr);
+            }
+        } else {
+            // Section order map
+            orderMap = new Map<String,Integer> {
+                'ProgramChange' => 1,
+                'Application' => 2,
+                'Program' => 3,
+                'Beneficiaries' => 4,
+                'Payment' => 5, 
+                'State' => 6
+            };
+
+            for (String section : orderMap.keySet()) {
+                String sectionStr = '(ARC_Section__c = ' + '\'' + section +'\' ';
+                if (section == 'ProgramChange') {
+                    sectionStr += 'AND ARC_BusinessSegment__c = \'IndividualAndFamily\'';
+                } else if (section == 'Application') {
+                    sectionStr += 'AND ARC_BusinessSegment__c = \'IndividualAndFamily\' AND ARC_MinDependents__c <= ' + dependents + ' AND ARC_MaxDependents__c >= ' + dependents + ' AND ARC_ChildOnly__c = ' + isChildFamily + ' AND ARC_IsLegacy__c = ' + isLegacy ;
+                } else if (section == 'Program' || section == 'Beneficiaries') {
+                    sectionStr += 'AND ARC_ProgramType__c = \'' + programType + '\'';
+                } else if (section == 'State') {
+                    sectionStr += 'AND ARC_BusinessSegment__c = \'IndividualAndFamily\' AND ARC_State__c = \'' + primaryState + '\'';
+                }
+                sectionStr += ') \n';
+                clausesList.add(sectionStr);
+            }
+        }
+
+        // Query
+        String queryStr = 'SELECT Id, ARC_TemplateName__c, ARC_Section__c FROM ARC_DocuSignCompositeTemplates__c '; // Base query string
+        if (clausesList != null && !clausesList.isEmpty()) {
+            String allClausesStr = String.join(clausesList, ' OR ');
+            queryStr += 'WHERE ' + allClausesStr;
+        }
+
+        List<ARC_DocuSignCompositeTemplates__c> compTemplates = Database.query(queryStr);
+        List<String> templatesList = new List<String>();
+        Map<Integer,String> orderToTemplateNameMap = new Map<Integer,String>();
+        for (ARC_DocuSignCompositeTemplates__c compTemplate : compTemplates) {
+            String templateName = compTemplate.ARC_TemplateName__c;
+            orderToTemplateNameMap.put(orderMap.get(compTemplate.ARC_Section__c), templateName);
+            templatesList.add(templateName);
+        }
+        List<vlocity_ins__VlocityDocuSignTemplate__c> templates = [
+            SELECT Id, Name, vlocity_ins__templateidentifier__c
+            FROM vlocity_ins__VlocityDocuSignTemplate__c
+            WHERE Name IN :templatesList
+        ];
+
+        // Order the vlocity templates in the correct seciton order
+        Map<String,String> tempNameToTempId = new Map<String,String>();
+        for (vlocity_ins__VlocityDocuSignTemplate__c temp : templates) {
+            String tempName = temp.Name;
+            tempNameToTempId.put(tempName, temp.vlocity_ins__templateidentifier__c);
+        }
+        for (Integer i = 1 ; i <= orderMap.values().size() ; i++) {
+            String tempNameToAdd = orderToTemplateNameMap.get(i);
+            if (tempNameToAdd != null) {
+                templatesIdList.add(tempNameToTempId.get(tempNameToAdd));
+            }
+        }
+    }
 
     /*******************************************************************
     * @MethodName         :   DocuSignDataTransform
@@ -92,6 +432,7 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
         // Get input information
         effectiveDate = (String)inputMap.get('EffectiveDate');
         DocuSign = (Map<String,Object>)inputMap.get('DocuSign');
+        System.debug('DocuSign inside DocuSignDataTransform' + DocuSign);
         // Get members map
         primaryMember = (Map<String,Object>)((Map<String,Object>)inputMap.get('MembersInfo')).get('primaryMember');
         spouseMember = (Map<String,Object>)((Map<String,Object>)inputMap.get('MembersInfo')).get('spouseMember');
@@ -119,15 +460,16 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
         pcChanges = (Map<String,Object>)(DocuSign.get('pcChanges'));
         oldProductList = (List<Object>)DocuSign.get('OldProductList');
         String updateType = (String)inputMap.get('UpdateType');
-        if ((updateType != null && updateType.contains('Change to Programs')) || ((String)pcChanges.get('pcReasonsString')).contains('Add Member') || ((String)pcChanges.get('pcReasonsString')).contains('Add Existing Member') || ((String)pcChanges.get('pcReasonsString')).contains('Remove Member')) {
+        if ((updateType != null && updateType.contains('Change to Programs')) || ((String)pcChanges.get('pcReasonsString')).contains('Add Member') || ((String)pcChanges.get('pcReasonsString')).contains('Add Existing Member') || ((String)pcChanges.get('pcReasonsString')).contains('Remove Member') || updateType.contains('Add Newborn')) {
             newProductList = (List<Object>)DocuSign.get('NewProductList');
         }
         pcReasons = ((String)pcChanges.get('pcReasonsString')).split('; ');
-        System.debug(pcReasons.contains('Add Member'));
-        System.debug(pcReasons.contains('Program Upgrade'));
-        if (pcReasons.contains('Add Member') || pcReasons.contains('Program Upgrade')) {
-            medicalQuestions = (Map<String,Object>)DocuSign.get('STEP_MedicalQuestions');
-        }
+        // if (pcReasons.contains('Add Member') || pcReasons.contains('Program Upgrade') || pcReasons.contains('Add Newborn')) {
+        //     medicalQuestions = (Map<String,Object>)DocuSign.get('STEP_MedicalQuestions');
+        // }
+        // Always get medical questions step info
+        medicalQuestions = DocuSign.containsKey('STEP_MedicalQuestions') ? (Map<String,Object>)DocuSign.get('STEP_MedicalQuestions') : null;
+        System.debug('Medical Questions: ' + medicalQuestions);
 
         // MEDICAL QUESTIONS MAPS
         Map<String,String> medicalRADMap = new Map<String,String>{
@@ -159,10 +501,6 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
             'CHKBOX_LicenceSuspended' => 'LicenceSuspended',
             'EB_PastConditions' => 'PastConditions'
         };
-
-
-        // 
-
 
         System.debug('Test1');
 
@@ -433,8 +771,6 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
             }
         }
 
-
-
         // MEDICAL QUESTIONS   
         
         System.debug('Test6');
@@ -548,17 +884,17 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
             for (Object oldMember : allMemberList) {
                 Map<String,Object> oldMemberMap = (Map<String,Object>)oldMember;
                 if (oldMemberMap.get('IsNewMember') == true) {
-                    String memberName = (String)oldMemberMap.get('vlocity_ins__FirstName__c')+' '+(String)oldMemberMap.get('vlocity_ins__LastName__c');
+                    String memberName = (String)oldMemberMap.get('FirstName')+' '+(String)oldMemberMap.get('LastName');
                     addedMemberList.add(memberName);
                 }
                 if (oldMemberMap.get('IsRemoveMember') == true) {
                     System.debug('llego a removed member');
-                    String memberName = (String)oldMemberMap.get('vlocity_ins__FirstName__c')+' '+(String)oldMemberMap.get('vlocity_ins__LastName__c');
+                    String memberName = (String)oldMemberMap.get('FirstName')+' '+(String)oldMemberMap.get('LastName');
                     System.debug(memberName);
                     removedMemberList.add(memberName);
                 }
                 if (oldMemberMap.get('IsInactiveMember') == true) {
-                    String memberName = (String)oldMemberMap.get('vlocity_ins__FirstName__c')+' '+(String)oldMemberMap.get('vlocity_ins__LastName__c');
+                    String memberName = (String)oldMemberMap.get('FirstName')+' '+(String)oldMemberMap.get('LastName');
                     inactiveMemberList.add(memberName);
                 }
             }
@@ -589,7 +925,33 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
         textTabs.put('Info.RequestedChanges', String.join(requestedChanges,'\n'));
         System.debug(String.join(requestedChanges,'\n'));
 
-        System.debug('Test10');
+        System.debug('Starting Beneficiaries Info');
+
+        // BENEFICIARIES INFORMATION
+        Integer counter = 1;
+        System.debug('Gabriel Benficiaries Test: ' + inputMap.containsKey('MembersList'));
+        List<Object> members = (List<Object>)inputMap.get('MembersList');
+        if (members != null) {
+            for (Object member_obj : members) {
+                Map<String, Object> member = (Map<String, Object>) member_obj;
+                if ((Boolean)member.get('IsRemoveMember') == true) continue;
+                String memberName = (String)member.get('vlocity_ins__FirstName__c') + ' ' + (String)member.get('vlocity_ins__LastName__c');
+                List<Object> beneficiaries = member.containsKey('beneficiaries') ? (List<Object>)member.get('beneficiaries') : new List<Object>();
+    
+                for (Object beneficiary_obj : beneficiaries) {
+                    Map<String, Object> beneficiary = (Map<String, Object>) beneficiary_obj;
+    
+                    textTabs.put('TXT_MemberName' + counter, memberName);
+                    textTabs.put('TXT_BeneficiaryName' + counter, (String)beneficiary.get('BeneficiaryName'));
+                    textTabs.put('TXT_BeneficiaryDOB' + counter, (String)beneficiary.get('BeneficiaryBirthdate'));
+                    textTabs.put('TXT_BeneficiaryPhone' + counter, (String)beneficiary.get('BeneficiaryPhone'));
+                    textTabs.put('TXT_BeneficiaryRelationship' + counter, (Boolean)beneficiary.get('isOtherRelationship') ? (String)beneficiary.get('BeneficiaryOtherRelationship') : (String)beneficiary.get('BeneficiaryRelationship'));
+                    textTabs.put('TXT_BeneficiaryType' + counter, (String)beneficiary.get('Label') == 'Primary Beneficiary' ? 'Primary' : 'Secondary');
+                    counter++;
+                }
+            }
+        }
+        System.debug('Starting Payment Info');
 
         // PLAN AND PAYMENT INFO
         // Get product names and their members
@@ -621,12 +983,17 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
         Decimal feeAmountDecimal = Decimal.valueOf((Integer)pcChanges.get('feeAmount'));
         textTabs.put('Plan.ApplicationFee', '$ ' + String.valueOf(feeAmountDecimal)); // Set fee amount key
         if ((Boolean)pcChanges.get('createNewContract')) {
+            System.debug('DocuSign1: '+ DocuSign);
+            System.debug('DocuSign2: '+ DocuSign.get('PlanSummary'));
+            
             String monthlyAmountString = (String)((Map<String,Object>)((Map<String,Object>)DocuSign.get('PlanSummary')).get('BLK_ProductSummary')).get('TXT_MonthlyPrice');
             monthlyAmountDecimal = Decimal.valueOf(monthlyAmountString.replace('$', '').replace(',', ''));
+            Decimal totalFirstMonthAmount = monthlyAmountDecimal + feeAmountDecimal;
             textTabs.put('Plan.MonthlyContribution', monthlyAmountString);
             textTabs.put('Payment.MonthlyContribution', monthlyAmountString);
 
             textTabs.put('Payment.Fee', '$ ' + String.valueOf(feeAmountDecimal));
+            textTabs.put('Payment.FirstMonthFee', '$ ' + String.valueOf(totalFirstMonthAmount));
         }
         System.debug('Monthly DECIMAL:'+monthlyAmountDecimal);
 
@@ -658,7 +1025,7 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
                 } else if (currentChargentOrder.ChargentOrders__Payment_Method__c == 'Bank Account') {
                     checkboxTabs.put('Payment.BankAccountPayment', true);
                     textTabs.put('Payment.BankName', currentChargentOrder.ChargentOrders__Bank_Name__c);
-                    checkboxTabs.put('Payment.Checking', currentChargentOrder.ChargentOrders__Bank_Account_Type__c == 'Checking Account' ? true : false);
+                    checkboxTabs.put('Payment.Checking', currentChargentOrder.ChargentOrders__Bank_Account_Type__c == 'Checking' ? true : false);
                     checkboxTabs.put('Payment.Savings', currentChargentOrder.ChargentOrders__Bank_Account_Type__c == 'Savings' ? true : false);
                     textTabs.put('Payment.NameOnBankAccount', currentChargentOrder.ChargentOrders__Bank_Account_Name__c);
                     textTabs.put('Payment.AccountNumber', '************'+currentChargentOrder.ChargentOrders__Bank_Account_Last_4__c);
@@ -742,6 +1109,28 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
 
         System.debug('Test11');
 
+        // GUARDIAN INFORMATION
+        if (DocuSign.containsKey('guardianInfo') && DocuSign.get('guardianInfo') != null && (Integer)primaryMember.get('Age') < 18) {
+            Map<String,Object> guardianMap = (Map<String,Object>)DocuSign.get('guardianInfo');
+            Map<String,Object> ssnMap = guardianMap.containsKey('TXT_GuardianSSN') && guardianMap.get('TXT_GuardianSSN') != null ? (Map<String,Object>)guardianMap.get('TXT_GuardianSSN') : new Map<String,Object>();
+            Map<String,Object> addressMap = guardianMap.containsKey('THEADBLK_GuardianAddress-Block') && guardianMap.get('THEADBLK_GuardianAddress-Block') != null ? (Map<String,Object>)guardianMap.get('THEADBLK_GuardianAddress-Block') : new Map<String,Object>();
+            textTabs.put('Guardian.FirstName', (String)guardianMap.get('TXT_GuardianFirstName'));
+            textTabs.put('Guardian.MI', (String)guardianMap.get('TXT_GuardianMiddleName'));
+            textTabs.put('Guardian.LastName', (String)guardianMap.get('TXT_GuardianLastName'));
+            textTabs.put('Guardian.SSN', (String)ssnMap.get('response'));
+            textTabs.put('Guardian.Address', addressMap.containsKey('TXT_GuardianStreet') ? (String)addressMap.get('TXT_GuardianStreet') : null);
+            textTabs.put('Guardian.Unit', addressMap.containsKey('TXT_GuardianUnit') ? (String)addressMap.get('TXT_GuardianUnit') : null);
+            textTabs.put('Guardian.City', addressMap.containsKey('TXT_GuardianCity') ? (String)addressMap.get('TXT_GuardianCity') : null);
+            textTabs.put('Guardian.State', addressMap.containsKey('TXT_GuardianState') ? (String)addressMap.get('TXT_GuardianState') : null);
+            textTabs.put('Guardian.ZipCode', addressMap.containsKey('TXT_GuardianZipCode') ? (String)addressMap.get('TXT_GuardianZipCode') : null);
+            textTabs.put('Guardian.Phone', (String)guardianMap.get('TXT_GuardianPhone'));
+            textTabs.put('Guardian.Email', (String)guardianMap.get('EMAIL_GuardianEmail'));
+            textTabs.put('Guardian.DOB', (String)guardianMap.get('DATE_GuardianBirthdate'));
+            textTabs.put('Guardian.GuardianRelationshipToChild', (String)guardianMap.get('SEL_GuardianRelationship'));
+            checkboxTabs.put('Guardian.Male', guardianMap.get('SEL_GuardianGender') == 'Male' ? true : false);
+            checkboxTabs.put('Guardian.Female', guardianMap.get('SEL_GuardianGender') == 'Female' ? true : false);
+        }
+
         // MEDICARE FOR LEGACY
         Object medicare_obj = DocuSign.get('Medicare');
         System.debug('Test MEDICARE: ' + medicare_obj);
@@ -776,12 +1165,18 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
         if (primaryState == 'CA') {
             // PRIMARY NAME CA
             textTabs.put('Primary.Name', primaryMember.get('FirstName') +' '+ primaryMember.get('LastName'));
+            // PRIMARY DOB
+            Date primaryDOB = primaryMember.containsKey('DOB') ? Date.valueOf(String.valueOf(primaryMember.get('DOB'))) : null;
+            textTabs.put('Primary.MonthOfBirth', primaryDOB != null ? String.valueOf(primaryDOB.month()) : null);
+            textTabs.put('Primary.DayOfBirth', primaryDOB != null ? String.valueOf(primaryDOB.day()) : null);
+            textTabs.put('Primary.YearOfBirth', primaryDOB != null ? String.valueOf(primaryDOB.year()) : null);
             // HIPAA
             List<Object> hipaaList = (List<Object>)DocuSign.get('Hipaa');
             Integer index = 1;
             for (Object hipaa : hipaaList) {
                 Map<String,Object> hipaaMap = (Map<String,Object>)hipaa;
-                textTabs.put('Hipaa' + index, (String)hipaaMap.get('TXT_FullName'));
+                String hipaaName = hipaaMap.containsKey('Name') ? (String)hipaaMap.get('Name') : hipaaMap.containsKey('name') ? (String)hipaaMap.get('name') : hipaaMap.containsKey('fullName') ? (String)hipaaMap.get('fullName') : '';
+                textTabs.put('Hipaa' + index, hipaaName);
                 index = index + 1;
             }
             // DOB2
@@ -800,12 +1195,67 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
             }
         }
 
-
         outputMap.put('tabs', new Map<String,Object>{
             'checkboxTabs' => checkboxTabs,
             'textTabs' => textTabs
         });
     }
+
+    /**************************************************************************
+    * @MethodName         :   DocuSignAmendmentDataTransform
+    * @Description        :   method to map the amendment tabs
+    ***************************************************************************/
+    private static void DocuSignAmendmentDataTransform(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        Map<String,Object> textTabs = new Map<String,Object>();
+
+        Map<String,Object> primaryInfo = inputMap.containsKey('primaryMember') ? (Map<String,Object>)inputMap.get('primaryMember') : new Map<String,Object>();
+        Map<String,Object> selectedContractInfoMap = inputMap.containsKey('selectedContractInfo') ? (Map<String,Object>)inputMap.get('selectedContractInfo') : new Map<String,Object>();
+        String amendmentReasons = inputMap.containsKey('amendmentReasons') ? (String)inputMap.get('amendmentReasons') : '';
+        String currentMonthYear = Datetime.now().format('MMMM yyyy');
+
+        
+        textTabs.put('FullName', (String)primaryInfo.get('Name'));
+        textTabs.put('MemberID', (String)primaryInfo.get('MemberID'));
+        textTabs.put('BillingStreet', (String)primaryInfo.get('BillingStreet'));
+        textTabs.put('BillingCity', (String)primaryInfo.get('BillingCity'));
+        textTabs.put('BillingState', (String)primaryInfo.get('BillingState'));
+        textTabs.put('BillingPostalCode', (String)primaryInfo.get('BillingPostalCode'));
+
+        textTabs.put('ContractNumber', selectedContractInfoMap.containsKey('TXT_ContractNumber') ? (String)selectedContractInfoMap.get('TXT_ContractNumber') : '');
+        textTabs.put('CurrentMonthYear', currentMonthYear);
+
+        textTabs.put('AmendmentInfo', amendmentReasons);
+        if (medicareInfoChanged == true) {
+            String finalAmendmentReasons;
+            Map<String,Object> medicareInfoMap = inputMap.containsKey('medicareInfo') ? (Map<String,Object>)inputMap.get('medicareInfo') : new Map<String,Object>();
+            String medicareId = medicareInfoMap.get('MedicareIdNumber') != null ? (String)medicareInfoMap.get('MedicareIdNumber') : null;
+            Date partAEffectiveDate = (String)medicareInfoMap.get('Medicare_A_Effective_Date') != null ? Date.valueOf((String)medicareInfoMap.get('Medicare_A_Effective_Date')) : null;
+            Date partBEffectiveDate = (String)medicareInfoMap.get('Part_B_Effective_Date') != null ? Date.valueOf((String)medicareInfoMap.get('Part_B_Effective_Date')) : null;
+            Date partDEffectiveDate = (String)medicareInfoMap.get('Part_D_Effective_Date') != null ? Date.valueOf((String)medicareInfoMap.get('Part_D_Effective_Date')) : null;
+            String medicareIdString = medicareId != null ? 'Medicare ID: ' + medicareId : null;
+            String partAEffectiveDateString = partAEffectiveDate != null ? 'Part A: ' + String.valueOf(partAEffectiveDate) : null;
+            String partBEffectiveDateString = partBEffectiveDate != null ? 'Part B: ' + String.valueOf(partBEffectiveDate) : null;
+            String partDEffectiveDateString = partDEffectiveDate != null ? 'Part D: ' + String.valueOf(partDEffectiveDate) : null;
+            List<String> amendmentInfoList = new List<String>{amendmentReasons, medicareIdString, partAEffectiveDateString, partBEffectiveDateString, partDEffectiveDateString};
+            if (!amendmentInfoList.isEmpty()) {
+                for (Integer i=0; i < amendmentInfoList.size(); i++) {
+                    if (amendmentInfoList[i] == null) {
+                        amendmentInfoList.remove(i);
+                    }
+                }
+                finalAmendmentReasons = String.join(amendmentInfoList, '\n');
+                textTabs.put('AmendmentInfo', finalAmendmentReasons);
+                System.debug('Final Amendment Info: ' + finalAmendmentReasons);
+            }
+        }
+
+        outputMap.put('tabs', new Map<String,Object>{
+            'textTabs' => textTabs
+        });
+    }
+
+
+    /**************************************************AUXILIAR METHODS************************************************************** */
 
     public static Map<String,String> processProductMemberList(List<Object> productMemberList) {
         Map<String,String> membersProgramsMap = new Map<String,String>();
@@ -837,4 +1287,123 @@ global without sharing class ARC_ProgramChange_DocuSign implements vlocity_ins.V
 
         return membersProgramsMap;
     }
+
+    /**
+     * @Description: Auxiliar method to transform member map keys
+     * @param memberMap: All the member information map received from JSON
+     */
+
+    private static Map<String,Object> transformMemberMapKeys(Map<String,Object> memberMap) {
+        String height = String.valueOf(memberMap.get('ARC_HeightFeet__c')) + '\'' + String.valueOf(memberMap.get('ARC_HeightInches__c')) + '\"';
+        String memberSSN = (String)memberMap.get('vlocity_ins__SocialSecurityNumber__c');
+        Map<String,Object> transformedMemberMap = new Map<String,Object> {
+            'Id' => (String)memberMap.get('Id'),
+            'FirstName' => (String)memberMap.get('vlocity_ins__FirstName__c'),
+            'MI' => (String)memberMap.get('ARC_MiddleInitial__c'),
+            'LastName' => (String)memberMap.get('vlocity_ins__LastName__c'),
+            'DOB' => String.valueOf(memberMap.get('vlocity_ins__Birthdate__c')),
+            'Age' => Integer.valueOf(memberMap.get('ARC_Age__c')),
+            'Gender' => (String)memberMap.get('vlocity_ins__Gender__c'),
+            'Phone' => (String)memberMap.get('ARC_Phone__c'),
+            'Email' => (String)memberMap.get('vlocity_ins__Email__c'),
+            'SocialSecurity' => 'XXX-XX-' + memberSSN.right(4),
+            'SSN' => memberSSN,
+            'Height' => height,
+            'Weight' => String.valueOf(memberMap.get('ARC_Weight__c')),
+            'Pregnant' => memberMap.get('ARC_isPregnant__c') != null && memberMap.get('ARC_isPregnant__c') != '' ? (Boolean)memberMap.get('ARC_isPregnant__c') : false,
+            'Smoker' => memberMap.get('ARC_Smoker__c') != null && memberMap.get('ARC_Smoker__c') != '' ? (Boolean)memberMap.get('ARC_Smoker__c') : false,
+            'Address' => (String)memberMap.get('ARC_PhysicalAddressStreet__c'),
+            'City' => (String)memberMap.get('ARC_PhysicalAddressCity__c'),
+            'State' => (String)memberMap.get('ARC_PhysicalAddressState__c'),
+            'ZipCode' => (String)memberMap.get('ARC_PhysicalAddressZipCode__c'),
+            'Relationship' => (String)memberMap.get('ARC_Relationship__c'),
+            'IsRemoveMember' => (Boolean)memberMap.get('IsRemoveMember'),
+            'IsNewMember' => (Boolean)memberMap.get('IsNewMember')
+        };
+
+        return transformedMemberMap;
+    }
+
+
+    private static Map<String,Object> mergeMedicalQuestions(Map<String,Object> medicalQuestionsToAdd, Map<String,Object> existingMedicalQuestions) {
+        List<String> blockStringList = new List<String>{
+            'BLK_ParentSiblingDiagnosed', 'BLK_UnexpectedSymptoms', 'BLK_PendingTests', 'BLK_Addictions', 'BLK_LicenceSuspended', 'EB_PastConditions', 'EB_Cancer', 'ED_MemberPrescription', 'EB_Physicians'
+        };
+
+        Map<String,String> blockToMedicalRadMap = new Map<String,String>{
+            'BLK_ParentSiblingDiagnosed' => 'RAD_ParentSiblingDiagnosed',
+            'BLK_UnexpectedSymptoms'     => 'RAD_UnexplainedSymptoms',
+            'BLK_PendingTests'           => 'RAD_PendingTests',
+            'EB_Cancer'                  => 'RAD_Cancer',
+            'BLK_Addictions'             => 'RAD_Addictions',
+            'BLK_LicenceSuspended'       => 'RAD_LicenceSuspended',
+            'EB_PastConditions'          => 'RAD_PastConditions',
+            'ED_MemberPrescription'      => 'RAD_PrescriptionMedications',
+            'EB_Physicians'              => 'EB_Physicians'
+        };
+
+        System.debug('Medical Question Map to Add: ' + JSON.serializePretty(medicalQuestionsToAdd));
+
+        // Add new medical question block to existing MQ map
+        for (String key : blockStringList) {
+            if (medicalQuestionsToAdd.get(key) != null) {
+                if (medicalQuestionsToAdd.get(key) instanceOf Map<String,Object>) {
+                    Map<String,Object> mqBlockToAdd = (Map<String,Object>) medicalQuestionsToAdd.get(key);
+                    if (existingMedicalQuestions.containsKey(key)) {
+                        ((List<Object>)existingMedicalQuestions.get(key)).add(mqBlockToAdd);
+                    } else {
+                        existingMedicalQuestions.put(key, new List<Object>{mqBlockToAdd});
+                    }
+                } else if (medicalQuestionsToAdd.get(key) instanceOf List<Object>) {
+                    List<Object> mqBlocksToAdd = (List<Object>) medicalQuestionsToAdd.get(key);
+                    for (Object mqBlock : mqBlocksToAdd) {
+                        if (mqBlock != null) {
+                            Map<String,Object> mqBlockToAdd = (Map<String,Object>)mqBlock;
+                            if (existingMedicalQuestions.containsKey(key)) {
+                                ((List<Object>)existingMedicalQuestions.get(key)).add(mqBlockToAdd);
+                            } else {
+                                existingMedicalQuestions.put(key, new List<Object>{mqBlockToAdd});
+                            }
+                        }
+                    }
+                }
+                existingMedicalQuestions.put(blockToMedicalRadMap.get(key), 'Yes');
+            }
+        }
+        return existingMedicalQuestions;
+    }
+
+    private static Map<String,Object> getGuardianInfo (String guardianId) {
+        Map<String,Object> guardianMap = new Map<String,Object>();
+        Account guardianAcc = guardianId != null ? [SELECT Id, FirstName, LastName, vlocity_ins__MiddleName__pc, ARC_SocialSecurityNumber__c, BillingStreet, ARC_BillingAptUnit__c, BillingCity,BillingState,BillingPostalCode,Phone,vlocity_ins__Email__c, PersonBirthdate, PersonGender, ARC_GuardianRelationshipToChild__c 
+        FROM Account 
+        WHERE Id = :guardianId
+        LIMIT 1
+        ] : null;
+
+        if (guardianAcc != null) {
+            String guardianSSN = String.valueOf(guardianAcc.ARC_SocialSecurityNumber__c);
+            guardianMap.put('TXT_GuardianFirstName', String.valueOf(guardianAcc.FirstName));
+            guardianMap.put('TXT_GuardianMiddleName', String.valueOf(guardianAcc.vlocity_ins__MiddleName__pc));
+            guardianMap.put('TXT_GuardianLastName', String.valueOf(guardianAcc.LastName));
+            guardianMap.put('TXT_GuardianSSN', new Map<String,Object>{
+                'response' => 'XXX-XX' + guardianSSN.right(4)
+            });
+            guardianMap.put('THEADBLK_GuardianAddress-Block', new Map<String,Object>{
+                'TXT_GuardianStreet' => String.valueOf(guardianAcc.BillingStreet),
+                'TXT_GuardianUnit' => String.valueOf(guardianAcc.ARC_BillingAptUnit__c),
+                'TXT_GuardianCity' => String.valueOf(guardianAcc.BillingCity),
+                'TXT_GuardianState' => String.valueOf(guardianAcc.BillingState),
+                'TXT_GuardianZipCode' => String.valueOf(guardianAcc.BillingPostalCode)
+            });
+            guardianMap.put('TXT_GuardianPhone', String.valueOf(guardianAcc.Phone));
+            guardianMap.put('EMAIL_GuardianEmail', String.valueOf(guardianAcc.vlocity_ins__Email__c));
+            guardianMap.put('DATE_GuardianBirthdate', String.valueOf(guardianAcc.PersonBirthdate));
+            guardianMap.put('SEL_GuardianRelationship', guardianAcc.ARC_GuardianRelationshipToChild__c);
+            guardianMap.put('SEL_GuardianGender', guardianAcc.PersonGender);
+        }
+
+        return guardianMap;
+    }
+
 }

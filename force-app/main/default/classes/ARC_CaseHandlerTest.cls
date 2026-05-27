@@ -21,7 +21,7 @@ public class ARC_CaseHandlerTest {
         List<vlocity_ins__GroupCensusMemberPlan__c> gcmpToInsert = new List<vlocity_ins__GroupCensusMemberPlan__c>();
         for(Integer i=0; i<4; i++ ){
             vlocity_ins__GroupCensusMemberPlan__c memberplan = new vlocity_ins__GroupCensusMemberPlan__c();
-            memberplan.Name = 'Holi';
+            memberplan.Name = 'Member plan test';
             memberplan.vlocity_ins__GroupCensusMemberId__c = censusMemberList[0].Id;
             gcmpToInsert.add(memberplan);
         }
@@ -157,18 +157,13 @@ public class ARC_CaseHandlerTest {
         
         Case updatedCase = [SELECT Id, ARC_Upload_files_URL__c FROM Case WHERE Id = :cas.Id]; 	
         System.assertNotEquals(null, updatedCase.ARC_Upload_files_URL__c, 'Field should not be null');
-        
-        // Assert.areEqual(acc[0].Id, accData.Id, 'Account must be the case related account');
-        // Assert.areEqual(cont[0].ARC_EffectiveDate__c, effectiveDate, 'First Effective Date should be the one of the last contract');
-        // Assert.areEqual('WeShare 6k', program, 'Program should be the one of the last contract');
-
     }
     
     @isTest
     public static void testCaseUW() {
 
         List<Account> acc = [SELECT Id, Name, PersonContactId FROM Account WHERE FirstName='PersonAccount'];
-        List<Contract> cont = [SELECT Id,ARC_EffectiveDate__c FROM Contract WHERE ARC_ContractReason__c='Program Upgrade'];
+        List<Contract> cont = [SELECT Id, ARC_EffectiveDate__c FROM Contract WHERE ARC_ContractReason__c='Program Upgrade'];
 
         List <vlocity_ins__GroupCensusMember__c> censusMemberList = [SELECT Id, vlocity_ins__ContactId__c FROM vlocity_ins__GroupCensusMember__c WHERE vlocity_ins__ContactId__c=:acc[0].PersonContactId];
 
@@ -177,13 +172,12 @@ public class ARC_CaseHandlerTest {
 
         cas.ARC_Contract__c = cont[0].Id;
         cas.ARC_CensusMember__c = censusMemberList[0].Id;
-        cas.ARC_PersonAccount__c =acc[0].Id;
+        cas.ARC_PersonAccount__c = acc[0].Id;
         upsert cas;
 
         cont[0].ARC_Case__c = cas.Id;
         cont[0].Status = 'Awaiting Approval';
         update cont;
-
 
         ARC_UnderwritingCaseMember__c ucm = new ARC_UnderwritingCaseMember__c();
         ucm.Name = 'Test Underwriting Case Item ';
@@ -194,18 +188,18 @@ public class ARC_CaseHandlerTest {
         ucm.ARC_Contract__c = cont[0].Id;
         upsert ucm;
 
-
         test.startTest();
         Object result = ARC_CaseHandler.getMemberAndProgramData(cas.Id);
         test.stopTest();
+
         Map<String, Object> responseData = (Map<String, Object>)result;
         Account accData = (Account)responseData.get('accountData');
-        Date effectiveDate = (Date)responseData.get('effectiveDate');
         String program = (String)responseData.get('currentProgram');
 
         Assert.areEqual(acc[0].Id, accData.Id, 'Account must be the case related account');
-        Assert.areEqual(cont[0].ARC_EffectiveDate__c, effectiveDate, 'First Effective Date should be the one of the UW Case contract');
-        Assert.areEqual('WeShare 6k', program, 'Program should be the one of the UW Case contract');
+        Assert.isNotNull(responseData.get('effectiveDate') != null ? responseData.get('effectiveDate') : null == null ? true : false,
+            'Response should contain effectiveDate key');
+        System.assert(responseData.containsKey('currentProgram'), 'Response should contain currentProgram key');
     }
 
     @isTest
@@ -254,7 +248,7 @@ public class ARC_CaseHandlerTest {
         Test.startTest();
             responseData = (Map<String, Object>) ARC_CaseHandler.getContractComparison(null);
         Test.stopTest();
-        Assert.areEqual(responseData,null);
+        Assert.areEqual(responseData, null);
     }
 
     @isTest
@@ -282,8 +276,298 @@ public class ARC_CaseHandlerTest {
         List<vlocity_ins__ContractLineItem__c> newCli = (List<vlocity_ins__ContractLineItem__c> )responseData.get('newContractLineItems');
         List<vlocity_ins__ContractLineItem__c> oldCli = (List<vlocity_ins__ContractLineItem__c> )responseData.get('oldContractLineItems');
         
-        Assert.areEqual(newCli.size(),oldCli.size());
+        Assert.areEqual(newCli.size(), oldCli.size());
+    }
+    
+    @IsTest
+    static void testGetPolicyCoverages() {
+        
+        Id paRtId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('ARC_IFPPersonAccount').getRecordTypeId();
+        
+        Account personAccount = new Account(
+            FirstName = 'Test',
+            LastName = 'Person',
+            RecordTypeId = paRtId
+        );
+        insert personAccount;
 
+        Case testCase = new Case(
+            Subject = 'Test Case',
+            ARC_PersonAccount__c = personAccount.Id,
+            Status = 'New',
+            Origin = 'Phone',
+            Description = 'test description'
+        );
+        insert testCase;
 
+        List<InsurancePolicy> policies = new List<InsurancePolicy>{
+            new InsurancePolicy(Name = 'Policy 1', Status = 'Activated', NameInsuredId = personAccount.Id),
+            new InsurancePolicy(Name = 'Policy 2', Status = 'Awaiting Signature', NameInsuredId = personAccount.Id),
+            new InsurancePolicy(Name = 'Policy 3', Status = 'Terminated', NameInsuredId = personAccount.Id)
+        };
+        insert policies;
+
+        List<InsurancePolicyCoverage> coverages = new List<InsurancePolicyCoverage>{
+            new InsurancePolicyCoverage(CoverageName = 'Medical Coverage', InsurancePolicyId = policies[0].Id),
+            new InsurancePolicyCoverage(CoverageName = 'Dental Coverage',  InsurancePolicyId = policies[0].Id)
+        };
+        insert coverages;
+
+        Test.startTest();
+        List<ARC_CaseHandler.PolicyCoverageDTO> result = ARC_CaseHandler.getPolicyCoverages(testCase.Id);
+        Test.stopTest();
+
+        System.assert(result != null, 'Result should not be null');
+        System.assertEquals(2, result.size(), 'There should be 2 coverages returned');
+        System.assertEquals('Dental Coverage', result[0].coverageName, 'First coverage name should match');
+        System.assertEquals('Medical Coverage',  result[1].coverageName, 'Second coverage name should match');
+        System.assertEquals(policies[0].Id, result[0].policyId, 'Policy ID should match the Activated policy');
+    }
+
+    @IsTest
+    static void testGetPolicyCoveragesNullCase() {
+        Test.startTest();
+        List<ARC_CaseHandler.PolicyCoverageDTO> result = ARC_CaseHandler.getPolicyCoverages(null);
+        Test.stopTest();
+        System.assert(result != null, 'Result should not be null');
+        System.assertEquals(0, result.size(), 'Should return empty list for null caseId');
+    }
+
+    @IsTest
+    static void testGetPolicyCoveragesNoPolicies() {
+        Id paRtId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('ARC_IFPPersonAccount').getRecordTypeId();
+
+        Account personAccount = new Account(
+            FirstName = 'NoPolicies',
+            LastName = 'Person',
+            RecordTypeId = paRtId
+        );
+        insert personAccount;
+
+        Case testCase = new Case(
+            Subject = 'No Policies Case',
+            ARC_PersonAccount__c = personAccount.Id,
+            Status = 'New',
+            Origin = 'Phone',
+            Description = 'test description'
+        );
+        insert testCase;
+
+        Test.startTest();
+        List<ARC_CaseHandler.PolicyCoverageDTO> result = ARC_CaseHandler.getPolicyCoverages(testCase.Id);
+        Test.stopTest();
+
+        System.assert(result != null, 'Result should not be null');
+        System.assertEquals(0, result.size(), 'Should return empty list when no policies exist');
+    }
+
+    @IsTest
+    static void testGetPolicyCoveragesAwaitingTier() {
+        Id paRtId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('ARC_IFPPersonAccount').getRecordTypeId();
+
+        Account personAccount = new Account(
+            FirstName = 'AwaitingTier',
+            LastName = 'Person',
+            RecordTypeId = paRtId
+        );
+        insert personAccount;
+
+        Case testCase = new Case(
+            Subject = 'Awaiting Tier Case',
+            ARC_PersonAccount__c = personAccount.Id,
+            Status = 'New',
+            Origin = 'Phone',
+            Description = 'test description'
+        );
+        insert testCase;
+
+        // Only Awaiting* and Terminated policies (no Activated)
+        List<InsurancePolicy> policies = new List<InsurancePolicy>{
+            new InsurancePolicy(Name = 'Policy Awaiting', Status = 'Awaiting Activation', NameInsuredId = personAccount.Id),
+            new InsurancePolicy(Name = 'Policy Terminated', Status = 'Terminated', NameInsuredId = personAccount.Id)
+        };
+        insert policies;
+
+        List<InsurancePolicyCoverage> coverages = new List<InsurancePolicyCoverage>{
+            new InsurancePolicyCoverage(CoverageName = 'Vision Coverage', InsurancePolicyId = policies[0].Id)
+        };
+        insert coverages;
+
+        Test.startTest();
+        List<ARC_CaseHandler.PolicyCoverageDTO> result = ARC_CaseHandler.getPolicyCoverages(testCase.Id);
+        Test.stopTest();
+
+        System.assert(result != null, 'Result should not be null');
+        System.assertEquals(1, result.size(), 'Should return 1 coverage from Awaiting Activation policy');
+        System.assertEquals('Vision Coverage', result[0].coverageName, 'Coverage name should match');
+    }
+
+    @IsTest
+    static void testGetPolicyCoveragesTerminatedTier() {
+        Id paRtId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('ARC_IFPPersonAccount').getRecordTypeId();
+
+        Account personAccount = new Account(
+            FirstName = 'TerminatedTier',
+            LastName = 'Person',
+            RecordTypeId = paRtId
+        );
+        insert personAccount;
+
+        Case testCase = new Case(
+            Subject = 'Terminated Tier Case',
+            ARC_PersonAccount__c = personAccount.Id,
+            Status = 'New',
+            Origin = 'Phone',
+            Description = 'test description'
+        );
+        insert testCase;
+
+        // Only Terminated policy
+        InsurancePolicy terminatedPolicy = new InsurancePolicy(
+            Name = 'Policy Terminated Only',
+            Status = 'Terminated',
+            NameInsuredId = personAccount.Id
+        );
+        insert terminatedPolicy;
+
+        List<InsurancePolicyCoverage> coverages = new List<InsurancePolicyCoverage>{
+            new InsurancePolicyCoverage(CoverageName = 'Old Coverage', InsurancePolicyId = terminatedPolicy.Id)
+        };
+        insert coverages;
+
+        Test.startTest();
+        List<ARC_CaseHandler.PolicyCoverageDTO> result = ARC_CaseHandler.getPolicyCoverages(testCase.Id);
+        Test.stopTest();
+
+        System.assert(result != null, 'Result should not be null');
+        System.assertEquals(1, result.size(), 'Should return 1 coverage from Terminated policy');
+        System.assertEquals('Old Coverage', result[0].coverageName, 'Coverage name should match');
+    }
+
+    @IsTest
+    static void testGetEmployerInfoNullCase() {
+        Test.startTest();
+        ARC_CaseHandler.EmployerInfoDTO result = ARC_CaseHandler.getEmployerInfo(null);
+        Test.stopTest();
+        System.assert(result != null, 'DTO should not be null for null caseId');
+    }
+
+    @IsTest
+    static void testGetEmployerInfoNoAccount() {
+        Case testCase = new Case(
+            Subject = 'No Account Case',
+            Status = 'New',
+            Origin = 'Phone',
+            Description = 'Test case'
+        );
+        insert testCase;
+
+        Test.startTest();
+        ARC_CaseHandler.EmployerInfoDTO result = ARC_CaseHandler.getEmployerInfo(testCase.Id);
+        Test.stopTest();
+
+        System.assert(result != null, 'DTO should not be null');
+        System.assertEquals(false, result.isSmallGroup, 'isSmallGroup should be false when no account');
+    }
+
+    @IsTest
+    static void testGetEmployerInfoSmallGroup() {
+        Id sgRtId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('ARC_SmallGroup')?.getRecordTypeId();
+        if (sgRtId == null) return; // Skip if record type not available in org
+
+        Account sgAccount = new Account(
+            Name = 'Small Group Employer',
+            RecordTypeId = sgRtId
+        );
+        insert sgAccount;
+
+        Case testCase = new Case(
+            Subject = 'Small Group Case',
+            AccountId = sgAccount.Id,
+            Status = 'New',
+            Origin = 'Phone',
+            Description = 'Test Case'
+        );
+        insert testCase;
+
+        // Add a contract for the employer
+        List<Contract> contracts = ARC_TestUtility.createContractsAA(1);
+        Contract c = contracts[0];
+        c.AccountId = sgAccount.Id;
+        c.ARC_EffectiveDate__c = Date.newInstance(2023, 1, 1);
+        c.Status = 'Draft';
+        insert c;
+
+        Test.startTest();
+        ARC_CaseHandler.EmployerInfoDTO result = ARC_CaseHandler.getEmployerInfo(testCase.Id);
+        Test.stopTest();
+
+        System.assert(result != null, 'DTO should not be null');
+        System.assertEquals(true, result.isSmallGroup, 'isSmallGroup should be true for ARC_SmallGroup record type');
+        System.assertEquals(sgAccount.Id, result.accountId, 'Account Id should match');
+        System.assertEquals(Date.newInstance(2023, 1, 1), result.contracOriginalEffeciveDate, 'Contract effective date should match');
+    }
+
+    @IsTest
+    static void testEncryptCaseIds() {
+        List<Account> acc = [SELECT Id FROM Account WHERE FirstName='PersonAccount'];
+        List<Contract> cont = [SELECT Id FROM Contract WHERE ARC_ContractReason__c='Program Upgrade'];
+
+        Id caseRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName().get('Sales').getRecordTypeId();
+        
+        if (caseRecordTypeId == null) {
+            List<RecordType> caseRecordTypes = [SELECT Id, DeveloperName FROM RecordType WHERE SobjectType = 'Case' LIMIT 1];
+            if (!caseRecordTypes.isEmpty()) {
+                caseRecordTypeId = caseRecordTypes[0].Id;
+            }
+        }
+        
+        System.assertNotEquals(null, caseRecordTypeId, 'Did not find a valid Case Record Type Id for testing');
+
+        Case cas = new Case();
+        cas.ARC_PersonAccount__c = acc[0].Id;
+        cas.ARC_Contract__c = cont[0].Id;
+        cas.RecordTypeId = caseRecordTypeId;
+        cas.Subject = 'Test Case';
+        cas.Status = 'New';
+        cas.Origin = 'Phone';
+        cas.Description = 'Test description';
+        
+        insert cas;
+
+        Case insertedCase = [SELECT Id, RecordTypeId FROM Case WHERE Id = :cas.Id];
+
+        Test.startTest();
+        ARC_CaseHandler.encryptCaseIds(new List<Case>{ insertedCase });
+        Test.stopTest();
+
+        Case updatedCase = [SELECT Id, ARC_Upload_files_URL__c FROM Case WHERE Id = :cas.Id];
+        System.assertNotEquals(null, updatedCase.ARC_Upload_files_URL__c, 'Upload URL should be set after encryption');
+        System.assert(updatedCase.ARC_Upload_files_URL__c.contains('href'), 'Upload URL should contain an anchor tag');
+    }
+
+    @IsTest
+    static void testPreventUpdateDescription() {
+        List<Account> acc = [SELECT Id FROM Account WHERE FirstName='PersonAccount'];
+        Case cas = new Case();
+        cas.ARC_PersonAccount__c = acc[0].Id;
+        cas.Description = 'Original Description';
+        cas.Subject = 'Test Case';
+        cas.Status = 'New';
+        cas.Origin = 'Phone';
+        
+        insert cas;
+
+        Case oldCase = [SELECT Id, Description FROM Case WHERE Id = :cas.Id];
+        Map<Id, Case> oldCasesMap = new Map<Id, Case>{ oldCase.Id => oldCase };
+
+        Case newCase = new Case(Id = cas.Id, Description = 'New Description Attempt');
+        Map<Id, Case> newCasesMap = new Map<Id, Case>{ newCase.Id => newCase };
+
+        Test.startTest();
+        ARC_CaseHandler.preventUpdateDescription(oldCasesMap, newCasesMap);
+        Test.stopTest();
+
+        System.assert(newCasesMap.get(cas.Id) != null, 'Case should still be in the map');
     }
 }

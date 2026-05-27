@@ -1,9 +1,11 @@
 public with sharing class ARC_VoidClaim {
     public class VoidClaim {
-        @InvocableVariable(label = 'Claim Id' required=true)
+        @InvocableVariable(label='Claim Id' required=true)
         public String claimId;
-        @InvocableVariable(label = 'Remove From Checkrun' required=true)
+        @InvocableVariable(label='Remove From Checkrun' required=false)
         public Boolean removed;
+        @InvocableVariable(label='Void Reason' required=false)
+        public String voidReason;
     }
 
     public class VoidClaimResponse {
@@ -35,7 +37,8 @@ public with sharing class ARC_VoidClaim {
         // UNLOCK THE CLAIM
         clm.Status = 'Initial';
         clm.ARC_VRHelper__c = !clm.ARC_VRHelper__c;
-        if (input[0].removed) clm.ARC_Checkrun__c = null;
+        if (input[0].removed == true) clm.ARC_Checkrun__c = null;
+        if (input[0].voidReason != null) clm.ARC_VoidReason__c = input[0].voidReason;
         update clm;
 
         // RESET ITEMS AND AGGREGATORS - 1ST JANUARY

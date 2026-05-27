@@ -6,7 +6,7 @@
 ********************************************************************/
 
 
-global with sharing class ARC_DocuSignHelper implements vlocity_ins.VlocityOpenInterface{
+global without sharing class ARC_DocuSignHelper implements vlocity_ins.VlocityOpenInterface{
     Map<String, Object> docuSignData = new Map<String, Object>();
     Map<String, Object> medicalQuestions = new Map<String, Object>();
     Map<String, Object> primaryMedicalQuestions = new Map<String, Object>();
@@ -1325,30 +1325,31 @@ global with sharing class ARC_DocuSignHelper implements vlocity_ins.VlocityOpenI
         Boolean childOnly = (Boolean)inputMap.get('childOnly');
         String state = (String)inputMap.get('state');
         Boolean isLegacy;
+        String medicalPlan = inputMap.containsKey('medicalPlan') ? (String)inputMap.get('medicalPlan') : '';
         if (inputMap.containsKey('isLegacy')) {
             isLegacy = (Boolean)inputMap.get('isLegacy');
         }
 
         // get name from custom setting
-        String queryStr = generateQueryForTemplateSettings(reasons, dependents, childOnly, state);
+        String queryStr = generateQueryForTemplateSettings(reasons, dependents, childOnly, state, medicalPlan);
         System.debug('query string: ' + queryStr);
         ARC_DocuSignTemplates__c templateSettings = Database.query(queryStr);
         System.debug('template settings: ' + templateSettings);
         String templateNameStr = templateSettings.ARC_Template_Name__c;
-        System.debug('template name: ' + templateNameStr);
         if (isLegacy == true) {
-            if (state == 'CA') {
-                templateNameStr = 'WeShare Legacy Membership Application CA';
-            }
-            else {
-                templateNameStr = 'WeShare Legacy Membership Application';
-            }
-        }
+            templateNameStr = state == 'CA' ? 'WeShare Legacy Membership Application CA' : 'WeShare Legacy Membership Application';
+        } 
+      
         System.debug('templateNameStr: ' + templateNameStr);
+
         // get template identifier from vlocity record.-
         vlocity_ins__VlocityDocuSignTemplate__c template = [SELECT id,name,vlocity_ins__templateidentifier__c FROM vlocity_ins__VlocityDocuSignTemplate__c WHERE name = :templateNameStr ORDER BY LastModifiedDate DESC LIMIT 1];
         Map<String, Object> templateData = new Map<String, Object>();
-        templateData.put('Template', template);
+        Map<String, String> templateMap = new Map<String, String>();
+        templateMap.put('Id', template.Id);
+        templateMap.put('Name', template.name);
+        templateMap.put('vlocity_ins__TemplateIdentifier__c', template.vlocity_ins__templateidentifier__c);
+        templateData.put('Template', templateMap);
         templateData.put('Settings', templateSettings);
 
         outputMap.put('templateData', templateData);
@@ -1357,40 +1358,47 @@ global with sharing class ARC_DocuSignHelper implements vlocity_ins.VlocityOpenI
     * @MethodName         :   generateQueryForTemplateSettings
     * @Description        :   Returns query string for docusing template
     ********************************************************************/
-    private static String generateQueryForTemplateSettings(String reasons, Integer dependents, Boolean childOnly, String state) {
+    private static String generateQueryForTemplateSettings(String reasons, Integer dependents, Boolean childOnly, String state, String medicalPlan) {
         String queryStr = '';
         String reasonConditons = '';
         List<String> reasonsList = reasons.split(';');
         Boolean hasProgramChangeReason = reasonsList.contains('Add Member') || reasonsList.contains('Remove Member') || reasonsList.contains('Program Upgrade') || reasonsList.contains('Program Downgrade') || reasonsList.contains('Ancillary Change') || reasonsList.contains('Add Existing Member') || reasonsList.contains('Primary change');
         System.debug(reasonsList);
         Boolean isCancellation = reasons == 'Cancellation';
+        
+        System.debug('reasons list: ' + reasonsList);
 
-        for (String reason : reasonsList) {
-            reasonConditons += 'ARC_Contract_Reasons__c LIKE \'%'+ reason +'%\' ';
-            if (reasonsList.indexOf(reason) != reasonsList.size() -1) {
-                reasonConditons += 'OR ';
-            }
-        }
-        queryStr = 'SELECT ARC_Template_Name__c, ARC_DRTransform__c FROM ARC_DocuSignTemplates__c WHERE (' + reasonConditons + ')';
-
-        if (hasProgramChangeReason) {
-            queryStr += 'AND Has_No_Priority__c != true';
-        }
-
-        if (!isCancellation) {
-            queryStr += ' AND ARC_Min_Dependents__c <= ' + dependents;
-            queryStr += ' AND ARC_Max_Dependents__c >= ' + dependents;
+        if (medicalPlan == 'WeShare Legacy') {
+            queryStr = state == 'CA' ? 'SELECT ARC_Template_Name__c, ARC_DRTransform__c FROM ARC_DocuSignTemplates__c WHERE ARC_Template_Name__c = \'WeShare Legacy Membership Application CA\'' : 'SELECT ARC_Template_Name__c, ARC_DRTransform__c FROM ARC_DocuSignTemplates__c WHERE ARC_Template_Name__c = \'WeShare Legacy Membership Application\'';
+        } else {
             for (String reason : reasonsList) {
-                if (reason == 'New Application' || reason == 'Spin Off' || reason == 'Upgraded Spin Off') {
-                    queryStr += ' AND ARC_ChildOnly__c = ' + childOnly;
-                    break;
+                reasonConditons += 'ARC_Contract_Reasons__c LIKE \'%'+ reason +'%\' ';
+                if (reasonsList.indexOf(reason) != reasonsList.size() -1) {
+                    reasonConditons += 'OR ';
                 }
             }
-            if (state == 'CA') {
-                queryStr += ' AND ARC_State__c =  \'CA\'';
+            queryStr = 'SELECT ARC_Template_Name__c, ARC_DRTransform__c FROM ARC_DocuSignTemplates__c WHERE (' + reasonConditons + ') ';
+
+            if (hasProgramChangeReason) {
+                queryStr += 'AND Has_No_Priority__c != true';
             }
-            queryStr += ' ORDER BY ARC_Template_Name__c ASC LIMIT 1';
-        }
+
+            if (!isCancellation) {
+                queryStr += ' AND ARC_Min_Dependents__c <= ' + dependents;
+                queryStr += ' AND ARC_Max_Dependents__c >= ' + dependents;
+                for (String reason : reasonsList) {
+                    if (reason == 'New Application' || reason == 'Spin Off' || reason == 'Upgraded Spin Off') {
+                        queryStr += ' AND ARC_ChildOnly__c = ' + childOnly;
+                        break;
+                    }
+                }
+                if (state == 'CA') queryStr += ' AND ARC_State__c =  \'CA\'';
+                if (reasons.contains('New Application')) {
+                    queryStr += medicalPlan.contains('Access') ? ' AND ARC_PlanType__c = \'Access\'' : medicalPlan.contains('Legacy') ? ' AND ARC_PlanType__c = \'Legacy\'' : ' AND ARC_PlanType__c = \'WeShare\'';
+                }
+                queryStr += ' ORDER BY ARC_Template_Name__c ASC LIMIT 1';
+            }
+        }        
         System.debug('query: ' + queryStr);
         return queryStr;
     }

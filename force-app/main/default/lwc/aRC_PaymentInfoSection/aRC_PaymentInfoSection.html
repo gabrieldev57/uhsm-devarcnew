@@ -1,0 +1,65 @@
+<template>
+    <c-a-r-c_-collapsible-section
+        title="Payment Information"
+        subtitle="Banking and payment details"
+        custom-icon-url={sectionIconUrl}
+        status={status}
+        accent-color="#7C3AED"
+        auto-close-on-save
+        onsave={handleSave}>
+        
+        <!-- Content Wrapper with position relative for overlay -->
+        <div class="content-wrapper">
+            <!-- Saving Spinner Overlay -->
+            <template lwc:if={isSaving}>
+                <div class="saving-overlay">
+                    <div class="saving-message">
+                        <lightning-spinner alternative-text="Saving payment information..." size="large" variant="brand"></lightning-spinner>
+                    </div>
+                </div>
+            </template>
+            
+            <!-- Info Banner -->
+            <div class="info-banner slds-m-bottom_medium">
+                <lightning-icon icon-name="utility:info_alt" alternative-text="Information" size="small" class="info-icon"></lightning-icon>
+                <span class="info-text">
+                    Only business checking accounts are accepted for electronic debit payments. Savings accounts, money market accounts, and other account types are not eligible. To ensure accuracy and avoid delays in processing your group's enrollment, please also provide a voided check or bank letter containing your checking account information for verification.
+                </span>
+            </div>
+
+            <div class="slds-m-top_medium">
+                <c-a-r-c_-payment-method
+                    default-method="bank"
+                    record-id={recordId}
+                    payment-data={paymentMethodData}
+                    onpaymentchange={handlePaymentMethodChange}>
+                    
+                    <div class="billing-address slds-box slds-box_x-small slds-theme_shade">
+                        <c-a-r-c_-radio-group
+                            label="Is billing address the same as the Group Account address?"
+                            name="billingAddressDifferent"
+                            options={yesNoOptions}
+                            value={billingAddressDifferentValue}
+                            required
+                            variant="box"
+                            container-class="slds-m-bottom_small"
+                            onchange={handleBillingAddressDifferentChange}>
+                        </c-a-r-c_-radio-group>
+
+                        <div class="slds-m-bottom_medium">
+                            <h3 class="slds-text-heading_small slds-m-bottom_small">Billing Address</h3>
+                            <c-a-r-c_-address-block
+                                label="Billing Address"
+                                hide-label
+                                required
+                                read-only={isBillingAddressReadOnly}
+                                value={paymentInfo.billingAddress}
+                                onchange={handleBillingAddressChange}>
+                            </c-a-r-c_-address-block>
+                        </div>
+                    </div>
+                </c-a-r-c_-payment-method>
+            </div>
+        </div>
+    </c-a-r-c_-collapsible-section>
+</template>

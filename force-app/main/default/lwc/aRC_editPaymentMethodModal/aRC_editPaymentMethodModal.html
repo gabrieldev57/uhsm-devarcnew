@@ -1,0 +1,435 @@
+<template>
+    <lightning-modal-header label="Edit Payment Information"></lightning-modal-header>
+
+    <lightning-modal-body>
+        <template if:true={isReady}>
+
+            <template if:true={showSuccessMessage}>
+                <div class="slds-notify slds-notify_alert slds-theme_success" role="alert">
+                    <span class="slds-assistive-text">success</span>
+                    <h2>Payment information updated successfully!</h2>
+                </div>
+            </template>
+
+            <template if:true={showErrorMessage}>
+                <div class="slds-notify slds-notify_alert slds-theme_error" role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <h2>The information cannot be updated: {errorMessage}</h2>
+                </div>
+            </template>
+
+            <!-- ================= PAYMENT METHOD ================= -->
+
+            <lightning-combobox
+                label="Payment Method"
+                name="ChargentOrders__Payment_Method__c"
+                value={order.ChargentOrders__Payment_Method__c}
+                options={paymentMethodOptions}
+                required
+                onchange={handleFieldChange}>
+            </lightning-combobox>
+
+            <!-- BANK ACCOUNT -->
+            <template if:true={isBankAccount}>
+                <div class="slds-box slds-theme_shade slds-m-top_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">
+                        Bank Account Information
+                    </h3>
+
+                    <lightning-input
+                        label="Financial Institution Name"
+                        name="ChargentOrders__Bank_Name__c"
+                        value={order.ChargentOrders__Bank_Name__c}
+                        placeholder="Enter bank name"
+                        required
+                        onchange={handleFieldChange}>
+                    </lightning-input>
+
+                    <lightning-input
+                        label="Bank Routing Number"
+                        name="ChargentOrders__Bank_Routing_Number__c"
+                        value={order.ChargentOrders__Bank_Routing_Number__c}
+                        placeholder="XXXXXXXXX"
+                        pattern="[0-9]{9}"
+                        maxlength="9"
+                        message-when-pattern-mismatch="Please enter numbers only"
+                        required
+                        onchange={handleFieldChange}>
+                    </lightning-input>
+
+                    <lightning-input
+                        label="Bank Account Number"
+                        name="ChargentOrders__Bank_Account_Number__c"
+                        pattern="[0-9]{8,17}"
+                        maxlength="17"
+                        message-when-pattern-mismatch="Please enter a valid bank account number"
+                        required
+                        onchange={handleFieldChange}>
+                    </lightning-input>
+                </div>
+            </template>
+
+            <!-- CREDIT CARD -->
+            <template if:true={isCreditCard}>
+                <div class="slds-box slds-theme_shade slds-m-top_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">
+                        Credit Card Information
+                    </h3>
+
+                    <lightning-input
+                        label="Card Number"
+                        name="cardNumber"
+                        placeholder="XXXX XXXX XXXX XXXX"
+                        pattern="[0-9]{16}"
+                        maxlength="16"
+                        message-when-pattern-mismatch="Please enter numbers only"
+                        required
+                        onchange={handleFieldChange}>
+                    </lightning-input>
+
+                    <lightning-input
+                        type="text"
+                        label="Expiration Date"
+                        placeholder="MM/YY"
+                        value={expirationInput}
+                        maxlength="5"
+                        pattern="(0[1-9]|1[0-2])\/(2[6-9]|[3-9][0-9])"
+                        message-when-pattern-mismatch="Please enter a valid future date in MM/YY format (e.g., 12/26)"
+                        required
+                        onchange={handleExpirationChange}>
+                    </lightning-input>
+                </div>
+            </template>
+
+            <!-- ================= ACCOUNT HOLDER ================= -->
+
+            <div class="slds-box slds-theme_shade slds-m-top_medium">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">
+                    Account Holder Contact
+                </h3>
+
+                <lightning-radio-group
+                    label="Is the Account Holder the same as the Primary Business Contact?"
+                    name="sameAsPrimaryContact"
+                    options={yesNoOptions}
+                    value={sameAsPrimaryContact}
+                    required
+                    onchange={handleFieldChange}>
+                </lightning-radio-group>
+
+                <!-- If NOT same as primary -->
+                <template if:true={showAccountHolderOptions}>
+
+                    <lightning-radio-group
+                        class="slds-m-top_medium"
+                        label="Use Existing Contact as Account Holder?"
+                        name="useExistingContact"
+                        options={yesNoOptions}
+                        value={useExistingContact}
+                        required
+                        onchange={handleFieldChange}>
+                    </lightning-radio-group>
+
+                    <!-- YES: lookup + preloaded inputs if contact comes from server -->
+                    <template if:true={useExistingContactYes}>
+                        <lightning-combobox
+                            class="slds-m-top_medium"
+                            label="Select Existing Contact"
+                            placeholder="--None--"
+                            options={contactOptions}
+                            value={selectedExistingContactId}
+                            onchange={handleFieldChange}
+                            name="selectedExistingContactId">
+                        </lightning-combobox>
+
+                        <template if:true={showAccountHolderPreloadedInputs}>
+                            <div class="slds-m-top_medium">
+                                <lightning-input
+                                    label="Account Holder First Name"
+                                    name="newContact_FirstName"
+                                    value={newContact.FirstName}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                                <lightning-input
+                                    label="Account Holder Last Name"
+                                    name="newContact_LastName"
+                                    value={newContact.LastName}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                                <lightning-input
+                                    label="Account Holder Email"
+                                    type="email"
+                                    name="newContact_Email"
+                                    value={newContact.Email}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                                <lightning-combobox
+                                    label="Portal Access"
+                                    name="newContact_PortalAccess"
+                                    value={newContact.PortalAccess}
+                                    options={portalAccessOptions}
+                                    placeholder="--None--"
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-combobox>
+                            </div>
+                        </template>
+                    </template>
+
+                    <!-- NO: empty inputs for new contact -->
+                    <template if:true={useExistingContactNo}>
+                        <div class="slds-m-top_medium">
+                            <lightning-input
+                                label="Account Holder First Name"
+                                name="newContact_FirstName"
+                                value={newContact.FirstName}
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                            <lightning-input
+                                label="Account Holder Last Name"
+                                name="newContact_LastName"
+                                value={newContact.LastName}
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                            <lightning-input
+                                label="Account Holder Email"
+                                type="email"
+                                name="newContact_Email"
+                                value={newContact.Email}
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                            <lightning-combobox
+                                label="Portal Access"
+                                name="newContact_PortalAccess"
+                                value={newContact.PortalAccess}
+                                options={portalAccessOptions}
+                                placeholder="--None--"
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-combobox>
+                        </div>
+                    </template>
+
+                </template>
+            </div>
+
+            <!-- ================= BILLING CONTACT ================= -->
+
+            <div class="slds-box slds-theme_shade slds-m-top_medium">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">
+                    Billing Contact
+                </h3>
+
+                <lightning-radio-group
+                    label="Is the Billing Contact the same as Account Holder?"
+                    name="sameAsAccountHolder"
+                    options={yesNoOptions}
+                    value={sameAsAccountHolder}
+                    required
+                    onchange={handleFieldChange}>
+                </lightning-radio-group>
+
+                <!-- If NOT same as account holder -->
+                <template if:true={showBillingContactOptions}>
+
+                    <lightning-radio-group
+                        class="slds-m-top_medium"
+                        label="Use Existing Contact as Billing Contact?"
+                        name="useExistingBillingContact"
+                        options={yesNoOptions}
+                        value={useExistingBillingContact}
+                        required
+                        onchange={handleFieldChange}>
+                    </lightning-radio-group>
+
+                    <!-- YES: lookup + preloaded inputs if contact comes from server -->
+                    <template if:true={useExistingBillingContactYes}>
+                        <lightning-combobox
+                            class="slds-m-top_medium"
+                            label="Select Existing Contact"
+                            placeholder="--None--"
+                            options={contactOptions}
+                            value={selectedExistingBillingContactId}
+                            onchange={handleFieldChange}
+                            name="selectedExistingBillingContactId">
+                        </lightning-combobox>
+
+                        <template if:true={showBillingContactPreloadedInputs}>
+                            <div class="slds-m-top_medium">
+                                <lightning-input
+                                    label="Billing Contact First Name"
+                                    name="billingContact_FirstName"
+                                    value={billingContact.FirstName}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                                <lightning-input
+                                    label="Billing Contact Last Name"
+                                    name="billingContact_LastName"
+                                    value={billingContact.LastName}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                                <lightning-input
+                                    label="Billing Contact Title"
+                                    name="billingContact_Title"
+                                    value={billingContact.Title}
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                                <lightning-input
+                                    label="Billing Contact Email"
+                                    type="email"
+                                    name="billingContact_Email"
+                                    value={billingContact.Email}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                                <lightning-input
+                                    label="Billing Contact Phone"
+                                    name="billingContact_Phone"
+                                    value={billingContact.Phone}
+                                    pattern="[0-9]*"
+                                    maxlength="10"
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                                <lightning-combobox
+                                    label="Portal Access"
+                                    name="billingContact_PortalAccess"
+                                    value={billingContact.PortalAccess}
+                                    options={portalAccessOptions}
+                                    placeholder="--None--"
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-combobox>
+                            </div>
+                        </template>
+                    </template>
+
+                    <!-- NO: empty inputs for new billing contact -->
+                    <template if:true={useExistingBillingContactNo}>
+                        <div class="slds-m-top_medium">
+                            <lightning-input
+                                label="Billing Contact First Name"
+                                name="billingContact_FirstName"
+                                value={billingContact.FirstName}
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                            <lightning-input
+                                label="Billing Contact Last Name"
+                                name="billingContact_LastName"
+                                value={billingContact.LastName}
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                            <lightning-input
+                                label="Billing Contact Title"
+                                name="billingContact_Title"
+                                value={billingContact.Title}
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                            <lightning-input
+                                label="Billing Contact Email"
+                                type="email"
+                                name="billingContact_Email"
+                                value={billingContact.Email}
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                            <lightning-input
+                                label="Billing Contact Phone"
+                                name="billingContact_Phone"
+                                value={billingContact.Phone}
+                                pattern="[0-9]*"
+                                maxlength="10"
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                            <lightning-combobox
+                                label="Portal Access"
+                                name="billingContact_PortalAccess"
+                                value={billingContact.PortalAccess}
+                                options={portalAccessOptions}
+                                placeholder="--None--"
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-combobox>
+                        </div>
+                    </template>
+
+                </template>
+
+                <!-- Billing Address -->
+                <lightning-radio-group
+                    class="slds-m-top_medium"
+                    label="Is Billing Address the same as the Group Account address?"
+                    name="billingAddressDifferent"
+                    options={yesNoOptions}
+                    value={billingAddressDifferent}
+                    required
+                    onchange={handleFieldChange}>
+                </lightning-radio-group>
+
+                <div class="slds-m-top_medium">
+                    <lightning-input
+                        label="Street"
+                        name="billingAddress_Street"
+                        value={billingAddress.Street}
+                        required
+                        onchange={handleFieldChange}
+                        disabled={billingAddressDisabled}>
+                    </lightning-input>
+                    <lightning-input
+                        label="City"
+                        name="billingAddress_City"
+                        value={billingAddress.City}
+                        required
+                        onchange={handleFieldChange}
+                        disabled={billingAddressDisabled}>
+                    </lightning-input>
+                    <lightning-combobox
+                        label="State"
+                        name="billingAddress_State"
+                        value={billingAddress.State}
+                        options={stateOptions}
+                        placeholder="--None--"
+                        required
+                        onchange={handleFieldChange}
+                        disabled={billingAddressDisabled}>
+                    </lightning-combobox>
+                    <lightning-input
+                        label="Zip Code"
+                        name="billingAddress_PostalCode"
+                        value={billingAddress.PostalCode}
+                        required
+                        onchange={handleFieldChange}
+                        disabled={billingAddressDisabled}>
+                    </lightning-input>
+                </div>
+            </div>
+
+        </template>
+    </lightning-modal-body>
+
+    <lightning-modal-footer>
+        <lightning-button
+            label="Cancel"
+            variant="neutral"
+            onclick={handleCancel}>
+        </lightning-button>
+        <lightning-button
+            label="Save"
+            variant="brand"
+            onclick={handleSave}
+            disabled={isSaveDisabled}
+            class="slds-m-left_medium">
+        </lightning-button>
+    </lightning-modal-footer>
+</template>

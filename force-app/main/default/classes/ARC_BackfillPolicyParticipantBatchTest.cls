@@ -18,8 +18,8 @@ public class ARC_BackfillPolicyParticipantBatchTest {
         InsurancePolicy policy = new InsurancePolicy(
             Name = 'Test Policy',
             ARC_Contract__c = contract.Id,
-            // EffectiveDate = Date.today().addDays(-10),
-            // ExpirationDate = Date.today().addDays(365),
+            // ARC_StartDate__c = Date.today().addDays(-10),
+            // ARC_EndDate__c = Date.today().addDays(365),
             NameInsuredId = a.Id
         );
         insert policy;
@@ -46,9 +46,13 @@ public class ARC_BackfillPolicyParticipantBatchTest {
 
         // Verify update
         InsurancePolicy policy = [SELECT ARC_EffectiveDate__c, ARC_ExpirationDate__c FROM InsurancePolicy LIMIT 1];
-        InsurancePolicyParticipant ipp = [SELECT EffectiveDate, ExpirationDate FROM InsurancePolicyParticipant LIMIT 1];
-        System.assertEquals(policy.ARC_EffectiveDate__c, ipp.EffectiveDate, 'EffectiveDate should match policy');
-        System.assertEquals(policy.ARC_ExpirationDate__c, ipp.ExpirationDate, 'ExpirationDate should match policy');
+        InsurancePolicyParticipant ipp = [SELECT ARC_StartDate__c, ARC_EndDate__c FROM InsurancePolicyParticipant LIMIT 1];
+        Date policyEffDate = Date.newInstance(policy.ARC_EffectiveDate__c.year(), policy.ARC_EffectiveDate__c.month(), policy.ARC_EffectiveDate__c.day());
+        Date ippEffDate = Date.newInstance(ipp.ARC_StartDate__c.year(), ipp.ARC_StartDate__c.month(), ipp.ARC_StartDate__c.day());
+        Date policyExpDate = Date.newInstance(policy.ARC_ExpirationDate__c.year(), policy.ARC_ExpirationDate__c.month(), policy.ARC_ExpirationDate__c.day());
+        Date ippExpDate = Date.newInstance(ipp.ARC_EndDate__c.year(), ipp.ARC_EndDate__c.month(), ipp.ARC_EndDate__c.day());
+        System.assertEquals(policyEffDate, ippEffDate, 'ARC_StartDate__c should match policy');
+        System.assertEquals(policyExpDate, ippExpDate, 'ARC_EndDate__c should match policy');
     }
 
     @isTest
@@ -61,8 +65,12 @@ public class ARC_BackfillPolicyParticipantBatchTest {
 
         // Verify update
         InsurancePolicy policy2 = [SELECT ARC_EffectiveDate__c, ARC_ExpirationDate__c FROM InsurancePolicy LIMIT 1];
-        InsurancePolicyParticipant ipp = [SELECT EffectiveDate, ExpirationDate FROM InsurancePolicyParticipant LIMIT 1];
-        System.assertEquals(policy2.ARC_EffectiveDate__c, ipp.EffectiveDate, 'EffectiveDate should match policy');
-        System.assertEquals(policy2.ARC_ExpirationDate__c, ipp.ExpirationDate, 'ExpirationDate should match policy');
+        InsurancePolicyParticipant ipp = [SELECT ARC_StartDate__c, ARC_EndDate__c FROM InsurancePolicyParticipant LIMIT 1];
+        Date policyEffDate = Date.newInstance(policy2.ARC_EffectiveDate__c.year(), policy2.ARC_EffectiveDate__c.month(), policy2.ARC_EffectiveDate__c.day());
+        Date ippEffDate = Date.newInstance(ipp.ARC_StartDate__c.year(), ipp.ARC_StartDate__c.month(), ipp.ARC_StartDate__c.day());
+        Date policyExpDate = Date.newInstance(policy2.ARC_ExpirationDate__c.year(), policy2.ARC_ExpirationDate__c.month(), policy2.ARC_ExpirationDate__c.day());
+        Date ippExpDate = Date.newInstance(ipp.ARC_EndDate__c.year(), ipp.ARC_EndDate__c.month(), ipp.ARC_EndDate__c.day());
+        System.assertEquals(policyEffDate, ippEffDate, 'ARC_StartDate__c should match policy');
+        System.assertEquals(policyExpDate, ippExpDate, 'ARC_EndDate__c should match policy');
     }
 }

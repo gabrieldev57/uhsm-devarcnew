@@ -1,0 +1,59 @@
+<template>
+    <!-- Loading state -->
+    <template lwc:if={isLoading}>
+        <div class="slds-p-around_large slds-align_absolute-center slds-text-align_center">
+            <lightning-spinner alternative-text="Generating invoices..." size="medium"></lightning-spinner>
+            <p class="slds-m-top_large slds-text-body_regular slds-text-color_weak">
+                Generating missed invoices&hellip;
+            </p>
+        </div>
+    </template>
+
+    <!-- Content state -->
+    <template lwc:else>
+        <div class="slds-p-around_large">
+            <!-- Result / confirm message -->
+            <div class="slds-media slds-media_center">
+                <div class="slds-media__figure">
+                    <template lwc:if={isDone}>
+                        <lightning-icon icon-name="utility:success" variant="success" size="medium"></lightning-icon>
+                    </template>
+                    <template lwc:else>
+                        <lightning-icon icon-name="utility:info" variant="brand" size="medium"></lightning-icon>
+                    </template>
+                </div>
+                <div class="slds-media__body slds-m-left_small">
+                    <p class="slds-text-heading_small slds-m-bottom_x-small">
+                        <template lwc:if={isDone}>Done</template>
+                        <template lwc:else>Generate Missed Invoices</template>
+                    </p>
+                    <p class="slds-text-body_regular slds-text-color_weak">{message}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="slds-modal__footer">
+            <template lwc:if={isDone}>
+                <lightning-button
+                    label="Close"
+                    variant="brand"
+                    onclick={handleClose}
+                ></lightning-button>
+            </template>
+            <template lwc:else>
+                <lightning-button
+                    label="Cancel"
+                    onclick={handleClose}
+                ></lightning-button>
+                <lightning-button
+                    label="Generate Missed Invoices"
+                    icon-name="utility:add"
+                    variant="brand"
+                    onclick={handleGenerate}
+                    class="slds-m-left_x-small"
+                ></lightning-button>
+            </template>
+        </div>
+    </template>
+</template>

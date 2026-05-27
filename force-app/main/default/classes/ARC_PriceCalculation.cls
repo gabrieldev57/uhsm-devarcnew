@@ -30,9 +30,6 @@ public class ARC_PriceCalculation {
             
             inputMap.put('userInputs', input.userInputs);
             options.put('whereClause', 'Id = \'' + input.productId + '\'');
-
-            System.debug('inputMap: ' + inputMap);
-            System.debug('options: ' + options);
             
             Type classType = Type.forName('vlocity_ins', 'InsProductService');
             vlocity_ins.VlocityOpenInterface2 obj = (vlocity_ins.VlocityOpenInterface2) classType.newInstance();
@@ -45,7 +42,6 @@ public class ARC_PriceCalculation {
                 Map<String, Object> fields = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(record.get('fields')));
                 
                 if (fields.containsKey('Price')) {
-                    System.debug('Price: ' + fields.get('Price'));
                     result.price = Decimal.valueOf(String.valueOf(fields.get('Price')));
                     result.success = true;
                 } else {

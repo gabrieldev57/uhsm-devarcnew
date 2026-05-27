@@ -1,0 +1,134 @@
+<template>
+    <div class="container">
+
+        <!-- <template if:true={showPaymentError}>
+            <div class="slds-box slds-theme_alert-texture slds-theme_error slds-m-bottom_medium">
+                <lightning-icon
+                    icon-name="utility:error"
+                    size="small"
+                    class="slds-m-right_small"
+                ></lightning-icon>
+                <span>{errorMessage}</span>
+            </div>
+        </template> -->
+
+        <template if:true={showPaymentError}>
+            <div class="slds-notify slds-notify_alert slds-theme_error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <h2>{errorMessage}</h2>
+            </div>
+        </template>
+
+
+        <template if:true={order}>
+            <div class="card-header">
+                <div class="slds-grid slds-grid_vertical-center header-container">
+                    <div class="slds-m-right_x-small">
+                        <lightning-icon icon-name="utility:payment_gateway" size="small"></lightning-icon>
+                    </div>
+                    <div class="header">
+                        Payment Information
+                    </div>
+                </div>
+                <template if:true={canEdit}>
+                    <button class="edit-payment-button" title="Edit Payment Method" onclick={editModeButton}>
+                        <lightning-icon icon-name="utility:edit" size="x-small" class="edit-btn-icon"></lightning-icon>
+                        Edit
+                    </button>
+                </template>
+            </div>
+
+            <!-- Payment Method + Holder -->
+            <div class="form-row-container">
+                <lightning-input
+                    label="Payment Method"
+                    value={order.ChargentOrders__Payment_Method__c}
+                    disabled
+                    class="form-row-item">
+                </lightning-input>
+
+                <template if:true={isCreditCard}>
+                    <lightning-input
+                        label="Name on Card"
+                        value={AccountHolder}
+                        disabled
+                        class="form-row-item">
+                    </lightning-input>
+                </template>
+
+                <template if:false={isCreditCard}>
+                    <lightning-input
+                        label="Account Holder"
+                        value={AccountHolder}
+                        disabled
+                        class="form-row-item">
+                    </lightning-input>
+                </template>
+            </div>
+
+            <!-- CREDIT CARD -->
+            <template if:true={isCreditCard}>
+                <lightning-input
+                    label="Credit Card Number"
+                    value={maskedCardNumber}
+                    disabled>
+                </lightning-input>
+
+                <lightning-input
+                    label="Expiration Date"
+                    value={CardExpiration}
+                    disabled>
+                </lightning-input>
+            </template>
+
+            <!-- BANK ACCOUNT -->
+            <template if:false={isCreditCard}>
+                <lightning-input
+                    label="Account Number"
+                    value={maskedAccountNumber}
+                    disabled>
+                </lightning-input>
+
+                <lightning-input
+                    label="Payment Interval"
+                    value={PaymentFrequency}
+                    disabled>
+                </lightning-input>
+
+                <div class="form-row-container">
+                    <lightning-input
+                        label="Bank Name"
+                        value={order.ChargentOrders__Bank_Name__c}
+                        disabled
+                        class="form-row-item">
+                    </lightning-input>
+
+                    <lightning-input
+                        label="Account Type"
+                        value={BankAccountType}
+                        disabled
+                        class="form-row-item">
+                    </lightning-input>
+                </div>
+            </template>
+
+            <!-- ADDRESS -->
+            <label class="slds-form-element__label">Address</label>
+            <lightning-formatted-rich-text
+                value={FullAddress}
+                class="address-display">
+            </lightning-formatted-rich-text>
+
+            <br /><br />
+
+            <div class="button-container">
+                <button
+                    class="invoice-button"
+                    title="View Invoices"
+                    onclick={handleViewInvoices}>
+                    View Invoices
+                </button>
+            </div>
+        </template>
+    </div>
+</template>

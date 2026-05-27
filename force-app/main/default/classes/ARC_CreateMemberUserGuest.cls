@@ -101,6 +101,16 @@ global without sharing class ARC_CreateMemberUserGuest implements vlocity_ins.Vl
             }
         }
 
+        //Get Guardian Account
+        List<Account> guardianAccount = [SELECT Id,name, PersonContactId FROM Account WHERE ARC_GroupAccount__c =: accountId AND RecordType.DeveloperName ='ARC_Guardian' LIMIT 1];
+        if(guardianAccount.size()>0){
+            //Update Primary on Census
+            List<vlocity_ins__GroupCensus__c> groupCensus = [SELECT Id FROM vlocity_ins__GroupCensus__c WHERE vlocity_ins__GroupId__c =:accountId LIMIT 1];
+            vlocity_ins__GroupCensus__c censusToUpdate = new vlocity_ins__GroupCensus__c(Id= groupCensus[0].Id, ARC_PrimaryAccount__c= personAcc.Id);
+            update censusToUpdate;
+        }
+
+
         //Create user
         try{
             Profile profile = [SELECT Id FROM Profile WHERE Name = 'Member Community' LIMIT 1];
@@ -109,10 +119,7 @@ global without sharing class ARC_CreateMemberUserGuest implements vlocity_ins.Vl
 
             String nickName = firstName.left(10) + lastName.left(20) + Integer.valueof((Math.random() * 10000));
             String alias = firstName.substring(0,1).toLowerCase() + lastName.substring(0,1).toLowerCase();
-
-
-
-
+            Id primaryGuardianContactId = (guardianAccount.size()>0)? guardianAccount[0].PersonContactId:personContactId;
 
 
             User usr = new User(
@@ -127,7 +134,7 @@ global without sharing class ARC_CreateMemberUserGuest implements vlocity_ins.Vl
                 State = state,
                 PostalCode = zipCode,
                 CommunityNickname = nickName,
-                ContactId = personContactId,
+                ContactId = primaryGuardianContactId,
                 ProfileId = profile.Id,
                 TimeZoneSidKey = 'America/New_York',
                 LanguageLocaleKey = 'en_US',

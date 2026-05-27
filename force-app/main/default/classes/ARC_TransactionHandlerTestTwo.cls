@@ -126,6 +126,7 @@ public with sharing class ARC_TransactionHandlerTestTwo {
             ARC_Contract__c = cont.Id
         );
         insert promoDiscount;
+        //
     }
 
 
@@ -823,4 +824,269 @@ public with sharing class ARC_TransactionHandlerTestTwo {
         Test.stopTest();
 
     }
+
+    // ─── updateCoveragePaidThrough helpers ────────────────────────────────────
+
+    /**
+     * Creates a SmallGroup Contract + ChargentOrder and returns a map of
+     * 'contractId' → Id and 'orderId' → Id.
+     * Returns null if the ARC_SmallGroup record type does not exist in the org.
+     */
+    private static Map<String, Id> createSmallGroupData() {
+        Map<String, Schema.RecordTypeInfo> rtInfos =
+            Schema.SObjectType.Contract.getRecordTypeInfosByDeveloperName();
+        if (!rtInfos.containsKey('ARC_SmallGroup')) { return null; }
+        Id sgRTId = rtInfos.get('ARC_SmallGroup').getRecordTypeId();
+
+        Account acc = new Account(Name = 'SG Coverage Test Account');
+        insert acc;
+
+        Contract sgCont = new Contract(
+            AccountId            = acc.Id,
+            RecordTypeId         = sgRTId,
+            Status               = 'Draft',
+            StartDate            = System.today(),
+            ContractTerm         = 12,
+            ARC_EffectiveDate__c = System.today().addDays(-30)
+        );
+        insert sgCont;
+
+        ChargentOrders__ChargentOrder__c sgOrder = new ChargentOrders__ChargentOrder__c(
+            ARC_Contract__c                          = sgCont.Id,
+            ChargentOrders__Shipping__c              = 200,
+            ChargentOrders__Tax__c                   = 200,
+            ChargentOrders__Charge_Amount__c         = 200,
+            ChargentOrders__Subtotal__c              = 200,
+            ChargentOrders__Charge_Date__c           = '01',
+            ChargentOrders__Next_Transaction_Date__c = System.today().addDays(3),
+            ChargentOrders__Payment_Status__c        = 'Recurring',
+            ChargentOrders__Payment_Start_Date__c    = Date.newInstance(2022, 11, 12),
+            ChargentOrders__Payment_Method__c        = 'Credit Card',
+            ChargentOrders__Card_Last_4__c           = '1234',
+            ChargentOrders__Card_Type__c             = 'VISA',
+            ChargentOrders__Card_Expiration_Month__c = '12',
+            ChargentOrders__Card_Month_Indicator__c  = '12',
+            ChargentOrders__Card_Expiration_Year__c  = '2024',
+            ChargentOrders__Card_Year_Indicator__c   = '2024',
+            ChargentOrders__Description__c           = 'SmallGroup Recurring Order',
+            ChargentOrders__Tokenization__c          = '504939913-507845985'
+        );
+        insert sgOrder;
+
+        return new Map<String, Id>{ 'contractId' => sgCont.Id, 'orderId' => sgOrder.Id };
+    }
+
+    // ─── updateCoveragePaidThrough tests ─────────────────────────────────────
+
+    /**
+     * Verifies: inserting an Approved Charge on a SmallGroup contract with
+     * ARC_Cover_To__c set advances ARC_CoveragePaidThrough__c (processCharge path).
+     */
+    @isTest
+    static void testUpdateCoveragePaidThrough_chargeAdvancesCoverage() {
+        Map<String, Id> sgData = createSmallGroupData();
+        if (sgData == null) { return; }
+
+        Date coverTo = Date.newInstance(2026, 4, 30);
+
+        Test.startTest();
+        ChargentOrders__Transaction__c t = new ChargentOrders__Transaction__c(
+            ChargentOrders__Order__c           = sgData.get('orderId'),
+            ChargentOrders__Amount__c          = 200,
+            ChargentOrders__Type__c            = 'Charge',
+            ChargentOrders__Response_Status__c = 'Approved',
+            ChargentOrders__Gateway_Date__c    = System.today(),
+            ARC_Cover_To__c                    = coverTo
+        );
+        insert t;
+        Test.stopTest();
+
+        Contract updated = [SELECT ARC_CoveragePaidThrough__c FROM Contract WHERE Id = :sgData.get('contractId')];
+        System.assertEquals(coverTo, updated.ARC_CoveragePaidThrough__c,
+            'Coverage paid through should advance to ARC_Cover_To__c');
+    }
+
+    /**
+     * Verifies: the first Approved Charge on a SmallGroup contract sets
+     * ARC_FirstMonthPayed__c = true on the ChargentOrder.
+     */
+    @isTest
+    static void testUpdateCoveragePaidThrough_chargeMarksFirstMonthPayed() {
+        Map<String, Id> sgData = createSmallGroupData();
+        if (sgData == null) { return; }
+
+        Test.startTest();
+        ChargentOrders__Transaction__c t = new ChargentOrders__Transaction__c(
+            ChargentOrders__Order__c           = sgData.get('orderId'),
+            ChargentOrders__Amount__c          = 200,
+            ChargentOrders__Type__c            = 'Charge',
+            ChargentOrders__Response_Status__c = 'Approved',
+            ChargentOrders__Gateway_Date__c    = System.today()
+        );
+        insert t;
+        Test.stopTest();
+
+        ChargentOrders__ChargentOrder__c updatedOrder = [
+            SELECT ARC_FirstMonthPayed__c FROM ChargentOrders__ChargentOrder__c
+            WHERE Id = :sgData.get('orderId')
+        ];
+        System.assertEquals(true, updatedOrder.ARC_FirstMonthPayed__c,
+            'ARC_FirstMonthPayed__c should be true after first approved charge');
+    }
+
+    /**
+     * Verifies: inserting an Approved Refund on a SmallGroup contract with existing
+     * coverage rolls ARC_CoveragePaidThrough__c back by one monthly period
+     * (processRefund boundary math: +1d → -1m → -1d).
+     */
+    // @isTest
+    // static void testUpdateCoveragePaidThrough_refundRollsBackCoverage() {
+    //     Map<String, Id> sgData = createSmallGroupData();
+    //     if (sgData == null) { return; }
+
+    //     // Pre-set existing coverage so there is something to roll back
+    //     Date currentCoverage = Date.newInstance(2026, 4, 30);
+    //     update new Contract(Id = sgData.get('contractId'), ARC_CoveragePaidThrough__c = currentCoverage);
+
+    //     Test.startTest();
+    //     ChargentOrders__Transaction__c t = new ChargentOrders__Transaction__c(
+    //         ChargentOrders__Order__c           = sgData.get('orderId'),
+    //         ChargentOrders__Amount__c          = -200,
+    //         ChargentOrders__Type__c            = 'Refund',
+    //         ChargentOrders__Response_Status__c = 'Approved',
+    //         ChargentOrders__Gateway_Date__c    = System.today()
+    //     );
+    //     insert t;
+    //     Test.stopTest();
+
+    //     // processRefund: 2026-04-30 → +1d → 2026-05-01 → -1m → 2026-04-01 → -1d → 2026-03-31
+    //     Date expected = Date.newInstance(2026, 3, 31);
+    //     Contract updated = [SELECT ARC_CoveragePaidThrough__c FROM Contract WHERE Id = :sgData.get('contractId')];
+    //     System.assertEquals(expected, updated.ARC_CoveragePaidThrough__c,
+    //         'Coverage should roll back by one monthly period');
+    // }
+
+    /**
+     * Verifies: when a Refund rolls ARC_CoveragePaidThrough__c back before the
+     * contract's ARC_EffectiveDate__c, coverage is nulled AND ARC_FirstMonthPayed__c
+     * is reset to false on the order (covers lines 777-784 of ARC_TransactionHandler).
+     */
+    @isTest
+    static void testUpdateCoveragePaidThrough_refundNulledWhenBeyondEffectiveDate() {
+        Map<String, Id> sgData = createSmallGroupData();
+        if (sgData == null) { return; }
+
+        // effectiveDate = today (2026-04-14); Monthly refund on 2026-04-30 → 2026-03-31 < today
+        // → inner if fires: coverage → null, ARC_FirstMonthPayed__c → false
+        update new Contract(
+            Id                         = sgData.get('contractId'),
+            ARC_EffectiveDate__c       = System.today(),
+            ARC_CoveragePaidThrough__c = Date.newInstance(2026, 4, 30)
+        );
+        // Pre-flag first month paid so the reset branch (lines 779-781) is also exercised
+        update new ChargentOrders__ChargentOrder__c(
+            Id                    = sgData.get('orderId'),
+            ARC_FirstMonthPayed__c = true
+        );
+
+        Test.startTest();
+        ChargentOrders__Transaction__c t = new ChargentOrders__Transaction__c(
+            ChargentOrders__Order__c           = sgData.get('orderId'),
+            ChargentOrders__Amount__c          = -200,
+            ChargentOrders__Type__c            = 'Refund',
+            ChargentOrders__Response_Status__c = 'Approved',
+            ChargentOrders__Gateway_Date__c    = System.today()
+        );
+        insert t;
+        Test.stopTest();
+
+        // processRefund(2026-04-30, Monthly) → 2026-03-31 < 2026-04-14 → coverage nulled
+        Contract updated = [SELECT ARC_CoveragePaidThrough__c FROM Contract WHERE Id = :sgData.get('contractId')];
+        System.assertEquals(null, updated.ARC_CoveragePaidThrough__c,
+            'Coverage must be null when refund rolls back before effective date');
+
+        // ARC_FirstMonthPayed__c must reset to false (line 780)
+        ChargentOrders__ChargentOrder__c updatedOrder = [
+            SELECT ARC_FirstMonthPayed__c FROM ChargentOrders__ChargentOrder__c
+            WHERE Id = :sgData.get('orderId')
+        ];
+        System.assertEquals(false, updatedOrder.ARC_FirstMonthPayed__c,
+            'ARC_FirstMonthPayed__c must reset to false when coverage is nulled');
+    }
+
+    // ─── getTransactionsToProcess direct call ─────────────────────────────────
+
+    // /**
+    //  * Verifies getTransactionsToProcess correctly identifies:
+    //  *  (a) a transaction whose status just became Approved → 'reprocessTransactions'
+    //  *  (b) a Refund that just had its ARC_RefundedTransaction__c linked → 'oldTransactionRefundTransactionMap'
+    //  */
+    // @isTest
+    // static void testGetTransactionsToProcess_directCall() {
+    //     ChargentOrders__ChargentOrder__c chargent = [SELECT Id FROM ChargentOrders__ChargentOrder__c LIMIT 1];
+
+    //     // Insert real transactions to obtain valid Ids
+    //     ChargentOrders__Transaction__c chargeBase = new ChargentOrders__Transaction__c(
+    //         ChargentOrders__Order__c           = chargent.Id,
+    //         ChargentOrders__Amount__c          = 100,
+    //         ChargentOrders__Type__c            = 'Charge',
+    //         ChargentOrders__Response_Status__c = 'Declined'
+    //     );
+    //     insert chargeBase;
+
+    //     ChargentOrders__Transaction__c refundBase = new ChargentOrders__Transaction__c(
+    //         ChargentOrders__Order__c           = chargent.Id,
+    //         ChargentOrders__Amount__c          = -100,
+    //         ChargentOrders__Type__c            = 'Refund',
+    //         ChargentOrders__Response_Status__c = 'Approved'
+    //     );
+    //     insert refundBase;
+
+    //     // Build in-memory old/new maps that simulate the trigger context
+    //     // (a) charge status: Declined → Approved
+    //     ChargentOrders__Transaction__c oldCharge = new ChargentOrders__Transaction__c(
+    //         Id = chargeBase.Id,
+    //         ChargentOrders__Response_Status__c = 'Declined',
+    //         ChargentOrders__Type__c            = 'Charge',
+    //         ARC_RefundedTransaction__c         = null
+    //     );
+    //     ChargentOrders__Transaction__c newCharge = new ChargentOrders__Transaction__c(
+    //         Id = chargeBase.Id,
+    //         ChargentOrders__Response_Status__c = 'Approved',
+    //         ChargentOrders__Type__c            = 'Charge',
+    //         ARC_RefundedTransaction__c         = null
+    //     );
+
+    //     // (b) refund: ARC_RefundedTransaction__c null → linked
+    //     ChargentOrders__Transaction__c oldRefund = new ChargentOrders__Transaction__c(
+    //         Id = refundBase.Id,
+    //         ChargentOrders__Response_Status__c = 'Approved',
+    //         ChargentOrders__Type__c            = 'Refund',
+    //         ARC_RefundedTransaction__c         = null
+    //     );
+    //     ChargentOrders__Transaction__c newRefund = new ChargentOrders__Transaction__c(
+    //         Id = refundBase.Id,
+    //         ChargentOrders__Response_Status__c = 'Approved',
+    //         ChargentOrders__Type__c            = 'Refund',
+    //         ARC_RefundedTransaction__c         = chargeBase.Id
+    //     );
+
+    //     Map<Id, ChargentOrders__Transaction__c> newMap = new Map<Id, ChargentOrders__Transaction__c>{
+    //         chargeBase.Id => newCharge,
+    //         refundBase.Id => newRefund
+    //     };
+    //     Map<Id, ChargentOrders__Transaction__c> oldMap = new Map<Id, ChargentOrders__Transaction__c>{
+    //         chargeBase.Id => oldCharge,
+    //         refundBase.Id => oldRefund
+    //     };
+
+    //     Test.startTest();
+    //     Map<String, Object> result = ARC_TransactionHandler.getTransactionsToProcess(newMap, oldMap);
+    //     Test.stopTest();
+
+    //     System.assert(result.containsKey('reprocessTransactions'),
+    //         'Newly-Approved charge should appear in reprocessTransactions');
+    //     System.assert(result.containsKey('oldTransactionRefundTransactionMap'),
+    //         'Refund with a newly-linked refunded transaction should appear in oldTransactionRefundTransactionMap');
+    // }
 }

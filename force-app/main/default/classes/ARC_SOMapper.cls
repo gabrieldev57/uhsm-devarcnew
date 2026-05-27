@@ -16,7 +16,7 @@
         this.manager = manager;       
         Map<String,Object> soReasons = (Map<String,Object>) manager.inputMap.get('soChanges');
         soReasons = (Map<String,Object>) soReasons.get('soReasons');
-
+        System.debug('SO Reasons: ' + soReasons);
         if(soReasons != null){
             if(soReasons.containsKey('ancillaryChange') && (Boolean)soReasons.get('ancillaryChange') == true){
                 manager.actionsToPerform.add('ancillaryChange');
@@ -52,7 +52,9 @@
                 actionsToExecute.add('mapCases');
                 actionsToExecute.add('mapCaseMember');
                 actionsToExecute.add('insertPromotionDiscount');
+                actionsToExecute.add('mapAncillaryDiscount');
                 actionsToExecute.add('insertCaseForFeeSkipped');
+                actionsToExecute.add('mapMemberBeneficiaries');
             }
         }
         else{
@@ -103,13 +105,18 @@
                     }
                     when 'mapCaseMember' {
                         mapCaseMember();
- 
                     }
                     when 'insertPromotionDiscount' {
                         insertPromotionDiscount();
                     }
+                    when 'mapAncillaryDiscount' {
+                        mapCriticalCarePromotionDiscount('singleSpinOff');
+                    }
                     when 'insertCaseForFeeSkipped' { // this is for case fee skipped
                         insertCaseForFeeSkipped();
+                    }
+                    when 'mapMemberBeneficiaries' {
+                        mapMemberBeneficiaries();
                     }
                     when 'multiSpinOff' { 
                         mapAccounts('groupAccountsToInsert');
@@ -119,9 +126,11 @@
                         mapContract('multiSpinOff');
                         mapContractLineItem('multiSpinOff');
                         mapContractParticipants();
+                        mapCriticalCarePromotionDiscount('multiSpinOff');
                         mapChargentOrders();
                         mapCases(); 
                         mapCaseMember();
+                        mapMemberBeneficiaries();
                     }
                     
                 }
@@ -207,7 +216,6 @@
                             Account personAccount = new Account();
                             personAccount.FirstName = (String)member.get('vlocity_ins__FirstName__c');
                             personAccount.LastName = (String)member.get('vlocity_ins__LastName__c');
-                            //personAccount.ARC_IsPrimaryMember__c = (Boolean)member.get('vlocity_ins__IsPrimaryMember__c');
                             personAccount.RecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('ARC_IFPPersonAccount').getRecordTypeId();                              
                             if(member.containsKey('IsNewMember') && (Boolean)member.get('IsNewMember') == false){
                                 personAccount.Id = member.containsKey('PersonAccountId') ? (Id)member.get('PersonAccountId') : null;
@@ -286,11 +294,8 @@
                     groupCensusMember.Name = member.get('vlocity_ins__FirstName__c') + ' ' +(String)member.get('vlocity_ins__LastName__c');
                     groupCensusMember.vlocity_ins__FirstName__c = member.containsKey('vlocity_ins__FirstName__c') ? (String)member.get('vlocity_ins__FirstName__c') : null;
                     groupCensusMember.vlocity_ins__LastName__c = member.containsKey('vlocity_ins__LastName__c') ? (String)member.get('vlocity_ins__LastName__c') : null;
-                    //groupCensusMember.vlocity_ins__SocialSecurityNumber__c = member.containsKey('vlocity_ins__SSN__c') ? (String)member.get('vlocity_ins__SSN__c') : null;
-                    //groupCensusMember.ARC_Weight__c = member.containsKey('vlocity_ins__Weight__c') ? (String)member.get('vlocity_ins__Weight__c') : null;
                     groupCensusMember.vlocity_ins__Gender__c = member.containsKey('vlocity_ins__Gender__c') ? (String)member.get('vlocity_ins__Gender__c') : null;
                     groupCensusMember.vlocity_ins__Email__c = member.containsKey('vlocity_ins__Email__c') ? (String)member.get('vlocity_ins__Email__c') : null;
-                    //groupCensusMember.ARC_Phone__c = member.containsKey('vlocity_ins__Phone__c') ? (String)member.get('vlocity_ins__Phone__c') : null;
                     groupCensusMember.ARC_PhysicalAddressZipCode__c = member.containsKey('ARC_PhysicalAddressZipCode__c') ? (String)member.get('ARC_PhysicalAddressZipCode__c') : null;
                     groupCensusMember.ARC_PhysicalAddressStreet__c = member.containsKey('ARC_PhysicalAddressStreet__c') ? (String)member.get('ARC_PhysicalAddressStreet__c') : null;
                     groupCensusMember.ARC_PhysicalAddressState__c = member.containsKey('ARC_PhysicalAddressState__c') ? (String)member.get('ARC_PhysicalAddressState__c') : null;
@@ -426,7 +431,6 @@
             if(!isMultipleSpinOff) {
                 // UW Case to Single Spin Off Contract
                 Case caseSO = new Case();
-                //caseSO.AccountId = (String)contractInfo.get('GroupAccountId');
                 caseSO.RecordTypeId = recordTypeId;
                 caseSO.Origin = 'Internal Enrollment';
                 caseSO.OwnerId = (Id)manager.inputMap.get('userId');
@@ -493,12 +497,7 @@
                     // ask if carry over the last UW Case Members...???
                     List<ARC_UnderwritingCaseMember__c> listUWCMToCopy = [SELECT ARC_ApprovalResolution__c, ARC_Member__c, ARC_PersonAccount__c, ARC_Reason__c, ARC_Score__c, Name, ARC_ReviewedBy__c, ARC_LastStatusUpdate__c, LastModifiedById, ARC_Description__c FROM ARC_UnderwritingCaseMember__c WHERE ARC_Contract__c =: contractId];
 
-                    // //Add condition to not void previous UW Case if the case is already closed
-                    // List<Case> previousUWCase  = [SELECT Id, Status FROM Case WHERE ARC_Contract__c =: contractId AND RecordType.Name =: 'Underwriting' AND IsClosed = false];
-                    // if(!previousUWCase.isEmpty()){
-                    //     previousUWCase[0].Status = 'Closed Voided';
-                    //     manager.casesUWToInsert.put('previousUWCase', previousUWCase[0]);
-                    // }
+                    
 
                     for (ARC_UnderwritingCaseMember__c UWCM : listUWCMToCopy) {
                         for (Map<String,Object> member : manager.censusMembersInSpinOffContract) {
@@ -518,10 +517,6 @@
                                         soUWCM.ARC_ReviewedBy__c = UWCM.ARC_ReviewedBy__c;
                                         soUWCM.ARC_Description__c =  UWCM.ARC_Description__c;
                                     }
-                                    // manager.casesUWToInsert[0].ARC_Reason__c = 'Underwriting';
-                                    // if(manager.casesUWToInsert.containsKey('previousUWCase')){
-                                    //     manager.casesUWToInsert.get('previousUWCase').ARC_Reason__c = 'Underwriting';
-                                    // }
                                     manager.censusMemberIdOrFakeIdToUWCM_SP.put(soUWCM.ARC_Member__c, soUWCM);       
                                 } catch (Exception e) {
                                     System.debug('Exception when trying to clone previous UWM Cases ' + e.getMessage() + ' ' + e.getStackTraceString());
@@ -537,10 +532,7 @@
                         ARC_UnderwritingCaseMember__c soUWCM;
 
                         if (manager.censusMemberIdOrFakeIdToUWCM_SP.containsKey((String)cm.get('Id'))) {
-                            //soUWCM = manager.censusMemberIdOrFakeIdToUWCM_SP.get((String)cm.get('Id'));
-                            //if (soUWCM.ARC_Reason__c == 'Add Member' && programUpgrade == false){
                             continue;
-                            //}
                         }
                         else{
                             soUWCM = new ARC_UnderwritingCaseMember__c();
@@ -611,8 +603,8 @@
             }
         }
 
-        // Boolean isSOLegacy = (Boolean)manager.inputMap.get('SV_EnforceLegacyEffectiveDate');
         Boolean isSOLegacy = manager.inputMap.containsKey('SV_EnforceLegacyEffectiveDate') ? (Boolean)manager.inputMap.get('SV_EnforceLegacyEffectiveDate') : false;
+        Boolean isLegacy = manager.inputMap.containsKey('isLegacy') ? (Boolean)manager.inputMap.get('isLegacy') : false;
         Date effectiveDate;
 
         if (isSOLegacy) {
@@ -637,7 +629,7 @@
         
         removeContract.RecordTypeId = Schema.SObjectType.Contract.getRecordTypeInfosByDeveloperName().get('ARC_IndividualAndFamily').getRecordTypeId();
         removeContract.ARC_EffectiveDate__c = effectiveDate;
-        removeContract.Status = 'Draft';//'Awaiting Signature';
+        removeContract.Status = 'Draft';
         removeContract.StartDate = effectiveDate;
         removeContract.ContractTerm = 12;
         removeContract.ARC_ContractReason__c = 'Spin Off;Remove Member';
@@ -662,10 +654,10 @@
             }
             singleSpinOffContract.RecordTypeId = Schema.SObjectType.Contract.getRecordTypeInfosByDeveloperName().get('ARC_IndividualAndFamily').getRecordTypeId();
             singleSpinOffContract.ARC_EffectiveDate__c = effectiveDate;
-            singleSpinOffContract.Status = 'Draft';//'Awaiting Signature';
+            singleSpinOffContract.Status = 'Draft';
             singleSpinOffContract.StartDate = effectiveDate;
             singleSpinOffContract.ContractTerm = 12;
-            singleSpinOffContract.ARC_Selling_Agent__c = sellingAgentToAssign;
+            singleSpinOffContract.ARC_Selling_Agent__c = isLegacy ? UserInfo.getUserId() : sellingAgentToAssign;
             singleSpinOffContract.vlocity_ins__ExpiredContractId__c = selectedContractId; 
             manager.contractsToInsertMap.put(1, singleSpinOffContract);
         } else if (action == 'multiSpinOff') {
@@ -731,7 +723,6 @@
                         medicalLineItem.vlocity_ins__Quantity__c = 1;                       
                         medicalLineItem.vlocity_ins__EffectiveStartDate__c = DateTime.newInstance(contractEffectiveDate, Time.newInstance(0, 0, 0, 0)).addDays(1);                      
                         
-                        // INSERTAR SEGUN FAMILY
                         manager.indexToParentCLI.put(familyIndex, new Map<Integer, vlocity_ins__ContractLineItem__c>());
                         manager.indexToParentCLI.get(familyIndex).put(index, medicalLineItem);
                         
@@ -820,7 +811,6 @@
                                 } else {
                                     List<vlocity_ins__ContractLineItem__c> ancillaryLineItems = new List<vlocity_ins__ContractLineItem__c>();
                                     ancillaryLineItems.add(ancillaryLineItem);
-                                    manager.CMIdToCLI.put((String)memberMap.get('CensusMemberId'), ancillaryLineItems);
                                 }
                             }
                             /////// Process Ancillary Child Products
@@ -885,8 +875,7 @@
                             memberInfo.put('accountId', accountId); 
                 
                             oldMembers.put(censusId, memberInfo);
-
-                           // oldMembersIds.add((Id)member.get('Id'));     
+   
                             oldMembersIds.add((Id)member.get('PersonAccountId'));                       
                         }
                     }
@@ -1145,7 +1134,6 @@
                         newContractParticipant.ARC_PersonAccount__c = member.containsKey('IsNewMember') && (Boolean)member.get('IsNewMember') == false ? String.valueOf(member.get('PersonAccountId')) : null;
                         newContractParticipant.ARC_Relationship__c = member.containsKey('ARC_Relationship__c') ? String.valueOf(member.get('ARC_Relationship__c')) : null;
                         newContractParticipant.ARC_Smoker__c = member.containsKey('ARC_Smoker__c') && convertToBoolean(member.get('ARC_Smoker__c')) != null ? convertToBoolean(member.get('ARC_Smoker__c')) : false;
-                        // newContractParticipant.ARC_SocialSecurityNumber__c = familyGroup == 0 ? carryOverCP.ARC_SocialSecurityNumber__c : member.containsKey('vlocity_ins__SocialSecurityNumber__c') ? String.valueOf(member.get('vlocity_ins__SocialSecurityNumber__c')) : null;
 
 
                         // Add mapped CP and map with Census Member ID
@@ -1218,8 +1206,6 @@
             recurringRemoveMemberCO.ChargentOrders__Subtotal__c = removeMemberContractRecurringPrice;
             recurringRemoveMemberCO.ChargentOrders__Charge_Amount__c = removeMemberContractRecurringPrice;
 
-            // Add Chargent order to SOManager variables
-            // manager.chargentOrdersRecurringOrder.add(recurringRemoveMemberCO);
             manager.chargentOrdersToInsertMap.put('recurringRemoveMemberChargent',recurringRemoveMemberCO);
 
 
@@ -1269,8 +1255,7 @@
                 Decimal spinOffFeeAmount = Decimal.valueOf(((String)spinOffProductsSummaryMap.get('TXT_FeeAmount')).remove('$'));
                 Decimal spinOffMonthlyAmount = Decimal.valueOf(((String)spinOffProductsSummaryMap.get('TXT_MonthlyPrice')).remove('$'));
 
-                // Recurring Chargent Order - Single Spin Off Contract
-                // recurringSpinOffCO.ChargentOrders__Account__c = oldChargOrder.ChargentOrders__Account__c; // POPULATED IN SODML
+  
                 recurringSpinOffCO.ARC_FirstMonthPayed__c = false;
                 
                 
@@ -1313,8 +1298,6 @@
                     recurringSpinOffCO.ChargentOrders__Billing_Last_Name__c = (String)bankAccountInfoMap.get('TXT_LastNameOnAccount') != null ? (String)bankAccountInfoMap.get('TXT_LastNameOnAccount') : (String)spinOffPrimaryMember.get('vlocity_ins__LastName__c');
                 }
 
-                // Add Chargent order to SOManager variables
-                // manager.chargentOrdersRecurringOrder.add(recurringSpinOffCO);
                 manager.chargentOrdersToInsertMap.put('recurringSpinOffChargent',recurringSpinOffCO);
 
                 // Get boolean if Fee is applicable
@@ -1363,8 +1346,6 @@
                     changeFeeSpinOffCO.ChargentOrders__Payment_Frequency__c = 'Once';
                     changeFeeSpinOffCO.ChargentOrders__Manual_Charge__c = true;
 
-                    // Add Chargent order to SOManager variables
-                    // manager.chargentOrdersChangeFee.add(changeFeeSpinOffCO);
                     manager.chargentOrdersToInsertMap.put('changeFeeSpinOffChargent',changeFeeSpinOffCO);
                 }
             }
@@ -1419,20 +1400,17 @@
                     newContact.Birthdate = Date.valueOf((String)otherAuth.get('TXT_NewBirthdate'));
                     newContact.Email = (String)otherAuth.get('TXT_NewEmailAdress');
                     newContact.Phone = (String)otherAuth.get('TXT_NewTelephone');
-                    newContact.MailingCity = (String)address.get('TXT_AddCity');
-                    newContact.MailingCountry = (String)address.get('TXT_AddCountry');
-                    newContact.MailingState = (String)address.get('SEL_AddState');
-                    newContact.MailingPostalCode = (String)address.get('TXT_AddZipCode');
-                    newContact.MailingStreet = (String)address.get('TXT_AddAddress');
+                    if(address!= null){
+                        newContact.MailingCity = (String)address.get('TXT_AddCity');
+                        newContact.MailingCountry = (String)address.get('TXT_AddCountry');
+                        newContact.MailingState = (String)address.get('SEL_AddState');
+                        newContact.MailingPostalCode = (String)address.get('TXT_AddZipCode');
+                        newContact.MailingStreet = (String)address.get('TXT_AddAddress');
+                    }
                     newContact.RecordTypeId = recordTypeId;
                     newContact.AccountId = null;
                     
                     manager.hippaExternalContact = newContact;
-                    // Map<String, Object> selectedContractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');
-                    // if (selectedContractInfo != null) {
-                    //     newContact.AccountId = (String)selectedContractInfo.get('GroupAccountId');
-                    
-                    // }
                 }
 
             }   
@@ -1466,11 +1444,7 @@
                         discount.ARC_ExonerateAppChangeFee__c = promoDiscount.containsKey('DiscountPrice') && Decimal.valueOf((String)promoDiscount.get('DiscountPrice')) == 0 ? true : false ;
                         discount.ARC_Agent__c = promoDiscount.containsKey('AgentId') ? (Id) promoDiscount.get('AgentId') : null;
                         discount.RecordTypeId = recordTypeId; 
-                       
-                        // discount.ARC_ApplyOver__c = promoDiscount.containsKey('ApplyOver') ? (String) promoDiscount.get('ApplyOver') : null;
-                        // discount.ARC_StartDate__c = Date.today();
-                        // discount.ARC_TimesUsed__c = 0;
-                        // discount.ARC_TypeOfDiscount__c =  promoDiscount.containsKey('ApplyOver') ? (String) promoDiscount.get('ApplyOver') : null;
+
                         manager.promotionDiscountToInsert.add(discount);
                     } 
                 }
@@ -1479,6 +1453,221 @@
             System.debug('Exception insertPromotionDiscount: ' + e.getMessage() + ' ' + e.getStackTraceString());
             throw e;
         }
+    }
+
+    /*******************************************************************
+    * @MethodName         :   mapCriticalCarePromotionDiscount
+    * @Description        :   Detects members in the Spin Off contract that have both
+    *                         PROG_CriticalCare (SMART) and PROG_AccidentalInjury (AIDD)
+    *                         in price_calculation (familyIndex = 1) and stores bundle
+    *                         indexes for DML resolution.
+    ********************************************************************/
+    private void mapCriticalCarePromotionDiscount(String action) {
+        try {
+            System.debug('Mapping Critical Care / Accidental Injury Promotion Discount (SO)');
+
+            Set<String> PREMIER_ANCILLARY_CODES = new Set<String>{ 'PROG_CriticalCare', 'PROG_AccidentalInjury' };
+
+            // REMOVE FAMILY DISCOUNT
+
+            Map<String, Object> priceCalculationRemoveMember = (Map<String, Object>)manager.inputMap.get('price_calculation_removemember_spinoff');
+            List<Object> plansRemoveMember = (List<Object>)priceCalculationRemoveMember.get('plans');
+
+            Map<String, String> productCodeToId = new Map<String, String>();
+            Map<String, Set<String>> oriProductCodeToMemberIds = new Map<String, Set<String>>();
+
+            for (Object planObj : plansRemoveMember) {
+                Map<String, Object> plan = (Map<String, Object>)planObj;
+                Map<String,Object> selectedProduct = (Map<String,Object>)plan.get('selectedProduct');
+                String code = (String)selectedProduct.get('ProductCode');
+                String productId = (String)selectedProduct.get('Id');
+                if (code == null || !PREMIER_ANCILLARY_CODES.contains(code)) continue;
+
+                productCodeToId.put(code, productId);
+
+                List<Object> userInputs = (List<Object>)plan.get('userInputs');
+                if (userInputs == null || userInputs.isEmpty()) continue;
+
+                if (!oriProductCodeToMemberIds.containsKey(code)) {
+                    oriProductCodeToMemberIds.put(code, new Set<String>());
+                }
+                for (Object inputObj : userInputs) {
+                    Map<String, Object> input = (Map<String, Object>)inputObj;
+                    oriProductCodeToMemberIds.get(code).add((String)input.get('Id'));
+                }
+            }
+
+            // Intersection: members with both Ancillaries
+            String smartId = productCodeToId.get('PROG_CriticalCare');
+            String aiddId = productCodeToId.get('PROG_AccidentalInjury');
+            
+            Set<String> oriBundledMembers = oriProductCodeToMemberIds.get('PROG_CriticalCare') ?? new Set<String>();
+            oriBundledMembers.retainAll(oriProductCodeToMemberIds.get('PROG_AccidentalInjury') ?? new Set<String>());
+            
+            if (smartId != null && aiddId != null) {
+                for (String memberId : oriBundledMembers) {
+                    System.debug('SO Bundle OK → member= ' + memberId + ' SMART productId= ' + smartId + ' AIDD productId='  + aiddId);    
+                    manager.memberIdToCriticalCareBundle.put(memberId, new Map<String, String>{
+                        'SMART'  => smartId,
+                        'AIDD'   => aiddId,
+                        'Family' => 'RemoveMember'
+                    });
+                }
+            }
+
+            if (action != 'singleSpinOff') return;
+
+            System.debug('Single Spin Off Ancillary Discounts');
+
+            List<Object> productSelectionOutput = (List<Object>)manager.inputMap.get('LWC_ChooseProductSelectionOutput');
+            if (productSelectionOutput == null || productSelectionOutput.isEmpty()) return;
+
+            // Collect: code => productId, code => memberIds
+            Map<String, Set<String>> productCodeToMemberIds = new Map<String, Set<String>>();
+
+            for (Object planObj : productSelectionOutput) {
+                Map<String, Object> plan = (Map<String, Object>)planObj;
+                String productId = (String)((Map<String, Object>)plan.get('selectedProduct')).get('Id');
+                String code = getProductCodeFromPriceCalculation(productId);
+                if (code == null || !PREMIER_ANCILLARY_CODES.contains(code)) continue;
+
+                productCodeToId.put(code, productId);
+
+                List<Object> userInputs = (List<Object>)plan.get('userInputs');
+                if (userInputs == null || userInputs.isEmpty()) continue;
+
+                if (!productCodeToMemberIds.containsKey(code)) {
+                    productCodeToMemberIds.put(code, new Set<String>());
+                }
+                for (Object inputObj : userInputs) {
+                    Map<String, Object> input = (Map<String, Object>)inputObj;
+                    productCodeToMemberIds.get(code).add((String)input.get('Id'));
+                }
+            }
+
+            // Intersection: members with both Ancillaries
+            smartId = productCodeToId.get('PROG_CriticalCare');
+            aiddId = productCodeToId.get('PROG_AccidentalInjury');
+            if (smartId == null || aiddId == null) return;
+
+            Set<String> bundledMembers = productCodeToMemberIds.get('PROG_CriticalCare') ?? new Set<String>();
+            bundledMembers.retainAll(productCodeToMemberIds.get('PROG_AccidentalInjury') ?? new Set<String>());
+
+            for (String memberId : bundledMembers) {
+                System.debug('SO Bundle OK → member= ' + memberId + ' SMART productId= ' + smartId + ' AIDD productId='  + aiddId);
+
+                manager.memberIdToCriticalCareBundle.put(memberId, new Map<String, String>{
+                    'SMART'  => smartId,
+                    'AIDD'   => aiddId,
+                    'Family' => 'SpinOff'
+                });
+            }
+        } catch (Exception e) {
+            System.debug('Error in mapCriticalCarePromotionDiscount (SO): '
+                + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
+            throw e;
+        }
+    }
+
+    /*******************************************************************
+    * @MethodName         :   getProductCodeFromPriceCalculation
+    * @Description        :   Returns ProductCode for a given productId from price_calculation.plans
+    ********************************************************************/
+    private String getProductCodeFromPriceCalculation(String productId) {
+        if (!manager.inputMap.containsKey('price_calculation')) return null;
+        Map<String, Object> priceCalc = (Map<String, Object>)manager.inputMap.get('price_calculation');
+        if (!priceCalc.containsKey('plans')) return null;
+        List<Object> plans = (List<Object>)priceCalc.get('plans');
+        for (Object planObj : plans) {
+            Map<String, Object> plan = (Map<String, Object>)planObj;
+            Map<String, Object> sp = (Map<String, Object>)plan.get('selectedProduct');
+            if ((String)sp.get('Id') == productId) {
+                return (String)sp.get('ProductCode');
+            }
+        }
+        return null;
+    }
+
+    /*******************************************************************
+    * @MethodName         :   mapMemberBeneficiaries  
+    * @Description        :   Method to map the beneficiaries for each census member
+    ********************************************************************/
+    private void mapMemberBeneficiaries() {
+        Map<String, Object> memberToBeneficiariesMapSO = new Map<String, Object>(); // SpinOff Contract
+        Map<String, Object> memberToBeneficiariesMapRC = new Map<String, Object>(); // Remove Member Contract
+
+        // Family 1
+        for (Map<String,Object> cm : manager.censusMembersRemoveContract) {
+            if ((Boolean)cm.get('IsRemoveMember') == false) {
+                String contactId = cm.containsKey('PersonContactId') 
+                    ? (String)cm.get('PersonContactId') 
+                    : null;
+
+                if (cm.containsKey('beneficiaries') 
+                    && cm.get('beneficiaries') != null 
+                    && ((List<Object>)cm.get('beneficiaries')).size() > 0) {
+
+                    List<Object> beneficiaryList = (List<Object>)cm.get('beneficiaries');
+                    Map<String,Object> beneficiaryMapPerMember = buildBeneficiaryMap(beneficiaryList);
+
+                    if (contactId != null) {
+                        memberToBeneficiariesMapRC.put(contactId, beneficiaryMapPerMember);
+                    }
+                }
+            }
+        }
+
+        // Family 2
+        for (Map<String,Object> cm : manager.censusMembersInSpinOffContract) {
+            if ((Boolean)cm.get('IsRemoveMember') == false) {
+                String contactOrFakeId = (cm.containsKey('IsNewMember') && (Boolean)cm.get('IsNewMember') == true 
+                                        && ((String)cm.get('Id')).startsWith('MEM-'))
+                    ? (String)cm.get('Id')
+                    : (String)cm.get('PersonContactId');
+
+                if (cm.containsKey('beneficiaries') 
+                    && cm.get('beneficiaries') != null 
+                    && ((List<Object>)cm.get('beneficiaries')).size() > 0) {
+
+                    List<Object> beneficiaryList = (List<Object>)cm.get('beneficiaries');
+                    Map<String,Object> beneficiaryMapPerMember = buildBeneficiaryMap(beneficiaryList);
+
+                    if (contactOrFakeId != null) {
+                        memberToBeneficiariesMapSO.put(contactOrFakeId, beneficiaryMapPerMember);
+                    }
+                }
+            }
+        }
+
+        if (!memberToBeneficiariesMapSO.isEmpty()) {
+            manager.contactOrFakeIdToBeneficiaries = memberToBeneficiariesMapSO;
+        }
+        if (!memberToBeneficiariesMapRC.isEmpty()) {
+            manager.contactOrFakeIdToBeneficiariesRC = memberToBeneficiariesMapRC;
+        }
+    }
+
+    /*******************************************************************
+    * @MethodName         :   buildBeneficiaryMap  
+    * @Description        :   Helper que construye el mapa de beneficiaries 
+    *                          a partir de la lista cruda de beneficiaries de un miembro
+    ********************************************************************/
+    private Map<String,Object> buildBeneficiaryMap(List<Object> beneficiaryList) {
+        Map<String,Object> beneficiaryMapPerMember = new Map<String,Object>();
+        for (Object beneficiary : beneficiaryList) {
+            Map<String,Object> beneficiaryMap = (Map<String,Object>)beneficiary;
+            String beneficiaryKey = (String)beneficiaryMap.get('Label') == 'Primary Beneficiary' 
+                ? 'primaryBeneficiary' 
+                : 'secondaryBeneficiary';
+            beneficiaryMapPerMember.put(beneficiaryKey, new Map<String,Object>{
+                'fullname'          => (String)beneficiaryMap.get('BeneficiaryName'),
+                'birthdate'         => (String)beneficiaryMap.get('BeneficiaryBirthdate'),
+                'phone'             => (String)beneficiaryMap.get('BeneficiaryPhone'),
+                'relationship'      => (String)beneficiaryMap.get('BeneficiaryRelationship'),
+                'otherRelationship' => (String)beneficiaryMap.get('BeneficiaryOtherRelationship')
+            });
+        }
+        return beneficiaryMapPerMember;
     }
    
     /*******************************************************************
@@ -1505,8 +1694,7 @@
                     // Get Primary Member 
                     for (Map<String,Object> member : manager.censusMembersInSpinOffContract) {
                         if (member != null && member.containsKey('IsNewMember') && (Boolean)member.get('IsNewMember') == false && member.containsKey('IsRemoveMember') && (Boolean)member.get('IsRemoveMember') == false &&  member.containsKey('ARC_Relationship__c') && (String)member.get('ARC_Relationship__c') == 'Primary') {
-                            // Primary member is not a New Member then save the person account id
-                            // newCase.AccountId = (Id)member.get('PersonAccountId');
+                            
                             newCase.ARC_PersonAccount__c = (Id)member.get('PersonAccountId');
                             newCase.ARC_CensusMember__c = (Id)member.get('Id');
                         }
@@ -1563,7 +1751,7 @@
                     manager.primaryCensusMemberWithId = primary;
                     Account primaryAccount = new Account();
                     primaryAccount.Id = member.containsKey('PersonAccountId') ? (String)member.get('PersonAccountId') : null;
-                    manager.censusMemberToAccount.put((String)member.get('Id'), primaryAccount);
+                    
                 }
                 if(member.containsKey('ARC_Relationship__c') && (String)member.get('ARC_Relationship__c') == 'Spouse'){
                     HasSpouse = true;
@@ -1856,23 +2044,7 @@
         }
         return productToMembersMap;
     }
-    /**
-    * @Description: Updates the Medicare information for the primary account based on the input map.
-    * @return Void
-    */
-    // private void updateAccountMedicare(){
-    //     System.debug('Flag Medicare');
-    //     Account primaryAccount = new Account();
-    //     primaryAccount.Id = manager.inputMap.containsKey('ContextId') ? (String)manager.inputMap.get('ContextId') : null;
-    //     Map<String,Object> stepMedicare = (Map<String,Object>)manager.inputMap.get('STEP_MedicareCoverage');
-    //     Map<String,Object> stepMedicareBlock = (Map<String,Object>)stepMedicare.get('BLK_MedicareId');
-    //     primaryAccount.Medicare_ID__c = (String)stepMedicareBlock.get('MedicareIdNumber');
-    //     primaryAccount.Medicare_Part_A_Effective_Date__c = stepMedicareBlock.get('Medicare_A_Effective_Date') != null ? DateTime.valueOf(((String)stepMedicareBlock.get('Medicare_A_Effective_Date')).replace('T', ' ').replace('Z', '')) : null;
-    //     primaryAccount.Medicare_Part_B_Effective_Date__c = stepMedicareBlock.get('Medicare_B_Effective_Date') != null ? DateTime.valueOf(((String)stepMedicareBlock.get('Medicare_B_Effective_Date')).replace('T', ' ').replace('Z', '')) : null;
-    //     primaryAccount.Medicare_Part_D_Effective_Date__c = stepMedicareBlock.get('Medicare_D_Effective_Date') != null ? DateTime.valueOf(((String)stepMedicareBlock.get('Medicare_D_Effective_Date')).replace('T', ' ').replace('Z', '')) : null;
-    //     manager.personAccountsToInsertMap.add(primaryAccount);
-
-    // }
+    
 
     /**
     * @Description: Determines which bank is the issuer of a credit card

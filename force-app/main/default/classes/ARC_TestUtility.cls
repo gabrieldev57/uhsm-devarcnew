@@ -520,7 +520,8 @@ public static List<ContentDocumentLink> createTestContentDocumentLink(Map<SObjec
         return claims;
     }
 
-    public static List<InsurancePolicy> createTestPolicies(Integer numPolicies) {
+    public static List<InsurancePolicy> createTestPolicies(Integer numPolicies, String recordTypeDevName) {
+        Id recordTypeId = Schema.SObjectType.InsurancePolicy.getRecordTypeInfosByDeveloperName().get(recordTypeDevName).getRecordTypeId();
         List<InsurancePolicy> policies = new List<InsurancePolicy>();
         Account acc = new Account();
         acc.Name = 'Test Claim';
@@ -530,6 +531,7 @@ public static List<ContentDocumentLink> createTestContentDocumentLink(Map<SObjec
             InsurancePolicy p = new InsurancePolicy();
             p.Name = 'Test Policy ' + i;
             p.NameInsuredId = acc.Id;
+            p.RecordTypeId = recordTypeId;
             policies.add(p);
         }
 
@@ -1001,12 +1003,15 @@ public static List<ContentDocumentLink> createTestContentDocumentLink(Map<SObjec
         for (Integer i = 0; i < numEnroll; i++) {
             ARC_ContractParticipant__c contractParticipantPrimary = new ARC_ContractParticipant__c();
             contractParticipantPrimary.ARC_Contract__c = contractList[i].Id;
+            contractParticipantPrimary.ARC_Relationship__c = 'Primary';
             contractParticipantPrimary.ARC_PersonAccount__c = listPerAcc[3*i].Id;
             ARC_ContractParticipant__c contractParticipantSpouse = new ARC_ContractParticipant__c();
             contractParticipantSpouse.ARC_Contract__c = contractList[i].Id;
+            contractParticipantSpouse.ARC_Relationship__c = 'Spouse';
             contractParticipantSpouse.ARC_PersonAccount__c = listPerAcc[3*i+1].Id;
             ARC_ContractParticipant__c contractParticipantChild = new ARC_ContractParticipant__c();
             contractParticipantChild.ARC_Contract__c = contractList[i].Id;
+            contractParticipantChild.ARC_Relationship__c = 'Child';
             contractParticipantChild.ARC_PersonAccount__c = listPerAcc[3*i+2].Id;
             contractParticipantList.add(contractParticipantPrimary);
             contractParticipantList.add(contractParticipantSpouse);

@@ -11,5 +11,10 @@
         <minorNumber>310</minorNumber>
         <namespace>vlocity_ins</namespace>
     </packageVersions>
+    <packageVersions>
+        <majorNumber>891</majorNumber>
+        <minorNumber>65</minorNumber>
+        <namespace>vlocity_ins_fsc</namespace>
+    </packageVersions>
     <status>Active</status>
 </ApexClass>

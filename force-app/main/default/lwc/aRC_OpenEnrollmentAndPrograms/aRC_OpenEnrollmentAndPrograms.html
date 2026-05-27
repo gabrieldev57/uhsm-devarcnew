@@ -1,0 +1,137 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="slds-p-around_medium">
+            <lightning-spinner size="medium" alternative-text="Loading"></lightning-spinner>
+        </div>
+    </template>
+
+    <div class="main-container">
+    <template if:false={isLoading}>
+        <div class="header-text">
+            <h1 class="title">Benefits Overview</h1>
+            <p class="subtitle">Review your company's benefit programs and enrollment information</p>
+        </div>
+        
+        <div class="wrap">
+
+            <section class="sectionCard">
+                <div class="sectionHeader">
+                    <div class="sectionTitle">
+                        <span class="iconBox">
+                            <lightning-icon icon-name="utility:event" size="x-small" ></lightning-icon>
+                        </span>
+                        <h2 class="header">Open Enrollment Information</h2>
+                    </div>
+                </div>
+
+                <div class="oeGrid">
+                    <div class="oeField">
+                        <div class="oeLabel">Enrollment Start Date</div>
+                        <div class="oeValue">{oeStartFormatted}</div>
+                    </div>
+                    <div class="oeField">
+                        <div class="oeLabel">Enrollment End Date</div>
+                        <div class="oeValue">{oeEndFormatted}</div>
+                    </div>
+                </div>
+
+                <template if:true={oeIsActive}>
+                    <div class="oeNotice">
+                        <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
+                        <span>Open enrollment is currently <strong>active</strong>. Employees can make changes to their benefit
+                            selections until the end date.</span>
+                    </div>
+                </template>
+            </section>
+
+            <!--Adding Group Classes and Contributions after Open Enrollment Section-->
+            <section class="sectionCard">
+                <div class="sectionHeader">
+                        <c-a-r-c_employer-portal-matrix style="width:100%; height:100%; display:block;"></c-a-r-c_employer-portal-matrix>
+                </div>
+            </section>
+            <!--Ending Group Classes and Contributions after Open Enrollment Section-->
+
+
+            <section class="sectionCard">
+                <div class="sectionHeader">
+                    <div class="sectionTitle">
+                        <span class="iconBox">
+                            <lightning-icon icon-name="utility:heart" size="x-small" ></lightning-icon>
+                        </span>
+                        <h2 class="header">Programs</h2>
+                    </div>
+                </div>
+
+                <template if:true={hasProgramSections}>
+                    <div class="accordion">
+                        <template for:each={programSections} for:item="sec">
+                            <div key={sec.key} class="accItem">
+                                <button class="accHeader" data-key={sec.key} onclick={toggleSection} type="button">
+                                    <span class="accTitle">{sec.title}</span>
+                                    <span class={sec.chevronClass} aria-hidden="true"></span>
+                                </button>
+
+                                <template if:true={sec.open}>
+                                    <div class="accBody">
+                                        <div class="programDesc">{sec.description}</div>
+                                        <div class="programLinks">
+                                            <div class="programLinkItem">
+                                                <span class="programLinkIcon">
+                                                    <lightning-icon class="iconBase" icon-name="utility:page" size="x-small" ></lightning-icon>
+                                                </span>
+                                                <a class="programLink" href="javascript:void(0)">Membership Guidelines</a>
+                                            </div>
+
+                                            <div class="programLinkItem">
+                                                <span class="programLinkIcon">
+                                                    <lightning-icon class="iconBase" icon-name="utility:favorite" size="x-small" ></lightning-icon>
+                                                </span>
+                                                <a class="programLink" href="https://www.weshare.org/weshare-wellness-perks"
+                                                    target="_blank" rel="noopener">Perks</a>
+                                            </div>
+
+                                            <div class="programLinkItem">
+                                                <span class="programLinkIcon">
+                                                    <!-- <lightning-icon class="iconWarn" icon-name="utility:user" size="x-small" variant="warning"></lightning-icon> -->
+                                                    <lightning-icon class="iconBase" icon-name="utility:user" size="x-small" ></lightning-icon>
+                                                </span>
+                                                <a class="programLink" href="javascript:void(0)">Provider Search</a>
+                                            </div>
+                                        </div>
+
+                                        <div class="tilesGrid">
+                                            <template for:each={sec.plans} for:item="pl">
+                                                <div key={pl.productId} class="tileWrap">
+                                                    <div class="tileHeader">
+                                                        <div class="tileTitle">{pl.title}</div>
+                                                        <span class={pl.pillClass}>{pl.pillText}</span>
+                                                    </div>
+
+                                                    <div class="tileBody">
+                                                        <div class="tileMeta">{pl.meta}</div>
+                                                        <div class="tileValue">{pl.value}</div>
+                                                        <a class="tileGuide" href="javascript:void(0)">
+                                                            <span class="guideIcon"></span>
+                                                            Program Guide
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <template if:false={hasProgramSections}>
+                    <div class="empty">No programs found.</div>
+                </template>
+            </section>
+
+        </div>
+    </template>
+    </div>
+</template>

@@ -1,0 +1,410 @@
+<template>
+    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12">
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_12-of-12">
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-var-p-top_xx-small slds-col slds-size_2-of-12 slds-large-size_1-of-12">
+                        <lightning-icon icon-name="utility:groups" size="medium"></lightning-icon>
+                    </div>
+                    <div class="header slds-col slds-size_10-of-12 slds-medium-size_10-of-12 slds-large-size_11-of-12 slds-var-p-top_xx-small">
+                        Other Company Contacts
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <p>{activeSectionsMessage}</p> -->
+    <lightning-accordion allow-multiple-sections-open onsectiontoggle={handleSectionToggle}
+        active-section-name={activeSections}>
+
+        <lightning-accordion-section name="CompanyOfficerContact" label="Company Officer Contact">
+            <div>
+                <div class="slds-col slds-size_1-of-1 slds-large-size_6-of-12">
+                    <lightning-combobox label="Is the Company Officer Contact the same as the Primary Business Contact?"
+                            value={companyOfficerSameAsPrimaryBusinessContact} options={companyOfficePicklistOptions}
+                            onchange={handleCompanyOfficePicklist} disabled={isReadOnly} class="slds-var-p-bottom_medium">
+                    </lightning-combobox>
+                </div>
+
+                <div>
+                    <template if:false={sameCompanyOfficer}>
+                        <div class="slds-var-m-top_medium slds-var-m-bottom_medium">
+                            <div class="cell">
+                                <c-a-r-c_-radio-group label="Contact Selection Method"
+                                    name="companyOfficerContactMethod" options={companyOfficerContactOptions}
+                                    value={selectedCompanyOfficeContactAction} required
+                                    container-class="slds-m-bottom_medium backgound-general"
+                                    onchange={handleCompanyOfficerContactActionChange} disabled={isReadOnly}>
+                                </c-a-r-c_-radio-group>
+                            </div>
+                        </div>
+
+                        <template if:true={showCompanyOfficerCombobox}>
+                            <lightning-combobox label="Select Company Officer Contact" placeholder="Search contact..."
+                                options={contactOptions} value={selectedExistingContactId}
+                                onchange={handleContactChange} disabled={isReadOnly} class="slds-var-p-bottom_medium">
+                            </lightning-combobox>
+                        </template>
+                    </template>
+                </div>
+
+                <template if:true={selectSameCompanyOfficer}>
+                    <!-- Inputs -->
+                    <div class="form-row-container slds-var-p-top_x-small">
+                        <template if:true={isReadOnly}>
+                            <lightning-input label="Name" type="text" name="Name" value={contactFullName} disabled
+                                class="form-row-item">
+                            </lightning-input>
+                        </template>
+
+                        <template if:false={isReadOnly}>
+                            <lightning-input label="First Name" type="text" name="FirstName" required={isRequired}
+                                value={companyOfficerDraft.Contact.FirstName} class="form-row-item"
+                                onchange={handleInputChange}>
+                            </lightning-input>
+                        </template>
+
+                        <template if:true={companyOfficerDraftContactReady}>
+                            <lightning-input label="Title" type="text" name="Title" required={isRequired}
+                                value={companyOfficerDraft.Contact.Title} disabled={isReadOnly} class="form-row-item"
+                                onchange={handleInputChange}>
+                            </lightning-input>
+                        </template>
+
+                    </div>
+
+                    <template if:false={isReadOnly}>
+                        <div class="form-row-container">
+                            <lightning-input label="Last Name" type="text" name="LastName" required={isRequired}
+                                value={companyOfficerDraft.Contact.LastName} class="form-row-item"
+                                onchange={handleInputChange}>
+                            </lightning-input>
+                            <div class="form-row-item"></div>
+                        </div>
+                    </template>
+
+                    <template if:true={companyOfficerDraftContactReady}>
+                        <lightning-input label="Email" type="email" name="Email"  pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" 
+                            message-when-pattern-mismatch="Enter a valid email address (example: name@domain.com)." data-name="Email"
+                            value={companyOfficerDraft.Contact.Email} required={isRequired} onblur={handlePhoneEmailInput}
+                            disabled={isReadOnly} onchange={handleInputChange}>
+                        </lightning-input>
+
+                        <lightning-input label="Phone" type="text" name="Phone" data-name="Phone" value={formattedDraftPhone} 
+                            onblur={handlePhoneEmailInput} disabled={isReadOnly} onchange={handleInputChange} required={isRequired}>
+                        </lightning-input>
+                    </template>
+                    <template if:true={companyOfficerDraftContactReady}>
+                        <lightning-combobox label="Portal Access" value={companyOfficerDraft.Contact.PortalAccess}
+                            options={portalAccessPicklistCompOfficer} onchange={handlePortalAccessChange}
+                            disabled={isReadOnly} class="slds-var-p-bottom_medium" required={isRequired}>
+                        </lightning-combobox>
+                    </template>
+                </template>
+            </div>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="OtherContacts" label="Other Contacts">
+            <div class="slds-clearfix">
+                <div class="slds-var-m-left_x-small slds-float_right slds-var-p-bottom_small">
+                    <!-- Base variant: Makes a button look like a link -->
+                    <lightning-button variant="base" label="New Contact" title="Create New Contact" icon-name="utility:new" value="OTHER" disabled={isReadOnly} onclick={handleNewContact}></lightning-button>
+                </div>
+            </div>
+            
+            <lightning-card title="">
+                <lightning-datatable key-field="Id" data={tableDataOC} data-table="OTHER"
+                                    columns={columnsOC} onrowaction={handleRowAction} 
+                                    disabled={isReadOnly} suppress-bottom-bar hide-checkbox-column>
+                </lightning-datatable>
+            </lightning-card>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="ThirdPartyAdministratorContacts" label="Third Party Administrator Contacts">
+            <div class="slds-clearfix">
+                <div class="slds-var-m-left_x-small slds-float_right slds-var-p-bottom_small">
+                    <lightning-button variant="base" label="New TPA Contact" title="Create New Contact" icon-name="utility:new" value="TPA" disabled={isReadOnly} onclick={handleNewContact} size="small"></lightning-button>
+                </div>
+            </div>
+
+            <lightning-card title="">
+                <lightning-datatable key-field="Id" data={tableDataTPA} data-table="TPA"
+                                    columns={columnsTPA} onrowaction={handleRowAction} 
+                                    disabled={isReadOnly} suppress-bottom-bar hide-checkbox-column>
+                </lightning-datatable>
+            </lightning-card>
+        </lightning-accordion-section>
+    </lightning-accordion>
+
+    <!-- VIEW/EDIT DETAILS MODAL -->
+    <template if:true={isViewModalOpen}>
+        <section role="dialog" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium" if:true={showTPA}>Third Party Administrator Details</h2>
+                    <h2 class="slds-text-heading_medium" if:true={showOther}>Other Contact Details</h2>
+                </header>
+
+                <div class="slds-modal__content slds-var-p-around_medium">
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                name="FirstName"
+                                label="First Name"
+                                data-field="FirstName"
+                                onchange={handleDraftChanges}
+                                value={draftContactOC.Contact.FirstName}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                name="LastName" 
+                                label="Last Name"
+                                data-field="LastName"
+                                onchange={handleDraftChanges}
+                                value={draftContactOC.Contact.LastName}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                name="Email"
+                                label="Email"
+                                data-field="Email"
+                                pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                                message-when-pattern-mismatch="Enter a valid email address (example: name@domain.com)."
+                                onchange={handleDraftChanges}
+                                value={draftContactOC.Contact.Email}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                name="Phone"
+                                label="Phone"
+                                data-field="Phone"
+                                onchange={handleDraftChanges}
+                                onblur={handlePhoneBlurNewContact}
+                                value={formattedDraftContactPhone}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                name="Title"
+                                label="Title"
+                                data-field="Title"
+                                onchange={handleDraftChanges}
+                                value={draftContactOC.Contact.Title}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-combobox
+                                name='PortalAccess'
+                                label="Portal Access"
+                                data-field="PortalAccess"
+                                value={draftContactOC.Contact.PortalAccess}
+                                options={portalAccessPicklistCompOfficer}
+                                onchange={handleDraftChanges}
+                                required>
+                            </lightning-combobox>
+                        </div>
+
+                        <template if:true={showEditOwnershipField}>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                                <lightning-input
+                                    type="number"
+                                    name="OwnershipPercentage"
+                                    data-name="OwnershipPercentage"
+                                    label="Ownership %"
+                                    value={draftContactOC.Contact.OwnershipPercentage}
+                                    min="1"
+                                    max="100"
+                                    step="1"
+                                    required
+                                    onchange={handleDraftChanges}>
+                                </lightning-input>
+                            </div>
+                        </template>
+                
+                        <div class="slds-col slds-size_1-of-1">
+                            <lightning-dual-listbox
+                                data-field="roles"
+                                name="roles"
+                                label="Select Role"
+                                source-label="Available"
+                                selected-label="Selected"
+                                options={optionsMultiPicklist}
+                                value={draftContactOC.roles}
+                                onchange={handleDraftChanges}>
+                            </lightning-dual-listbox>
+                        </div>
+
+                    </div>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={closeViewModal} class="slds-var-p-right_small">
+                    </lightning-button>
+
+                    <lightning-button variant="brand" label="Save" onclick={handleModalSaveOnEditedRecords}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <template if:true={isDeleteModalOpen}>
+        <section role="dialog" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">Confirm Deletion</h2>
+                </header>
+
+                <div class="slds-modal__content slds-var-p-around_medium">
+                    <p>
+                        Are you sure you want to delete this record?
+                        This action cannot be undone.
+                    </p>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={closeDeleteModal} class="slds-var-p-right_small">
+                    </lightning-button>
+
+                    <lightning-button variant="destructive" label="Confirm" onclick={handleModalDeleteOnRecords}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- NEW CONTACT  MODAL ONLY FOR OTHER CONTACTS-->
+    <template if:true={isContactModalOpen}>
+        <section role="dialog" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">
+                        {modalTitle}
+                    </h2>
+                </header>
+
+                <div class="slds-modal__content slds-var-p-around_medium">
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                label="First Name"
+                                data-field="FirstName"
+                                onchange={handleNewContactInput}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                label="Last Name"
+                                data-field="LastName"
+                                onchange={handleNewContactInput}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                label="Email"
+                                data-field="Email"
+                                pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                                message-when-pattern-mismatch="Enter a valid email address (example: name@domain.com)."
+                                onchange={handleNewContactInput}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                label="Phone"
+                                data-field="Phone"
+                                onchange={handleNewContactInput}
+                                onblur={handlePhoneBlurNewContact}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-input
+                                label="Title"
+                                data-field="Title"
+                                onchange={handleNewContactInput}
+                                required>
+                            </lightning-input>
+                        </div>
+                
+                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                            <lightning-combobox
+                                label="Portal Access"
+                                data-field="PortalAccess"
+                                value={contactDraft.Contact.PortalAccess}
+                                options={portalAccessPicklistCompOfficer}
+                                onchange={handleNewContactInput}
+                                required>
+                            </lightning-combobox>
+                        </div>
+
+                        <template if:true={showNewOwnershipField}>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                                <lightning-input
+                                    type="number"
+                                    data-field="OwnershipPercentage"
+                                    label="Ownership %"
+                                    value={contactDraft.Contact.OwnershipPercentage}
+                                    min="1"
+                                    max="100"
+                                    step="1"
+                                    required
+                                    onchange={handleNewContactInput}>
+                                </lightning-input>
+                            </div>
+                        </template>
+                
+                        <template if:true={isOtherContact}>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-1">
+                                <lightning-dual-listbox
+                                    data-field="roles"
+                                    name="roles"
+                                    label="Select Role"
+                                    source-label="Available"
+                                    selected-label="Selected"
+                                    options={optionsMultiPicklist}
+                                    value={contactDraft.roles}
+                                    onchange={handleNewContactInput}>
+                                </lightning-dual-listbox>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={closeContactModal} class="slds-var-p-right_small">
+                    </lightning-button>
+
+                    <lightning-button variant="brand" label="Save" onclick={handleModalSave}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Reusable TPA Modal (Org Standard) -->
+    <c-a-r-c_-t-p-a-modal></c-a-r-c_-t-p-a-modal>
+</template>

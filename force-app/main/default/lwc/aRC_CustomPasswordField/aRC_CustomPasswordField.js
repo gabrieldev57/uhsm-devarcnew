@@ -3,72 +3,162 @@ import { OmniscriptBaseMixin } from 'vlocity_ins/omniscriptBaseMixin';
 
 export default class ARC_CustomPasswordField extends OmniscriptBaseMixin(LightningElement) {
     inputType = 'password';
-    error1= 'Please use only numbers';
-    error2= 'The SSN must have eleven numbers';
+    error1 = 'Please use only numbers';
+    error2 = 'The SSN must have eleven numbers';
     validation;
     errorInput = false;
-    errorMessage='';
+    errorMessage = '';
 
-    connectedCallback(){
-        this.omniUpdateDataJson({'validation':false});
-        if(this.omniJsonData.STEP_GuardiansInformation && this.omniJsonData.STEP_GuardiansInformation.TXT_GuardianSSN){
-            if(this.omniJsonData.STEP_GuardiansInformation.TXT_GuardianSSN.response){
-                this.validation=true;
-            }
+    connectedCallback() {
+        this.omniUpdateDataJson({ validation: false });
+        if (
+            this.omniJsonData.STEP_GuardiansInformation &&
+            this.omniJsonData.STEP_GuardiansInformation.TXT_GuardianSSN &&
+            this.omniJsonData.STEP_GuardiansInformation.TXT_GuardianSSN.response
+        ) {
+            this.validation = true;
+            this.errorInput = false;
+            this.errorMessage = '';
         }
     }
 
     renderedCallback() {
-        if(this.omniJsonData.STEP_GuardiansInformation && this.omniJsonData.STEP_GuardiansInformation.TXT_GuardianSSN){
-            if(this.template.querySelector('[data-id="ssnInpt"]')){
-                this.template.querySelector('[data-id="ssnInpt"]').value = this.omniJsonData.STEP_GuardiansInformation.TXT_GuardianSSN.response || '';
-                this.template.querySelector('[data-id="ssnInpt"]').className = 'vlocity-input nds-input nds-input_mask nds-not-empty nds-is-dirty';
+    if (
+        this.omniJsonData.STEP_GuardiansInformation &&
+        this.omniJsonData.STEP_GuardiansInformation.TXT_GuardianSSN
+    ) {
+        const ssnInput = this.template.querySelector('[data-id="ssnInpt"]');
+        if (ssnInput) {
+            ssnInput.required = true;
+            const response =
+                this.omniJsonData.STEP_GuardiansInformation.TXT_GuardianSSN.response || '';
+            if (response) {
+                ssnInput.value = response;
+                ssnInput.className =
+                    'vlocity-input nds-input nds-input_mask nds-not-empty nds-is-dirty';
             }
+
+            this.runValidation(ssnInput.value, false);
+        }
         }
     }
 
-    handleInputChange(){
-        const inpt = this.template.querySelector('[data-id="ssnInpt"]').value;
 
-        if (inpt != '') {
-            this.template.querySelector('[data-id="ssnInpt"]').className = 'vlocity-input nds-input nds-input_mask nds-not-empty nds-is-dirty';
+    runValidation(value, fromChange) {
+        const input = this.template.querySelector('[data-id="ssnInpt"]');
+        const container = this.template.querySelector('[data-id="contInput"]');
 
-            if(!isNaN(inpt)) {
-                this.errorInput = false;
-                this.template.querySelector('[data-id="contInput"]').className = 'nds-form-element nds-form-container';
-                if(inpt.length < 9) {
-                    this.validation=false;
-                    this.errorInput = true;
-                    this.errorMessage = this.error2;
-                    this.omniUpdateDataJson({'validation':false});
-                }
-                else {
-                    this.errorInput = false;
-                    this.omniUpdateDataJson({'validation':true});
-                    this.omniUpdateDataJson({'response': inpt});
-                    this.validation = true;
-                }
-            }else{
-                this.template.querySelector('[data-id="contInput"]').className = 'nds-form-element nds-form-container nds-has-error';
-                this.errorMessage= this.error1;
-                this.errorInput = true;
-                this.validation = false;
-                this.omniUpdateDataJson({'validation':false});
-            }
-        }else{
-            this.errorInput = false;
+        if (!value) {
+            this.errorInput = true;
+            this.errorMessage = 'SSN is required';
             this.validation = false;
-            this.omniUpdateDataJson({'validation':false});
-            this.template.querySelector('[data-id="contInput"]').className = 'nds-form-element nds-form-container';
-            this.template.querySelector('[data-id="ssnInpt"]').className = 'vlocity-input nds-input nds-input_mask';
-        } 
+            this.omniUpdateDataJson({
+                validation: false,
+                ssnError: this.errorMessage,
+                response: ''
+            });
+            if (container) {
+                container.className =
+                    'nds-form-element nds-form-container nds-has-error';
+            }
+            if (input) {
+                input.className = 'vlocity-input nds-input nds-input_mask';
+                input.setCustomValidity(this.errorMessage);
+                if (fromChange) {
+                    input.reportValidity();
+                }
+            }
+            return false;
+        }
 
-        console.log('INPUT CHANGE', this.validation)
+        if (input) {
+            input.className =
+                'vlocity-input nds-input nds-input_mask nds-not-empty nds-is-dirty';
+            input.setCustomValidity('');
+        }
+        if (container) {
+            container.className = 'nds-form-element nds-form-container';
+        }
 
+        if (isNaN(value)) {
+            this.errorInput = true;
+            this.errorMessage = this.error1;
+            this.validation = false;
+            this.omniUpdateDataJson({
+                validation: false,
+                ssnError: this.errorMessage,
+                response: ''
+            });
+            if (container) {
+                container.className =
+                    'nds-form-element nds-form-container nds-has-error';
+            }
+            if (input) {
+                input.setCustomValidity(this.errorMessage);
+                if (fromChange) {
+                    input.reportValidity();
+                }
+            }
+            return false;
+        }
+
+        if (value.length < 9) {
+            this.errorInput = true;
+            this.errorMessage = this.error2;
+            this.validation = false;
+            this.omniUpdateDataJson({
+                validation: false,
+                ssnError: this.errorMessage,
+                response: ''
+            });
+            if (container) {
+                container.className =
+                    'nds-form-element nds-form-container nds-has-error';
+            }
+            if (input) {
+                input.setCustomValidity(this.errorMessage);
+                if (fromChange) {
+                    input.reportValidity();
+                }
+            }
+            return false;
+        }
+
+        this.errorInput = false;
+        this.errorMessage = '';
+        this.validation = true;
+        this.omniUpdateDataJson({
+            validation: true,
+            ssnError: '',
+            response: value
+        });
+        if (container) {
+            container.className = 'nds-form-element nds-form-container';
+        }
+        if (input) {
+            input.setCustomValidity('');
+            if (fromChange) {
+                input.reportValidity();
+            }
+        }
+        return true;
     }
 
-    handleChangeType(evt){
-        if(evt.currentTarget.dataset.id == 'fieldView'){
+    handleInputChange() {
+        const input = this.template.querySelector('[data-id="ssnInpt"]');
+        const value = input ? input.value : '';
+        this.runValidation(value, true);
+    }
+
+    @api
+    reportValidity() {
+        const input = this.template.querySelector('[data-id="ssnInpt"]');
+        const value = input ? input.value : '';
+        return this.runValidation(value, false);
+    }
+
+    handleChangeType(evt) {
+        if (evt.currentTarget.dataset.id === 'fieldView') {
             switch (this.inputType) {
                 case 'password':
                     this.inputType = 'text';

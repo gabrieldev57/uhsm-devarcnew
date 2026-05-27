@@ -1,11 +1,10 @@
 public without sharing class ARC_PCSODML{
     private ARC_PCSOManager manager;
-    
 
-    /////Block for managing DML Operations
-    /////////
-    ////////////
-    /////////////////   
+    @TestVisible
+    private void setManagerForTest(ARC_PCSOManager testManager) {
+        this.manager = testManager;
+    }
 
     /**
      * @Description: Main method that manages DML operations based on selected actions.
@@ -21,17 +20,7 @@ public without sharing class ARC_PCSODML{
         this.manager = manager;
         Set<String> operations = new Set<String>();
 
-         /*
-        "soReasons": {
-            "ancillaryChange": false,
-            "removeMember": false,
-            "addMember": false,
-            "agingOut": false,
-            "programDowngrade": true,
-            "programUpgrade": false,
-            "spinOff": true
-          },
-        */
+        
         if(manager.ActionsSelected.contains('spinOffWithoutChanges')){
             System.debug('spinOffWithoutChanges action selected');
             operations.add('processGuardians');
@@ -39,15 +28,12 @@ public without sharing class ARC_PCSODML{
             operations.add('insertContractLineItems');
             operations.add('insertContractParticipants');
             operations.add('insertGroupCensusMemberPlans');
+            operations.add('upsertChargentOrders');
             operations.add('insertCasesUW');
             operations.add('insertHipaaAuthorization');
             operations.add('insertPolicy');
-            operations.add('upsertChargentOrders');
-            operations.add('insertPromotionDiscount');
-            
-            //operations.add('insertGroupCensusMemberPlans');
-            //operations.add('insertContractParticipants');
-            //operations.add('insertCasesUW');
+            operations.add('insertCriticalCareDiscount');
+            //operations.add('insertPromotionDiscount');
         }
         else{
             // Determine required operations based on action type
@@ -61,6 +47,7 @@ public without sharing class ARC_PCSODML{
                         operations.add('insertContractLineItems');
                         operations.add('insertGroupCensusMemberPlans');
                         operations.add('insertContractParticipants');
+                        operations.add('upsertChargentOrders');
                         operations.add('insertCasesUW');
                         operations.add('insertHipaaAuthorization');
                         operations.add('insertCasesPC');
@@ -68,8 +55,8 @@ public without sharing class ARC_PCSODML{
                         operations.add('upsertConsumerDrugs');
                         operations.add('updatePhysicianMemberData');
                         operations.add('insertPolicy');
-                        operations.add('upsertChargentOrders');
-                        operations.add('insertPromotionDiscount');
+                        operations.add('insertCriticalCareDiscount');
+                        //operations.add('insertPromotionDiscount');
                     }
                     when 'programDowngrade' {
                         operations.add('upsertCensusMembers');
@@ -78,6 +65,7 @@ public without sharing class ARC_PCSODML{
                         operations.add('insertContractLineItems');
                         operations.add('insertGroupCensusMemberPlans');
                         operations.add('insertContractParticipants');
+                        operations.add('upsertChargentOrders');
                         operations.add('insertCasesUW');
                         operations.add('insertHipaaAuthorization');
                         operations.add('insertCasesPC');
@@ -85,8 +73,8 @@ public without sharing class ARC_PCSODML{
                         operations.add('upsertConsumerDrugs');
                         operations.add('updatePhysicianMemberData');
                         operations.add('insertPolicy');
-                        operations.add('upsertChargentOrders');
-                        operations.add('insertPromotionDiscount');
+                        operations.add('insertCriticalCareDiscount');
+                        //operations.add('insertPromotionDiscount');
                     }
                     when 'ancillaryChange' {     
                         operations.add('upsertCensusMembers');
@@ -95,6 +83,7 @@ public without sharing class ARC_PCSODML{
                         operations.add('insertContractLineItems');
                         operations.add('insertGroupCensusMemberPlans');
                         operations.add('insertContractParticipants');
+                        operations.add('upsertChargentOrders');
                         operations.add('insertCasesUW');
                         operations.add('insertHipaaAuthorization');
                         operations.add('insertCasesPC');
@@ -102,8 +91,8 @@ public without sharing class ARC_PCSODML{
                         operations.add('upsertConsumerDrugs');
                         operations.add('updatePhysicianMemberData');
                         operations.add('insertPolicy');
-                        operations.add('upsertChargentOrders');
-                        operations.add('insertPromotionDiscount');
+                        operations.add('insertCriticalCareDiscount');
+                        //operations.add('insertPromotionDiscount');
                     }
                     when 'addMember' {
                         System.debug('addMember action selected');
@@ -113,6 +102,7 @@ public without sharing class ARC_PCSODML{
                         operations.add('insertContractLineItems');
                         operations.add('insertGroupCensusMemberPlans');
                         operations.add('insertContractParticipants');
+                        operations.add('upsertChargentOrders');
                         operations.add('insertCasesUW');
                         operations.add('insertHipaaAuthorization');
                         operations.add('insertCasesPC');
@@ -120,8 +110,8 @@ public without sharing class ARC_PCSODML{
                         operations.add('upsertConsumerDrugs');
                         operations.add('updatePhysicianMemberData');
                         operations.add('insertPolicy');
-                        operations.add('upsertChargentOrders');
-                        operations.add('insertPromotionDiscount');
+                        operations.add('insertCriticalCareDiscount');
+                        //operations.add('insertPromotionDiscount');
                     }
                     when 'removeMember' {
                         operations.add('upsertCensusMembers');
@@ -130,6 +120,7 @@ public without sharing class ARC_PCSODML{
                         operations.add('insertContractLineItems');
                         operations.add('insertGroupCensusMemberPlans');
                         operations.add('insertContractParticipants');
+                        operations.add('upsertChargentOrders');
                         operations.add('insertCasesUW');
                         operations.add('insertHipaaAuthorization');
                         operations.add('insertCasesPC');
@@ -137,8 +128,8 @@ public without sharing class ARC_PCSODML{
                         operations.add('upsertConsumerDrugs');
                         operations.add('updatePhysicianMemberData');
                         operations.add('insertPolicy');
-                        operations.add('upsertChargentOrders');
-                        operations.add('insertPromotionDiscount');
+                        operations.add('insertCriticalCareDiscount');
+                        //operations.add('insertPromotionDiscount');
                     }  
                     when 'demographicChange' {
                         operations.add('demographicChange');
@@ -148,6 +139,7 @@ public without sharing class ARC_PCSODML{
                         operations.add('insertContractLineItems');
                         operations.add('insertGroupCensusMemberPlans');
                         operations.add('insertContractParticipants');
+                        operations.add('upsertChargentOrders');
                         operations.add('insertCasesUW');
                         operations.add('insertHipaaAuthorization');
                         operations.add('insertCasesPC');
@@ -155,8 +147,8 @@ public without sharing class ARC_PCSODML{
                         operations.add('upsertConsumerDrugs');
                         operations.add('updatePhysicianMemberData');
                         operations.add('insertPolicy');
-                        operations.add('upsertChargentOrders');
-                        operations.add('insertPromotionDiscount');
+                        operations.add('insertCriticalCareDiscount');
+                        //operations.add('insertPromotionDiscount');
                     }
                     when 'agingOut'{
                         operations.add('insertAccounts');
@@ -165,6 +157,7 @@ public without sharing class ARC_PCSODML{
                         operations.add('insertContractLineItems');
                         operations.add('insertGroupCensusMemberPlans');
                         operations.add('insertContractParticipants');
+                        operations.add('upsertChargentOrders');
                         operations.add('insertCasesUW');
                         operations.add('insertHipaaAuthorization');
                         operations.add('insertCasesPC');
@@ -172,8 +165,8 @@ public without sharing class ARC_PCSODML{
                         operations.add('upsertConsumerDrugs');
                         operations.add('updatePhysicianMemberData');
                         operations.add('insertPolicy');
-                        operations.add('upsertChargentOrders');
-                        operations.add('insertPromotionDiscount');
+                        operations.add('insertCriticalCareDiscount');
+                        //operations.add('insertPromotionDiscount');
                     }
                 }       
             }
@@ -201,7 +194,7 @@ public without sharing class ARC_PCSODML{
      * @throws Exception If any DML operation fails
      */
     private void executeDML(Set<String> operations) {        
-        if(operations.contains('updateCensusMembers')) {
+        if (operations.contains('updateCensusMembers')) {
             try {
                 upsertCensusMembers('updateCensusMembers');
             } catch (Exception e) {
@@ -209,7 +202,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('upsertCensusMembers')) {
+        if (operations.contains('upsertCensusMembers')) {
             try {
                 upsertCensusMembers('updateCensusMembers');
             } catch (Exception e) {
@@ -217,7 +210,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('insertAccounts')) {
+        if (operations.contains('insertAccounts')) {
             try {
                 insertAccounts();
                 updateRelatedCensusMembers();
@@ -226,7 +219,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('processGuardians')) {
+        if (operations.contains('processGuardians')) {
             try {
                 processGuardians();
             } catch (Exception e) {
@@ -234,7 +227,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('insertContracts')) {
+        if (operations.contains('insertContracts')) {
             try {
                 upsertContracts();
             } catch (Exception e) {
@@ -242,7 +235,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('insertContractLineItems')) {
+        if (operations.contains('insertContractLineItems')) {
             try {
                 upsertContractLineItems();
             } catch (Exception e) {
@@ -250,7 +243,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('insertGroupCensusMemberPlans')) {
+        if (operations.contains('insertGroupCensusMemberPlans')) {
             try {
                 upsertGroupCensusMemberPlans();
             } catch (Exception e) {
@@ -258,10 +251,23 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('insertContractParticipants')) {
-            upsertContractParticipants();
+        if (operations.contains('insertCriticalCareDiscount')) {
+            try {
+                processCriticalCarePromotionDiscount();
+            } catch (Exception e) {
+                System.debug('Exception processing critical care discount: ' + e.getMessage() + e.getStackTraceString());
+                throw e;
+            }
         }
-        if(operations.contains('upsertChargentOrders')) {
+        if (operations.contains('insertContractParticipants')) {
+            try {
+                upsertContractParticipants();
+            } catch (Exception e) {
+                System.debug('Exception processing contract participants: ' + e.getMessage() + e.getStackTraceString());
+                throw e;
+            }
+        }
+        if (operations.contains('upsertChargentOrders')) {
             try {
                 upsertChargentOrders();
             } catch (Exception e) {
@@ -269,16 +275,15 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('insertCasesUW')) {
+        if (operations.contains('insertCasesUW')) {
             try {
                 upsertCasesUW();
-                //upsertUWCaseMembers();
             } catch (Exception e) {
                 System.debug('Exception while upserting UW cases: ' + e.getMessage() + e.getStackTraceString());
                 throw e;
             }
         }
-        if(operations.contains('insertCasesPC')) {
+        if (operations.contains('insertCasesPC')) {
             try {
                 upsertCasesPC();
             } catch (Exception e) {
@@ -286,7 +291,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('insertPolicy')) {
+        if (operations.contains('insertPolicy')) {
             try {
                 insertPolicy();
             } catch (Exception e) {
@@ -294,7 +299,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('upsertMedicalConditions')) {
+        if (operations.contains('upsertMedicalConditions')) {
             try {
                 upsertMedicalConditions();
             } catch (Exception e) {
@@ -302,7 +307,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('upsertConsumerDrugs')) {
+        if (operations.contains('upsertConsumerDrugs')) {
             try {
                 upsertConsumerDrugs();
             } catch (Exception e) {
@@ -310,7 +315,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('updatePhysicianMemberData')) {
+        if (operations.contains('updatePhysicianMemberData')) {
             try {
                 updatePhysicianMemberData();
             } catch (Exception e) {
@@ -318,22 +323,22 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        if(operations.contains('insertHipaaAuthorization')) {
+        if (operations.contains('insertHipaaAuthorization')) {
             try {
                 upsertHipaaAuthorizations();
             } catch (Exception e) {
                 System.debug('error in DML hipaa' + e.getMessage() + e.getStackTraceString());
             }
         }
-        if(operations.contains('insertPromotionDiscount')) {
+        /*if (operations.contains('insertPromotionDiscount')) {
             try {
                 insertPromotionDiscount();
             } catch (Exception e) {
                 System.debug('Exception while inserting promotion discount: ' + e.getMessage() + e.getStackTraceString());
                 throw e;
             }
-        }
-        if(operations.contains('demographicChange')) {
+        }*/
+        if (operations.contains('demographicChange')) {
             try {
                 upsertCensusMembers('demographicChange');
             } catch (Exception e) {
@@ -341,6 +346,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
+        completeOmniScriptInstancesForAccountContext();
     }    
 
     /**
@@ -368,7 +374,6 @@ public without sharing class ARC_PCSODML{
                         }                      
                         manager.allInsertedRecords.get('Account').put(result.getId(), manager.accountsToInsert[i]);                        
                         
-                        manager.accountIdToMemberId.put(result.getId(), manager.accountsToInsert[i].Census_Member__c);
                     }
                 }
             } catch (Exception e) {
@@ -376,7 +381,6 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }
-        //processGuardians();
     }
 
     /**
@@ -422,6 +426,7 @@ public without sharing class ARC_PCSODML{
                 //Get census Id
                 vlocity_ins__GroupCensus__c updatedCensus = new vlocity_ins__GroupCensus__c();
                 updatedCensus.Id = manager.inputMap.containsKey('CensusId') ? (Id)manager.inputMap.get('CensusId') : null;
+                updatedCensus.ARC_IsChildFamily__c = true;
 
                 // Get Guardian Id
                 Map<Id, sObject> guardians = manager.allInsertedRecords.get('Guardian');
@@ -487,29 +492,6 @@ public without sharing class ARC_PCSODML{
 
                         Database.SaveResult[] censusMemberResults = Database.update(censusMemberList, true);
 
-
-                        /*
-                        for (vlocity_ins__GroupCensusMember__c cm : manager.censusMemberByTemporalId.values()) {
-                            
-                            if (!manager.allInsertedRecords.containsKey('GroupCensusMember')) {
-                                manager.allInsertedRecords.put('GroupCensusMember', new Map<Id, SObject>());
-                            }
-                            manager.allInsertedRecords.get('GroupCensusMember').put(cm.Id, cm);
-    
-                            // Create account and link it to the census member
-                            Account newAcc = createPersonAccount(cm.vlocity_ins__LastName__c);
-                            newAcc.Census_Member__c = cm.Id;
-                            newAcc.ARC_CensusMember__pc = cm.Id;
-                            newAcc.ARC_Census__c = cm.vlocity_ins__CensusId__c;
-                            newAcc.PersonBirthdate = cm.vlocity_ins__Birthdate__c;
-                            manager.accountsToInsert.add(newAcc);
-                            manager.censusMemberToAccount.put(cm.Id, newAcc);
-                            manager.insertedCensusMemberToPersonAccount.put(cm.Id, newAcc);
-                            if (cm.ARC_DependentRelationship__c == null || cm.ARC_DependentRelationship__c == 'Future Primary') {
-                                manager.primaryCensusMemberWithId = cm;
-                            }
-                        }
-                        */
                         if(!manager.insertedCensusMemberToPersonAccount.isEmpty()){
                             Database.UpsertResult[] resultsPA = Database.upsert(manager.insertedCensusMemberToPersonAccount.values(), true);
                         }
@@ -600,17 +582,46 @@ public without sharing class ARC_PCSODML{
                     }
                 }
                 updateContractFieldGuardian();
-                if(!manager.contractsToUpdate.isEmpty()){
-                    try{
-                        Database.update(manager.contractsToUpdate, true);
-                    }
-                    catch(Exception e){
-                        System.debug('Exception while voiding contracts: ' + e.getMessage() + e.getStackTraceString());
-                        throw e;
-                    }
-                }
+                
             } catch (Exception e) {
                 System.debug('Exception while upserting contracts: ' + e.getMessage() + e.getStackTraceString());
+                throw e;
+            }
+        }
+
+        if (!manager.contractToUpdateEffectiveDate.isEmpty()) {
+
+            try {
+
+                Database.update(manager.contractToUpdateEffectiveDate, true);
+                
+            } catch (Exception e) {
+                System.debug('Exception while updating contracts effective date: ' + e.getMessage() + e.getStackTraceString());
+                throw e;
+            }
+        }
+
+        if (!manager.agesUpToInsert.isEmpty()) {
+
+            try {
+
+                Database.SaveResult[] results = Database.insert(manager.agesUpToInsert, true);
+                for (Integer i = 0; i < results.size(); i++) {
+                    Database.SaveResult result = results[i];
+                    if (!result.isSuccess()) {
+                        for (Database.Error error : result.getErrors()) {
+                            System.debug('Error inserting age ups: ' + error.getMessage());
+                        }
+                    } else {
+                        if (!manager.allInsertedRecords.containsKey('AgeUps')) {
+                            manager.allInsertedRecords.put('AgeUps', new Map<Id, SObject>());
+                        }
+                        manager.allInsertedRecords.get('AgeUps').put(result.getId(), manager.agesUpToInsert[i]);
+                    }
+                }
+                
+            } catch (Exception e) {
+                System.debug('Exception while insertig age ups on effective date changes contracts: ' + e.getMessage() + e.getStackTraceString());
                 throw e;
             }
         }
@@ -695,14 +706,18 @@ public without sharing class ARC_PCSODML{
      * @throws Exception If plan operations fail
      */
     private void upsertGroupCensusMemberPlans() {
-        if (!manager.indexToParentCLI.isEmpty() && !manager.indexToCLIGCM.isEmpty()) {
+        boolean indexToParentCLIEmpty = manager.indexToParentCLI.isEmpty();
+        boolean indexToCLIGCMEmpty = manager.indexToCLIGCM.isEmpty();
+
+        if (!indexToParentCLIEmpty && !indexToCLIGCMEmpty) {
             try {
                 List<vlocity_ins__GroupCensusMemberPlan__c> gcmpListToUpsert = new List<vlocity_ins__GroupCensusMemberPlan__c> ();
                 for(Integer index : manager.indexToParentCLI.keySet()){
                     for(String gcmId : manager.indexToCLIGCM.get(index)){
                         String censusMemberId;
-                        vlocity_ins__GroupCensusMemberPlan__c newGCMP = new vlocity_ins__GroupCensusMemberPlan__c();                        
-                        if(gcmId.startsWith('MEM-')){
+                        vlocity_ins__GroupCensusMemberPlan__c newGCMP = new vlocity_ins__GroupCensusMemberPlan__c();    
+                        boolean hasValidGCMId = gcmId.startsWith('MEM-');             
+                        if(hasValidGCMId){
                             system.debug('manager.censusMemberByTemporalId.get(gcmId).Id' + manager.censusMemberByTemporalId.get(gcmId).Id);
                             newGCMP.vlocity_ins__GroupCensusMemberId__c = manager.censusMemberByTemporalId.get(gcmId).Id;
                         }
@@ -727,6 +742,37 @@ public without sharing class ARC_PCSODML{
                                 manager.allInsertedRecords.put('GroupCensusMemberPlan', new Map<Id, SObject>());
                             }
                             manager.allInsertedRecords.get('GroupCensusMemberPlan').put(result.getId(), gcmpListToUpsert[i]);
+
+                            // Ancillary bundle GCMP resolution
+                            if (!manager.memberIdToCriticalCareBundle.isEmpty()) {
+                                vlocity_ins__GroupCensusMemberPlan__c insertedGcmp = gcmpListToUpsert[i];
+                                Id gcmpCliId = insertedGcmp.vlocity_ins__ContractLineId__c;
+                                Id cliProduct2Id = null;
+                                for (Integer idx : manager.indexToParentCLI.keySet()) {
+                                    if (manager.indexToParentCLI.get(idx).Id == gcmpCliId) {
+                                        cliProduct2Id = manager.indexToParentCLI.get(idx).vlocity_ins__Product2Id__c;
+                                        break;
+                                    }
+                                }
+                                if (cliProduct2Id != null) {
+                                    for (String memberId : manager.memberIdToCriticalCareBundle.keySet()) {
+                                        Map<String, String> productIds = manager.memberIdToCriticalCareBundle.get(memberId);
+                                        String bundleType = null;
+                                        if (cliProduct2Id == (Id)productIds.get('SMART')) bundleType = 'SMART';
+                                        else if (cliProduct2Id == (Id)productIds.get('AIDD'))  bundleType = 'AIDD';
+                                        if (bundleType == null) continue;
+                                        String expectedCensusMemberId = memberId.startsWith('MEM-') && manager.censusMemberByTemporalId.containsKey(memberId)
+                                            ? manager.censusMemberByTemporalId.get(memberId).Id
+                                            : memberId;
+                                        if (insertedGcmp.vlocity_ins__GroupCensusMemberId__c == expectedCensusMemberId) {
+                                            if (!manager.memberIdToBundleGcmpIds.containsKey(memberId)) {
+                                                manager.memberIdToBundleGcmpIds.put(memberId, new Map<String, Id>());
+                                            }
+                                            manager.memberIdToBundleGcmpIds.get(memberId).put(bundleType, result.getId());
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -734,6 +780,62 @@ public without sharing class ARC_PCSODML{
                 System.debug('Exception while upserting group census member plans: ' + e.getMessage() + e.getStackTraceString());
                 throw e;
             }
+        }
+    }
+
+    private void processCriticalCarePromotionDiscount() {
+        try {
+            System.debug('manager.memberIdToCriticalCareBundle: ' + manager.memberIdToCriticalCareBundle);
+            if (manager.memberIdToCriticalCareBundle.isEmpty()) return;
+
+            ARC_PromotionCode__c ancillaryCode = [
+                SELECT Id FROM ARC_PromotionCode__c WHERE Name = 'Ancillary Discount' LIMIT 1
+            ];
+            Id ancillaryDiscountRT = Schema.SObjectType.ARC_PromotionDiscount__c
+                .getRecordTypeInfosByDeveloperName().get('Ancillary_Discount').getRecordTypeId();
+
+            Id newContractId = manager.allInsertedRecords.containsKey('Contract') && !manager.allInsertedRecords.get('Contract').isEmpty()
+                ? new List<Id>(manager.allInsertedRecords.get('Contract').keySet())[0]
+                : null;
+            System.debug('newContractId: ' + newContractId);
+            if (newContractId == null) return;
+
+            List<ARC_PromotionDiscount__c> bundleDiscounts = new List<ARC_PromotionDiscount__c>();
+            for (String memberId : manager.memberIdToCriticalCareBundle.keySet()) {
+                System.debug('manager.memberIdToCriticalCareBundle: ' + manager.memberIdToCriticalCareBundle);
+                Map<String, Id> gcmpIds = manager.memberIdToBundleGcmpIds.get(memberId);
+                System.debug('gcmpIds: ' + gcmpIds);
+                if (gcmpIds == null || !gcmpIds.containsKey('SMART') || !gcmpIds.containsKey('AIDD')) {
+                    System.debug('Incomplete GCMP IDs for bundle member (PCSO): ' + memberId);
+                    continue;
+                }
+                ARC_PromotionDiscount__c pd = new ARC_PromotionDiscount__c();
+                pd.RecordTypeId    = ancillaryDiscountRT;
+                pd.ARC_Contract__c = newContractId;
+                pd.ARC_SMART__c    = gcmpIds.get('SMART');
+                pd.ARC_AIDD__c     = gcmpIds.get('AIDD');
+                pd.ARC_PromoCode__c = ancillaryCode.Id;
+                System.debug('Promo Discount: ' + pd);
+                bundleDiscounts.add(pd);
+            }
+
+            if (!bundleDiscounts.isEmpty()) {
+                Database.UpsertResult[] results = Database.upsert(bundleDiscounts, true);
+                for (Database.UpsertResult r : results) {
+                    if (r.isSuccess()) {
+                        System.debug('Critical Care PromotionDiscount upserted (PCSO): ' + r.getId());
+                    } else {
+                        for (Database.Error err : r.getErrors()) {
+                            System.debug('Error upserting Critical Care PromotionDiscount (PCSO): ' + err.getMessage());
+                        }
+                        throw new DmlException('Failed to upsert Critical Care PromotionDiscount (PCSO)');
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.debug('Error in processCriticalCarePromotionDiscount (PCSO): '
+                + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
+            throw e;
         }
     }
 
@@ -751,14 +853,10 @@ public without sharing class ARC_PCSODML{
     private void upsertContractParticipants() {
         if (!manager.personAccIdOrFakeIdToContractPart.values().isEmpty()) {
             try {
-                //manager.insertedCensusMemberToPersonAccount //Map CMId to PA inserted
                 for (String key : manager.personAccIdOrFakeIdToContractPart.keySet()) {
                     ARC_ContractParticipant__c contractParticipant = manager.personAccIdOrFakeIdToContractPart.get(key);
                     if (key.startsWith('MEM-')) {
                         contractParticipant.ARC_PersonAccount__c = (Id)manager.insertedCensusMemberToPersonAccount.get(key).Id;
-                    }
-                    else{
-                        //contractParticipant.ARC_PersonAccount__c = (Id)manager.censusMemberToPersonAccount.get(key);
                     }
                     contractParticipant.ARC_Contract__c = manager.allInsertedRecords.get('Contract').keySet().isEmpty() ? null : manager.allInsertedRecords.get('Contract').keySet().iterator().next();
                    
@@ -818,6 +916,7 @@ public without sharing class ARC_PCSODML{
             if (!chargentOrdersToUpsert.isEmpty()) {
                 try {
                     Database.UpsertResult[] results = Database.upsert(chargentOrdersToUpsert, true);
+                    
                     for (Integer i = 0; i < results.size(); i++) {
                         Database.UpsertResult result = results[i];
                         if (!result.isSuccess()) {
@@ -827,6 +926,7 @@ public without sharing class ARC_PCSODML{
                         } else {
                             if (!manager.allInsertedRecords.containsKey('ChargentOrder')) {
                                 manager.allInsertedRecords.put('ChargentOrder', new Map<Id, SObject>());
+                                
                             }
                             manager.allInsertedRecords.get('ChargentOrder').put(result.getId(), chargentOrdersToUpsert[i]);
                         }
@@ -853,7 +953,7 @@ public without sharing class ARC_PCSODML{
      * 
      * @throws Exception If contract update fails
      */
-    private void updateContract(){
+    /*private void updateContract(){
         try{
             //Get the fee order and the recurring order from the chargent orders
             ChargentOrders__ChargentOrder__c feeOrder = null;
@@ -894,6 +994,7 @@ public without sharing class ARC_PCSODML{
             throw e;
         }
     }
+    */
 
     /**
      * @Description: Updates contract ARC_Guardian__c field 
@@ -904,11 +1005,13 @@ public without sharing class ARC_PCSODML{
      */
     private void updateContractFieldGuardian(){
         try{
-            if(manager.allInsertedRecords.containsKey('Guardian')) {
+            boolean hasGuardian = manager.allInsertedRecords.containsKey('Guardian');
+            if(hasGuardian) {
                 //Get contract Id
                 Set<Id> contractIds = manager.allInsertedRecords.get('Contract').keySet();
                 Id newContractId = new List<Id>(contractIds)[0];
-                Contract insertedContract = (Contract)manager.allInsertedRecords.get('Contract').get(newContractId);
+                Contract insertedContract = new Contract();
+                insertedContract = (Contract)manager.allInsertedRecords.get('Contract').get(newContractId);
 
                 // Get Guardian Id
                 Map<Id, sObject> guardians = manager.allInsertedRecords.get('Guardian');
@@ -917,7 +1020,6 @@ public without sharing class ARC_PCSODML{
                 
                 insertedContract.ARC_Guardian__c = guardianId;
             
-
                 update insertedContract;
             }
         }
@@ -945,8 +1047,10 @@ public without sharing class ARC_PCSODML{
                 // Prepare the data for the future call
                 if (manager.casesUWToInsert.containsKey('UWCase')) {
                     manager.casesUWToInsert.get('UWCase')[0].ARC_Contract__c = contractId;
-                    manager.casesUWToInsert.get('UWCase')[0].ARC_CensusMember__c = manager.primaryCensusMemberWithId.Id;
-                    manager.casesUWToInsert.get('UWCase')[0].ARC_PersonAccount__c = manager.censusMemberToAccount.get(manager.primaryCensusMemberWithId.Id).Id;
+                    String censusMemberId = manager.primaryCensusMemberWithId.Id;
+                    manager.casesUWToInsert.get('UWCase')[0].ARC_CensusMember__c = censusMemberId;
+                    String personAccountId = manager.censusMemberToAccount.get(manager.primaryCensusMemberWithId.Id).Id;
+                    manager.casesUWToInsert.get('UWCase')[0].ARC_PersonAccount__c = personAccountId;
                 }
                 
                 // Get Chargent Orders if they exist
@@ -954,7 +1058,8 @@ public without sharing class ARC_PCSODML{
                 Id recurringOrderId = null;
                 if (manager.allInsertedRecords.containsKey('ChargentOrder')) {
                     for(Id coId : manager.allInsertedRecords.get('ChargentOrder').keySet()) {
-                        ChargentOrders__ChargentOrder__c co = (ChargentOrders__ChargentOrder__c)manager.allInsertedRecords.get('ChargentOrder').get(coId);
+                        ChargentOrders__ChargentOrder__c co = new ChargentOrders__ChargentOrder__c();
+                        co = (ChargentOrders__ChargentOrder__c)manager.allInsertedRecords.get('ChargentOrder').get(coId);
                         if(co.ChargentOrders__Payment_Frequency__c == 'Monthly') {
                             recurringOrderId = co.Id;
                         } else {
@@ -962,6 +1067,7 @@ public without sharing class ARC_PCSODML{
                         }
                     }
                 }
+
                 // Prepare UW Case Member data
                 List<ARC_UnderwritingCaseMember__c> UWCaseMembersList = new  List<ARC_UnderwritingCaseMember__c>();
                 for (String key : manager.censusMemberIdOrFakeIdToUWCM.keySet()) {
@@ -981,8 +1087,22 @@ public without sharing class ARC_PCSODML{
                 String jsonUWCase = JSON.serialize(manager.casesUWToInsert);
                 String fullJson = String.valueOf(manager.inputMap.get('inputData'));
                 Id contextId = (Id)manager.inputMap.get('ContextId');
+                String ageUpsJson = null;
+
+                if (manager.allInsertedRecords.containsKey('AgeUps')) {
+                    Map<Id, SObject> ageUpsMap = manager.allInsertedRecords.get('AgeUps');
+                    ageUpsJson = JSON.serialize(new List<SObject>(ageUpsMap.values()));
+                }
+
+                // Get the promotion discount if exist
+                String jsonPromotionDiscount = '';
+
+                if(!manager.promotionDiscountToInsert.isEmpty()){
+                    jsonPromotionDiscount = JSON.serialize(manager.promotionDiscountToInsert);
+                }
+
                 // Call the future method with all necessary data
-                handleUWCaseAndMembersFuture(jsonUWCase, contractId, feeOrderId, recurringOrderId, jsonUWCaseMembers,fullJson,contextId);
+                handleUWCaseAndMembersFuture(jsonUWCase, contractId, feeOrderId, recurringOrderId, jsonUWCaseMembers, fullJson, contextId, ageUpsJson, jsonPromotionDiscount);
                 
             } catch (Exception e) {
                 System.debug('Exception while preparing UW case for future processing: ' + e.getMessage() + e.getStackTraceString());
@@ -992,7 +1112,7 @@ public without sharing class ARC_PCSODML{
     }
 
     @future
-    public static void handleUWCaseAndMembersFuture(String jsonUWCase, Id contractId, Id feeOrderId, Id recurringOrderId, String jsonUWCaseMembers,String fullJson,Id contextId) {
+    public static void handleUWCaseAndMembersFuture(String jsonUWCase, Id contractId, Id feeOrderId, Id recurringOrderId, String jsonUWCaseMembers,String fullJson,Id contextId, String ageUpsJson, String jsonPromotionDiscount) {
         try {
             // Create a list for the upsert
             // Create a map for the upsert of the uw cases
@@ -1010,6 +1130,13 @@ public without sharing class ARC_PCSODML{
                 casesToUpsert.addAll(previousUWCases); // previous UW Cases
             }
 
+            // Deserialise promotion discount if exist
+            List<ARC_PromotionDiscount__c> promotionDiscounts = new List<ARC_PromotionDiscount__c>();
+            if(jsonPromotionDiscount != null && jsonPromotionDiscount != ''){
+                //Deserialize the promotion discount
+                promotionDiscounts = (List<ARC_PromotionDiscount__c>)JSON.deserialize(jsonPromotionDiscount, List<ARC_PromotionDiscount__c>.class);
+            }
+
             // Perform the upsert
             Database.UpsertResult[] results = Database.upsert(casesToUpsert, true);
             
@@ -1021,9 +1148,7 @@ public without sharing class ARC_PCSODML{
                     for (Database.Error error : result.getErrors()) {
                         System.debug('Error upserting UW case in future context: ' + error.getMessage());
                     }
-                } /* else if (newCaseId == null) {
-                    newCaseId = result.getId();
-                }*/
+                } 
             }
             
             // Update the contract with the new case and orders
@@ -1038,6 +1163,25 @@ public without sharing class ARC_PCSODML{
                 
                 update contractToUpdate;
             }
+
+            if (!promotionDiscounts.isEmpty()) {     
+                    for(ARC_PromotionDiscount__c d : promotionDiscounts) {
+                        d.ARC_Contract__c = contractId != null ? contractId : null;
+                    }
+    
+                    Database.UpsertResult[] resultsPD   = Database.upsert(promotionDiscounts, true);
+                    for (Integer i = 0; i < resultsPD.size(); i++) {
+                        Database.UpsertResult result = resultsPD[i];
+                        if (!result.isSuccess()) {
+                            for (Database.Error error : result.getErrors()) {
+                                System.debug('Error promotion disocunt: ' + error.getMessage());
+                            }
+                        } else {                                               
+                            System.debug('Promotion discount upserted successfully');                
+                        }
+                    }
+                
+            } 
 
             // Handle UW Case Members if we have a successful case creation
             if (newCaseId != null) {
@@ -1059,16 +1203,32 @@ public without sharing class ARC_PCSODML{
                     }
                 }
             }
-            
+
+
+            if (ageUpsJson != null && ageUpsJson.trim() != '') {
+                try {
+                    List<Ages_Up__c> ageUpsToCalculateList = (List<Ages_Up__c>)JSON.deserialize(ageUpsJson, List<Ages_Up__c>.class);
+                    if (!ageUpsToCalculateList.isEmpty()) {
+                        System.debug('ageUpsToCalculateList ' + ageUpsToCalculateList);
+                        System.enqueueJob(new ARC_AgeUpPriceCalculationQueable(ageUpsToCalculateList));
+                    }
+                } catch (Exception e) {
+                    System.debug('Error deserializing ageUpsJson: ' + e.getMessage());
+                }
+            }
+
         } catch (Exception e) {
             Integer MAX_FIELD_SIZE = 131072-10;
+            String customLogName = 'PC SO Exception while processing UW case and members in future context';
+            String Status = 'New';
+            string ownerId = UserInfo.getUserId();
 
             String serializedData = fullJson;
             Custom_Logs__c log = new Custom_Logs__c();
-            log.Name = 'PC SO Exception while processing UW case and members in future context';
+            log.Name = customLogName;
             log.Account__c = contextId;
-            log.OwnerId = UserInfo.getUserId();
-            log.Status__c = 'New';
+            log.OwnerId = ownerId;
+            log.Status__c = Status;
             
             if(serializedData.length() > MAX_FIELD_SIZE) {
                 log.Log__c = serializedData.substring(0, MAX_FIELD_SIZE);
@@ -1082,57 +1242,11 @@ public without sharing class ARC_PCSODML{
             
             insert log;
             System.debug('Exception while processing UW case and members in future context: ' + e.getMessage() + e.getStackTraceString());
-            throw e;
+            //throw e;
         }
     }
 
-    /**
-     * @Description: Handles underwriting case member records.
-     * This method:
-     * 1. Creates case member associations
-     * 2. Links members to cases
-     * 3. Sets member status and details
-     * 4. Maintains member relationships
-     * 
-     * @throws Exception If case member operations fail
-     */
-  /*  private void upsertUWCaseMembers() {
-        Map<String,Object> SelectedContractInfo = (Map<String,Object>)manager.inputMap.get('SelectedContractInfo');
-        Id contractId = (Id)SelectedContractInfo.get('ContractID');
-        if (!manager.censusMemberIdOrFakeIdToUWCM.values().isEmpty()) {
-            List<ARC_UnderwritingCaseMember__c> UWCaseMembersToInsert = new List<ARC_UnderwritingCaseMember__c>();
-            try {
-                for (String key : manager.censusMemberIdOrFakeIdToUWCM.keySet()) {
-                    ARC_UnderwritingCaseMember__c uwCaseMember = manager.censusMemberIdOrFakeIdToUWCM.get(key);
-                    if (key.startsWith('MEM-')) {
-                        uwCaseMember.ARC_Member__c = manager.censusMemberByTemporalId.get(key).Id;
-                        uwCaseMember.ARC_PersonAccount__c = manager.censusMemberToAccount.get(manager.censusMemberByTemporalId.get(key).Id).Id;
-                    }
-                    uwCaseMember.ARC_Contract__c = contractId;
-                    uwCaseMember.ARC_UnderwritingCase__c = manager.allInsertedRecords.get('CaseUW').keySet().isEmpty() ? null : manager.allInsertedRecords.get('CaseUW').keySet().iterator().next();
-                }
-                UWCaseMembersToInsert = manager.censusMemberIdOrFakeIdToUWCM.values();
-
-                Database.UpsertResult[] results = Database.upsert(UWCaseMembersToInsert, true); //All or none = true
-                for (Integer i = 0; i < results.size(); i++) {
-                    Database.UpsertResult result = results[i];
-                    if (!result.isSuccess()) {
-                        for (Database.Error error : result.getErrors()) {
-                            System.debug('Error upserting UW Case Member: ' + error.getMessage());
-                        }
-                    } else {
-                        if (!manager.allInsertedRecords.containsKey('UWCaseMember')) {
-                            manager.allInsertedRecords.put('UWCaseMember', new Map<Id, SObject>());
-                        }                      
-                        manager.allInsertedRecords.get('UWCaseMember').put(result.getId(), UWCaseMembersToInsert[i]);                        
-                    }
-                }
-            } catch (Exception e) {
-                System.debug('Exception while upserting UWCaseMember: ' + e.getMessage() + e.getStackTraceString());
-                throw e;
-            }
-        }
-    } */
+    
 
     /**
      * @Description: Processes HIPAA authorization records.
@@ -1145,6 +1259,7 @@ public without sharing class ARC_PCSODML{
      * 
      * @throws Exception If authorization operations fail
      */
+    @TestVisible
     private void upsertHipaaAuthorizations() {
         if (!manager.fakeIdToHipaaAuth.isEmpty() || manager.hippaExternalContact != null || manager.guardianHippa != null) {
             try {
@@ -1165,11 +1280,7 @@ public without sharing class ARC_PCSODML{
                     Database.UpsertResult result = Database.upsert(manager.hippaExternalContact, true);
                     if (result.isSuccess()) {
                         Id contactId = result.getId();
-                        ARC_HipaaAuthorization__c newHipaa = new ARC_HipaaAuthorization__c();
-                        newHipaa.Name = manager.hippaExternalContact.FirstName + ' ' + manager.hippaExternalContact.LastName;
-                        newHipaa.ARC_ExternalPersonAuthorized__c = contactId;
-                        newHipaa.ARC_Census__c =  manager.inputMap.containsKey('CensusId') ? (Id)manager.inputMap.get('CensusId') : null;
-                        listAuthToInsert.add(newHipaa);
+                        listAuthToInsert.add(new ARC_HipaaAuthorization__c(Name = manager.hippaExternalContact.FirstName + ' ' + manager.hippaExternalContact.LastName, ARC_ExternalPersonAuthorized__c = contactId, ARC_Census__c = manager.inputMap.containsKey('CensusId') ? (Id)manager.inputMap.get('CensusId') : null));
                     } else {
                         for (Database.Error error : result.getErrors()) {
                             System.debug('Error upserting Contact to external Hipaa: ' + error.getMessage());
@@ -1220,6 +1331,7 @@ public without sharing class ARC_PCSODML{
      * 
      * @throws Exception If condition operations fail
      */
+    @TestVisible 
     private void upsertMedicalConditions() {        
         if(!manager.newMembersMapMedicalConditionsToInsert.isEmpty()) {
             try {
@@ -1340,21 +1452,8 @@ public without sharing class ARC_PCSODML{
                     Id accountId = manager.censusMemberToAccount.containsKey(censusId) ? manager.censusMemberToAccount.get(censusId).Id : null;
 
                     Map<String, Object> physicianMemberInfo = manager.physicianNewMemberDataToUpdate.get(fakeId);
-
-                    Account phA = new Account();
-                    phA.Id = accountId;
-                    phA.ARC_PhysicianName__c = (String)physicianMemberInfo.get('ARC_PhysicianName__c');
-                    phA.ARC_PhysicianCity__c = (String)physicianMemberInfo.get('ARC_PhysicianCity__c');
-                    phA.ARC_PhysicianPhone__c = (String)physicianMemberInfo.get('ARC_PhysicianPhone__c');
-    
-                    vlocity_ins__GroupCensusMember__c phGCM = new vlocity_ins__GroupCensusMember__c();
-                    phGCM.Id = censusId;
-                    phGCM.ARC_PhysicianName__c = (String)physicianMemberInfo.get('ARC_PhysicianName__c');
-                    phGCM.ARC_PhysicianCity__c = (String)physicianMemberInfo.get('ARC_PhysicianCity__c');
-                    phGCM.ARC_PhysicianPhone__c = (String)physicianMemberInfo.get('ARC_PhysicianPhone__c');
-
-                    manager.physicianAccountToUpdate.add(phA);
-                    manager.physicianGCMToUpdate.add(phGCM);
+                    manager.physicianAccountToUpdate.add(new Account(Id = accountId, ARC_PhysicianName__c = (String)physicianMemberInfo.get('ARC_PhysicianName__c'), ARC_PhysicianCity__c = (String)physicianMemberInfo.get('ARC_PhysicianCity__c'), ARC_PhysicianPhone__c = (String)physicianMemberInfo.get('ARC_PhysicianPhone__c')));
+                    manager.physicianGCMToUpdate.add(new vlocity_ins__GroupCensusMember__c(Id = censusId, ARC_PhysicianName__c = (String)physicianMemberInfo.get('ARC_PhysicianName__c'), ARC_PhysicianCity__c = (String)physicianMemberInfo.get('ARC_PhysicianCity__c'), ARC_PhysicianPhone__c = (String)physicianMemberInfo.get('ARC_PhysicianPhone__c')));
                 }
             } catch (Exception e) {
                 System.debug('Exception while upserting updatePhysicianMemberData: ' + e.getMessage() + e.getStackTraceString());
@@ -1423,7 +1522,6 @@ public without sharing class ARC_PCSODML{
                     for (String key : manager.FakeIdToCasePc.keySet()) {
                         Case caseFee = manager.FakeIdToCasePc.get(key);
                         if (key.startsWith('MEM-')) {
-                            // caseFee.AccountId = manager.censusMemberToAccount.get(manager.censusMemberByTemporalId.get(key).Id).Id;
                             caseFee.ARC_PersonAccount__c = manager.censusMemberToAccount.get(manager.censusMemberByTemporalId.get(key).Id).Id;
                             caseFee.ARC_CensusMember__c = manager.primaryCensusMemberWithId.Id;
                             manager.casesPCToInsert = manager.FakeIdToCasePc.values();
@@ -1438,12 +1536,7 @@ public without sharing class ARC_PCSODML{
                         for (Database.Error error : result.getErrors()) {
                             System.debug('Error upserting PC case: ' + error.getMessage());
                         }
-                    } /* else {
-                        if (!manager.allInsertedRecords.containsKey('CasePC')) {
-                            manager.allInsertedRecords.put('CasePC', new Map<Id, SObject>());
-                        }
-                        manager.allInsertedRecords.get('CasePC').put(result.getId(), manager.casesPCToInsert[i]);
-                    } */
+                    } 
                 }
             } catch (Exception e) {
                 System.debug('Exception while upserting PC cases: ' + e.getMessage() + e.getStackTraceString());
@@ -1462,7 +1555,7 @@ public without sharing class ARC_PCSODML{
      * 
      * @throws Exception If discount operations fail
      */
-    private void insertPromotionDiscount() {
+    /*private void insertPromotionDiscount() {
         if (!manager.promotionDiscountToInsert.isEmpty()) {
      
             try {
@@ -1495,7 +1588,7 @@ public without sharing class ARC_PCSODML{
                 throw e;
             }
         }    
-    }
+    }*/
 
     /**
     * @Description: Inserts a new Policy for the new Contract, including its Insurance Policy Participants, Insurance Policy Coverage and Coverage Participants
@@ -1504,11 +1597,22 @@ public without sharing class ARC_PCSODML{
         try {
             Map<String, Object> SelectedContractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');
             Id contractId = (Id)SelectedContractInfo.get('ContractID');
-            //Id contractId = manager.allInsertedRecords.get('Contract').keySet().isEmpty() ? null : manager.allInsertedRecords.get('Contract').keySet().iterator().next();
-            //Id newContractId = new List<Id>(contractIds)[0];
             Map<String, Object> inputMap = new Map<String, Object>();
             Map<String, Object> outMap = new Map<String, Object>();
+
+            Map<String,Object> contactOrFakeIdToBeneficiaries = manager.contactOrFakeIdToBeneficiaries; // Map with beneficiaries per member mapped in PCMapper
+            Map<String,Object> beneficiariesMap = new Map<String,Object>(); // Map with beneficiaries per member to be sent to ARC_PolicyCreation
+            System.debug('contactOrFakeIdToBeneficiaries =======> ' + contactOrFakeIdToBeneficiaries);
+            // Replace the fake Id with contact Id
+            for (String key : contactOrFakeIdToBeneficiaries.keySet()) {
+                vlocity_ins__GroupCensusMember__c newCM = manager.censusMemberByTemporalId.containsKey(key) && manager.censusMemberByTemporalId.get(key) != null ? manager.censusMemberByTemporalId.get(key) : new vlocity_ins__GroupCensusMember__c();
+                beneficiariesMap.put(key.startsWith('MEM-') ? newCM.vlocity_ins__ContactId__c : key, contactOrFakeIdToBeneficiaries.get(key));
+            }
+            System.debug('manager.censusMemberByTemporalId ====> ' + manager.censusMemberByTemporalId);
+            System.debug('Beneficiaries to insert: ' + beneficiariesMap);
+            inputMap.put('contactIdToBeneficiaries', beneficiariesMap);
             inputMap.put('contractId', contractId);
+            inputMap.put('IsSpinOffOmniscript', true);
             ARC_PolicyCreation.createAllPolicyRecords(inputMap, outMap);
         } catch (Exception e) {
             System.debug('Exception while inserting policy: ' + e.getMessage() + e.getStackTraceString() );
@@ -1531,6 +1635,59 @@ public without sharing class ARC_PCSODML{
         newPA.LastName = LastName;
         newPA.ARC_Census__c = manager.inputMap.containsKey('CensusId') ? (Id)manager.inputMap.get('CensusId') : null;
         return newPA;        
+    }
+
+    /**
+ * @Description: Updates OS Instances 'Resume -> Completed'.
+ * This method:
+ * 1. Retrieves the Account Id from the input parameters.
+ * 2. Queries all OmniScript Instances related to that Account that are in 'Resume' status.
+ * 3. Updates their ARC_ResumeStatus__c field to 'Completed'.
+ * 4. Performs a bulk DML update (Database.update) using the same pattern
+ *    as other DML operations in the class, capturing any errors and storing successful
+ *    updates in manager.allInsertedRecords.
+ * 5. Handles any exceptions during the update process and logs relevant information.
+ */
+    private void completeOmniScriptInstancesForAccountContext() {
+        Id accountId = (Id) manager.inputMap.get('ContextId');
+        if (accountId == null) {
+            return;
+        }
+
+        List<vlocity_ins__OmniScriptInstance__c> toUpdate = [SELECT Id, ARC_ResumeStatus__c FROM 
+        vlocity_ins__OmniScriptInstance__c 
+        WHERE vlocity_ins__ObjectId__c = :accountId 
+        AND (ARC_ResumeStatus__c = 'Resume' OR ARC_ResumeStatus__c = null OR ARC_ResumeStatus__c = '')];
+
+        if (toUpdate.isEmpty()) {
+            System.debug('No OmniScript instances in Resume for Account ' + accountId);
+            return;
+        }
+
+        for (vlocity_ins__OmniScriptInstance__c os : toUpdate) {
+            os.ARC_ResumeStatus__c = 'Completed';
+        }
+
+        try {
+            Database.SaveResult[] results = Database.update(toUpdate, true);
+
+            for (Integer i = 0; i < results.size(); i++) {
+                Database.SaveResult result = results[i];
+                if (!result.isSuccess()) {
+                    for (Database.Error error : result.getErrors()) {
+                        System.debug('Error completing OmniScript instance ' + toUpdate[i].Id + ': ' + error.getMessage());
+                    }
+                } else {
+                    if (!manager.allInsertedRecords.containsKey('OmniScriptInstance')) {
+                        manager.allInsertedRecords.put('OmniScriptInstance', new Map<Id, SObject>());
+                    }
+                    manager.allInsertedRecords.get('OmniScriptInstance').put(result.getId(), toUpdate[i]);
+                }
+            }
+        } catch (Exception e) {
+            System.debug('Exception while completing OmniScript instances: ' + e.getMessage() + e.getStackTraceString());
+            throw e;
+        }
     }
 
     /**
@@ -1557,6 +1714,16 @@ public without sharing class ARC_PCSODML{
             censusMember.vlocity_ins__ContactId__c = acc.PersonContactId;
             censusMember.vlocity_ins__SocialSecurityNumber__c = censusMember.vlocity_ins__SocialSecurityNumber__c;
             censusMembersToUpdateContactId.add(censusMember);
+
+            for(String fakeId : manager.censusMemberByTemporalId.keySet()){
+                vlocity_ins__GroupCensusMember__c gcmInMemory = 
+                    manager.censusMemberByTemporalId.get(fakeId);
+                if(gcmInMemory.Id == acc.Census_Member__c){
+                    gcmInMemory.vlocity_ins__ContactId__c = acc.PersonContactId;
+                    manager.censusMemberByTemporalId.put(fakeId, gcmInMemory);
+                    break;
+                }
+            }
         }
         for(vlocity_ins__GroupCensusMember__c censusMember : censusMembersToUpdateContactId){
             System.debug('updateRelatedCensusMembers censusMember: ' + censusMember.vlocity_ins__SocialSecurityNumber__c);
@@ -1581,11 +1748,7 @@ public without sharing class ARC_PCSODML{
             Integer MAX_FIELD_SIZE = 131072;
 
             String serializedData = fullJson;
-            Custom_Logs__c log = new Custom_Logs__c();
-            log.Name = 'PC SO Exception while upserting census members in future context';
-            log.Account__c = contextId;
-            log.OwnerId = UserInfo.getUserId();
-            log.Status__c = 'New';
+            Custom_Logs__c log = new Custom_Logs__c(Name = 'PC SO Exception while upserting census members in future context', Account__c = contextId, OwnerId = UserInfo.getUserId(), Status__c = 'New');
             
             if(serializedData.length() > MAX_FIELD_SIZE) {
                 log.Log__c = serializedData.substring(0, MAX_FIELD_SIZE);
@@ -1599,7 +1762,7 @@ public without sharing class ARC_PCSODML{
             
             insert log;
 
-            throw e;
+            //throw e;
         }
     }
 

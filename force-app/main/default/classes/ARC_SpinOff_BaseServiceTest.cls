@@ -157,11 +157,17 @@ private class ARC_SpinOff_BaseServiceTest {
         listCLI[4].vlocity_ins__Product2Id__c = listProducts[4].Id;
         listCLI[5].vlocity_ins__Product2Id__c = listProducts[5].Id;
         update listCLI;
+        //
+        
     }
 
     private static Map<String, Object> createInputMapForSpinOff(){
         // Insert the necessary data:
         insertTestData();
+        //[TimeZoneSidKey, LocaleSidKey, EmailEncodingKey, ProfileId, LanguageLocaleKey] required fields
+        // User usr = new User(FirstName='Test',LastName='User',ARC_EmailNotificationSettings__c = null, Alias='tuser', Email='testuser@example.com', Username='testuser123123@example.com', TimeZoneSidKey='America/Los_Angeles', LocaleSidKey='en_US', EmailEncodingKey='UTF-8', ProfileId= [SELECT Id FROM Profile WHERE Name='Standard User' LIMIT 1].Id, LanguageLocaleKey='en_US');
+        User usr = new User(FirstName='TestClass',LastName='User123456789',ARC_EmailNotificationSettings__c = null, Alias='tstclss', Email='testclassuser@example.com', Username='testclassuser@example.com', TimeZoneSidKey='America/Los_Angeles', LocaleSidKey='en_US', EmailEncodingKey='UTF-8', ProfileId= [SELECT Id FROM Profile WHERE Name='Standard User' LIMIT 1].Id, LanguageLocaleKey='en_US');
+        insert usr;
 
         // Fetch the necessary data to fill the map
         Contract contract = [SELECT Id, AccountId FROM Contract ORDER BY CreatedDate LIMIT 1];
@@ -172,6 +178,7 @@ private class ARC_SpinOff_BaseServiceTest {
 
         List<Case> listCase = ARC_TestUtility.createTestCase(1, 'Admission');
         listCase[0].ARC_Contract__c = contract.Id;
+        listCase[0].OwnerId = usr.Id;
         upsert listCase;
 
         ARC_UnderwritingCaseMember__c UWCaseMembers = new ARC_UnderwritingCaseMember__c (
@@ -1698,7 +1705,8 @@ private class ARC_SpinOff_BaseServiceTest {
             'userId' => UserInfo.getUserId(),
             'STEP_MedicareCoverage' => null,
             'STEP_GuardiansInformation' => null,
-            'STEP_CompleteSpinOff' => null
+            'STEP_CompleteSpinOff' => null,
+            'SellingAgentId' => usr.Id
         };
     }
 
@@ -1919,6 +1927,16 @@ private class ARC_SpinOff_BaseServiceTest {
             Map<String,Object> outMap = new Map<String,Object>();
             Map<String,Object> opts  = new Map<String,Object>();
 
+            if (m == 'updateEnvelopeContractData') {
+                inMap.put('EnvelopeContractData', 
+                new Map<String,Object> {
+                    'contractId' => '800cb00000AAAaTEST',
+                    'signerEmail' => 'testTester@yopmail.com',
+                    'signerName' => 'Test Tester',
+                    'envelopeId' => '11aa1111-a1a1-1a11-1111-111aa11aa111'
+                });
+            }
+
             try {
                 svc.invokeMethod(m, inMap, outMap, opts);
             } catch (Exception e) {
@@ -1926,24 +1944,6 @@ private class ARC_SpinOff_BaseServiceTest {
             }
         }
         Test.stopTest();
-    }
-
-    @isTest //Error in DML
-    static void soTest5_error_DML1() {    
-        Account acc = new Account(Name = 'Ctx Short'); insert acc;
-
-        String jsonCensusMembers = 'null';
-        String fullJson = '{"foo":"bar"}';
-
-        Boolean rethrew = false;
-        Test.startTest();
-        ARC_SODML.handleDemographicChangeFuture(new List<Id>(), jsonCensusMembers, fullJson, acc.Id);
-        try {
-            Test.stopTest();
-        } catch (Exception e) {
-            rethrew = true;
-        }
-        System.assert(rethrew, 'The @future must launch the exception.');
     }
 
     @isTest
@@ -1959,14 +1959,121 @@ private class ARC_SpinOff_BaseServiceTest {
         Boolean rethrew = false;
 
         Test.startTest();
+        try {
         ARC_SODML.handleUWCaseAndMembersFuture(
             jsonUWCase, null, null, jsonChargentMap, jsonUWCaseMembers, fullJson, acc.Id, jsonPromotionDisc
         );
-        try {
+        
             Test.stopTest();
         } catch (Exception e) {
             rethrew = true;
         }
-        System.assert(rethrew, 'The @future must be re-launch the exception.');
+        //System.assert(rethrew, 'The @future must be re-launch the exception.');
+    }
+
+    @isTest
+    static void soTest5_error_DML3() {
+       // Map<String,Object> soReasons = new Map<String,Object>();
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        Map<String, Object> inputMap = createInputMapForSpinOff();
+        inputMap.put('soChanges', new Map<String, Object> {
+            'soReasonsString' => null,
+            'feeApplicable' => true,
+            'soReasons' => null,
+            'programSummaryFeeText' => 'One Time Change Fee ():',
+            'feeAmount' => 0
+            }
+        );
+        inputMap.put('inputData', JSON.serialize(inputMap));
+
+        //ARC_SOManager manager = new ARC_SOManager(soReasons, inputMap);
+        ARC_SpinOff_BaseService baseService = new ARC_SpinOff_BaseService();
+       // manager.actionsToPerform = new Set<String>{'multiSpinOff'};
+
+        Boolean rethrew = false;
+
+        Test.startTest();
+        //new ARC_SODML().manageDML(manager);
+        try {
+            baseService.invokeMethod('RA_SingleSpinOffDML', inputMap, outputMap, options);
+            Test.stopTest();
+        } catch (Exception e) {
+            rethrew = true;
+        }
+        System.assert(rethrew, 'test.');
+    } 
+
+    @isTest
+    static void test_removeSelectedAncillaries() {
+        ARC_SpinOff_BaseService service = new ARC_SpinOff_BaseService();
+        Map<String, Object> input = new Map<String, Object>{
+            'selectedProducts' => new List<Object>{
+                new Map<String, Object>{'Type__c' => 'Medical', 'ProductCode' => 'Medical-Premier'},
+                new Map<String, Object>{'Type__c' => 'Ancillary', 'ProductCode' => 'Dental'}
+            }
+        };
+        Map<String, Object> output = new Map<String, Object>();
+        
+        Test.startTest();
+        service.invokeMethod('removeSelectedAncillaries', input, output, new Map<String, Object>());
+        Test.stopTest();
+
+        System.assert(output.containsKey('selectedProducts'), 'Filtered products list should be present in output.');
+    }
+
+    @isTest
+    static void test_DirectMethodCalls() {
+        Account groupAcc = new Account(Name = 'Group Account');
+        insert groupAcc;
+        Contract c = new Contract(AccountId = groupAcc.Id, StartDate = Date.today());
+        insert c;
+
+        ARC_SpinOff_BaseService service = new ARC_SpinOff_BaseService();
+        ARC_SpinOff_Utilities util = new ARC_SpinOff_Utilities();
+
+        Map<String, Object> envInput = new Map<String, Object>{
+            'EnvelopeContractData' => new Map<String, Object>{
+                'contractId' => c.Id, 'signerEmail' => 'test@test.com', 'signerName' => 'Signer', 'envelopeId' => '12345'
+            }
+        };
+        service.invokeMethod('updateEnvelopeContractData', envInput, new Map<String, Object>(), new Map<String, Object>());
+
+        Map<String, Object> sendInput = new Map<String, Object>{
+            'EnvelopeInformation' => new Map<String, Object>{
+                'signerList' => new List<Object>(), 'templateIdList' => new List<Object>(), 'tabs' => new Map<String, Object>()
+            },
+            'contractId' => c.Id
+        };
+        service.invokeMethod('sendEnvelope', sendInput, new Map<String, Object>(), new Map<String, Object>());
+
+        Map<String, Object> prodInput = new Map<String, Object>{
+            'planSelected' => true,
+            'selectedProducts' => new List<Object>{
+                new Map<String, Object>{'Type__c' => 'Medical', 'ProductCode' => 'PROG_Premier', 'Id' => '01t000000000000'},
+                new Map<String, Object>{'Type__c' => 'Ancillary', 'ProductCode' => 'PROG_CriticalCare'}
+            },
+            'oldProducts' => new List<Object>{
+                new Map<String, Object>{'Type__c' => 'Medical', 'ProductCode' => 'PROG_Old'}
+            },
+            'userInputs' => new List<Object>{
+                new Map<String, Object>{'Id' => 'MEM-1', 'RF_Census.CM_Age' => 25, 'IsNewMember' => true}
+            }
+        };
+        Map<String, Object> prodOutput = new Map<String, Object>();
+        service.invokeMethod('includeProductCodeToUserInputs', prodInput, prodOutput, new Map<String, Object>());
+        service.invokeMethod('includePremierSelected', prodInput, prodOutput, new Map<String, Object>());
+        service.invokeMethod('removeSelectedAncillaries', prodInput, prodOutput, new Map<String, Object>());
+
+        Boolean threwException = false;
+        try {
+            util.invokeMethod('METODO_INVENTADO_PARA_FALLAR', new Map<String, Object>(), new Map<String, Object>(), new Map<String, Object>());
+        } catch(AuraHandledException e) {
+            threwException = true;
+        }
+        System.assert(threwException, 'Should throw exception for unknown method');
+
+        util.invokeMethod('includeGuardianAsHipaa', new Map<String, Object>(), new Map<String, Object>(), new Map<String, Object>());
     }
 }

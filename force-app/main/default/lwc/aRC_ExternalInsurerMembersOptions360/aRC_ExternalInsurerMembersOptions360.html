@@ -1,0 +1,56 @@
+<template>
+
+    <template if:true={showExternalInsurance}>
+        <template for:each={externalInsuranceInstances} for:item="exInsurer">
+            <div key={exInsurer.id} >
+                <div class="nds-box slds-m-around_small">
+                    <div class="slds-grid slds-grid_align-end">
+                        <vlocity_ins-button data-id={exInsurer.id} theme="nds" variant="icon" icon-name="utility:delete"
+                            icon-size="x-small" icon-fill="#d80000" onclick={handleRemoveButton} title="Remove">
+                        </vlocity_ins-button>
+                    </div>
+                    <div class="slds-grid slds-wrap slds-gutters_small slds-border_bottom slds-p-bottom_medium">
+                        <vlocity_ins-input theme="nds" required onchange={handleChange} value={exInsurer.insurer} data-input="insurer" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="text" label="Insurer" max-length ="80"></vlocity_ins-input>
+                        <vlocity_ins-input theme="nds" onchange={handleChange} value={exInsurer.policyNumber} data-input="policyNumber" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="text" label="Policy Number" max-length ="40" ></vlocity_ins-input>
+                        <vlocity_ins-input theme="nds" required onchange={handleChange} value={exInsurer.effectiveDate} data-input="effectiveDate" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="date" name="EffectiveDate" label="Effective Date" ></vlocity_ins-input >
+                        <vlocity_ins-input theme="nds" required onchange={handleChange} value={exInsurer.expirationDate} data-input="expirationDate" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="date" name="ExpirationDate" label="Expiration Date" ></vlocity_ins-input >
+                        <vlocity_ins-input theme="nds" onchange={handleChange} value={exInsurer.insurerPhone} data-input="insurerPhone" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="tel" label="Insurer Phone" name="InsurerPhone" max-length ="10"></vlocity_ins-input >
+                        <vlocity_ins-combobox theme="nds" class="slds-col slds-size_1-of-2"
+                            data-exid={exInsurer.id} 
+                            label="Source of coverage"
+                            options={options}
+                            onchange={handleChange} 
+                            value={exInsurer.sourceOfCoverage} 
+                            data-input="sourceOfCoverage"></vlocity_ins-combobox>
+                        </div>
+                        <div class="slds-p-top_medium">
+                            <span class="slds-m-bottom_xx-small">Who is covered?</span>
+                            <div key={exInsurer.Name} class="checkBoxButtons slds-m-top_small" for:each={membersData} for:item="member">
+                                <vlocity_ins-input theme="nds" data-id={member.Id} data-input="memberData" key={member.Id} data-member={member.Id} data-exid={exInsurer.id} type="checkbox" label={member.Name} onchange={handleChange}></vlocity_ins-input>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </template>
+        <div class="slds-grid slds-grid_align-end">
+            <vlocity_ins-button theme="nds" label="Add Insurer" alternative-text="Add Insurer" variant="neutral"
+                onclick={handleAddButton} class="nds-m-horizontal_small slds-m-horizontal_small">
+            </vlocity_ins-button>
+        </div>
+    </template>
+    <div if:true={dataError} class="slds-box slds-theme_shade slds-theme_error slds-m-top_small">
+        <p class="slds-align_absolute-center"><strong>You can not leave empty fields</strong></p>
+    </div>
+
+    <div class="nds-grid nds-grid_align-center">
+        <div
+            class="nds-grid nds-grid_align-center nds-wrap nds-button-group-row nds-size_1-of-1 nds-medium-size_8-of-12 nds-p-horizontal_medium">
+            <div class="omniscript-btn-next nds-size_12-of-12 nds-m-bottom_x-small nds-medium-size_3-of-12"><button
+                    type="button" aria-label="Next Step" onclick={handleNext}
+                    class="vlocity-btn nds-button nds-button_brand nds-button_stretch nds-p-around_xx-small nds-size_1-of-1"><span
+                        class="btnLabel">Submit</span></button></div>
+        </div>
+    </div>
+    
+    
+</template>

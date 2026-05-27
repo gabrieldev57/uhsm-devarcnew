@@ -3,6 +3,7 @@ import {
     validateLegalAdultPhoneAndEmail, validateUniquePrimaryMember, validateUniqueSpouse,
     validateSpouseIsLegalAdult, validateUnderagePrimaryHasNoSpouse, validateMaxAge64PrimaryAndSpouse,
     validateMaxAge26Children, validateUnderagePrimaryIsOldestMember, validateEmailFormat,validateAvailableState,
+    validateZipCodeFormat,
     REQUIRED_FIELDS
 } from "./aRC_FormCensusSpinOffValidations";
 
@@ -145,7 +146,7 @@ export function validateMemberOnChange(census_members, field_name, value, member
         // validateMaxAge64PrimaryAndSpouse(field_name, census_members[member_index], member_index),
         validateMaxAge26Children(field_name, census_members[member_index], member_index),
         validateSpouseIsLegalAdult(field_name, census_members[member_index], member_index),
-
+        validateZipCodeFormat(field_name, value, member_index),
         validateUniquePrimaryMember(field_name, census_members),
         validateUniqueSpouse(field_name, census_members),
         validateUnderagePrimaryHasNoSpouse(field_name, census_members),

@@ -1,0 +1,13 @@
+/**
+ * Auto Generated and Deployed by the Declarative Lookup Rollup Summaries Tool package (dlrs)
+ **/
+@IsTest
+private class dlrs_Lead_SourceTest
+{
+    @IsTest
+    private static void testTrigger()
+    {
+        // Force the dlrs_Lead_SourceTrigger to be invoked, fails the test if org config or other Apex code prevents this.
+        dlrs.RollupService.testHandler(new Lead_Source__c());
+    }
+}

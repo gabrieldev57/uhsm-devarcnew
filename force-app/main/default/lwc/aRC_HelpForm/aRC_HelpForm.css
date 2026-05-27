@@ -1,0 +1,70 @@
+.master-container{
+    border: 2px solid #dfdfdf;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: white;
+    position: relative;
+    height: 100%;
+}
+.header{
+    display: flex;
+    gap: 10px;
+}
+form{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 12px;
+}
+.header h2{
+    font-size: 18px;
+    font-weight: bold;
+    color: #141415;
+    font-family: Aktiv Grotesk Ex;
+    
+    /* margin: 0 0 16px 0; */
+}
+.user-information{
+    padding: 10px;
+    background-color: #f6f6f6;
+    border-radius: 4px;
+}
+.user-information p:first-of-type{
+    font-weight: bold;
+}
+.submit-button{
+    background-color: #F2BC30;
+    border-radius: 4px;
+    width: 100%;
+    border: 1px solid #F2BC30;
+    color: white;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+}
+.submit-button:hover {
+    background-color: #fbbf24;
+    /* transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+}
+.finish-screen{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    
+    flex-flow: column;
+    gap: 10px;
+}
+.finish-screen h2{
+    font-size: 18px;
+    font-weight: bold;
+    color: #141415;
+}
+.finish-screen p{
+    color: #6b7280;
+    font-size: 14px;
+    text-align: center;
+}

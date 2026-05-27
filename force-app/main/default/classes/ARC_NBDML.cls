@@ -27,19 +27,24 @@
             operations.add('insertAccount');
             operations.add('insertGCMPlan');
             operations.add('insertPolPart');
+            operations.add('updateContMembership');
+            operations.add('updateBenefitDates');
             operations.add('insertAggregators');
 
             if (manager.isPermanentNewborn) {
                 operations.add('upsertContract_Permanent'); 
                 operations.add('insertCLI_Permanent'); 
                 operations.add('insertGCMPlan_Permanent'); 
+                operations.add('insertAncillaryDiscount_Permanent');
                 operations.add('insertCntPart_Permanent');
                 operations.add('insertPolicy_Permanent');
                 operations.add('insertMedicalConditions');
                 operations.add('insertConsumerDrugs');
                 operations.add('insertPhysicianMemberData');
                 operations.add('insertChargentOrder_Permanent');
+                operations.add('insertCaseFeeSkypped_Permanent');
                 operations.add('insertUWCaseAndUWCM_Permanent');
+                operations.add('insertFeeItems_Permanent');
             }
 
             try{
@@ -49,22 +54,6 @@
                 System.debug('Exception while executing DMLOperations the changes will be rolled back: ' + e.getMessage() + e.getStackTraceString());
                 throw e;
             }
-            
-            // Suggested execution order (to be implemented):
-            // 1. Insert/Update Accounts (Group and Person)
-            // 2. Insert/Update Guardians
-            // 3. Insert/Update Group Census
-            // 4. Insert/Update Group Census Members
-            // 5. Insert/Update Contracts
-            // 6. Insert/Update Contract Line Items
-            // 7. Insert/Update Contract Participants
-            // 8. Insert/Update Chargent Orders
-            // 9. Insert/Update HIPAA Authorizations
-            // 10. Insert/Update Medical Conditions
-            // 11. Insert/Update Consumer Drugs
-            // 12. Insert/Update Cases
-            // 13. Insert/Update Case Members
-            // 14. Insert/Update Promotion Discounts
             
         } catch (Exception e) {
             System.debug('Error in manageDML for newborns: ' + e.getMessage() + ' ' + e.getStackTraceString());
@@ -92,8 +81,17 @@
                 when 'insertGCMPlan' {
                     manageGCMPlan_DML();
                 }
+                when 'insertAncillaryDiscount_Permanent' {
+                    processCriticalCarePromotionDiscount();
+                }
                 when 'insertPolPart' {
                    managePolPart_DML();
+                }
+                when 'updateContMembership' {
+                   manageContMembership_DML();
+                }
+                when 'updateBenefitDates' {
+                   manageMatAndPreexResetDates_DML();
                 }
                 when 'insertAggregators' {
                     manageAggregators_DML();
@@ -116,6 +114,9 @@
                 when 'insertChargentOrder_Permanent' {
                     manageChargentOrder_PermanentDML();
                 }
+                when 'insertCaseFeeSkypped_Permanent' {
+                    manageCaseFeeSkypped_PermanentDML();
+                }
                 when 'insertUWCaseAndUWCM_Permanent' {
                     manageUWCaseAndUWCM_PermanentDML();
                 }
@@ -128,8 +129,12 @@
                 when 'insertPhysicianMemberData' {
                     managePhysicianMemberData();
                 }
+                when 'insertFeeItems_Permanent' {
+                    manageFeeItemsDML();
+                }
             }
-        } 
+        }
+        completeOmniScriptInstancesForAccountContext(); 
     }
     
     /**
@@ -137,16 +142,20 @@
      */
     private void manageAccount_DML() {
         try {
-            if(!manager.accountFakeIdToInsertNB.isEmpty()){
+            if (!manager.accountFakeIdToInsertNB.isEmpty()) {
+
+                Map<String, vlocity_ins__GroupCensusMember__c> censusActiveToGCM = (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.lastCensusId);
+
                 for (String fakeId : manager.accountFakeIdToInsertNB.keySet()) {
                     Account acc = (Account)manager.accountFakeIdToInsertNB.get(fakeId);
-                    acc.Census_Member__c = ((vlocity_ins__GroupCensusMember__c)manager.gcmFakeIdToInsertNB.get(fakeId)).Id;
-                    acc.ARC_CensusMember__pc = ((vlocity_ins__GroupCensusMember__c)manager.gcmFakeIdToInsertNB.get(fakeId)).Id;
+
+                    acc.Census_Member__c = ((vlocity_ins__GroupCensusMember__c)censusActiveToGCM.get(fakeId)).Id;
+                    acc.ARC_CensusMember__pc = ((vlocity_ins__GroupCensusMember__c)censusActiveToGCM.get(fakeId)).Id;
                     
                     manager.accountFakeIdToInsertNB.put(fakeId, acc);
                 }
 
-                try{
+                try {
                     Database.SaveResult[] results = Database.insert(manager.accountFakeIdToInsertNB.values(), true); 
                     System.debug('accounts: ' + manager.accountFakeIdToInsertNB);
 
@@ -154,18 +163,17 @@
                     
                     System.debug('accounts retrieve: ' + personAccounts);
 
-                    for(Account personAccount : personAccounts){
-                        for(String fakeId : manager.accountFakeIdToInsertNB.keySet()){
-                            if(personAccount.Id == manager.accountFakeIdToInsertNB.get(fakeId).Id){
+                    for (Account personAccount : personAccounts) {
+                        for (String fakeId : manager.accountFakeIdToInsertNB.keySet()) {
+                            if (personAccount.Id == manager.accountFakeIdToInsertNB.get(fakeId).Id) {
                                 manager.fakeIdToPersonContactId.put(fakeId, personAccount.PersonContactId);
 
                                 System.debug('insertedAccount: ' + manager.accountFakeIdToInsertNB.get(fakeId).Id); 
                             }
                         }
                     }
-                    updateRelatedCensusMembers(); 
-                }
-                catch(Exception e){
+                    updateRelatedCensusMembers();
+                } catch (Exception e) {
                     System.debug('Exception while upserting person accounts: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
                     throw e;
                 }
@@ -181,12 +189,22 @@
      */
     private void manageGCM_DML() {
         try {
-            if (!manager.gcmFakeIdToInsertNB.isEmpty()) {
+            if (!manager.censusGroupToGCM.isEmpty()) {
                 try {
-                    Database.SaveResult[] results = Database.insert(manager.gcmFakeIdToInsertNB.values(), true);
-                    for (vlocity_ins__GroupCensusMember__c gcm : manager.gcmFakeIdToInsertNB.values()) {
-                        System.debug('insertedCensusMember: ' + gcm.Id);
+                    List<vlocity_ins__GroupCensusMember__c> allGcms = new List<vlocity_ins__GroupCensusMember__c>();
+                    for (Id censusId : manager.censusGroupToGCM.keySet()) {
+                        allGcms.addAll(manager.censusGroupToGCM.get(censusId).values());
                     }
+                    
+                    Database.SaveResult[] results = Database.insert(allGcms, true); 
+               
+                    for (String cKey : manager.censusGroupToGCM.keySet()) {
+                        Map<String, vlocity_ins__GroupCensusMember__c> perCensus = manager.censusGroupToGCM.get(cKey);
+                        for (vlocity_ins__GroupCensusMember__c g : perCensus.values()) {
+                            System.debug('inserted gcm: ' + g.Id + ' with census id: ' + cKey);
+                        }
+                    }
+
                 } catch (Exception e) {
                     System.debug('Exception while upserting Group Census Members: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
                     throw e;
@@ -206,12 +224,19 @@
             if (!manager.listContractsTNB.isEmpty()) {
                 List<vlocity_ins__GroupCensusMemberPlan__c> listGCMP = new List<vlocity_ins__GroupCensusMemberPlan__c>();
 
-                for (Map<String, vlocity_ins__GroupCensusMemberPlan__c> fakeIdToGCMP : manager.contractIdToGCMP.values()) {
-                    
-                    for (String fakeId : fakeIdToGCMP.keySet()) {
-                        vlocity_ins__GroupCensusMemberPlan__c gcmPlan = (vlocity_ins__GroupCensusMemberPlan__c)fakeIdToGCMP.get(fakeId);
-                        gcmPlan.vlocity_ins__GroupCensusMemberId__c = ((vlocity_ins__GroupCensusMember__c)manager.gcmFakeIdToInsertNB.get(fakeId)).Id;
-                        listGCMP.add(gcmPlan);
+                for (String cntId : manager.contractIdToGCMP.keySet()) { 
+                    for (String cKey : manager.censusGroupToGCM.keySet()) {
+                        if (manager.cntIdtoCensusId.get(cntId) == cKey) {
+                            Map<String, vlocity_ins__GroupCensusMemberPlan__c> fakeIdToGCMP = manager.contractIdToGCMP.get(cntId);
+                            Map<String, vlocity_ins__GroupCensusMember__c> mapGCM = manager.censusGroupToGCM.get(cKey);
+
+                            for (String fakeId : fakeIdToGCMP.keySet()) {
+                                vlocity_ins__GroupCensusMemberPlan__c gcmPlan = (vlocity_ins__GroupCensusMemberPlan__c)fakeIdToGCMP.get(fakeId);
+                                gcmPlan.vlocity_ins__GroupCensusMemberId__c = ((vlocity_ins__GroupCensusMember__c)mapGCM.get(fakeId)).Id;
+                                gcmPlan.ARC_IsTemporaryNewborn__c = true;
+                                listGCMP.add(gcmPlan);
+                            }
+                        }
                     }
                 }
                 
@@ -303,6 +328,50 @@
     }
 
     /**
+     * @Description: Manages Continuous Coverage Date / Last Aggregator Reset / Continuous Membership Date DML operations for temporary newborns
+     */
+    private void manageContMembership_DML() {
+        try {
+            if (!manager.accountFakeIdToInsertNB.isEmpty()) {
+                List<Account> personAccounts = manager.accountFakeIdToInsertNB.values();
+                ARC_ContinuousMembershipDateBulk.RequestsVariables personAccountIds = new ARC_ContinuousMembershipDateBulk.RequestsVariables();
+                personAccountIds.listRecordIds = new List<Id>();
+                for (Account personAccount : personAccounts) {
+                    personAccountIds.listRecordIds.add(personAccount.Id);
+                }
+                ARC_ContinuousMembershipDateBulk.updateContinuousMembershipStartDateBulk(
+                    new List<ARC_ContinuousMembershipDateBulk.RequestsVariables>{ personAccountIds }
+                );
+            }
+        } catch (Exception e) {
+            System.debug('Error in manageContMembership_DML for newborns: ' + e.getMessage() + ' ' + e.getStackTraceString());
+            throw new AuraHandledException('Error managing Continuous Membership DML for newborns: ' + e.getMessage());
+        }
+    }
+
+    /**
+     * @Description: Manages Pre-Existing Conditions Reset Date & Maternity Reset Date DML operations for temporary newborns
+     */
+    private void manageMatAndPreexResetDates_DML() {
+        try {
+            if (!manager.accountFakeIdToInsertNB.isEmpty()) {
+                List<Account> personAccounts = manager.accountFakeIdToInsertNB.values();
+                ARC_AccountBenefitDates.RequestsVariables personAccountIds = new ARC_AccountBenefitDates.RequestsVariables();
+                personAccountIds.listRecordIds = new List<Id>();
+                for (Account personAccount : personAccounts) {
+                    personAccountIds.listRecordIds.add(personAccount.Id);
+                }
+                ARC_AccountBenefitDates.updateAccountBenefitDates(
+                    new List<ARC_AccountBenefitDates.RequestsVariables>{ personAccountIds }
+                );
+            }
+        } catch (Exception e) {
+            System.debug('Error in manageMatAndPreexResetDates_DML for newborns: ' + e.getMessage() + ' ' + e.getStackTraceString());
+            throw new AuraHandledException('Error managing Mat & Preex Benefit Dates DML for newborns: ' + e.getMessage());
+        }
+    }
+
+    /**
      * @Description: Manages aggregators-related DML operations for temporary newborns
      */
     private void manageAggregators_DML() {
@@ -314,7 +383,7 @@
                 }
                 String whereClause = 'Id IN (' + String.join(policyIds, ', ') + ')';
                 System.debug('whereClause: ' + whereClause);
-                ARC_CreateMissingAggregators aggregatorsBatch = new ARC_CreateMissingAggregators(whereClause, true, false);
+                ARC_CreateMissingAggregatorsV2 aggregatorsBatch = new ARC_CreateMissingAggregatorsV2(whereClause, true, false);
                 Database.executeBatch(aggregatorsBatch, 100);
             }
         } catch (Exception e) {
@@ -408,11 +477,14 @@
         if (!manager.indexToParentCLI.isEmpty() && !manager.indexToCLIGCM.isEmpty()) {
             try {
                 List<vlocity_ins__GroupCensusMemberPlan__c> gcmpListToUpsert = new List<vlocity_ins__GroupCensusMemberPlan__c> ();
+
+                Map<String, vlocity_ins__GroupCensusMember__c> censusActiveToGCM = manager.cnsIdSpinOff != null ? (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.cnsIdSpinOff) : (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.lastCensusId);
+
                 for(Integer index : manager.indexToParentCLI.keySet()){
                     for(String gcmId : manager.indexToCLIGCM.get(index)){
                         String censusMemberId;
                         if(gcmId.startsWith('MEM-')){
-                            censusMemberId = ((vlocity_ins__GroupCensusMember__c)manager.gcmFakeIdToInsertNB.get(gcmId)).Id;
+                            censusMemberId = ((vlocity_ins__GroupCensusMember__c)censusActiveToGCM.get(gcmId)).Id;
                         }
                         else{
                             censusMemberId = gcmId;
@@ -435,6 +507,55 @@
                         }
                         else {
                             System.debug('Inserted Group Census Member plan (Permanent Newborn): ' + gcmpListToUpsert[i].Id);
+
+                            // Ancillary bundle GCMP resolution (NB)
+                            vlocity_ins__GroupCensusMemberPlan__c insertedGcmp = gcmpListToUpsert[i];
+                            Id gcmpCliId = insertedGcmp.vlocity_ins__ContractLineId__c;
+
+                            if (!manager.memberIdToCriticalCareBundle.isEmpty()) {
+                                // Find the Product2Id of the CLI associated with this GCMP
+                                Id cliProduct2Id = null;
+                                for (Integer cliIdx : manager.indexToParentCLI.keySet()) {
+                                    vlocity_ins__ContractLineItem__c cli = manager.indexToParentCLI.get(cliIdx);
+                                    if (cli.Id == gcmpCliId) {
+                                        cliProduct2Id = cli.vlocity_ins__Product2Id__c;
+                                        break;
+                                    }
+                                }
+
+                                if (cliProduct2Id != null) {
+                                    for (String memberId : manager.memberIdToCriticalCareBundle.keySet()) {
+                                        Map<String, String> productIds = manager.memberIdToCriticalCareBundle.get(memberId);
+                                        String bundleType = null;
+                                        if (cliProduct2Id == (Id)productIds.get('SMART')) {
+                                            bundleType = 'SMART';
+                                        } else if (cliProduct2Id == (Id)productIds.get('AIDD')) {
+                                            bundleType = 'AIDD';
+                                        }
+
+                                        if (bundleType == null) continue;
+
+                                        // For NB, existing members use real IDs; newborns use MEM- fake IDs (resolved via censusActiveToGCM)
+                                        String expectedCensusMemberId = memberId;
+                                        if (memberId.startsWith('MEM-') && censusActiveToGCM.containsKey(memberId)) {
+                                            expectedCensusMemberId = ((vlocity_ins__GroupCensusMember__c)censusActiveToGCM.get(memberId)).Id;
+                                        }
+
+                                        if (insertedGcmp.vlocity_ins__GroupCensusMemberId__c == expectedCensusMemberId) {
+                                            if (!manager.memberIdToBundleGcmpIds.containsKey(memberId)) {
+                                                manager.memberIdToBundleGcmpIds.put(memberId, new Map<String, Id>());
+                                            }
+                                            manager.memberIdToBundleGcmpIds.get(memberId).put(bundleType, result.getId());
+
+                                            System.debug('Bundle GCMP resolved (NB) | member=' + memberId
+                                                + ' | type=' + bundleType
+                                                + ' | productId=' + cliProduct2Id
+                                                + ' | GCMP Id=' + result.getId());
+                                        }
+                                    }
+                                }
+                            }
+                            // End bundle resolution
                         }
                     }
                 }
@@ -442,6 +563,73 @@
                 System.debug('Error in manageGCMPlan_PermanentDML for newborns: ' + e.getMessage() + ' ' + e.getStackTraceString());
                 throw new AuraHandledException('Error managing census member plan DML for permanent newborns: ' + e.getMessage());
             }
+        }
+    }
+
+    /**
+     * @Description: Links resolved GCMP IDs (SMART / AIDD) to ARC_PromotionDiscount__c
+     * shells for the Critical Care bundle and upserts them.
+     * Mirrors processCriticalCarePromotionDiscount in ARC_SODML.
+     */
+    private void processCriticalCarePromotionDiscount() {
+        try {
+            System.debug('Processing Critical Care Promotion Discount DML (NB)');
+            System.debug('memberIdToCriticalCareBundle debug: ' + manager.memberIdToCriticalCareBundle.keySet());
+            if (manager.memberIdToCriticalCareBundle.isEmpty()) return;
+            if (manager.memberIdToBundleGcmpIds.isEmpty()) return;
+            if (!manager.contractsToUpsert.containsKey('PermanentNewborn')) return;
+
+            List<ARC_PromotionDiscount__c> bundleDiscounts = new List<ARC_PromotionDiscount__c>();
+
+            ARC_PromotionCode__c ancillaryCode = [
+                SELECT Id FROM ARC_PromotionCode__c
+                WHERE Name = 'Ancillary Discount'
+                LIMIT 1
+            ];
+
+            Id ancillaryDiscountRT = Schema.SObjectType.ARC_PromotionDiscount__c
+                .getRecordTypeInfosByDeveloperName()
+                .get('Ancillary_Discount')
+                .getRecordTypeId();
+
+            Id newContractId = ((Contract)manager.contractsToUpsert.get('PermanentNewborn')).Id;
+            for (String memberId : manager.memberIdToCriticalCareBundle.keySet()) {
+                Map<String, Id> gcmpIds = manager.memberIdToBundleGcmpIds.get(memberId);
+                System.debug('Member ID debug: ' + memberId);
+                System.debug('gcmpIds debug: ' + gcmpIds);
+                if (gcmpIds == null || !gcmpIds.containsKey('SMART') || !gcmpIds.containsKey('AIDD')) {
+                    System.debug('Incomplete GCMP IDs for bundle member (NB): ' + memberId + ' | resolved: ' + gcmpIds);
+                    continue;
+                }
+
+                ARC_PromotionDiscount__c targetPd = new ARC_PromotionDiscount__c();
+                targetPd.RecordTypeId    = ancillaryDiscountRT;
+                targetPd.ARC_Contract__c = newContractId;
+                targetPd.ARC_SMART__c    = gcmpIds.get('SMART');
+                targetPd.ARC_AIDD__c     = gcmpIds.get('AIDD');
+                targetPd.ARC_PromoCode__c = ancillaryCode.Id;
+
+                bundleDiscounts.add(targetPd);
+            }
+
+            if (!bundleDiscounts.isEmpty()) {
+                Database.UpsertResult[] results = Database.upsert(bundleDiscounts, true);
+                for (Database.UpsertResult result : results) {
+                    if (result.isSuccess()) {
+                        System.debug('Critical Care PromotionDiscount upserted (NB): ' + result.getId());
+                    } else {
+                        for (Database.Error error : result.getErrors()) {
+                            System.debug('Error upserting Critical Care PromotionDiscount (NB): ' + error.getMessage());
+                        }
+                        throw new DmlException('Failed to upsert Critical Care PromotionDiscount (NB)');
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            System.debug('Error in processCriticalCarePromotionDiscount (NB): '
+                + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
+            throw e;
         }
     }
 
@@ -511,36 +699,21 @@
     }
     
     /**
-     * @Description: Manages HIPAA authorization-related DML operations for newborns
-     */
-    private void manageHipaaAuthorizationDML() {
-        try {
-            // TODO: Implement HIPAA authorization DML logic for newborns
-            // This method should handle HIPAA authorization insertions/updates
-            
-            // Placeholder for actual implementation
-            System.debug('Managing HIPAA authorization DML for newborns - implementation pending');
-            
-        } catch (Exception e) {
-            System.debug('Error in manageHipaaAuthorizationDML for newborns: ' + e.getMessage() + ' ' + e.getStackTraceString());
-            throw new AuraHandledException('Error managing HIPAA authorization DML for newborns: ' + e.getMessage());
-        }
-    }
-    
-    /**
      * @Description: Manages medical condition-related DML operations for newborns
      */
     private void manageMedicalConditionDML() {
+        List<ARC_MedicalConditions__c> medicalConditionsToUpsertList = new List<ARC_MedicalConditions__c>();
         if(!manager.mapMedicalConditionsToInsert.isEmpty()) {
             try {
+                Map<String, vlocity_ins__GroupCensusMember__c> censusActiveToGCM = manager.cnsIdSpinOff != null ? (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.cnsIdSpinOff) : (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.lastCensusId);
+
                 for (String memberId : manager.mapMedicalConditionsToInsert.keySet()) {
                     Id accountId;
                     Id censusId;
 
                     accountId = manager.accountFakeIdToInsertNB.containsKey(memberId) ? manager.accountFakeIdToInsertNB.get(memberId).Id : null;
 
-                    censusId = manager.gcmFakeIdToInsertNB.containsKey(memberId) ? manager.gcmFakeIdToInsertNB.get(memberId).Id : null;
-
+                    censusId = censusActiveToGCM.containsKey(memberId) ? censusActiveToGCM.get(memberId).Id : null;
                     
                     List<ARC_MedicalConditions__c> medicalConditionsList = manager.mapMedicalConditionsToInsert.get(memberId);
 
@@ -549,7 +722,7 @@
                             mc.ARC_CensusMember__c = censusId;
                             mc.ARC_PersonAccount__c = accountId;
 
-                            manager.medicalConditionsToUpsertList.add(mc);
+                            medicalConditionsToUpsertList.add(mc);
                         }
                     }
                 }
@@ -560,9 +733,9 @@
         }
 
 
-        if (!manager.medicalConditionsToUpsertList.isEmpty()) {
+        if (!medicalConditionsToUpsertList.isEmpty()) {
             try {
-                Database.UpsertResult[] results = Database.upsert(manager.medicalConditionsToUpsertList, true);
+                Database.UpsertResult[] results = Database.upsert(medicalConditionsToUpsertList, true);
                 for (Integer i = 0; i < results.size(); i++) {
                     Database.UpsertResult result = results[i];
                     if (!result.isSuccess()) {
@@ -582,15 +755,18 @@
      * @Description: Manages consumer drug-related DML operations for newborns
      */
     private void manageConsumerDrugDML() {
+        List<vlocity_ins__ConsumerDrug__c> consumerDrugsToUpsertList = new List<vlocity_ins__ConsumerDrug__c>();
         if(!manager.mapConsumerDrugsToInsert.isEmpty()) {
             try {
+                Map<String, vlocity_ins__GroupCensusMember__c> censusActiveToGCM = manager.cnsIdSpinOff != null ? (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.cnsIdSpinOff) : (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.lastCensusId);
+
                 for (String memberId : manager.mapConsumerDrugsToInsert.keySet()) {
                     Id accountId;
                     Id censusId;
 
                     accountId = manager.accountFakeIdToInsertNB.containsKey(memberId) ? manager.accountFakeIdToInsertNB.get(memberId).Id : null;
 
-                    censusId = manager.gcmFakeIdToInsertNB.containsKey(memberId) ? manager.gcmFakeIdToInsertNB.get(memberId).Id : null;
+                    censusId = censusActiveToGCM.containsKey(memberId) ? censusActiveToGCM.get(memberId).Id : null;
                     
                     List<vlocity_ins__ConsumerDrug__c> consumerDurgsList = manager.mapConsumerDrugsToInsert.get(memberId);
                     
@@ -599,7 +775,7 @@
                             mc.ARC_CensusMember__c = censusId;
                             mc.ARC_PersonAccount__c = accountId;
 
-                            manager.consumerDrugsToUpsertList.add(mc);
+                            consumerDrugsToUpsertList.add(mc);
                         }
                     }
                 }
@@ -609,9 +785,9 @@
             }
         }
 
-        if (!manager.consumerDrugsToUpsertList.isEmpty()) {
+        if (!consumerDrugsToUpsertList.isEmpty()) {
             try {
-               Database.UpsertResult[] results = Database.upsert(manager.consumerDrugsToUpsertList, true);
+               Database.UpsertResult[] results = Database.upsert(consumerDrugsToUpsertList, true);
                 for (Integer i = 0; i < results.size(); i++) {
                     Database.UpsertResult result = results[i];
                     if (!result.isSuccess()) {
@@ -638,15 +814,16 @@
      * @throws Exception If physician data update fails
      */
     private void managePhysicianMemberData() {
-
         List<vlocity_ins__GroupCensusMember__c> physicianGCMToUpdateList = new List<vlocity_ins__GroupCensusMember__c>();
         List<Account> physicianAccountToUpdateList = new List<Account>();
 
         if(!manager.mapPhysicianDataToUpdate.isEmpty()) {
             try {
+                Map<String, vlocity_ins__GroupCensusMember__c> censusActiveToGCM = manager.cnsIdSpinOff != null ? (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.cnsIdSpinOff) : (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.lastCensusId);
+
                 for (String memberId : manager.mapPhysicianDataToUpdate.keySet()) {
 
-                    Id censusId = manager.gcmFakeIdToInsertNB.containsKey(memberId) ? manager.gcmFakeIdToInsertNB.get(memberId).Id : null;
+                    Id censusId = censusActiveToGCM.containsKey(memberId) ? censusActiveToGCM.get(memberId).Id : null;
                     Id accountId = manager.accountFakeIdToInsertNB.containsKey(memberId) ? manager.accountFakeIdToInsertNB.get(memberId).Id : null;
                     Map<String, Object> physicianMemberInfo = manager.mapPhysicianDataToUpdate.get(memberId);
     
@@ -707,8 +884,40 @@
                 System.debug('Exception while updating physician Account data: ' + e.getMessage() + e.getStackTraceString());
                 throw e;
             }
+        } 
+    }
+
+    /**
+     * @Description: Processes fee waived cases.
+     * This method:
+     * 1. Creates add newborn fee waived cases
+     * 2. Links cases to contracts
+     * 
+     * @throws Exception If case operations fail
+     */
+    private void manageCaseFeeSkypped_PermanentDML() {
+        if (!manager.casesFeeWaivedToInsert.isEmpty()) {
+            try {
+                for (Case c : manager.casesFeeWaivedToInsert) {
+                    c.ARC_Contract__c = manager.contractsToUpsert.containsKey('PermanentNewborn') ? ((Contract)manager.contractsToUpsert.get('PermanentNewborn')).Id : null;
+                }
+
+                Database.SaveResult[] results = Database.insert(manager.casesFeeWaivedToInsert, true);
+                for (Integer i = 0; i < results.size(); i++) {
+                    Database.SaveResult result = results[i];
+                    if (!result.isSuccess()) {
+                        for (Database.Error error : result.getErrors()) {
+                            System.debug('Error inserting Case Fee Waived: ' + error.getMessage());
+                        }
+                    } else {
+                        System.debug('Inserted Case Fee Waived (Permanent Newborn): ' + manager.casesFeeWaivedToInsert[i].Id);
+                    }
+                }
+            } catch (Exception e) {
+                System.debug('Exception while upserting Case Fee Waived: ' + e.getMessage() + e.getStackTraceString());
+                throw e;
+            }
         }
-        
     }
     
     /**
@@ -737,13 +946,15 @@
                 uwCase.ARC_PersonAccount__c = manager.primaryAccountId;
                 List<Case> listUWCase = new List<Case> {uwCase};
 
+                Map<String, vlocity_ins__GroupCensusMember__c> censusActiveToGCM = manager.cnsIdSpinOff != null ? (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.cnsIdSpinOff) : (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.lastCensusId);
+
                 // Prepare UW Case Member data
                 List<ARC_UnderwritingCaseMember__c> listUWCaseMember = new  List<ARC_UnderwritingCaseMember__c>();
                 for (String key : manager.censusMemberIdOrFakeIdToUWCM.keySet()) {
                     ARC_UnderwritingCaseMember__c uwCaseMember = manager.censusMemberIdOrFakeIdToUWCM.get(key);
                     
                     if (key.startsWith('MEM-')) {
-                        uwCaseMember.ARC_Member__c = ((vlocity_ins__GroupCensusMember__c)manager.gcmFakeIdToInsertNB.get(key)).Id;
+                        uwCaseMember.ARC_Member__c = ((vlocity_ins__GroupCensusMember__c)censusActiveToGCM.get(key)).Id;
                         uwCaseMember.ARC_PersonAccount__c = ((Account)manager.accountFakeIdToInsertNB.get(key)).Id;
                     } else {
                         uwCaseMember.ARC_Member__c = key;
@@ -756,8 +967,17 @@
                 String jsonUWCase = JSON.serialize(listUWCase);
                 //////////////////////////////////////////////////////////////
 
+                String jsonPromotionDiscount = '';
+
+                if(!manager.promotionDiscountToInsert.isEmpty()){
+                    jsonPromotionDiscount = JSON.serialize(manager.promotionDiscountToInsert);
+                }
+
+                String fullJson = JSON.serialize(manager.inputMap);
+                Id contextId = (Id)manager.inputMap.get('ContextId');
+
                 // Call the future method with all necessary data
-                handleUWCaseAndMembersFuture(newContractId, coAppFeeID, coRecurringId, jsonUWCase, jsonUWCaseMembers);
+                handleUWCaseAndMembersFuture(newContractId, coAppFeeID, coRecurringId, jsonUWCase, jsonUWCaseMembers, jsonPromotionDiscount, fullJson, contextId);
                 
             } catch (Exception e) {
                 System.debug('Exception while preparing UW case for future processing: ' + e.getMessage() + e.getStackTraceString());
@@ -765,60 +985,42 @@
             }
         }
     }
-    
+
     /**
-     * @Description: Manages promotion discount-related DML operations for newborns
+     * @Description: Manages fee item-related DML operations for newborns
      */
-    private void managePromotionDiscountDML() {
+    private void manageFeeItemsDML() {
         try {
-            // TODO: Implement promotion discount DML logic for newborns
-            // This method should handle promotion discount insertions/updates
-            
-            // Placeholder for actual implementation
-            System.debug('Managing promotion discount DML for newborns - implementation pending');
-            
+            if (!manager.feeItemsToInsert.isEmpty()) {
+                List<ARC_FeeItem__c> feeItemsList = manager.feeItemsToInsert;
+                Id coAppFeeID = manager.chargentOrdersToInsert.containsKey('coAppFee') ? ((ChargentOrders__ChargentOrder__c)manager.chargentOrdersToInsert.get('coAppFee')).Id : null;
+                for(ARC_FeeItem__c feeItem : feeItemsList){
+                    feeItem.ARC_ChargentOrder__c = coAppFeeID;
+                }
+
+                Database.SaveResult[] results = Database.insert(feeItemsList, true);
+                for (Integer i = 0; i < results.size(); i++) {
+                    Database.SaveResult result = results[i];
+                    if (!result.isSuccess()) {
+                        for (Database.Error error : result.getErrors()) {
+                            System.debug('Error inserting Fee Item: ' + error.getMessage());
+                        }
+                    } else {
+                        System.debug('Inserted Fee Item Id: ' + result.getId());
+                    }
+                }
+            }
         } catch (Exception e) {
-            System.debug('Error in managePromotionDiscountDML for newborns: ' + e.getMessage() + ' ' + e.getStackTraceString());
-            throw new AuraHandledException('Error managing promotion discount DML for newborns: ' + e.getMessage());
+            System.debug('Error in manageFeeItemsDML for newborns: ' + e.getMessage() + ' ' + e.getStackTraceString());
+            throw new AuraHandledException('Error managing Fee Items DML for newborns: ' + e.getMessage());
         }
     }
     
-    /**
-     * @Description: Handles rollback operations in case of DML failures for newborns
-     */
-    private void handleRollback() {
-        try {
-            // TODO: Implement rollback logic for newborns
-            // This method should handle rolling back any successful DML operations in case of failure
-            
-            // Placeholder for actual implementation
-            System.debug('Handling rollback for newborns - implementation pending');
-            
-        } catch (Exception e) {
-            System.debug('Error in handleRollback for newborns: ' + e.getMessage() + ' ' + e.getStackTraceString());
-            // Don't throw exception here as this is error handling
-        }
-    }
     
-    /**
-     * @Description: Validates data before DML operations for newborns
-     */
-    private void validateData() {
-        try {
-            // TODO: Implement data validation logic for newborns
-            // This method should validate all data before performing DML operations
-            
-            // Placeholder for actual implementation
-            System.debug('Validating data for newborns - implementation pending');
-            
-        } catch (Exception e) {
-            System.debug('Error in validateData for newborns: ' + e.getMessage() + ' ' + e.getStackTraceString());
-            throw new AuraHandledException('Data validation failed for newborns: ' + e.getMessage());
-        }
-    }
+    
 
     @future
-    public static void handleUWCaseAndMembersFuture(Id contractId, Id feeOrderId, Id recurringOrderId, String jsonUWCase, String jsonUWCaseMembers) {
+    public static void handleUWCaseAndMembersFuture(Id contractId, Id feeOrderId, Id recurringOrderId, String jsonUWCase, String jsonUWCaseMembers, String jsonPromotionDiscount, String fullJson, Id contextId) {
         try {
             // Create a list for the upsert
             List<Case> listCaseToUpsert = (List<Case>)JSON.deserialize(jsonUWCase, List<Case>.class);
@@ -838,6 +1040,11 @@
                 } else if (newCaseId == null) {
                     newCaseId = result.getId();
                 }
+            }
+
+            List<ARC_PromotionDiscount__c> promotionDiscounts = new List<ARC_PromotionDiscount__c>();
+            if(jsonPromotionDiscount != null && jsonPromotionDiscount != ''){
+                promotionDiscounts = (List<ARC_PromotionDiscount__c>)JSON.deserialize(jsonPromotionDiscount, List<ARC_PromotionDiscount__c>.class);
             }
 
             // Update the contract with the new case and orders
@@ -875,8 +1082,64 @@
                     }
                 }
             }
+
+            if (!promotionDiscounts.isEmpty()) {     
+                try {
+    
+                    for(ARC_PromotionDiscount__c d : promotionDiscounts) {
+                        d.ARC_Contract__c = contractId;
+                    }
+    
+                    Database.UpsertResult[] resultsPD   = Database.upsert(promotionDiscounts, true);//All or none = true
+                    for (Integer i = 0; i < resultsPD.size(); i++) {
+                        Database.UpsertResult result = resultsPD[i];
+                        if (!result.isSuccess()) {
+                            for (Database.Error error : result.getErrors()) {
+                                System.debug('Error promotion disocunt: ' + error.getMessage());
+                            }
+                        } else {                                               
+                            System.debug('Promotion discount upserted successfully');                
+                        }
+                    }
+                } catch (Exception e) {
+                    System.debug('Exception while upserting promotion discount: ' + e.getMessage() + e.getStackTraceString());
+                    throw e;
+                }
+            } 
+
         } catch (Exception e) {
-            System.debug('Exception while processing UW case and members in future context: ' + e.getMessage() + e.getStackTraceString());
+            Integer MAX_FIELD_SIZE = 131072-10;
+            String serializedData = fullJson;
+            Custom_Logs__c log = new Custom_Logs__c();
+            log.Name = 'Exception while processing UW case and members in future context Newborn';
+            log.Account__c = contextId;
+            log.OwnerId = UserInfo.getUserId();
+            log.Status__c = 'New';
+            
+            if(serializedData != null && serializedData.length() > MAX_FIELD_SIZE) {
+                log.Log__c = serializedData.substring(0, MAX_FIELD_SIZE);
+                if(serializedData.length() > MAX_FIELD_SIZE) {
+                    Integer remainingLength = Math.min(serializedData.length() - MAX_FIELD_SIZE, MAX_FIELD_SIZE);
+                    log.Log_2__c = serializedData.substring(MAX_FIELD_SIZE, MAX_FIELD_SIZE + remainingLength);
+                }
+            } else if(serializedData != null) {
+                log.Log__c = serializedData;
+            } else {
+                log.Log__c = 'No serialized data available';
+            }
+            try {
+                insert log;
+            } catch (Exception logException) {
+                System.debug('Failed to insert log record: ' + logException.getMessage());
+            }
+            
+            System.debug('Exception while processing UW case and members in future context Newborn: ' + e.getMessage() + e.getStackTraceString());
+            String apexErrorEmail = System.Label.ARC_ApexErrorEmail; 
+            String inputDataString = JSON.serialize(fullJson);
+            String emailBody = 'Error in ARC_NBDML.cls handleUWCaseAndMembersFuture: ' +e.getLineNumber()+' - '+ e.getMessage() + 
+                                '\n\nInput Data: ' + inputDataString + 
+                                '\n\nStack Trace: ' + e.getStackTraceString();
+            ARC_QueableSendFileBatch.sendEmailNotification(emailBody, 'ERROR in DML while running future method', apexErrorEmail);
         }
     }
 
@@ -888,8 +1151,8 @@
             Id newContractId = ((Contract)manager.contractsToUpsert.get('PermanentNewborn')).Id;
             Map<String, Object> inputMap = new Map<String, Object>();
             Map<String, Object> outMap = new Map<String, Object>();
+            inputMap.put('contactIdToBeneficiaries', manager.contactIdToBeneficiaries);
             inputMap.put('contractId', newContractId);
-            System.debug('manager.newbornsDOB: ' + manager.newbornsDOB);
             inputMap.put('NewbornsDOB', manager.newbornsDOB);
             ARC_PolicyCreation.createAllPolicyRecords(inputMap, outMap);
         } catch (Exception e) {
@@ -915,15 +1178,92 @@
     private void updateRelatedCensusMembers() {
         List<vlocity_ins__GroupCensusMember__c> censusMembersToUpdateContactId = new List<vlocity_ins__GroupCensusMember__c>();
 
-        for (String fakeId : manager.gcmFakeIdToInsertNB.keySet()) {
-            vlocity_ins__GroupCensusMember__c censusMember = new vlocity_ins__GroupCensusMember__c();
+        Map<Id, Map<String, String>> personAccountToCM = new Map<Id, Map<String, String>> ();
 
-            censusMember.Id = ((vlocity_ins__GroupCensusMember__c)manager.gcmFakeIdToInsertNB.get(fakeId)).Id;
-            censusMember.vlocity_ins__ContactId__c = (String)manager.fakeIdToPersonContactId.get(fakeId);
-            censusMember.vlocity_ins__SocialSecurityNumber__c = ((vlocity_ins__GroupCensusMember__c)manager.gcmFakeIdToInsertNB.get(fakeId)).vlocity_ins__SocialSecurityNumber__c;
-    
-            censusMembersToUpdateContactId.add(censusMember);
+        for (String cnsId : manager.censusGroupToGCM.keySet()) {
+            Map<String, vlocity_ins__GroupCensusMember__c> cnsIdToGCM = (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(cnsId);
+            for (String fakeId : cnsIdToGCM.keySet()) {
+                vlocity_ins__GroupCensusMember__c gcm = (vlocity_ins__GroupCensusMember__c)cnsIdToGCM.get(fakeId);
+        
+                gcm.vlocity_ins__ContactId__c = (String)manager.fakeIdToPersonContactId.get(fakeId);
+                gcm.vlocity_ins__SocialSecurityNumber__c = ((vlocity_ins__GroupCensusMember__c)cnsIdToGCM.get(fakeId)).vlocity_ins__SocialSecurityNumber__c;
+                gcm.vlocity_ins__RelatedCensusMemberId__c = ((vlocity_ins__GroupCensusMember__c)cnsIdToGCM.get(fakeId)).vlocity_ins__RelatedCensusMemberId__c;
+                
+                if (personAccountToCM.containsKey(gcm.vlocity_ins__ContactId__c)) {
+                    if (manager.cnsIdSpinOff != null && manager.cnsIdSpinOff == gcm.vlocity_ins__CensusId__c) {
+                        personAccountToCM.get(gcm.vlocity_ins__ContactId__c).put('spinOff', gcm.Id);
+                    }
+                    else {
+                        personAccountToCM.get(gcm.vlocity_ins__ContactId__c).put('original', gcm.Id);
+                    }
+                }
+                else {
+                    if (manager.cnsIdSpinOff != null && manager.cnsIdSpinOff == gcm.vlocity_ins__CensusId__c) {
+                        Map<String, String> aux = new Map<String, String> {
+                            'spinOff' => gcm.Id
+                        };
+                        personAccountToCM.put(gcm.vlocity_ins__ContactId__c, aux);
+                    }
+                    else {
+                        Map<String, String> aux = new Map<String, String> {
+                            'original' => gcm.Id
+                        };
+                        personAccountToCM.put(gcm.vlocity_ins__ContactId__c, aux);
+                    }
+                }
+
+                censusMembersToUpdateContactId.add(gcm);
+            }
+        }
+
+        for (vlocity_ins__GroupCensusMember__c gcm : censusMembersToUpdateContactId) {
+            if (personAccountToCM.containsKey(gcm.vlocity_ins__ContactId__c)) {
+                Map<String, String> members = (Map<String, String>)personAccountToCM.get(gcm.vlocity_ins__ContactId__c);
+                if (manager.cnsIdSpinOff != null && manager.cnsIdSpinOff == gcm.vlocity_ins__CensusId__c) {
+                    gcm.ARC_OldCensusMember__c = members.containsKey('original') ? (Id)members.get('original') : null;
+                }
+                else if (manager.cnsIdSpinOff != null) {
+                    gcm.ARC_NewCensusMember__c =  members.containsKey('spinOff') ? (Id)members.get('spinOff') : null;
+                }
+            }
         }
         update censusMembersToUpdateContactId;
+    }
+
+     /**
+ * @Description: Updates OS Instances 'Resume -> Completed'.
+ * This method:
+ * 1. Retrieves the Account Id from the input parameters.
+ * 2. Queries all OmniScript Instances related to that Account that are in 'Resume' status.
+ * 3. Updates their ARC_ResumeStatus__c field to 'Completed'.
+ * 4. Handles any exceptions during the update process and logs relevant information.
+ */
+    private void completeOmniScriptInstancesForAccountContext() {
+        Id accountId = (Id) manager.inputMap.get('ContextId');
+        if (accountId == null) {
+            return;
+        }
+
+        List<vlocity_ins__OmniScriptInstance__c> toUpdate = [SELECT Id, ARC_ResumeStatus__c FROM 
+        vlocity_ins__OmniScriptInstance__c 
+        WHERE vlocity_ins__ObjectId__c = :accountId 
+        AND (ARC_ResumeStatus__c = 'Resume' OR ARC_ResumeStatus__c = null OR ARC_ResumeStatus__c = '')];
+
+        if (toUpdate.isEmpty()) {
+            System.debug('No OmniScript instances in Resume for Account ' + accountId);
+            return;
+        }
+
+        for (vlocity_ins__OmniScriptInstance__c os : toUpdate) {
+            os.ARC_ResumeStatus__c = 'Completed';
+        }
+
+        try {
+            Database.SaveResult[] results = Database.update(toUpdate, true);
+
+        } catch (Exception e) {
+            System.debug('Exception while completing OmniScript instances: ' + e.getMessage() + e.getStackTraceString());
+            throw e;
+        }
     }
 }

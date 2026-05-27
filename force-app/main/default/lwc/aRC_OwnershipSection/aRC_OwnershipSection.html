@@ -1,0 +1,72 @@
+<template>
+    <c-a-r-c_-collapsible-section
+        title="Company Ownership"
+        subtitle="Ownership structure and stakeholders (optional)"
+        custom-icon-url={sectionIconUrl}
+        icon-color-filter="brightness(0) saturate(100%) invert(52%) sepia(97%) saturate(1522%) hue-rotate(346deg) brightness(99%) contrast(97%)"
+        status={status}
+        accent-color="#F97316"
+        class="ownership-section"
+        hide-save="true"
+        onsave={handleSave}>
+        
+        <!-- Loading State -->
+        <template lwc:if={isLoading}>
+            <div class="loading-container">
+                <lightning-spinner alternative-text="Loading owners..." size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Error State -->
+        <template lwc:elseif={loadError}>
+            <div class="error-container">
+                <lightning-icon icon-name="utility:error" size="small" variant="error"></lightning-icon>
+                <span class="error-message">{loadError}</span>
+            </div>
+        </template>
+
+        <!-- Content -->
+        <template lwc:else>
+            <!-- Content Wrapper with position relative for overlay -->
+            <div class="content-wrapper">
+                <!-- Header with Add Button -->
+                <div class="section-header">
+                    <template lwc:if={isSaved}>
+                        <span class="saved-indicator">
+                            <lightning-icon icon-name="utility:check" size="x-small" variant="success"></lightning-icon>
+                            Saved
+                        </span>
+                    </template>
+                    <lightning-button
+                        variant="brand"
+                        label="Add Owner"
+                        icon-name="utility:add"
+                        class="add-owner-btn"
+                        onclick={handleAddOwner}>
+                    </lightning-button>
+                </div>
+
+                <!-- Owners Table -->
+                <div class="table-spinner-container">
+                    <template lwc:if={isSaving}>
+                        <div class="table-spinner-overlay">
+                            <lightning-spinner size="small" variant="brand" alternative-text="Saving..."></lightning-spinner>
+                        </div>
+                    </template>
+                    <c-a-r-c_-form-table
+                        columns={ownerColumns}
+                        rows={ownersForTable}
+                        empty-message="No owners added yet"
+                        row-count-label="owners"
+                        oneditrow={handleEditOwner}
+                        onremoverow={handleRemoveOwner}>
+                    </c-a-r-c_-form-table>
+                </div>
+            </div>
+        </template>
+
+        <!-- Owner Modal -->
+        <c-a-r-c_-owner-modal opportunity-id={recordId}></c-a-r-c_-owner-modal>
+        <c-a-r-c_-confirm-modal></c-a-r-c_-confirm-modal>
+    </c-a-r-c_-collapsible-section>
+</template>

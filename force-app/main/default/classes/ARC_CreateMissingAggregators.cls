@@ -87,7 +87,7 @@ global class ARC_CreateMissingAggregators implements Database.Batchable<sObject>
         }
         List<InsurancePolicy> policies = [
             SELECT Id, RenewedFromPolicyId, ARC_PolicyReason__c, Product.ProductCode, ARC_EffectiveDate__c, ARC_ExpirationDate__c,
-                (SELECT Id, PrimaryParticipantContact.AccountId, PrimaryParticipantContact.Birthdate, EffectiveDate, ExpirationDate
+                (SELECT Id, PrimaryParticipantContact.AccountId, PrimaryParticipantContact.Birthdate, ARC_StartDate__c, ARC_EndDate__c
                 FROM InsurancePolicyParticipants)
             FROM InsurancePolicy
             WHERE Id IN: policyIds
@@ -361,18 +361,19 @@ global class ARC_CreateMissingAggregators implements Database.Batchable<sObject>
                     if (participant.PrimaryParticipantContact == null || participant.PrimaryParticipantContact.Birthdate == null) {
                         continue;
                     } // Skip IPP with missing information (contact, birthdate)
-                    Integer minYear = participant.EffectiveDate.year();
+                    Integer minYear = participant.ARC_StartDate__c.year();
                     Integer maxYear;
                     if (isOneTime(expectedAggregator) || isLifeTime(expectedAggregator)) {
                         maxYear = minYear;
                     } else {
-                        maxYear = participant.ExpirationDate == null ? Date.Today().year() : participant.ExpirationDate.year();
+                        maxYear = participant.ARC_EndDate__c == null ? Date.Today().year() : participant.ARC_EndDate__c.year();
                     }
                     System.debug('participant ' + participant);
                     System.debug('minYear ' + minYear);
                     System.debug('maxYear ' + maxYear);
                     for (Integer year = minYear; year <= maxYear; year++) {
                         System.debug('year ' + year);
+                        if (year == 2026) continue;
                         String partAggKey;
                         List<InsurancePolicy> relatedPolicies;
                         Id renewedPol = isUpgradePolicy(policy.ARC_PolicyReason__c) ? policy.Id : policy.RenewedFromPolicyId;
@@ -420,7 +421,7 @@ global class ARC_CreateMissingAggregators implements Database.Batchable<sObject>
                                 aggKey = renewedPol + '-' + aggregatorName + '-null-' + accountId;     
                             } else {
                                 aggKey = renewedPol + '-' + aggregatorName + '-' + year + '-' + accountId;
-                            }
+                            }                            
                             partAggKeyToAggKey.put(partAggKey, aggKey);
                             if (individualAggMap.get(aggKey) != null) {
                                 // Aggregator exists
@@ -468,7 +469,7 @@ global class ARC_CreateMissingAggregators implements Database.Batchable<sObject>
                                     newAggregator.ARC_Year__c = String.valueOf(year);
                                 }
                                 if (isOneTime(expectedAggregator)) {
-                                    newAggregator.ARC_NextAvailabilityDate__c = participant.EffectiveDate.date();
+                                    newAggregator.ARC_NextAvailabilityDate__c = participant.ARC_StartDate__c;
                                 }
                                 individualAggMap.put(aggKey, newAggregator);
                             }
@@ -531,7 +532,7 @@ global class ARC_CreateMissingAggregators implements Database.Batchable<sObject>
                             aggregatorsWrongPolicy.add(policy.Id);
                             continue;
                         }
-                        String indKeyPrefix = famAgg.ARC_CreatedIn__c +'-Individual Max AMCS-' + year + '-' + IPPAccount;
+                        String indKeyPrefix = famAgg.ARC_CreatedIn__c +'-Individual AMCS-' + year + '-' + IPPAccount;
                         
                         ARC_Aggregator__c indAMCS = individualAggMap.get(indKeyPrefix);
                         if (indAMCS == null) {
@@ -605,7 +606,7 @@ global class ARC_CreateMissingAggregators implements Database.Batchable<sObject>
     }
 
     // UTILITY METHODS //
-    
+
     public List<Schema.SObjectField> getAggregatorsFields(ARC_ProductAggregators__mdt aggregatorValues) {
         return aggregatorValues.getSObjectType().getDescribe().fields.getMap().values();
     }
@@ -714,12 +715,12 @@ global class ARC_CreateMissingAggregators implements Database.Batchable<sObject>
 
         String emailAddress = UserInfo.getUserEmail();
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        List<OrgWideEmailAddress> oMailNoReplay = [
+        /*List<OrgWideEmailAddress> oMailNoReplay = [
             SELECT Id, Address, DisplayName
             FROM OrgWideEmailAddress
             WHERE Displayname = 'No Reply'
         ];
-        mail.setOrgWideEmailAddressId(oMailNoReplay[0].Id);
+        mail.setOrgWideEmailAddressId(oMailNoReplay[0].Id);*/
         mail.setToAddresses(new List<String>{emailAddress});
         mail.setSubject('Create Missing Aggregators Batch Completed');
         String body;

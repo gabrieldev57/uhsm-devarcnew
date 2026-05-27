@@ -8,7 +8,12 @@ public without sharing class ARC_LeadHandlerTest {
         Map<String,Object> inputMap = new Map<String,Object>();
         Map<String,Object> outputMap = new Map<String,Object>();
 
-        Lead leadRecord = new Lead(FirstName = 'Test', LastName = 'Lead',Status = 'New', Phone = '1112221110', Email ='testemaillead@test.com');
+        Lead leadRecord = new Lead(FirstName = 'Test', 
+                                   LastName = 'Lead',
+                                   Status = 'New', 
+                                   Phone = '1112221110', 
+                                   Email = 'testemaillead@test.com',
+                                   Bypass_Scoring__c = True);
         insert leadRecord;
         Lead_Source__c leadSourceRecord = new Lead_Source__c(Source_Name__c = 'Self Enroll',Lead_Phone__c='1112221110',Lead_Email__c='testemaillead@test.com',Lead__c = leadRecord.Id);
         insert leadSourceRecord;
@@ -30,9 +35,13 @@ public without sharing class ARC_LeadHandlerTest {
         Map<String,Object> inputMap = new Map<String,Object>();
         Map<String,Object> outputMap = new Map<String,Object>();
 
-        Lead leadRecord = new Lead(FirstName = 'Test', LastName = 'Lead',Status = 'New');
+        Lead leadRecord = new Lead(FirstName = 'Test', LastName = 'Lead', Status = 'New', Bypass_Scoring__c = True);
         insert leadRecord;
-        Lead_Source__c leadSourceRecord = new Lead_Source__c(Source_Name__c = 'Self Enroll',Lead_Phone__c=null,Lead_Email__c='testemaillead@test.com',Lead__c = leadRecord.Id);
+        Lead_Source__c leadSourceRecord = new Lead_Source__c(
+            Source_Name__c = 'Self Enroll',
+            Lead_Phone__c=null,
+            Lead_Email__c='testemaillead@test.com',
+            Lead__c = leadRecord.Id);
         insert leadSourceRecord;
         
         inputMap.put('userEmail',leadSourceRecord.Lead_Email__c);
@@ -73,7 +82,12 @@ public without sharing class ARC_LeadHandlerTest {
 
     @isTest
     public static void testFour(){
-        Lead leadRecord = new Lead(FirstName = 'Test', LastName = 'Lead',Status = 'New', Phone = '1112221110', Email ='testemaillead@test.com');
+        Lead leadRecord = new Lead(FirstName = 'Test', 
+                                   LastName = 'Lead', 
+                                   Status = 'New', 
+                                   Phone = '1112221110', 
+                                   Email ='testemaillead@test.com',
+                                   Bypass_Scoring__c = True);
         insert leadRecord; 
         Map<String,Object> inputMap = new Map<String,Object>();
         Map<String,Object> outputMap = new Map<String,Object>();
@@ -100,7 +114,12 @@ public without sharing class ARC_LeadHandlerTest {
 
     @isTest
     public static void testGetCreateLeadSourceReferral(){
-        Lead leadRecord = new Lead(FirstName = 'Test', LastName = 'Lead',Status = 'New', Phone = '1112221110', Email ='testemaillead@test.com');
+        Lead leadRecord = new Lead(FirstName = 'Test', 
+                                   LastName = 'Lead', 
+                                   Status = 'New', 
+                                   Phone = '1112221110', 
+                                   Email ='testemaillead@test.com',
+                                   Bypass_Scoring__c = True);
         insert leadRecord; 
         
         Map<String,Object> inputMap = new Map<String,Object>();
@@ -132,7 +151,12 @@ public without sharing class ARC_LeadHandlerTest {
         Account acc = new Account(Firstname='Test', Lastname='Lead', RecordTypeId=personAccRTId, BillingStreet='123 Kansas Street', BillingPostalCode='11220', BillingCity='NY', BillingCountry='US',BillingState='KS', vlocity_ins__Email__c = 'testemaillead@test.com');
         insert acc;
         List<Id> leadIds = new List<Id>();
-        Lead leadRecord = new Lead(FirstName = 'Test', LastName = 'Lead',Status = 'New', Email = 'testemaillead@test.com', Account__c = acc.Id);
+        Lead leadRecord = new Lead(FirstName = 'Test', 
+                                   LastName = 'Lead', 
+                                   Status = 'New', 
+                                   Email = 'testemaillead@test.com', 
+                                   Account__c = acc.Id, 
+                                   Bypass_Scoring__c = True);
         insert leadRecord;
 
         leadIds.add(leadRecord.Id);
@@ -167,7 +191,8 @@ public without sharing class ARC_LeadHandlerTest {
             LastName = 'Lead',
             Status = 'New',
             Email = 'testaccount@example.com',
-            Phone = '+1234567890'
+            Phone = '+1234567890',
+            Bypass_Scoring__c = True
         );
         insert testLead;
 
@@ -176,7 +201,8 @@ public without sharing class ARC_LeadHandlerTest {
             LastName = 'Lead',
             Status = 'New',
             Email = 'otherlead@test.com',
-            Phone = '+9876543210'
+            Phone = '+9876543210',
+            Bypass_Scoring__c = True
         );
         insert otherLead;
 
@@ -215,7 +241,8 @@ public without sharing class ARC_LeadHandlerTest {
             LastName = 'Lead',
             Status = 'New',
             Email = 'testaccount@example.com',
-            Phone = '+1234567890'
+            Phone = '+1234567890',
+            Bypass_Scoring__c = True
         );
         insert testLead;
 
@@ -224,7 +251,8 @@ public without sharing class ARC_LeadHandlerTest {
             LastName = 'Lead',
             Status = 'New',
             Email = 'otherlead@test.com',
-            Phone = '+1876543210'
+            Phone = '+1876543210',
+            Bypass_Scoring__c = True
         );
         insert otherLead;
 
@@ -233,7 +261,8 @@ public without sharing class ARC_LeadHandlerTest {
             LastName = 'Lead',
             Status = 'New',
             Email = 'testaccount@example.com',
-            Phone = '+1826541111'
+            Phone = '+1826541111',
+            Bypass_Scoring__c = True
         );
         insert thirdLead;
         Map<String, Object> inputMap = new Map<String, Object>{

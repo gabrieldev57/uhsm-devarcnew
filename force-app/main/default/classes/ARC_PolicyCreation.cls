@@ -10,6 +10,7 @@ global without sharing class ARC_PolicyCreation implements vlocity_ins.VlocityOp
     public static void createAllPolicyRecords(Map<String,Object> inputMap, Map<String,Object> outMap) {
         // GET DATA AND CREATE VARIABLES
 		Id contractId = (Id)inputMap.get('contractId');
+        Map<String, Object> contactIdToBeneficiaries = inputMap.containsKey('contactIdToBeneficiaries') ? (Map<String, Object>) inputMap.get('contactIdToBeneficiaries') : new Map<String, Object>();
 		String old_contract_reason = (String)inputMap.get('OldContractReason');
 		Boolean is_reprice_omniscript = (Boolean)inputMap.get('IsRepriceOmniscript');
         Boolean is_spinoff_omniscript = (Boolean)inputMap.get('IsSpinOffOmniscript');
@@ -28,6 +29,14 @@ global without sharing class ARC_PolicyCreation implements vlocity_ins.VlocityOp
             FROM vlocity_ins__ContractLineItem__c 
             WHERE vlocity_ins__ContractId__c =: contractId LIMIT 1000
         ];
+        Map<Id, String> contactIdToRelationship = new Map<Id, String>();
+        for (ARC_ContractParticipant__c cp : [
+            SELECT ARC_PersonAccount__r.PersonContactId, ARC_Relationship__c
+            FROM ARC_ContractParticipant__c
+            WHERE ARC_Contract__c = :contractId
+        ]) {
+            contactIdToRelationship.put(cp.ARC_PersonAccount__r.PersonContactId, cp.ARC_Relationship__c);
+        }
         Integer i = 0;
         for (vlocity_ins__ContractLineItem__c cLine : contractPlans) {            
             if (cLine.vlocity_ins__Product2Id__r.vlocity_ins__RecordTypeName__c == 'Product' && cLine.vlocity_ins__Product2Id__r.vlocity_ins__Type__c == 'Medical') {
@@ -57,14 +66,14 @@ global without sharing class ARC_PolicyCreation implements vlocity_ins.VlocityOp
             insert polToInsert;
             
             // CREATE POLICY COVERAGES AND POLICY PARTICIPANTS
-            Map<String, List<SObject>> coversAndParts = createCoveragesAndParticipants(polToInsert.Id, contractPlans);
+            Map<String, List<SObject>> coversAndParts = createCoveragesAndParticipants(polToInsert.Id, contractPlans, contactIdToRelationship);
             List<InsurancePolicyParticipant> polParticipantsToInsert = coversAndParts.get('participants');
             List<InsurancePolicyCoverage> polCoveragesToInsert = coversAndParts.get('coverages');
             insert polParticipantsToInsert;
             insert polCoveragesToInsert;
 
             // CREATE COVERAGE PARTICIPANT
-            List<ARC_CoverageParticipant__c> partCoveragesToInsert = createParticipantCoverages(contractPlans, polParticipantsToInsert, polCoveragesToInsert, polToInsert.Id);
+            List<ARC_CoverageParticipant__c> partCoveragesToInsert = createParticipantCoverages(contractPlans, polParticipantsToInsert, polCoveragesToInsert, polToInsert.Id, contactIdToBeneficiaries);
             insert partCoveragesToInsert;
 
             // UPDATE WAITING PERIODS
@@ -85,16 +94,20 @@ global without sharing class ARC_PolicyCreation implements vlocity_ins.VlocityOp
         new_policy.ProductId = productId;
         new_policy.NameInsuredId = accId;
         new_policy.PolicyName = accName + ' - Policy';
+        new_policy.RecordTypeId = InsurancePolicy.sObjectType.getDescribe().getRecordTypeInfosByDeveloperName().get('ARC_IndividualAndFamily').getRecordTypeId();
+        InsurancePolicy previous_policy;
 
         // POPULATE POLICY RELATIONSHIPS
         try {
-            InsurancePolicy previous_policy = [
-                SELECT Id, OriginalPolicyId, ARC_Contract__r.ARC_ContractReason__c, RenewedFromPolicyId, ARC_Contract__r.vlocity_ins__EnrollmentCensusId__c, ARC_Contract__r.Status,
+            System.debug('before query previous_policy');
+            List<InsurancePolicy> previous_policies = [
+                SELECT Id, OriginalPolicyId, ARC_Contract__r.ARC_ContractReason__c, RenewedFromPolicyId, ARC_Contract__r.vlocity_ins__EnrollmentCensusId__c, ARC_Contract__r.Status, ARC_SpinnedFromPolicy__c,
                     (SELECT Id
                     FROM Aggregators__r)
                 FROM InsurancePolicy
                 WHERE ARC_Contract__c =: contract.vlocity_ins__ExpiredContractId__c LIMIT 1
             ];
+            previous_policy = previous_policies.isEmpty() ? null : previous_policies[0];
             System.debug('previous_policy: ' + previous_policy);
 
             System.debug('Old contract reason: ' + old_contract_reason);
@@ -155,13 +168,18 @@ global without sharing class ARC_PolicyCreation implements vlocity_ins.VlocityOp
             } else {
                 new_policy.IsRenewedPolicy = true;
             }
+            if (is_spinoff_omniscript == true) {
+                new_policy.ARC_SpinnedFromPolicy__c = previous_policy.Id;
+            } else {
+                new_policy.ARC_SpinnedFromPolicy__c = previous_policy.ARC_SpinnedFromPolicy__c;
+            }
         } catch (Exception e) {
             System.debug('Error on policy relationships: ' + e.getMessage());
         }
         return new_policy;
     }
 
-    public static Map<String, List<SObject>> createCoveragesAndParticipants(Id polId, List<vlocity_ins__ContractLineItem__c> contractPlans) {
+    public static Map<String, List<SObject>> createCoveragesAndParticipants(Id polId, List<vlocity_ins__ContractLineItem__c> contractPlans, Map<Id, String> contactIdToRelationship) {
         Map<String, List<SObject>> returnMap = new Map<String, List<SObject>>();
         List<InsurancePolicyCoverage> polCoverages = new List<InsurancePolicyCoverage>();
         List<InsurancePolicyParticipant> polParticipants = new List<InsurancePolicyParticipant>();
@@ -182,15 +200,21 @@ global without sharing class ARC_PolicyCreation implements vlocity_ins.VlocityOp
             Id spouse;
             String olderDep = '';
             for (vlocity_ins__GroupCensusMemberPlan__c gcmp : item.vlocity_ins__Group_Census_Member_Plan__r) {
-                String memberRelationship = gcmp.vlocity_ins__GroupCensusMemberId__r.ARC_Relationship__c;
-                partRole.put(gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c, (memberRelationship == 'Child' || memberRelationship == 'Temporary Newborn') ? 'Dependent' : memberRelationship);
+                Id contactId = gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c;
+                String memberRelationship;
+                if (contactIdToRelationship.containsKey(contactId)) {
+                    memberRelationship = contactIdToRelationship.get(contactId);
+                } else {
+                    memberRelationship = gcmp.vlocity_ins__GroupCensusMemberId__r.ARC_Relationship__c;
+                }
+                partRole.put(contactId, (memberRelationship == 'Child' || memberRelationship == 'Temporary Newborn') ? 'Dependent' : memberRelationship);
 
-                if (memberRelationship == 'Future Primary') futurePrimary = gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c;
-                if (memberRelationship == 'Primary') primary = gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c;
-                else if (memberRelationship == 'Spouse') spouse = gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c;
+                if (memberRelationship == 'Future Primary') futurePrimary = contactId;
+                if (memberRelationship == 'Primary') primary = contactId;
+                else if (memberRelationship == 'Spouse') spouse = contactId;
                 else if (memberRelationship == 'Child') {
-                    if (olderDep == '') olderDep = gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c + ';' + gcmp.vlocity_ins__GroupCensusMemberId__r.ARC_Age__c;
-                    else if (gcmp.vlocity_ins__GroupCensusMemberId__r.ARC_Age__c > Integer.valueOf(olderDep.split(';')[1])) olderDep = gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c + ';' + gcmp.vlocity_ins__GroupCensusMemberId__r.ARC_Age__c;
+                    if (olderDep == '') olderDep = contactId + ';' + gcmp.vlocity_ins__GroupCensusMemberId__r.ARC_Age__c;
+                    else if (gcmp.vlocity_ins__GroupCensusMemberId__r.ARC_Age__c > Integer.valueOf(olderDep.split(';')[1])) olderDep = contactId + ';' + gcmp.vlocity_ins__GroupCensusMemberId__r.ARC_Age__c;
                 } 
             }
 
@@ -210,8 +234,7 @@ global without sharing class ARC_PolicyCreation implements vlocity_ins.VlocityOp
                 polPart.InsurancePolicyId = polId;
                 polPart.PrimaryParticipantContactId = contId;
                 polPart.Role = partRole.get(contId);
-                polPart.EffectiveDate = item.vlocity_ins__ContractId__r.ARC_EffectiveDate__c;
-                polPart.EffectiveDate = polPart.EffectiveDate.addHours(7);
+                polPart.ARC_StartDate__c = item.vlocity_ins__ContractId__r.ARC_EffectiveDate__c;
                 polParticipants.add(polPart);
             }
         }
@@ -221,7 +244,7 @@ global without sharing class ARC_PolicyCreation implements vlocity_ins.VlocityOp
         return returnMap;
     }
 
-    public static List<ARC_CoverageParticipant__c> createParticipantCoverages(List<vlocity_ins__ContractLineItem__c> contPlans, List<InsurancePolicyParticipant> parts, List<InsurancePolicyCoverage> coverags, Id polId) {
+    public static List<ARC_CoverageParticipant__c> createParticipantCoverages(List<vlocity_ins__ContractLineItem__c> contPlans, List<InsurancePolicyParticipant> parts, List<InsurancePolicyCoverage> coverags, Id polId, Map<String, Object> contactIdToBeneficiaries) {
         List<ARC_CoverageParticipant__c> covPartList = new List<ARC_CoverageParticipant__c>();
         Map<Id, InsurancePolicyParticipant> mapContParticipant = new Map<Id, InsurancePolicyParticipant>(); 
         Map<String, Id> mapProdCoverage = new Map<String, Id>(); 
@@ -247,17 +270,47 @@ global without sharing class ARC_PolicyCreation implements vlocity_ins.VlocityOp
                 prodNumIteration.put(item.vlocity_ins__Product2Id__c, pTimes);
     
                 for (vlocity_ins__GroupCensusMemberPlan__c gcmp : item.vlocity_ins__Group_Census_Member_Plan__r) {
-                    if (mapProdCoverage.get(item.vlocity_ins__Product2Id__c + ';' + pTimes) != null && mapContParticipant.get(gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c) != null) {
+                    Id contactId = gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c;
+                    if (mapProdCoverage.get(item.vlocity_ins__Product2Id__c + ';' + pTimes) != null && mapContParticipant.get(contactId) != null) {
                         String prodMapKey = mapProdCoverage.get(item.vlocity_ins__Product2Id__c + ';' + pTimes);
     
                         ARC_CoverageParticipant__c cp = new ARC_CoverageParticipant__c();
-                        cp.ARC_PolicyParticipant__c = mapContParticipant.get(gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c).Id;
+                        cp.ARC_PolicyParticipant__c = mapContParticipant.get(contactId).Id;
                         cp.ARC_PolicyCoverage__c = Id.valueOf(prodMapKey.split(';')[0]);
                         cp.ARC_Policy__c = polId;
+
+
+                        // Verify if the Participant has Beneficiaries
+                        if (item.vlocity_ins__Product2Id__r.vlocity_ins__Type__c == 'Medical' && contactIdToBeneficiaries.containsKey(contactId)) {
+                            // Map the Beneficiaries
+                            Map<String, Object> beneficiaries = (Map<String, Object>) contactIdToBeneficiaries.get(contactId);
+                            
+                            if (beneficiaries.containsKey('primaryBeneficiary')) {
+                                Map<String, Object> primaryBeneficiary = (Map<String, Object>)beneficiaries.get('primaryBeneficiary');
+                                String birthdateStr = (String)primaryBeneficiary.get('birthdate');
+                                cp.ARC_PrimaryBeneficiaryName__c = primaryBeneficiary.containsKey('firstName') && primaryBeneficiary.containsKey('lastName') ? (String) primaryBeneficiary.get('firstName') + ' ' + (String) primaryBeneficiary.get('lastName') : primaryBeneficiary.containsKey('fullname') && primaryBeneficiary.get('fullname') != null ? (String)primaryBeneficiary.get('fullname') : null;
+                                cp.ARC_PrimaryBeneficiaryRelationship__c = primaryBeneficiary.containsKey('relationship') ? (String) primaryBeneficiary.get('relationship') : null;
+                                cp.ARC_PrimaryBeneficiaryOther__c = primaryBeneficiary.containsKey('otherRelationship') ? (String) primaryBeneficiary.get('otherRelationship') : null;
+                                cp.ARC_PrimaryBeneficiaryBirthdate__c = String.isNotBlank(birthdateStr) ? Date.valueOf(birthdateStr) : null;
+                                cp.ARC_PrimaryBeneficiaryPhone__c = primaryBeneficiary.containsKey('phone') ? String.valueOf(primaryBeneficiary.get('phone')) : null;
+                            }
+
+                            if (beneficiaries.containsKey('secondaryBeneficiary')) {
+                                Map<String, Object> secondaryBeneficiary = (Map<String, Object>)beneficiaries.get('secondaryBeneficiary');
+                                String birthdateStr = (String)secondaryBeneficiary.get('birthdate');
+                                cp.ARC_SecondaryBeneficiaryName__c = secondaryBeneficiary.containsKey('firstName') && secondaryBeneficiary.containsKey('lastName') ? (String) secondaryBeneficiary.get('firstName') + ' ' + (String) secondaryBeneficiary.get('lastName') : secondaryBeneficiary.containsKey('fullname') && secondaryBeneficiary.get('fullname') != null ? (String)secondaryBeneficiary.get('fullname') : null;
+                                cp.ARC_SecondaryBeneficiaryRelationship__c = secondaryBeneficiary.containsKey('relationship') ? (String) secondaryBeneficiary.get('relationship') : null;
+                                cp.ARC_SecondaryBeneficiaryOther__c = secondaryBeneficiary.containsKey('otherRelationship') ? (String) secondaryBeneficiary.get('otherRelationship') : null;
+                                cp.ARC_SecondaryBeneficiaryBirthdate__c = String.isNotBlank(birthdateStr) ? Date.valueOf(birthdateStr) : null;
+                                cp.ARC_SecondaryBeneficiaryPhone__c = secondaryBeneficiary.containsKey('phone') ? String.valueOf(secondaryBeneficiary.get('phone')) : null;
+                            }
+                        }
+
+                        // Add Coverage Participant to list
                         covPartList.add(cp);
 
                         List<InsurancePolicyParticipant> polParts = covIdParticipant.get(prodMapKey.split(';')[0]) != null ? covIdParticipant.get(prodMapKey.split(';')[0]) : new List<InsurancePolicyParticipant>();
-                        polParts.add(mapContParticipant.get(gcmp.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c));
+                        polParts.add(mapContParticipant.get(contactId));
                         covIdParticipant.put(Id.valueOf(prodMapKey.split(';')[0]), polParts);
                     }
                 }

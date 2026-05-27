@@ -96,7 +96,9 @@ global class CareingtonEligiblityFile implements Database.Batchable<sObject>,Sch
                                                               ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.ProductCode
                                                               FROM ARC_CoverageParticipant__c  
                                                               WHERE ARC_PolicyCoverage__c IN : ipcId AND ARC_Policy__r.ARC_Contract__c != Null 
-                                                              AND ARC_Policy__r.ARC_Contract__r.Status ='Activated' ];
+                                                              AND ARC_Policy__r.ARC_Contract__r.Status ='Activated' 
+                                                              AND (ARC_PolicyParticipant__r.ARC_EndDate__c = NULL 
+                                                                    OR ARC_PolicyParticipant__r.ARC_EndDate__c>=TODAY)];
         
                                                             
         for(ARC_CoverageParticipant__c CP:coverageParticipant){

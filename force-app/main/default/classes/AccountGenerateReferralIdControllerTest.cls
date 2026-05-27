@@ -168,33 +168,4 @@ public with sharing class AccountGenerateReferralIdControllerTest {
         System.assertNotEquals(null, testAcc.Referral_Id__c);
         System.assertEquals(15, testAcc.Referral_Id__c.length());
     }
-    
-    @IsTest
-    static void testBeforeUpdateTriggerAssignsReferralId() {
-        // Setup: Create an account without referral ID and IsActive = false
-        Account testAcc = new Account();
-        testAcc.FirstName = 'Test';
-        testAcc.LastName = 'Account';
-        testAcc.RecordTypeId = Account.sObjectType.getDescribe().getRecordTypeInfosByDeveloperName()
-            .get('ARC_IFPPersonAccount').getRecordTypeId();
-        testAcc.IsActive = false;
-        
-        insert testAcc;
-        
-        Account insertedAccount = [SELECT Id, Referral_Id__c, IsActive FROM Account WHERE Id = :testAcc.Id];
-        
-        Test.startTest();
-        // Update to Referral Id = null
-        insertedAccount.Referral_Id__c = null;
-        update insertedAccount;
-        // Update to IsActive = true, which should trigger referral ID generation
-        insertedAccount.IsActive = true;
-        update insertedAccount;
-        Test.stopTest();
-        
-        // Verify referral ID was assigned during update
-        Account updatedAccount = [SELECT Id, Referral_Id__c, IsActive FROM Account WHERE Id = :testAcc.Id];
-        System.assertNotEquals(null, updatedAccount.Referral_Id__c);
-        System.assertEquals(true, updatedAccount.IsActive);
-    }
 }

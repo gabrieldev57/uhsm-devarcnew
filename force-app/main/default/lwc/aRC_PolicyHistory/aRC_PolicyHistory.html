@@ -1,0 +1,60 @@
+<template>
+    <div class="policy-wrapper">
+
+        <!-- Custom Header -->
+        <div class="header-container">
+            <h2 class="custom-title">Policy History</h2>
+            
+            <template if:true={isEmployerAdmin}>
+            <button class="export-style-button" onclick={handleAddEvent}>
+                <lightning-icon
+                    icon-name="utility:add"
+                    size="x-small"
+                    class="export-icon">
+                </lightning-icon>
+                Add Event
+            </button>
+            </template>
+        </div>
+    
+        <!-- Datatable -->
+        <template if:true={historyRecords}>
+            <lightning-datatable
+                key-field="Id"
+                data={historyRecords}
+                columns={columns}
+                hide-checkbox-column>
+            </lightning-datatable>
+        </template>
+    
+        <!-- Pagination -->
+        <div class="pagination">
+            <lightning-button
+                label="Previous"
+                onclick={handlePrevious}
+                disabled={disablePrevious}>
+            </lightning-button>
+    
+            <span class="page-info">
+                Page {pageNumber} of {totalPages}
+            </span>
+    
+            <lightning-button
+                label="Next"
+                onclick={handleNext}
+                disabled={disableNext}>
+            </lightning-button>
+        </div>
+    
+    </div>
+
+    <!--QLE Modal =-->
+    <template if:true={showQLEModal}>
+        <c-a-r-c_-q-l-e-modal
+            flow-api-name="ARC_AddQLEModal"
+            flow-title="Add Qualifying Life Event"
+            flow-input-variables={qleFlowInputVariables}
+            onclose={handleQLEClose}>
+        </c-a-r-c_-q-l-e-modal>
+      </template>
+</template>

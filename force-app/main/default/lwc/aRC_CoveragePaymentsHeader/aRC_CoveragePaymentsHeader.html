@@ -59,53 +59,70 @@
         <div class="slds-backdrop slds-backdrop_open"></div>
     </div>
     <template if:false={isLoading}>
-        <lightning-messages></lightning-messages>
-        <div class="header1">
-            <lightning-button variant="destructive-text" class="btn1" label="Duplicate Detection"
-                onclick={checkDuplicates} disabled={disDuplicate}></lightning-button>
-            <lightning-button label="Create Item" onclick={handleManageModal} data-id="open"></lightning-button>
-        </div>
-        <div class="headers-container">
-            <div class="header2">
-                <lightning-combobox label="Status" value={valueStatus} placeholder="Select Status"
-                    options={optionsStatus} onchange={handleChangeStatus}>
-                </lightning-combobox>
-                <div class="dropdown">
-                    <lightning-input label="Reason" placeholder="Select Reason" onfocus={handleManageModalCode}
-                        onblur={handleManageModalCode} onchange={filterItems} class="dropbtn" disabled={disCode}
-                        data-id="field"></lightning-input>
-                    <div style="margin: 10px 17px;">
-                        <div for:each={reasonCodeList} for:item="code" key={code.id}>
-                            <div class="codeContainer">
-                                <p>{code.code}</p>
-                                <lightning-button-icon variant="base" size="xx-small" icon-name="utility:clear"
-                                    onclick={handleDeleteCode} data-code={code.id}></lightning-button-icon>
+        <div>
+
+            <lightning-messages></lightning-messages>
+            <div class="header1">
+                <lightning-button variant="destructive-text" class="btn1" label="Duplicate Detection"
+                    onclick={checkDuplicates} disabled={disDuplicate}></lightning-button>
+                <lightning-button label="Create Item" onclick={handleManageModal} data-id="open"></lightning-button>
+            </div>
+            <div class="headers-container">
+                <div class="header2">
+                    <lightning-combobox label="Status" value={valueStatus} placeholder="Select Status"
+                        options={optionsStatus} onchange={handleChangeStatus}>
+                    </lightning-combobox>
+    
+                    <div class="reasonsWrapper">
+                        <lightning-input label="Reason" placeholder="Select Reason" onfocus={handleSelectReasonFocus}
+                            onblur={handleSelectReasonBlur} onchange={filterItems} class="dropbtn" disabled={disCode} value={valueReason}
+                            data-id="selectReasons"></lightning-input>
+
+                        <div style="margin: 10px 17px;">
+                            <div for:each={reasonCodeList} for:item="code" key={code.id}>
+                                <div class="codeContainer">
+                                    <p>{code.code}</p>
+                                    <lightning-button-icon variant="base" size="xx-small" icon-name="utility:clear"
+                                        onclick={handleDeleteCode} data-code={code.id}></lightning-button-icon>
+                                </div>
                             </div>
                         </div>
+                        <template if:true={showDropdown}>
+                            <div data-id="optionsDropdown" class="dropdown-content">
+                                <template for:each={arrToFilter} for:item="opt" >
+                                    <div key={opt.value}>
+                                        <a 
+                                        tabindex="0"
+                                        onmousedown={handleSelectCode}
+                                        data-id={opt.value} href="#">
+                                        {opt.label}
+                                    </a>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
                     </div>
-                    <div data-id="myDropdown" class="dropdown-content">
-                        <a for:each={arrToFilter} for:item="opt" key={opt.value} onclick={handleSelectCode}
-                            data-id={opt.value}>{opt.label}</a>
+                    
+                    
+                    <lightning-button label="Apply" variant="brand" class="applyBtn btnHeader mgbt-10"
+                        onclick={handleUpdate} disabled={disApplyBtn}></lightning-button>
+                    <lightning-button-icon icon-name="utility:refresh" variant="border-filled" title="Refresh"
+                        onclick={clearAllData} class="btnHeader mgbt-10"></lightning-button-icon>
+                    <!--Under Development-->
+                    <template if:true={onlyone}>
+                        <lightning-button class="btnPay mgbt-10" label="Commit" onclick={getItemsFromChild}
+                            disabled={disPayBtn}></lightning-button>
+                    </template>
+                    <div class="btnPay right-align mgbt-10">
+                        <lightning-button onclick={handleDeleteItems} label="Delete" alternative-text="Delete" title="Delete" disabled={disDeleteItems}>
+                            </lightning-button>
+                            <lightning-button variant="destructive" label="Reset Items"
+                                onclick={handleManageModalUncommit} disabled={disResetBtn} data-action="open"></lightning-button>
                     </div>
-                </div>
-                <lightning-button label="Apply" variant="brand" class="applyBtn btnHeader mgbt-10"
-                    onclick={handleUpdate} disabled={disApplyBtn}></lightning-button>
-                <lightning-button-icon icon-name="utility:refresh" variant="border-filled" title="Refresh"
-                    onclick={clearAllData} class="btnHeader mgbt-10"></lightning-button-icon>
-                <!--Under Development-->
-                <template if:true={onlyone}>
-                    <lightning-button class="btnPay mgbt-10" label="Commit" onclick={getItemsFromChild}
-                        disabled={disPayBtn}></lightning-button>
-                </template>
-                <div class="btnPay right-align mgbt-10">
-                    <lightning-button onclick={handleDeleteItems} label="Delete" alternative-text="Delete" title="Delete" disabled={disDeleteItems}>
-                        </lightning-button>
-                        <lightning-button variant="destructive" label="Reset Items"
-                            onclick={handleManageModalUncommit} disabled={disResetBtn} data-action="open"></lightning-button>
                 </div>
             </div>
+            <hr style="margin: 20px 10px 12px;">
         </div>
-        <hr style="margin: 20px 10px 12px;">
     </template>
     <c-a-r-c_-coverage-payments-table record-id={recordId} oncheckboxchange={handleChangeCheckbox}
         onpaymentitems={validateItemPayment} onedititem={handleGetModItems}
@@ -215,7 +232,11 @@
                                 <div class="slds-grid">
                                     <lightning-input-field field-name="ARC_MBRLiability__c"
                                         class="slds-col slds-size_1-of-2"></lightning-input-field>
-                                    <lightning-input-field field-name="ARC_Allowed__c"
+
+                                    <lightning-input-field field-name="ARC_MBRLiability__c"
+                                        class="slds-col slds-size_1-of-2"></lightning-input-field>
+                                    
+                                        <lightning-input-field field-name="ARC_Allowed__c"
                                         class="slds-col slds-size_1-of-2"></lightning-input-field>
                                 </div>
                                 <div class="slds-grid">

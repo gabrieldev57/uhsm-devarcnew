@@ -9,55 +9,96 @@ public without sharing class ARC_CalculateMemberTableStartEndDates {
     @AuraEnabled(cacheable=true)
     public static List<Map<Id, Object>> calculateDatesPerMemberAndProgram( Id idFromMember) {
 
-        // Set of contracts Ids where the member is involved
-        Set<Id> contractsInvolved = new Set<Id>();
+        // Set of policies Ids where the member is involved
+        Set<Id> policiesInvolved = new Set<Id>();
 
-        // Get policy participants related to member
-        List<InsurancePolicyParticipant> memberPolicyParticipantList = [
-            SELECT Id, InsurancePolicy.ARC_Contract__c
-            FROM InsurancePolicyParticipant
-            WHERE PrimaryParticipantContact.AccountId = :idFromMember
-        ];
-        // Add each each contract to list in which member is involved
-        for (InsurancePolicyParticipant pp : memberPolicyParticipantList) {
-            contractsInvolved.add(pp.InsurancePolicy.ARC_Contract__c);
+        Account accountFromMember = [SELECT Id, PersonContactId, ARC_IsPrimaryMember__c, ARC_PrimaryMemberAccount__c, ARC_PrimaryMemberAccount__r.PersonContactId, RecordType.DeveloperName, ARC_Census__c, IsActive, ARC_DependentRelationship__c FROM Account WHERE Id =: idFromMember LIMIT 1];
+
+        String recordType = accountFromMember.RecordType.DeveloperName;
+
+        Id relatedCensusId = accountFromMember.ARC_Census__c;
+        Boolean isMemberActive = accountFromMember.IsActive;
+        Boolean memberIsTemporaryNewborn = accountFromMember.ARC_DependentRelationship__c != null && accountFromMember.ARC_DependentRelationship__c == 'Temporary Newborn' ? true : false;
+
+        Set<Id> relatedContactIds = new Set<Id>();
+
+        if ((recordType == 'ARC_SGPersonAccount')) {
+            Id primaryAccId = null;
+            if (accountFromMember?.ARC_IsPrimaryMember__c == true) {
+                primaryAccId = accountFromMember.Id;
+                if (accountFromMember?.PersonContactId != null) relatedContactIds.add(accountFromMember.PersonContactId);
+            } else {
+                primaryAccId = accountFromMember.ARC_PrimaryMemberAccount__c;
+                if (accountFromMember?.ARC_PrimaryMemberAccount__r?.PersonContactId != null) relatedContactIds.add(accountFromMember.ARC_PrimaryMemberAccount__r.PersonContactId);
+            }
+            
+            if (primaryAccId != null) {
+                for (Account acc : [SELECT PersonContactId FROM Account WHERE (ARC_PrimaryMemberAccount__c = :primaryAccId AND RecordType.DeveloperName = 'ARC_SGPersonAccount')]) {
+                    if (acc?.PersonContactId != null) relatedContactIds.add(acc.PersonContactId);
+                }
+            }
+            
+        } else if (recordType == 'ARC_IFPPersonAccount' && relatedCensusId != null) {
+            for (vlocity_ins__GroupCensusMember__c member : [SELECT vlocity_ins__ContactId__c FROM vlocity_ins__GroupCensusMember__c WHERE vlocity_ins__CensusId__c = :relatedCensusId]) {
+                if (member?.vlocity_ins__ContactId__c != null) relatedContactIds.add(member.vlocity_ins__ContactId__c);
+            }
         }
 
-        // Get ALL policy participants of each member of each contract involved
-        List<ARC_CoverageParticipant__c> allMemberCoverageParticipantList = [
-            SELECT Id,
-            ARC_CoverageName__c,
-            ARC_Policy__c,
-            ARC_Policy__r.ARC_isActive__c,
-            ARC_Policy__r.ARC_Contract__r.Status,
-            ARC_Policy__r.ARC_Contract__r.ARC_EffectiveDate__c,
-            ARC_PolicyParticipant__c,
-            ARC_PolicyParticipant__r.EffectiveDate,
-            ARC_PolicyParticipant__r.ExpirationDate,
-            ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId,
-            ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.Name,
-            ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.ARC_IsPrimaryMember__c,
-            ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.PersonBirthdate,
-            ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.PersonEmail,
-            ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.vlocity_ins__SocialSecurityNumber__pc,
-            ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.vlocity_ins__Age__pc,
-            ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.IsActive,
-            ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.ARC_DependentRelationship__c,
-            ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__c,
-            ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.Name,
-            ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.vlocity_ins__Type__c,
-            ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.vlocity_ins__SubType__c
-            FROM ARC_CoverageParticipant__c
-            WHERE ARC_Policy__r.ARC_Contract__c IN :contractsInvolved
-            AND (
-                ARC_Policy__r.ARC_Contract__r.Status = 'Activated'
-                OR ARC_Policy__r.ARC_Contract__r.Status = 'Terminated'
-                OR ARC_Policy__r.ARC_Contract__r.Status = 'Awaiting Activation'
-            )
-            ORDER BY ARC_Policy__r.ARC_Contract__r.ARC_EffectiveDate__c ASC, CreatedDate ASC
-        ];
-        System.debug(allMemberCoverageParticipantList.size());
+        List<InsurancePolicyParticipant> memberPolicyParticipantList = new List<InsurancePolicyParticipant>();
+        if (!relatedContactIds.isEmpty()) {
+            // Get policy participants related to member
+            memberPolicyParticipantList = [
+                SELECT Id, InsurancePolicyId
+                FROM InsurancePolicyParticipant
+                WHERE PrimaryParticipantContactId = :relatedContactIds
+            ];
+        }
 
+        // Add each each policy to list in which member is involved
+        for (InsurancePolicyParticipant pp : memberPolicyParticipantList) {
+            policiesInvolved.add(pp.InsurancePolicyId);
+        }
+
+        List<ARC_CoverageParticipant__c> allMemberCoverageParticipantList = new List<ARC_CoverageParticipant__c>();
+        if (!policiesInvolved.isEmpty()) {
+            // Get ALL policy participants of each member of each policy involved
+            allMemberCoverageParticipantList = [
+                SELECT Id,
+                ARC_CoverageName__c,
+                ARC_Policy__c,
+                ARC_Policy__r.ARC_isActive__c,
+                ARC_Policy__r.ARC_PolicyStatus__c,
+                ARC_Policy__r.ARC_EffectiveDate__c,
+                ARC_PolicyParticipant__c,
+                ARC_PolicyParticipant__r.ARC_StartDate__c,
+                ARC_PolicyParticipant__r.ARC_EndDate__c,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.ARC_Census__c,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.Name,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.ARC_IsPrimaryMember__c,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.PersonBirthdate,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.PersonEmail,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.vlocity_ins__SocialSecurityNumber__pc,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.vlocity_ins__Age__pc,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.IsActive,
+                ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.ARC_DependentRelationship__c,
+                ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__c,
+                ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.Name,
+                ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.vlocity_ins__Type__c,
+                ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.vlocity_ins__SubType__c,
+                ARC_PolicyCoverage__r.ARC_CoveragePrimaryMember__r.Name
+                FROM ARC_CoverageParticipant__c
+                WHERE ARC_Policy__c IN :policiesInvolved
+                AND (
+                    ARC_Policy__r.ARC_PolicyStatus__c = 'Activated'
+                    OR ARC_Policy__r.ARC_PolicyStatus__c = 'Terminated'
+                    OR ARC_Policy__r.ARC_PolicyStatus__c = 'Awaiting Activation'
+                )
+                ORDER BY ARC_Policy__r.ARC_EffectiveDate__c ASC, CreatedDate ASC
+            ];
+        }
+        
+        
         // Iterate over all coverage participants and group them by account
         
         // Map of each member Id and their plans
@@ -70,7 +111,12 @@ public without sharing class ARC_CalculateMemberTableStartEndDates {
 
         for (ARC_CoverageParticipant__c coverage : allMemberCoverageParticipantList) {
             Id accountId = coverage.ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId;
-            String contractStatus = coverage.ARC_Policy__r.ARC_Contract__r.Status;
+            String policyStatus = coverage.ARC_Policy__r.ARC_PolicyStatus__c;
+            Id censusId = coverage.ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.ARC_Census__c; 
+            
+            if (recordType == 'ARC_IFPPersonAccount' && policyStatus == 'Activated' && (relatedCensusId != censusId || (isMemberActive == false && memberIsTemporaryNewborn == false))) {
+                continue;   
+            }
 
             if (accountsAndCoverages.containsKey(accountId)) {
                 List<ARC_CoverageParticipant__c> coverages = (List<ARC_CoverageParticipant__c>)accountsAndCoverages.get(accountId);
@@ -82,7 +128,7 @@ public without sharing class ARC_CalculateMemberTableStartEndDates {
                 coverages.add(coverage);
                 accountsAndCoverages.put(accountId, coverages);
             }
-            if (contractStatus == 'Activated') {
+            if (policyStatus == 'Activated' && ((recordType == 'ARC_IFPPersonAccount' && relatedCensusId == censusId && (isMemberActive == true || memberIsTemporaryNewborn == true)) || (recordType == 'ARC_SGPersonAccount'))) {
                 activeAccounts.add(accountId);
             }
         }
@@ -107,10 +153,6 @@ public without sharing class ARC_CalculateMemberTableStartEndDates {
                     aidds.add(coverage);
                 }
             }
-
-            System.debug('medicals size: ' + medicals.size());
-            System.debug('smarts size: ' + smarts.size());
-            System.debug('aidds size: ' + aidds.size());
 
             // Get MEDICAL initial and end dates
             Map<String,Object> medicalInitialAndEndDates = calculateInitialAndEndDates(medicals);
@@ -146,12 +188,10 @@ public without sharing class ARC_CalculateMemberTableStartEndDates {
         // Removing duplicates lines/coverages and resetting some fields
         for (Id key : finalAccountsAndCoverages.keySet()) {
             List<ARC_CoverageParticipant__c> coverages = (List<ARC_CoverageParticipant__c>) finalAccountsAndCoverages.get(key);
-            System.debug('coverages size: ' + coverages.size());
             Id prevProductId = null;
             Date prevActiveDate = null;
             for (Integer i = coverages.size() - 1; i >= 0 ; i--) {
                 ARC_CoverageParticipant__c coverage = coverages[i];
-                System.debug('Coverage ID: ' + coverage.Id); 
                 Boolean isPrimaryMember = (Boolean)coverage.ARC_PolicyParticipant__r.PrimaryParticipantContact.Account.ARC_IsPrimaryMember__c;
                 Id currentProductId = (Id)coverage.ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__c;
                 if (!activeAccounts.contains(key)) {
@@ -163,11 +203,9 @@ public without sharing class ARC_CalculateMemberTableStartEndDates {
                 }
                 if (prevProductId != null) {
                     Date currentActiveDate = (Date)coverageParticipantInitialDates.get(coverage.Id);
-                    System.debug('current active date: ' + currentActiveDate);
-                    System.debug('previous active date: ' + prevActiveDate);
                     if (currentProductId == prevProductId && currentActiveDate == prevActiveDate) {
-                        String contractStatus = coverage.ARC_Policy__r.ARC_Contract__r.Status;
-                        if (contractStatus == 'Activated') {
+                        String policyStatus = coverage.ARC_Policy__r.ARC_PolicyStatus__c;
+                        if (policyStatus == 'Activated') {
                             coverages.remove(i+1);
                         } else {
                             coverages.remove(i);
@@ -213,26 +251,21 @@ public without sharing class ARC_CalculateMemberTableStartEndDates {
 
         // Iterate over medical plans and calculate initial and end dates
         for (ARC_CoverageParticipant__c coverage : coverageParticipants) {
-            System.debug('Coverage Id: ' + coverage.Id);
             // First iteration
             if (prevProductId == null) {
                 prevProductId = coverage.ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__c;
-                prevEffectiveDate = Date.valueOf(coverage.ARC_PolicyParticipant__r.EffectiveDate);
-                prevExpirationDate = Date.valueOf(coverage.ARC_PolicyParticipant__r.ExpirationDate);
+                prevEffectiveDate = coverage.ARC_PolicyParticipant__r.ARC_StartDate__c;
+                prevExpirationDate = coverage.ARC_PolicyParticipant__r.ARC_EndDate__c;
 
                 coverageParticipantInitialDates.put(coverage.Id, prevEffectiveDate);
                 coverageParticipantEndDates.put(coverage.Id, prevExpirationDate);
             }
             // When product is EQUAL to previous iteration
             else if (prevProductId != null && prevProductId == coverage.ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__c) {
-                Date currentEffDate = Date.valueOf(coverage.ARC_PolicyParticipant__r.EffectiveDate);
-                Date currentExpDate = Date.valueOf(coverage.ARC_PolicyParticipant__r.ExpirationDate);
+                Date currentEffDate = coverage.ARC_PolicyParticipant__r.ARC_StartDate__c;
+                Date currentExpDate = coverage.ARC_PolicyParticipant__r.ARC_EndDate__c;
                 // Check if exists gap if prev expiration date is not null
-                System.debug('prev exp date: ' + prevExpirationDate);
-                System.debug('current eff date: ' + currentEffDate);
-                System.debug('current exp date: ' + currentExpDate);
                 if (prevExpirationDate != null && currentEffDate != null && existGap(prevExpirationDate, currentEffDate)) {
-                    System.debug('Entered if exists gap');
                     // Set current initial and end dates when exists gap
                     coverageParticipantInitialDates.put(coverage.Id, currentEffDate);
                     coverageParticipantEndDates.put(coverage.Id, currentExpDate);
@@ -241,13 +274,13 @@ public without sharing class ARC_CalculateMemberTableStartEndDates {
                     coverageParticipantInitialDates.put(coverage.Id, prevInitialDate); // Put previouse initial date to current coverage if no gap between current eff date and prev expiration date
                     coverageParticipantEndDates.put(coverage.Id, currentExpDate); // Put current exp date to previous coverage if no gap between current eff date and prev expiration date
                 }
-                prevExpirationDate = Date.valueOf(coverage.ARC_PolicyParticipant__r.ExpirationDate);
+                prevExpirationDate = coverage.ARC_PolicyParticipant__r.ARC_EndDate__c;
             }
             // When product is NOT EQUAL to previous iteration
             else if (prevProductId != null && prevProductId != coverage.ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__c) {
                 prevProductId = coverage.ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__c;
-                prevEffectiveDate = Date.valueOf(coverage.ARC_PolicyParticipant__r.EffectiveDate);
-                prevExpirationDate = Date.valueOf(coverage.ARC_PolicyParticipant__r.ExpirationDate);
+                prevEffectiveDate = coverage.ARC_PolicyParticipant__r.ARC_StartDate__c;
+                prevExpirationDate = coverage.ARC_PolicyParticipant__r.ARC_EndDate__c;
 
                 coverageParticipantInitialDates.put(coverage.Id, prevEffectiveDate); // Put current coverage effective date when iterating over a different product 
                 coverageParticipantEndDates.put(coverage.Id, prevExpirationDate); // Put current coverage expiration date when iterating over a different product 

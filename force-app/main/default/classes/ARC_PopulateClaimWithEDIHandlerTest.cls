@@ -1,6 +1,7 @@
 @isTest
 public with sharing class ARC_PopulateClaimWithEDIHandlerTest{
 
+    //Test Setup
     @TestSetup
     static void createClaimInputs(){
         List<ARC_ClaimInput__c> cInputList = ARC_TestUtility.createClaimInputs(6); 

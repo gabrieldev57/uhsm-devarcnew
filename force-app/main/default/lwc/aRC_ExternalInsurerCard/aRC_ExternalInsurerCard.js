@@ -1,14 +1,25 @@
-import { LightningElement,api } from 'lwc';
+import { LightningElement,api, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { OmniscriptBaseMixin } from 'vlocity_ins/omniscriptBaseMixin';
+
 
 export default class ARC_ExternalInsurerCard extends OmniscriptBaseMixin(NavigationMixin(LightningElement)) {
 
     @api recordId; // Person Account Id
     @api insurersList=[]; // List of Insurers( Healthcare Providers )
     @api renderComponent=false;
-    showModal;
+    
+    // new
+    @api formButton = false;
+    showForm = false;
+    get prefill(){
+        return {
+            ContextId: this.recordId
+        };
+    }
+    
     async connectedCallback(){
+
         let response = await this.omniRemoteCall({
             input: {'personAccountId': this.recordId},
             sClassName: 'vlocity_ins.IntegrationProcedureService',
@@ -25,6 +36,10 @@ export default class ARC_ExternalInsurerCard extends OmniscriptBaseMixin(Navigat
         else console.log('error',JSON.stringify(response));
     }
 
+    refreshComponent(data) {
+        this.connectedCallback();
+    }
+
     navigateToRecordPage(event) {
         const recordId = event.target.dataset.id;
         console.log('recordId',recordId);
@@ -38,11 +53,9 @@ export default class ARC_ExternalInsurerCard extends OmniscriptBaseMixin(Navigat
     }
 
     // add primary insurance
-    addPrimaryInsurance(event) {
-        console.log('addPrimaryInsurance');
-        this.showModal = true;
+    toggleForm(event) {
+        this.showForm = !this.showForm ;
+        console.log('showForm',this.showForm);
     }
-
-
     
 }

@@ -3,7 +3,7 @@ public with sharing class ARC_PolicyTriggerHandlerTest {
     
     @TestSetup
     static void mockData(){
-        List<InsurancePolicy> listPol = ARC_TestUtility.createTestPolicies(2);
+        List<InsurancePolicy> listPol = ARC_TestUtility.createTestPolicies(2, 'ARC_IndividualAndFamily');
         List<InsurancePolicyParticipant> listPolPart = ARC_TestUtility.createTestPolicyParticipant(3);
         List<Product2> listProd = ARC_TestUtility.createTestProducts(2);
         List<Contract> contList = ARC_TestUtility.createContractsAA(2);
@@ -89,7 +89,7 @@ public with sharing class ARC_PolicyTriggerHandlerTest {
 
     @isTest
     public static void createAggregatorTest() {
-        List<InsurancePolicy> listPol = ARC_TestUtility.createTestPolicies(2);
+        List<InsurancePolicy> listPol = ARC_TestUtility.createTestPolicies(2, 'ARC_IndividualAndFamily');
         List<InsurancePolicyParticipant> listPolPart = ARC_TestUtility.createTestPolicyParticipant(6);
         List<Product2> listProd = ARc_TestUtility.createTestProducts(2);
         List<Contract> contList = ARc_TestUtility.createContractsAA(2);

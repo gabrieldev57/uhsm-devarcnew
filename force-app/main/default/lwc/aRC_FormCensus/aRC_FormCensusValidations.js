@@ -49,8 +49,8 @@ export function validateRequiredFields(field_name, member, member_index) {
     const isChild = member.ARC_Relationship__c.value === 'Child';
     const isMinor = member.ARC_Age__c < 18;
     const isContactField = field_name === 'ARC_Phone__c' || field_name === 'vlocity_ins__Email__c';
-    
-    if (isChild && isMinor && isContactField) {
+
+    if ((isChild && isMinor || isMinor) && isContactField) {
         return {
             name: `validateRequiredField{$field_name}`,
             member_index,

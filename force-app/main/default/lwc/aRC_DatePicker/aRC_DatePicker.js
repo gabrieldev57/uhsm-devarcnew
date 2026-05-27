@@ -14,6 +14,8 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
     @track dateContext = new Date();
     @track selectedDate = new Date();
     @track dates = [];
+    @track firstAvailableDate;
+    @track hasJumpedToFirstAvailable = false;
     lastClass;
     isProgramChange = false;
     isSpinOff = false;
@@ -132,6 +134,8 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
         this.selectedDate = new Date(dateSplit[0], dateSplit[1], dateSplit[2]);
         this.lastClass = e.target.className;
         e.target.className = 'selected';
+
+
         if (this.isProgramChange) {
             if (this.reason == 'remove') this.omniUpdateDataJson({ 'DATE_EffectiveDateRemoveMember': date });
             if (this.reason == 'upordowngrade') this.omniUpdateDataJson({ 'DATE_EffectiveDateUpgradeOrDowngrade': date });
@@ -168,6 +172,9 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
             spinOffEffectiveDateObj = new Date(parseInt(year), parseInt(month, 10) - 1, parseInt(day, 10));
         }
 
+        
+
+        console.log('spinOffEffectiveDateObj ' + spinOffEffectiveDateObj);
         console.log('this.isLegacy 1 ' + this.omniJsonData?.isLegacy)
         console.log('this.isLegacy 2 ' + this.isLegacy)
         
@@ -195,6 +202,7 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                     //SCENARIO 2: SpinOffSelectionRefactor - Only use old efective date day
                     else if (JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('SpinOffSelectionRefactor'))) && this.isLegacy == false) {
                         if (day >= this.today && (day.getDate() === spinOffEffectiveDateObj.getDate())) {
+                            
                             if (day.getTime() === this.selectedDate.getTime()) {
                                 className = 'selected';
                             } else {
@@ -217,9 +225,8 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                     // }
                     //SCENARIO 3: Legacy false, day 1 and 15
                     else if (this.isLegacy == false || (JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('datePickerProgramChange'))) && this.isLegacy == false)) {
-                        
                         if(effectiveDate == 'Not found'){
-                            if (day >= this.today && (day.getDate() === 1 || day.getDate() === 15)) {                            
+                            if (day >= this.today && (day.getDate() === 1 || day.getDate() === 15)) {                         
                                 if (day.getTime() === this.selectedDate.getTime()) {
                                     className = 'selected';
                                 } else if (day >= this.today) {
@@ -231,7 +238,7 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                            
                         }
                         else if(effectiveDate != 'Not found'){
-                            if (day >= this.today && (day.getDate() === dateOld.getDate())) {                            
+                            if (day >= this.today && (day.getDate() === dateOld.getDate())) {                           
                                 if (day.getTime() === this.selectedDate.getTime()) {
                                     className = 'selected';
                                 } else if (day >= this.today) {
@@ -245,12 +252,14 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                     //SCENARIO 4: Legacy true, only day 1
                     else if (this.isLegacy == true) {
                         if(JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('datePickerProgramChange')))){
+                            console.log('1')
                             // Check parse and stringify
-                            this.formattedSelectedDate = '';
-                            this.minimumStartDate = this.today
+                            //this.formattedSelectedDate = '';
+                            this.minimumStartDate =  this.today;
                         } else if (this.omniJsonData?.IsPCSpinOff === true || this.omniJsonData?.SpinOffSelectionRefactor == true){
                             this.minimumStartDate = spinOffEffectiveDateObj;
                         }
+                        console.log('spinOffEffectiveDateObj ' + spinOffEffectiveDateObj);
                         const minStartDate = new Date(this.minimumStartDate);
           
                         console.log('minStartDate', minStartDate);
@@ -273,6 +282,7 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                         formatted: this.format(day, 'yyyy-mm-dd', 0, 0, 0),
                         text: String(day.getDate()).padStart(2, '0')
                     });
+                    
                 });
         }
 
@@ -280,9 +290,10 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
         todayNoTime.setHours(0, 0, 0, 0);
 
         this.dates.forEach(element => {
-
+            const hasContractDate = effectiveDate !== 'Not found'; // NEW
             if ((element.date.getDate() == todayNoTime.getDate() &&
-                (element.text == 1 || element.text == 15)&& 
+                (element.text == 1 || element.text == 15) &&   
+                !hasContractDate &&  
                 !(JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('programChange'))) || JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('SpinOffSelection'))))
             )) {
                 element.className = 'date'
@@ -290,6 +301,7 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
             //Check user Permissions
             if (JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('Assignments')))) {
                 let permissionSetAssigned = this.osData.Assignments; 
+
                 if (permissionSetAssigned.includes('Backdate_Effective_Date') && 
                 (element.text == dateOld.getDate() || (spinOffEffectiveDateObj != null && spinOffEffectiveDateObj != undefined && element.text == spinOffEffectiveDateObj.getDate()))
                  && this.isLegacy == false) {
@@ -376,6 +388,7 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                 this.isEffectiveWithin15days=true;
             }
             else{
+                limitDate.setDate(limitDate.getDate() + 15);
                 if(limitDate.setDate(limitDate.getDate() + 15) >= new Date()){
                     this.isEffectiveWithin15days=true;
                 }
@@ -425,6 +438,7 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
             let contractReason = this.osData?.SelectedContractInfo?.TXT_ContractReason ?? 'Not found';
             let contractStatus = this.osData?.SelectedContractInfo?.TXT_ContractStatus ?? 'Not found';
             let parsedContractDate = new Date(contractEffDate);
+            
 
             if (contractEffDate !== 'Not found' && contractReason.includes('New Application') && contractStatus.includes('Awaiting') && parsedContractDate > this.today) {
                 effectiveDate = contractEffDate;
@@ -494,6 +508,7 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
             let contractEffDate = this.osData?.SelectedContractInfo?.EffectiveDate ?? 'Not found';
             let contractReason = this.osData?.SelectedContractInfo?.TXT_ContractReason ?? 'Not found';
             let contractStatus = this.osData?.SelectedContractInfo?.TXT_ContractStatus ?? 'Not found';
+            let newbornsFirstAvailableDate = this.osData?.newbornsFirstAvailableDate ?? null;
              
             if (contractEffDate !== 'Not found' && contractReason === 'New Application' && contractStatus.includes('Awaiting')) {
                 this.omniUpdateDataJson({ 'DATE_SubscriberEffectiveDate': this.omniJsonData.newEffectiveDate });
@@ -510,7 +525,7 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
                 this.dateContext = new Date(effDate);
             } else if (this.osData.isLegacy) {
 				this.dateContext = new Date(this.osData.minimumStartDate);
-                if(this.osData?.IsPCSpinOff === true){
+                if(this.osData?.IsPCSpinOff === true || this.osData?.datePickerProgramChange == true){
                     let effDateSplit = this.osData?.SelectedContractInfo?.EffectiveDate?.split('/')
                     if(effDateSplit.length > 0){
                         effDate = effDateSplit[2] + '-' + effDateSplit[0] + '-' + effDateSplit[1];
@@ -520,12 +535,21 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
 			} else {
                 this.dateContext = this.today;
             }
+            console.log('newbornsFirstAvailableDate =>', newbornsFirstAvailableDate);
+            if(newbornsFirstAvailableDate){
+                this.dateContext = new Date(newbornsFirstAvailableDate);
+                this.omniUpdateDataJson({ 'DATE_SubscriberEffectiveDate': newbornsFirstAvailableDate });
+            }
 
             //Remove this line below before go to Production
             // this.dateContext.setHours(this.dateContext.getHours() + 6);
 
             this.year = this.dateContext.getFullYear();
-            this.updateInputValue(effDate);
+            if(newbornsFirstAvailableDate){
+                this.updateInputValue(newbornsFirstAvailableDate);
+            }else{
+                this.updateInputValue(effDate);
+            }
         }
     }
 
@@ -545,16 +569,16 @@ export default class DatePicker extends OmniscriptBaseMixin(LightningElement) {
             dateContext > minEffDate ? prevBtn.className = 'prev' : prevBtn.className = 'prevDis';
             dateContext > maxEffDate ? nextBtn.className = 'nextDis' : nextBtn.className = 'next';
         }//Check User Permissions
-        else if (JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('Assignments')))) {
-            let permissionSetAssigned = this.osData.Assignments; 
-            if ((permissionSetAssigned.includes('Backdate_Effective_Date') || permissionSetAssigned.includes('Full_Permission_Effective_Date')) && this.isLegacy == false) {
+        else if (JSON.parse(JSON.stringify(this.omniJsonData.hasOwnProperty('Assignments'))) 
+            && (this.osData.Assignments.includes('Backdate_Effective_Date') || this.osData.Assignments.includes('Full_Permission_Effective_Date')) 
+            && this.isLegacy == false) {
+                
                 const minEffDate = new Date(this.today.getFullYear(), this.today.getMonth() - this.maxEffDate, 0);
                 const maxEffDate = new Date(this.today.getFullYear(), this.today.getMonth() + this.maxEffDate, 0);
                 const dateContext = new Date(this.dateContext).setHours(0, 0, 0, 0);
 
                 dateContext > minEffDate ? prevBtn.className = 'prev' : prevBtn.className = 'prevDis';
                 dateContext > maxEffDate ? nextBtn.className = 'nextDis' : nextBtn.className = 'next';
-            }
         }
         else {
 			const minEffDate = new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0);

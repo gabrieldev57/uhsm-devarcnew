@@ -1,0 +1,63 @@
+/* 
+.slds-modal__container {
+    width: 90% !important;
+    max-width: 90% !important;
+    min-width: 70% !important;
+}
+
+.slds-modal__content {
+    overflow: visible !important;
+    padding: 1rem !important;
+}
+
+lightning-flow {
+    display: block;
+    width: 100% !important;
+    min-height: 400px;
+}
+
+lightning-flow iframe {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 400px !important;
+    border: none !important;
+    overflow: visible !important;
+}
+
+.flow-wrapper {
+    overflow: visible !important;
+    padding: 1rem !important;
+    min-height: 450px;
+} */
+
+.slds-modal__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+/* Clip spinner (and any other overflow) to the modal bounds. */
+.slds-modal__container {
+    position: relative;
+    overflow: hidden;
+}
+
+.slds-modal__content {
+    position: relative;
+}
+/* 
+.slds-modal__content .slds-p-around_medium {
+    overflow: visible !important;
+    padding: 1rem !important;
+    height: auto !important;
+    min-height: 400px;
+}
+
+.slds-modal__content::-webkit-scrollbar {
+    display: none;
+}
+
+.slds-modal__content {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+} */

@@ -1,4 +1,5 @@
 import { FlexCardMixin } from "vlocity_ins/flexCardMixin";
+    import { CurrentPageReference } from 'lightning/navigation';
     import {interpolateWithRegex, interpolateKeyValue, loadCssFromStaticResource } from "vlocity_ins/flexCardUtility";
     import { load } from "vlocity_ins/newportLoader";
           
@@ -11,6 +12,11 @@ import { FlexCardMixin } from "vlocity_ins/flexCardMixin";
           import styleDef from "./styleDefinition";
               
           export default class cfARC_MemberCardFlyout extends FlexCardMixin(LightningElement){
+              currentPageReference;        
+              @wire(CurrentPageReference)
+              setCurrentPageReference(currentPageReference) {
+                this.currentPageReference = currentPageReference;
+              }
               @api debug;
               @api recordId;
               @api objectApiName;
@@ -23,6 +29,7 @@ import { FlexCardMixin } from "vlocity_ins/flexCardMixin";
               
               connectedCallback() {
                 super.connectedCallback();
+                this.setThemeClass(data);
                 this.setStyleDefinition(styleDef);
                 data.Session = {} //reinitialize on reload
                 

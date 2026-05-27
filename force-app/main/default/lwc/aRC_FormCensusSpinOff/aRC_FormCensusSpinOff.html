@@ -153,11 +153,10 @@
                                                     theme={theme}></vlocity_ins-input>
                                             </div>
                                             <div class="address-field">
-                                                <vlocity_ins-input disabled={member.DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS}
-                                                    type="text" name="ARC_PhysicalAddressZipCode__c" max-length="5"
-                                                    value={member.ARC_PhysicalAddressZipCode__c} onchange={handler_FieldOnChange}
-                                                    data-memberindex={memberindex} label="Zip Code"
-                                                    theme={theme}></vlocity_ins-input>
+                                                <vlocity_ins-input disabled={member.DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS} type="text"
+                                                    name="ARC_PhysicalAddressZipCode__c" max-length="10" value={member.ARC_PhysicalAddressZipCode__c}
+                                                    onchange={handler_FieldOnChange} data-memberindex={memberindex} label="Zip Code" theme={theme}>
+                                                </vlocity_ins-input>
                                             </div>
                                         </div>
                                     </div>

@@ -16,6 +16,7 @@ global class ARC_26YearsDependentBatch implements Database.Batchable<sObject>,Sc
             AND ARC_ActiveMember__c = true
             AND vlocity_ins__IsPrimaryMember__c = false
             AND vlocity_ins__IsSpouse__c = false
+            AND ARC_GroupCensusRecordTypeName__c = 'ARC_IndividualAndFamily'
         ]);
 
     }

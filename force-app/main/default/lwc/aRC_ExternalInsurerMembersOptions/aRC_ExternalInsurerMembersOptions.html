@@ -19,11 +19,11 @@
                     </div>
                     <div class="slds-grid slds-wrap slds-gutters_small slds-border_bottom slds-p-bottom_medium">
                         <vlocity_ins-input theme="nds" required onchange={handleChange} value={exInsurer.insurer} data-input="insurer" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="text" label="Insurer" max-length ="80"></vlocity_ins-input>
-                        <vlocity_ins-input theme="nds" required onchange={handleChange} value={exInsurer.policyNumber} data-input="policyNumber" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="text" label="Policy Number" max-length ="40" ></vlocity_ins-input>
+                        <vlocity_ins-input theme="nds" onchange={handleChange} value={exInsurer.policyNumber} data-input="policyNumber" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="text" label="Policy Number" max-length ="40" ></vlocity_ins-input>
                         <vlocity_ins-input theme="nds" required onchange={handleChange} value={exInsurer.effectiveDate} data-input="effectiveDate" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="date" name="EffectiveDate" label="Effective Date" ></vlocity_ins-input >
                         <vlocity_ins-input theme="nds" required onchange={handleChange} value={exInsurer.expirationDate} data-input="expirationDate" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="date" name="ExpirationDate" label="Expiration Date" ></vlocity_ins-input >
-                        <vlocity_ins-input theme="nds" required onchange={handleChange} value={exInsurer.insurerPhone} data-input="insurerPhone" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="tel" label="Insurer Phone" name="InsurerPhone" max-length ="10"></vlocity_ins-input >
-                        <vlocity_ins-combobox required theme="nds" class="slds-col slds-size_1-of-2"
+                        <vlocity_ins-input theme="nds" onchange={handleChange} value={exInsurer.insurerPhone} data-input="insurerPhone" data-exid={exInsurer.id} class="slds-col slds-size_1-of-2" type="tel" label="Insurer Phone" name="InsurerPhone" max-length ="10"></vlocity_ins-input >
+                        <vlocity_ins-combobox theme="nds" class="slds-col slds-size_1-of-2"
                             data-exid={exInsurer.id} 
                             label="Source of coverage"
                             options={options}

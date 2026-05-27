@@ -15,11 +15,14 @@ public without sharing class ARC_TransactionHandler {
         List <ChargentOrders__Transaction__c> transactionToReprocess = new List <ChargentOrders__Transaction__c>();
         Map<Id,Id> oldTransactionRefundTransactionMap = new Map<Id,Id>();
         for(Id transId : newTrans.keySet()){
-            if(newTrans.get(transId).ChargentOrders__Response_Status__c =='Approved' && oldTrans.get(transId).ChargentOrders__Response_Status__c !='Approved' ){
-                transactionToReprocess.add(newTrans.get(transId));
-            }
-            else if(newTrans.get(transId).ARC_RefundedTransaction__c !=  null && oldTrans.get(transId).ARC_RefundedTransaction__c == null && (newTrans.get(transId).ChargentOrders__Type__c == 'Refund' || newTrans.get(transId).ChargentOrders__Type__c == 'Void' )){
-                oldTransactionRefundTransactionMap.put(newTrans.get(transId).ARC_RefundedTransaction__c,transId);
+            String txRecordType = newTrans.get(transId).ARC_ContractRecordTypeName__c;
+            if (txRecordType == 'ARC_IndividualAndFamily') {
+                if(newTrans.get(transId).ChargentOrders__Response_Status__c =='Approved' && oldTrans.get(transId).ChargentOrders__Response_Status__c !='Approved' ){
+                    transactionToReprocess.add(newTrans.get(transId));
+                }
+                else if(newTrans.get(transId).ARC_RefundedTransaction__c !=  null && oldTrans.get(transId).ARC_RefundedTransaction__c == null && (newTrans.get(transId).ChargentOrders__Type__c == 'Refund' || newTrans.get(transId).ChargentOrders__Type__c == 'Void' )){
+                    oldTransactionRefundTransactionMap.put(newTrans.get(transId).ARC_RefundedTransaction__c,transId);
+                }
             }
         }
         Map<String,Object> resultMap = new Map<String,Object>();
@@ -36,7 +39,8 @@ public without sharing class ARC_TransactionHandler {
         // //Add approved transactions to a map grouped by chargent order id
         Map<Id, List<ChargentOrders__Transaction__c>> chargentTransactions = new Map<Id,List<ChargentOrders__Transaction__c>>();
         for (ChargentOrders__Transaction__c t: triggerTransactions) {
-            if(t.ChargentOrders__Response_Status__c == 'Approved' &&  t.ChargentOrders__Type__c == 'Charge'){
+            String txRecordType = t.ARC_ContractRecordTypeName__c;
+            if(t.ChargentOrders__Response_Status__c == 'Approved' &&  t.ChargentOrders__Type__c == 'Charge' && txRecordType == 'ARC_IndividualAndFamily'){
                 String chargentId = t.ChargentOrders__Order__c;
                 if (chargentTransactions.get(chargentId) == null) chargentTransactions.put(chargentId, new List<ChargentOrders__Transaction__c>());
                 chargentTransactions.get(chargentId).add(t);
@@ -61,7 +65,6 @@ public without sharing class ARC_TransactionHandler {
                 }
             }
             Map<Id,ARC_Commission__c> contractCommission = new Map <Id,ARC_Commission__c>();
-            // Map<Id,ARC_Commission_Payment__c> commissionLastCPMap = new Map <Id,ARC_Commission_Payment__c>();
             if(contractIds.isEmpty() == false){
                 //Get the Commisions and last Commission Payment diff than Refund
                 Map<Id,ARC_Commission__c> commissions = new Map <Id,ARC_Commission__c> ([
@@ -396,12 +399,6 @@ public without sharing class ARC_TransactionHandler {
                                 ARC_Transaction__c = t?.Id,
                                 ARC_Amount__c = -(refundTli?.ARC_Amount__c)
                             ));
-                    
-                            //Increment Discount Time Used if apply
-                            // if (refundTli.ARC_PromotionDiscount__c != null) {
-                                
-                            //     incrementDiscountTimeUsed(refundTli,discountsToUpdateMap);
-                            // }
                         }                        
                     }
                 }
@@ -472,7 +469,6 @@ public without sharing class ARC_TransactionHandler {
     * @Description        :   Consume -1 the Time Used of the discount received by parameter
     ********************************************************************/
     public static void consumeDiscountTimeUsed(ARC_PromotionDiscount__c discount,Map<Id, ARC_PromotionDiscount__c> discountsToUpdateMap){
-          //Consume + 1 Time Used
         if(rtDiscountsTimeUsedAffected.contains(discount.RecordType.DeveloperName)){
             if(discountsToUpdateMap.containsKey(discount.Id)){
                 discountsToUpdateMap.get(discount.Id).ARC_TimesUsed__c = discountsToUpdateMap.get(discount.Id).ARC_TimesUsed__c + 1;
@@ -510,7 +506,6 @@ public without sharing class ARC_TransactionHandler {
     ********************************************************************/
     public static Map<Id,List<ARC_PromotionDiscount__c>> getContractDiscountMap (Set<Id> contractIds){
         Map<Id,List<ARC_PromotionDiscount__c>> resultMap = new Map<Id,List<ARC_PromotionDiscount__c>>();
-        //Get Active Discounts related to the Contracts
         for(ARC_PromotionDiscount__c discount: [SELECT Id, ARC_Contract__c, Name, createdDate, ARC_AmountToDiscountPerTransaction__c, ARC_ApplyOver__c, ARC_Active__c, ARC_TimesUsed__c, RecordType.DeveloperName FROM ARC_PromotionDiscount__c WHERE ARC_Active__c = true  AND ARC_Contract__c IN :contractIds ORDER BY CreatedDate ASC]){
             if(!resultMap.containsKey(discount.ARC_Contract__c)) resultMap.put(discount.ARC_Contract__c, new List<ARC_PromotionDiscount__c>{discount});
             else resultMap.get(discount.ARC_Contract__c).add(discount);
@@ -524,7 +519,6 @@ public without sharing class ARC_TransactionHandler {
     ********************************************************************/
     public static Map<Id, List<ARC_TransactionLineItem__c>> getTransactionTLIWithDiscountsMap (Set<Id> transactionIds){
         Map<Id, List<ARC_TransactionLineItem__c>> resultMap = new Map<Id, List<ARC_TransactionLineItem__c>>();
-        //Get TLI related Refunded Transactions linked to a Promotion Discount
         for(ARC_TransactionLineItem__c tli: [SELECT ARC_PromotionDiscount__c,ARC_PromotionDiscount__r.ARC_TimesUsed__c ,ARC_PromotionDiscount__r.Name ,ARC_PromotionDiscount__r.ARC_AmountToDiscountPerTransaction__c, ARC_PromotionDiscount__r.ARC_ApplyOver__c, ARC_PromotionDiscount__r.RecordType.DeveloperName,ARC_Transaction__c FROM ARC_TransactionLineItem__c WHERE ARC_Transaction__c IN: transactionIds AND ARC_PromotionDiscount__c <> null]){
             if(!resultMap.containsKey(tli.ARC_Transaction__c))resultMap.put(tli.ARC_Transaction__c,new List<ARC_TransactionLineItem__c>{tli});
             else resultMap.get(tli.ARC_Transaction__c).add(tli);
@@ -559,8 +553,6 @@ public without sharing class ARC_TransactionHandler {
                     ARC_Amount__c = -(discount.ARC_AmountToDiscountPerTransaction__c),
                     ARC_Type__c = discount.ARC_ApplyOver__c
                 ));
-                //Consume - 1 Time Used
-                //consumeDiscountTimeUsed(discount,discountsToUpdateMap);
             }
         }
     }
@@ -578,8 +570,6 @@ public without sharing class ARC_TransactionHandler {
                     ARC_Amount__c = refundTLI?.ARC_PromotionDiscount__r?.ARC_AmountToDiscountPerTransaction__c,
                     ARC_Type__c = refundTLI?.ARC_PromotionDiscount__r?.ARC_ApplyOver__c
                 ));
-            //Increment + 1 Time Used
-            //incrementDiscountTimeUsed(refundTLI,discountsToUpdateMap);
         }
     }
 
@@ -601,11 +591,8 @@ public without sharing class ARC_TransactionHandler {
                     ARC_Type__c = orderReason
                 ));
                 transAmount = transAmount+discount.ARC_AmountToDiscountPerTransaction__c;
-                //consumeDiscountTimeUsed(discount,discountsToUpdateMap);
             }
-
         }
-        //App Fee or Change Fee line item
         tliToCreate.add(new ARC_TransactionLineItem__c(
             ARC_Transaction__c = t.Id,
             Name = transReason,
@@ -624,7 +611,6 @@ public without sharing class ARC_TransactionHandler {
         String transReason =  t.ARC_Reason__c;
         String orderReason =  t.ChargentOrders__Order__r.ChargentOrders__Description__c;
         for(ARC_TransactionLineItem__c refundTLI: refundedTLIList){
-            //Create the TLI for the Discounts
             tliToCreate.add(new ARC_TransactionLineItem__c(
                     Name = refundTLI?.ARC_PromotionDiscount__r?.Name,
                     ARC_PromotionDiscount__c = refundTLI?.ARC_PromotionDiscount__c,
@@ -633,9 +619,7 @@ public without sharing class ARC_TransactionHandler {
                     ARC_Type__c = refundTLI?.ARC_PromotionDiscount__r?.ARC_ApplyOver__c
                 ));
                 transAmount = transAmount - refundTLI?.ARC_PromotionDiscount__r?.ARC_AmountToDiscountPerTransaction__c;
-            //incrementDiscountTimeUsed(refundTLI,discountsToUpdateMap);
         }
-        //App Fee or Change Fee line item
         tliToCreate.add(new ARC_TransactionLineItem__c(
             ARC_Transaction__c = t.Id,
             Name = transReason,
@@ -652,11 +636,11 @@ public without sharing class ARC_TransactionHandler {
         Map<Id, ChargentOrders__Transaction__c> chargeTransactionNewMap = new Map<Id, ChargentOrders__Transaction__c>();
         
         for(ChargentOrders__Transaction__c transactionRecord: newTransaction){
-            if(transactionRecord.ChargentOrders__Type__c == 'Charge' && transactionRecord.ChargentOrders__Response_Status__c == 'Approved') {
+            String txRecordType = transactionRecord.ARC_ContractRecordTypeName__c;
+            if(transactionRecord.ChargentOrders__Type__c == 'Charge' && transactionRecord.ChargentOrders__Response_Status__c == 'Approved' && txRecordType == 'ARC_IndividualAndFamily') {
                 chargeTransactionNewMap.put(transactionRecord.Id,transactionRecord);
             }
         }
-        //Process Charge Transactions
         if(!chargeTransactionNewMap.isEmpty()) ARC_TransactionHandler.createTransactionLineItems(chargeTransactionNewMap);
     }
 
@@ -669,13 +653,222 @@ public without sharing class ARC_TransactionHandler {
 
         for(Id tId: newTransactionMap.keySet()){
             ChargentOrders__Transaction__c transactionRecord = newTransactionMap.get(tId);
-            if(transactionRecord.ChargentOrders__Type__c == 'Refund' && transactionRecord.ChargentOrders__Response_Status__c == 'Approved' &&
-            transactionRecord.ARC_RefundedTransaction__c <> null && oldTransactionMap.get(tId).ARC_RefundedTransaction__c == null ){
-                refundTransactionsMap.put(transactionRecord.Id,transactionRecord);
+            String txRecordType = transactionRecord.ARC_ContractRecordTypeName__c;
+            if(txRecordType == 'ARC_IndividualAndFamily') {
+                if(transactionRecord.ChargentOrders__Type__c == 'Refund' && transactionRecord.ChargentOrders__Response_Status__c == 'Approved' && transactionRecord.ARC_RefundedTransaction__c <> null && oldTransactionMap.get(tId).ARC_RefundedTransaction__c == null ){
+                    refundTransactionsMap.put(transactionRecord.Id,transactionRecord);
+                }
             }
         }
-        //Process Refund Transactions
         if(!refundTransactionsMap.isEmpty())ARC_TransactionHandler.createTransactionLineItems(refundTransactionsMap);
     }
 
+    // Recursion prevention flag for updateCoveragePaidThrough
+    private static Boolean coveragePaidThroughExecuted = false;
+
+    /*******************************************************************
+    * @MethodName         :   updateCoveragePaidThrough
+    * @Description        :   Updates Contract.ARC_CoveragePaidThrough__c based on approved transactions
+    *                          and handles first month payment logic
+    ********************************************************************/
+    public static void updateCoveragePaidThrough(List<ChargentOrders__Transaction__c> newTransactions, Map<Id, ChargentOrders__Transaction__c> oldTransactionsMap) {
+        if (coveragePaidThroughExecuted) return;
+        coveragePaidThroughExecuted = true;
+
+        Set<Id> orderIds = new Set<Id>();
+        Map<Id, ChargentOrders__Transaction__c> transactionsToProcess = new Map<Id, ChargentOrders__Transaction__c>();
+        Set<Id> revokedChargeIds = new Set<Id>();
+
+        for (ChargentOrders__Transaction__c trans : newTransactions) {
+            if (trans.ChargentOrders__Order__c == null) continue;
+
+            String oldStatus = oldTransactionsMap != null ? oldTransactionsMap.get(trans.Id).ChargentOrders__Response_Status__c : null;
+            String newStatus = trans.ChargentOrders__Response_Status__c;
+
+            if (newStatus == 'Approved' && oldStatus != 'Approved') {
+                orderIds.add(trans.ChargentOrders__Order__c);
+                transactionsToProcess.put(trans.Id, trans);
+            } else if (oldStatus == 'Approved' && newStatus != 'Approved' && trans.ChargentOrders__Type__c == 'Charge') {
+                orderIds.add(trans.ChargentOrders__Order__c);
+                revokedChargeIds.add(trans.Id);
+                transactionsToProcess.put(trans.Id, trans);
+            }
+        }
+
+        if (orderIds.isEmpty()) {
+            coveragePaidThroughExecuted = false;
+            return;
+        }
+
+        Map<Id, ChargentOrders__ChargentOrder__c> ordersMap = new Map<Id, ChargentOrders__ChargentOrder__c>([
+            SELECT Id, ARC_Contract__c, ARC_Contract__r.ARC_CoveragePaidThrough__c,
+                   ARC_Contract__r.RecordType.DeveloperName, ARC_Contract__r.ARC_PaymentFrequency__c,
+                   ARC_Contract__r.ARC_EffectiveDate__c, ARC_Contract__r.Status,
+                   ARC_FirstMonthPayed__c, ARC_Contract__r.ARC_NextInvoiceCoverageStart__c
+            FROM ChargentOrders__ChargentOrder__c
+            WHERE Id IN :orderIds
+              AND ARC_Contract__c != null
+              AND ARC_Contract__r.RecordType.DeveloperName = 'ARC_SmallGroup'
+        ]);
+
+        // ── FIX: build contractId → order map once (O(n) instead of O(n²)) ──
+        Map<Id, ChargentOrders__ChargentOrder__c> orderByContract = new Map<Id, ChargentOrders__ChargentOrder__c>();
+        for (ChargentOrders__ChargentOrder__c o : ordersMap.values()) {
+            orderByContract.put(o.ARC_Contract__c, o);
+        }
+
+        // Build map of Contract ID to list of Transactions
+        Map<Id, List<ChargentOrders__Transaction__c>> contractTransactionsMap = new Map<Id, List<ChargentOrders__Transaction__c>>();
+        for (ChargentOrders__Transaction__c trans : transactionsToProcess.values()) {
+            ChargentOrders__ChargentOrder__c order = ordersMap.get(trans.ChargentOrders__Order__c);
+            if (order != null) {
+                Id contractId = order.ARC_Contract__c;
+                if (!contractTransactionsMap.containsKey(contractId)) {
+                    contractTransactionsMap.put(contractId, new List<ChargentOrders__Transaction__c>());
+                }
+                contractTransactionsMap.get(contractId).add(trans);
+            }
+        }
+
+        List<Contract> contractsToUpdate = new List<Contract>();
+        List<ChargentOrders__ChargentOrder__c> ordersToUpdate = new List<ChargentOrders__ChargentOrder__c>();
+        List<ChargentOrders__Transaction__c> transactionsToUpdate = new List<ChargentOrders__Transaction__c>();
+
+        for (Id contractId : contractTransactionsMap.keySet()) {
+            // ── FIX: direct map lookup instead of inner loop ──
+            ChargentOrders__ChargentOrder__c order = orderByContract.get(contractId);
+            if (order == null) continue;
+
+            Date currentCoveragePaidThrough = order.ARC_Contract__r.ARC_CoveragePaidThrough__c;
+            Date newCoveragePaidThrough = currentCoveragePaidThrough;
+            String paymentFrequency = order.ARC_Contract__r.ARC_PaymentFrequency__c;
+            Date effectiveDate = order.ARC_Contract__r.ARC_EffectiveDate__c;
+            String contractStatus = order.ARC_Contract__r.Status;
+            Boolean isFirstMonthPayed = order.ARC_FirstMonthPayed__c != null ? order.ARC_FirstMonthPayed__c : false;
+
+            Boolean needsOrderUpdate = false;
+            Boolean needsContractStatusUpdate = false;
+
+            for (ChargentOrders__Transaction__c trans : contractTransactionsMap.get(contractId)) {
+                if (trans.ChargentOrders__Type__c == 'Charge' && !revokedChargeIds.contains(trans.Id)) {
+                    newCoveragePaidThrough = processCharge(trans, newCoveragePaidThrough);
+                    
+                    if (!isFirstMonthPayed) {
+                        isFirstMonthPayed = true;
+                        needsOrderUpdate = true;
+                        transactionsToUpdate.add(new ChargentOrders__Transaction__c(
+                            Id = trans.Id,
+                            ChargentOrders__Recurring__c = false
+                        ));
+                        if (contractStatus == 'Awaiting First Payment') {
+                            needsContractStatusUpdate = true;
+                        }
+                    }
+                    
+                } else if (trans.ChargentOrders__Type__c == 'Refund' || trans.ChargentOrders__Type__c == 'Void' || revokedChargeIds.contains(trans.Id)) {
+                    newCoveragePaidThrough = processRefund(newCoveragePaidThrough, paymentFrequency);
+                    
+                    if (effectiveDate != null && newCoveragePaidThrough != null && newCoveragePaidThrough < effectiveDate) {
+                        newCoveragePaidThrough = null;
+                        if (isFirstMonthPayed) {
+                            isFirstMonthPayed = false;
+                            needsOrderUpdate = true;
+                        }
+                        if (contractStatus == 'Awaiting Activation') {
+                            needsContractStatusUpdate = true;
+                        }
+                    }
+                }
+            }
+
+            if (newCoveragePaidThrough != currentCoveragePaidThrough || needsContractStatusUpdate) {
+                Contract contractUpdate = new Contract(
+                    Id = contractId,
+                    ARC_CoveragePaidThrough__c = newCoveragePaidThrough
+                );
+                
+                if (needsContractStatusUpdate) {
+                    if (contractStatus == 'Awaiting First Payment') {
+                        contractUpdate.Status = 'Awaiting Activation';
+                    } else if (contractStatus == 'Awaiting Activation' && newCoveragePaidThrough == null) {
+                        contractUpdate.Status = 'Awaiting First Payment';
+                    }
+                }
+                
+                contractsToUpdate.add(contractUpdate);
+            }
+            
+            if (needsOrderUpdate) {
+                ordersToUpdate.add(new ChargentOrders__ChargentOrder__c(
+                    Id = order.Id,
+                    ARC_FirstMonthPayed__c = isFirstMonthPayed
+                ));
+            }
+        }
+
+        if (!contractsToUpdate.isEmpty()) {
+            update contractsToUpdate;
+
+            Set<Id> updatedContractIds = new Set<Id>();
+            for (Contract c : contractsToUpdate) updatedContractIds.add(c.Id);
+
+            // Bulk calls — single set of queries for all updated contracts
+            ARC_ContractBillingService.evaluatePolicyEligibilityForContracts(updatedContractIds);
+            ARC_ContractBillingService.recalculateNextBillAmount(updatedContractIds);
+        }
+        
+        if (!ordersToUpdate.isEmpty()) update ordersToUpdate;
+        if (!transactionsToUpdate.isEmpty()) update transactionsToUpdate;
+
+        coveragePaidThroughExecuted = false;
+    }
+
+    /*******************************************************************
+    * @MethodName         :   processCharge
+    * @Description        :   Process Charge transaction and return new coverage date
+    ********************************************************************/
+    private static Date processCharge(ChargentOrders__Transaction__c trans, Date currentCoverage) {
+        if (trans.ARC_Cover_To__c != null) {
+            if (currentCoverage == null || trans.ARC_Cover_To__c > currentCoverage) {
+                return trans.ARC_Cover_To__c;
+            }
+        }
+        return currentCoverage;
+    }
+
+    /*******************************************************************
+    * @MethodName         :   processRefund
+    * @Description        :   Process Refund transaction and return new coverage date (move backwards)
+    ********************************************************************/
+    private static Date processRefund(Date currentCoverage, String paymentFrequency) {
+        if (currentCoverage == null) return null;
+
+        Integer monthsInPeriod = 1;
+        if (paymentFrequency == 'Quarterly') {
+            monthsInPeriod = 3;
+        } else if (paymentFrequency == 'Annual') {
+            monthsInPeriod = 12;
+        }
+
+        // Use boundary math to avoid day-loss bugs
+        // 30/04 → +1d → 01/05 → -1m → 01/04 → -1d → 31/03
+        return currentCoverage.addDays(1).addMonths(-monthsInPeriod).addDays(-1);
+    }
+
+    /*******************************************************************
+    * @MethodName         :   addMonthsToCoverage
+    * @Description        :   Helper method to add/subtract months from coverage date based on frequency
+    ********************************************************************/
+    private static Date addMonthsToCoverage(Date coverageDate, Integer multiplier, String paymentFrequency) {
+        if (coverageDate == null) return null;
+        
+        if (paymentFrequency == 'Monthly') {
+            return coverageDate.addMonths(1 * multiplier);
+        } else if (paymentFrequency == 'Quarterly') {
+            return coverageDate.addMonths(3 * multiplier);
+        } else if (paymentFrequency == 'Annual') {
+            return coverageDate.addYears(1 * multiplier);
+        }
+        return coverageDate.addMonths(1 * multiplier);
+    }
 }

@@ -1,0 +1,118 @@
+<template>
+    <div class="container">
+        <template if:true={originalPrimaryBusinessContact}>
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_12-of-12">
+                    <div class="slds-grid slds-wrap header-container">
+                        <div class="slds-col slds-size_2-of-12 slds-large-size_1-of-12">
+                            <lightning-icon icon-name="utility:contact" size="small"></lightning-icon>
+                        </div>
+                        <div class="header slds-col slds-size_10-of-12 slds-medium-size_10-of-12 slds-large-size_11-of-12 slds-var-p-top_xx-small">
+                            Primary Business Contact
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add radio group to handle all the scenarios -->
+            <div class="slds-var-m-top_medium slds-var-m-bottom_x-large">
+                <div class="cell">
+                    <c-a-r-c_-radio-group label="Contact Selection Method" name="primaryContactMethod"
+                            options={primaryContactOptions} value={selectedPrimaryContactAction} required
+                            container-class="slds-m-bottom_medium backgound-general" onchange={handlePrimaryContactActionChange}
+                            disabled={isReadOnly}>
+                    </c-a-r-c_-radio-group>
+                </div>
+            </div>
+
+            <template if:true={selectExistingContact}>
+                <lightning-combobox
+                    label="Select Primary Business Contact"
+                    placeholder="Search contact..."
+                    options={contactOptions}
+                    value={selectedExistingContactId}
+                    onchange={handleContactChange}
+                    disabled={isReadOnly}
+                    class="slds-var-p-bottom_medium"
+                    data-name="selectNewPbc"
+                    required={isRequired}>
+                </lightning-combobox>
+            </template>
+            
+            <template if:true={editOrCreateContact}>
+                <div class="form-row-container">
+                    <template if:true={isReadOnly}>
+                        <lightning-input label="Name" type="text" name="Name"
+                            value={contactFullName} disabled class="form-row-item">
+                        </lightning-input>
+                    </template>
+    
+                    <template if:false={isReadOnly}>
+                        <lightning-input label="First Name" type="text" name="FirstName" required={isRequired}
+                            value={draftContact.contact.FirstName} class="form-row-item" onchange={handleInputChange}>
+                        </lightning-input>
+                    </template>
+                    
+                    <template if:true={originalPrimaryBusinessContact}>
+                        <lightning-input label="Title" type="text" name="Title" required={isRequired}
+                        value={draftContact.contact.Title} disabled={isReadOnly} class="form-row-item" onchange={handleInputChange}>
+                        </lightning-input>
+                    </template>
+                    
+                </div>
+    
+                <template if:false={isReadOnly}>
+                    <div class="form-row-container">
+                        <lightning-input label="Last Name" type="text" name="LastName" required={isRequired}
+                            value={draftContact.contact.LastName} class="form-row-item" onchange={handleInputChange}>
+                        </lightning-input>
+                        <div class="form-row-item"></div>
+                    </div>
+                </template>
+    
+                <template if:true={originalPrimaryBusinessContact}>
+                    <lightning-input label="Email" type="email" name="Email" data-name="Email"
+                        value={draftContact.contact.Email} onblur={handlePhoneEmailInput} disabled={isReadOnly}
+                        onchange={handleInputChange} required={isRequired}>
+                    </lightning-input>
+
+                    <lightning-input label="Phone" type="text" name="Phone" data-name="Phone"
+                        value={formattedDraftPhone} onblur={handlePhoneEmailInput} disabled={isReadOnly}
+                        onchange={handleInputChange} required={isRequired}>
+                    </lightning-input>
+                </template>                
+    
+                <lightning-combobox
+                    label="Portal Access"
+                    name="portalAccess"
+                    value={draftContact.contact.PortalAccess}
+                    options={portalAccessPicklist}
+                    onchange={handlePortalAccessChange}
+                    disabled={isReadOnly}
+                    required={isRequired}
+                    data-name="portalAccessCombobox">
+                </lightning-combobox>
+            </template>
+        </template>
+
+
+
+        <template if:false={originalPrimaryBusinessContact}>
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_12-of-12">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-var-p-top_xx-small slds-col slds-size_2-of-12 slds-large-size_1-of-12">
+                            <lightning-icon icon-name="utility:contact" size="medium"></lightning-icon>
+                        </div>
+                        <div class="header slds-col slds-size_10-of-12 slds-medium-size_10-of-12 slds-large-size_11-of-12 slds-var-p-top_x-small">
+                            Primary Business Contact
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="slds-text-color_weak">
+                A Primary Business Contact has not been assigned to this company. Please contact your Administrator for assistance.
+            </p>
+        </template>
+    </div>
+</template>

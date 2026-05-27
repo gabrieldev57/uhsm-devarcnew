@@ -1,92 +1,101 @@
-@isTest
+@IsTest
 private class AccountShareHandlerTest {
-
-    @isTest
-    static void createShareTest() {
-        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User' LIMIT 1];
-        User u = new User(
-            FirstName = 'Test', 
-            LastName = 'User', 
-            Email = 'test@test.com', 
-            Username = 'test' + System.currentTimeMillis() + '@test.com', 
-            Alias = 'Test', 
-            TimeZoneSidKey = 'America/Los_Angeles', 
-            LocaleSidKey = 'en_US',
-            LanguageLocaleKey = 'en_US',
-            EmailEncodingKey = 'UTF-8', 
-            ProfileId = p.Id
-        ); 
-
-        insert u; 
-
-        Account a = new Account(
-            Name = 'Test Account'
-        );
-        insert a;
-
-        AccountShareHandler.ShareInput shareInput = new AccountShareHandler.ShareInput();
-        shareInput.accountId = a.Id;
-        shareInput.userId = u.Id;
-        shareInput.accessLevel = 'Read';
-
-        Test.startTest(); 
-        List<AccountShareHandler.ShareResult> shareResults = AccountShareHandler.createShares(new List<AccountShareHandler.ShareInput>{shareInput}); 
-        Test.stopTest(); 
-
-        System.assertEquals(1, shareResults.size(), 'Expected 1 share result'); 
-        System.assertEquals(null, shareResults[0].errorMessage, 'Expected success'); 
-
-        List<AccountShare> shares = [SELECT Id FROM AccountShare WHERE AccountId = :a.Id AND UserOrGroupId = :u.Id];
-
-        System.assertEquals(1, shares.size(), 'Expected 1 share'); 
-
-        Integer shareCount = [SELECT COUNT() FROM AccountShare WHERE AccountId = :a.Id AND UserOrGroupId = :u.Id];
-        System.assertEquals(1, shareCount, 'Still expecting only 1 share');
-    }
-
-    @isTest
-    static void createShareDuplicateTest() {
-        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User' LIMIT 1];
-        User u = new User(
-            FirstName = 'Test', 
-            LastName = 'User', 
-            Email = 'test@test.com', 
-            Username = 'test' + System.currentTimeMillis() + '@test.com', 
-            Alias = 'Test', 
-            TimeZoneSidKey = 'America/Los_Angeles', 
-            LocaleSidKey = 'en_US',
-            LanguageLocaleKey = 'en_US',
-            EmailEncodingKey = 'UTF-8', 
-            ProfileId = p.Id
-        ); 
-
-        insert u; 
-
-        Account a = new Account(
-            Name = 'Test Account'
-        );
-        insert a;
-
-        AccountShareHandler.ShareInput shareInput = new AccountShareHandler.ShareInput();
-        shareInput.accountId = a.Id;
-        shareInput.userId = u.Id;
-        shareInput.accessLevel = 'Read';
-
-        Test.startTest(); 
-        List<AccountShareHandler.ShareResult> shareResults = AccountShareHandler.createShares(new List<AccountShareHandler.ShareInput>{shareInput}); 
-        List<AccountShareHandler.ShareResult> shareResults2 = AccountShareHandler.createShares(new List<AccountShareHandler.ShareInput>{shareInput}); 
-        Test.stopTest(); 
-
-        System.assertEquals(1, shareResults.size(), 'Expected 1 share result'); 
-        System.assertEquals(null, shareResults[0].errorMessage, 'Expected success'); 
-
-        List<AccountShare> shares = [SELECT Id FROM AccountShare WHERE AccountId = :a.Id AND UserOrGroupId = :u.Id];
-
-        System.assertEquals(1, shares.size(), 'Expected 1 share'); 
-
-        System.assertEquals(1, shareResults2.size(), 'Expected 1 share result'); 
-
-        Integer shareCount = [SELECT COUNT() FROM AccountShare WHERE AccountId = :a.Id AND UserOrGroupId = :u.Id];
-        System.assertEquals(1, shareCount, 'Still expecting only 1 share');
-    }
+   @TestSetup
+   static void setupData() {
+       // Create a test user who will be added to the Account Team
+       Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+       User testUser = new User(
+           Alias = 'tuser',
+           Email = 'testuser@example.com',
+           EmailEncodingKey = 'UTF-8',
+           LastName = 'Tester',
+           LanguageLocaleKey = 'en_US',
+           LocaleSidKey = 'en_US',
+           TimeZoneSidKey = 'America/Los_Angeles',
+           ProfileId = p.Id,
+           Username = 'tuser' + DateTime.now().getTime() + '@example.com'
+       );
+       insert testUser;
+       // Insert Accounts
+       insert new List<Account>{
+           new Account(Name = 'Test Account 1'),
+           new Account(Name = 'Test Account 2')
+       };
+   }
+   @IsTest
+   static void testAddTeamMembers() {
+       User testUser = [SELECT Id FROM User WHERE Alias = 'tuser' LIMIT 1];
+       List<Account> accounts = [SELECT Id, Name FROM Account];
+       AccountShareHandler.InputWrapper input = new AccountShareHandler.InputWrapper();
+       input.accountIds = new List<Id>();
+       for (Account a : accounts) {
+           input.accountIds.add(a.Id);
+       }
+       input.userId = testUser.Id;
+       input.role = 'Client Coordinator';
+       input.accessLevel = 'Edit';
+       Test.startTest();
+       AccountShareHandler.addTeamMembers(new List<AccountShareHandler.InputWrapper>{ input });
+       Test.stopTest();
+       List<AccountTeamMember> atms = [
+           SELECT AccountId, UserId, TeamMemberRole, AccountAccessLevel
+           FROM AccountTeamMember
+           WHERE UserId = :testUser.Id
+       ];
+       System.assertEquals(accounts.size(), atms.size(), 'Should create team members for each account');
+       for (AccountTeamMember atm : atms) {
+           System.assertEquals('Client Coordinator', atm.TeamMemberRole);
+           System.assertEquals('Edit', atm.AccountAccessLevel);
+       }
+   }
+   @IsTest
+   static void testIdempotency_NoDuplicates() {
+       User testUser = [SELECT Id FROM User WHERE Alias = 'tuser' LIMIT 1];
+       List<Account> accounts = [SELECT Id FROM Account];
+       AccountShareHandler.InputWrapper input = new AccountShareHandler.InputWrapper();
+       input.accountIds = new List<Id>();
+       for (Account a : accounts) {
+           input.accountIds.add(a.Id);
+       }
+       input.userId = testUser.Id;
+       input.role = 'Client Coordinator';
+       input.accessLevel = 'Edit';
+       // Call twice
+       Test.startTest();
+       AccountShareHandler.addTeamMembers(new List<AccountShareHandler.InputWrapper>{ input });
+       AccountShareHandler.addTeamMembers(new List<AccountShareHandler.InputWrapper>{ input });
+       Test.stopTest();
+       Integer count = [SELECT COUNT() FROM AccountTeamMember WHERE UserId = :testUser.Id];
+       System.assertEquals(accounts.size(), count, 'No duplicate AccountTeamMembers should exist');
+   }
+   @IsTest
+   static void testNoAccounts_NoCrash() {
+       User testUser = [SELECT Id FROM User WHERE Alias = 'tuser' LIMIT 1];
+       AccountShareHandler.InputWrapper input = new AccountShareHandler.InputWrapper();
+       input.accountIds = new List<Id>(); // empty list
+       input.userId = testUser.Id;
+       input.role = 'Client Coordinator';
+       input.accessLevel = 'Read';
+       Test.startTest();
+       AccountShareHandler.addTeamMembers(new List<AccountShareHandler.InputWrapper>{ input });
+       Test.stopTest();
+       // Verify nothing inserted
+       Integer count = [SELECT COUNT() FROM AccountTeamMember WHERE UserId = :testUser.Id];
+       System.assertEquals(0, count, 'No accounts means no ATM should be created');
+   }
+   @IsTest
+   static void testNullAccounts_NoCrash() {
+       User testUser = [SELECT Id FROM User WHERE Alias = 'tuser' LIMIT 1];
+       AccountShareHandler.InputWrapper input = new AccountShareHandler.InputWrapper();
+       input.accountIds = null; // simulate Flow sending null
+       input.userId = testUser.Id;
+       input.role = 'Client Coordinator';
+       input.accessLevel = 'Read';
+       Test.startTest();
+       AccountShareHandler.addTeamMembers(new List<AccountShareHandler.InputWrapper>{ input });
+       Test.stopTest();
+       // Verify nothing inserted
+       Integer count = [SELECT COUNT() FROM AccountTeamMember WHERE UserId = :testUser.Id];
+       System.assertEquals(0, count, 'Null accounts should not cause any inserts');
+   }
 }

@@ -1,0 +1,29 @@
+<template>
+    <div class="preview-container">
+        <template if:true={isLoading}>
+            <lightning-spinner
+                alternative-text="Loading invoice"
+                size="medium">
+            </lightning-spinner>
+        </template>
+
+        <template if:true={hasUrl}>
+            <iframe
+                src={url}
+                height={height}
+                width={width}
+                referrerpolicy={referrerPolicy}
+                title="Invoices"
+                class="invoice-frame">
+            </iframe>
+        </template>
+
+        <template if:false={hasUrl}>
+            <template if:false={isLoading}>
+                <div class="empty-state">
+                    Unable to load invoice preview.
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

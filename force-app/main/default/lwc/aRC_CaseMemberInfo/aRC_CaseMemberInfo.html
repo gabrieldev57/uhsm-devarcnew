@@ -1,8 +1,87 @@
 <template>
-    <div data-id="expandable-section" class="slds-card slds-theme_default slds-card--border slds-m-bottom--medium slds-section slds-is-open"> 
+    <!-- <template if:true={showComponent}> -->
+    <!-- Employer Information Card -->
+    <template if:true={showEmployerSection}>
+        <div data-id="expandable-section" class="slds-card slds-theme_default slds-card--border slds-m-bottom--medium slds-section slds-is-open">
+            <div class="slds-card__body slds-card__body_inner">
+                <div class="slds-col">
+                    <h3 data-section="employer" class="slds-section__title slds-truncate slds-var-p-around_xx-small slds-theme_shade label" onclick={handleClick}>
+                        <button class="slds-button slds-section__title-action">
+                            <lightning-icon icon-name="utility:switch" size="x-small" class="slds-section__title-action-icon slds-button__icon slds-button__icon_left"></lightning-icon>
+                            <span class="slds-truncate" title="Section Title">Employer Information</span>
+                        </button>
+                    </h3>
+                    <!-- Inputs and Data -->
+                    <template if:true={employerData}>
+                        <div class="slds-var-p-horizontal_small slds-var-p-vertical_x-small slds-section__content content">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_1-of-2 first-column">
+                                    <div class="slds-form-element_readonly slds-grid slds-wrap">
+                                        <label class="slds-form-element__label slds-col slds-size_1-of-1">Name 
+                                            <lightning-helptext content="Name of the Employer associated with the Case" data-cy="nameHelpText"></lightning-helptext> 
+                                        </label>
+                                        <div class="slds-col slds-size_11-of-12">
+                                            <!-- <a href="javascript:void(0);" onclick={navigateToPARecord}><input class="slds-input clickable-contract" type="url"  value={employerAccountName} readonly=""> </a> -->
+                                            <lightning-formatted-url
+                                                value={employerUrl}
+                                                label={employerAccountName}
+                                                target="_blank">
+                                            </lightning-formatted-url>
+                                        </div>
+                                    </div>
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">Group Number 
+                                            <lightning-helptext content="Group Number of the Employer" data-cy="groupNumberHelpText"></lightning-helptext> 
+                                        </label>
+                                        <input class="slds-input" type="text" value={employerGroupNumber} readonly="">
+                                    </div>
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">Original Effective Date 
+                                            <lightning-helptext content="Original Effective Date  of the Employer" data-cy="originalEffectiveDateHelpText"></lightning-helptext> 
+                                        </label>
+                                        <input class="slds-input" type="text" value={formattedContractDate} readonly="">
+                                        <!-- <lightning-formatted-date-time
+                                            class=""
+                                            value={employerContractOED}
+                                            year="numeric"
+                                            month="2-digit"
+                                            day="2-digit">
+                                        </lightning-formatted-date-time> -->
+                                    </div>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">Primary Contact Name
+                                            <lightning-helptext content="Primary Contact's Name" data-cy="primaryContactNameHelpText"></lightning-helptext> 
+                                        </label>
+                                        <input class="slds-input" type="text"  value={employerPCName} readonly="">
+                                    </div>
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">Primary Contact Phone 
+                                            <lightning-helptext content="Primary Contact's Phone" data-cy="primaryContactPhoneHelpText"></lightning-helptext> 
+                                        </label>
+                                        <input class="slds-input" type="text"  value={employerPCPhone} readonly="">
+                                    </div>
+                                    <div class="slds-form-element_readonly">
+                                        <label class="slds-form-element__label">Primary Contact Email 
+                                            <lightning-helptext content="Primary Contact's Email" data-cy="primaryContactEmailHelpText"></lightning-helptext> 
+                                        </label>
+                                        <input class="slds-input" type="text"  value={employerPCEmail} readonly="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Member Information Card -->
+    <div  data-id="expandable-section" class="slds-card slds-theme_default slds-card--border slds-m-bottom--medium slds-section slds-is-open">
         <div class="slds-card__body slds-card__body_inner">
             <div class="slds-col"> 
-                <h3 class="slds-section__title slds-truncate slds-p-around_xx-small slds-theme_shade label" onclick={handleClick}>
+                <h3 data-section="member" class="slds-section__title slds-truncate slds-p-around_xx-small slds-theme_shade label" onclick={handleClick}>
                     <button class="slds-button slds-section__title-action">
                         <lightning-icon icon-name="utility:switch" size="x-small" class="slds-section__title-action-icon slds-button__icon slds-button__icon_left"></lightning-icon>
                         <span class="slds-truncate" title="Section Title">Member Info</span>
@@ -44,6 +123,7 @@
                                     </template>
                                     </label>
                                     <input class="slds-input" type="text" value={activePlan} readonly="">
+                                    <!-- <input class="slds-input" type="text" value={activeCoverages} readonly=""> -->
                                 </div>
                             </div> 
                             <div class="slds-col slds-size_1-of-2">
@@ -69,6 +149,7 @@
                                     <div class="slds-form-element_readonly">
                                         <label class="slds-form-element__label">Member Effective Date <lightning-helptext content="Member’s original effective date. Tells us how long a member has been a UHSM member, not necessarily how long they’ve been active on their current program. Restarts if break in coverage." data-cy="effDateHelpText"></lightning-helptext> </label>
                                         <input class="slds-input" type="text"  value={formattedFirstDate} readonly="">
+                                        <!-- <input class="slds-input" type="text"  value={formattedContinuousCoverageStartDate} readonly=""> -->
                                     </div>
                                 </template>
                             </div>
@@ -105,4 +186,5 @@
             </div>
         </div>
     </div>
+    <!-- </template> -->
 </template>

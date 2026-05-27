@@ -15,7 +15,7 @@ public with sharing class ARC_VoidClaimTest {
 
         InsurancePolicyParticipant ipp = ARC_TestUtility.createTestPolicyParticipant(1)[0];
 
-        InsurancePolicy pol = ARC_TestUtility.createTestPolicies(1)[0];
+        InsurancePolicy pol = ARC_TestUtility.createTestPolicies(1, 'ARC_IndividualAndFamily')[0];
         clm.PolicyNumberId = pol.Id;
         clm.ARC_ParticipantPolicyParticipant__c = ipp.Id;
         clm.ARC_DOSFrom__c = System.Today();
@@ -70,11 +70,11 @@ public with sharing class ARC_VoidClaimTest {
             ipt.vlocity_ins_fsc__InsurancePolicyId__c = pol.Id;                
             ipt.ARC_CurrentValue__c = 100;
             ipt.ARC_Remaining_Number__c = 100;      
-            ipt.vlocity_ins_fsc__InsurancePolicyParticipantId__c=ipp.Id;   
-            ipt.ARC_Year__c=System.Today().Year();
+            ipt.vlocity_ins_fsc__InsurancePolicyParticipantId__c = ipp.Id;   
+            ipt.ARC_Year__c = System.Today().Year();
             switch on ij {
                 when 0 {
-                    ipt.vlocity_ins_fsc__AttributeId__c =atts[ij].Id ;              }
+                    ipt.vlocity_ins_fsc__AttributeId__c =atts[ij].Id;               }
                 when 1 {
                     ipt.vlocity_ins_fsc__AttributeId__c =atts[ij].Id;               }
                 when 2 {

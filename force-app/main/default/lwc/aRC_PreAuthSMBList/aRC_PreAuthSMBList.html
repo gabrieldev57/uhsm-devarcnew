@@ -1,0 +1,27 @@
+<template>
+    <lightning-card title="Claims" icon-name="standard:partner_fund_claim">
+        
+        <template if:true={smbs}>
+            <lightning-datatable
+                key-field="Id"
+                data={smbs}
+                columns={columns}
+                hide-checkbox-column
+            >
+            </lightning-datatable>
+        </template>
+
+        <template if:false={smbs}>
+            <div class="slds-p-around_small">
+                No related Claims found
+            </div>
+        </template>
+
+        <template if:true={error}>
+            <div class="slds-text-color_error slds-p-around_small">
+                Error loading Claims
+            </div>
+        </template>
+
+    </lightning-card>
+</template>

@@ -3,13 +3,23 @@
     <apiVersion>63.0</apiVersion>
     <packageVersions>
         <majorNumber>7</majorNumber>
-        <minorNumber>70</minorNumber>
+        <minorNumber>75</minorNumber>
         <namespace>ChargentBase</namespace>
+    </packageVersions>
+    <packageVersions>
+        <majorNumber>7</majorNumber>
+        <minorNumber>90</minorNumber>
+        <namespace>ChargentOrders</namespace>
     </packageVersions>
     <packageVersions>
         <majorNumber>890</majorNumber>
         <minorNumber>339</minorNumber>
         <namespace>vlocity_ins</namespace>
+    </packageVersions>
+    <packageVersions>
+        <majorNumber>891</majorNumber>
+        <minorNumber>65</minorNumber>
+        <namespace>vlocity_ins_fsc</namespace>
     </packageVersions>
     <status>Active</status>
 </ApexClass>

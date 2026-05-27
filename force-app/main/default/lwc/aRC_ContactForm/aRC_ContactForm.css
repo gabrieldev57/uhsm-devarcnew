@@ -1,0 +1,59 @@
+/* ContactForm Styles */
+
+:host {
+    display: block;
+}
+
+/* Card Styling */
+.contact-form-card {
+    background-color: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* .contact-form-header {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+} */
+
+.custom-header-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    flex-shrink: 0;
+    background-color: #F2BC30;
+
+    -webkit-mask-image: var(--icon-url);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+
+    mask-image: var(--icon-url);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+}
+.contact-form-header lightning-icon {
+    --sds-c-icon-color-foreground-default: #0176d3;
+}
+
+.contact-form-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #181818;
+}
+
+.contact-form-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.contact-form-body {
+    padding: 1rem;
+}

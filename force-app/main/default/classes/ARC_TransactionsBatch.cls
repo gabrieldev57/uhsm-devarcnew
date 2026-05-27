@@ -30,6 +30,7 @@ global class ARC_TransactionsBatch implements Database.Batchable<sObject>,Schedu
             AND (ChargentOrders__Order__r.ARC_Contract__r.Status = 'Awaiting Activation' OR ChargentOrders__Order__r.ARC_Contract__r.Status = 'Activated' OR ChargentOrders__Order__r.ARC_Contract__r.Status = 'Awaiting First Payment')
             AND CreatedDate = YESTERDAY
             AND Census__c != null
+            AND ARC_ContractRecordTypeName__c = 'ARC_IndividualAndFamily'
             ORDER BY ChargentOrders__Gateway_Date__c DESC
         ]);
         
@@ -101,6 +102,8 @@ global class ARC_TransactionsBatch implements Database.Batchable<sObject>,Schedu
         Map<String,Object> approvedRecurring = new Map<String,Object>();
         Map<String,Object> declinedRecurring = new Map<String,Object>();
         Map<String,Object> declinedAppFee = new Map<String,Object>();
+
+        System.debug('CM by Census TEST: ' + cmByCensus.get('a3rca000000LmPpAAK'));
         
         for (ChargentOrders__Transaction__c t : transactions) {
             Map<String, Object> email = new Map<String, Object>();

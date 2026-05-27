@@ -57,7 +57,7 @@ global without sharing class ARC_FormCensusController implements vlocity_ins.Vlo
                    vlocity_ins__Gender__c, ARC_Relationship__c, vlocity_ins__Email__c, ARC_Phone__c, vlocity_ins__SocialSecurityNumber__c, 
                    ARC_HeightFeet__c, ARC_HeightInches__c, ARC_Weight__c, ARC_PhysicalAddressCity__c, ARC_PhysicalAddressState__c, 
                    ARC_PhysicalAddressStreet__c, ARC_PhysicalAddressZipCode__c, ARC_UpdateAllAddress__c, ARC_Age__c, ARC_Smoker__c, 
-                   vlocity_ins__IsPrimaryMember__c,ARC_isPregnant__c, vlocity_ins__ContactId__r.AccountId, vlocity_ins__ContactId__c, vlocity_ins__MemberIdentifier__c
+                   vlocity_ins__IsPrimaryMember__c,ARC_isPregnant__c, vlocity_ins__ContactId__r.AccountId, vlocity_ins__ContactId__c,vlocity_ins__ContactId__r.Account.IsActive, vlocity_ins__MemberIdentifier__c
             FROM vlocity_ins__GroupCensusMember__c
             WHERE Id IN :censusMemberIds
             ORDER BY vlocity_ins__IsPrimaryMember__c DESC, vlocity_ins__IsSpouse__c DESC, vlocity_ins__Birthdate__c ASC
@@ -124,7 +124,8 @@ global without sharing class ARC_FormCensusController implements vlocity_ins.Vlo
             'FROM vlocity_ins__GroupCensusMemberPlan__c ' +
             'WHERE vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c IN :contractsInvolved ' +
             'AND vlocity_ins__GroupCensusMemberId__c NOT IN :censusMemberIds ' +
-            'AND vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.Account.IsActive = false ' +
+            'AND (vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.Account.IsActive = false ' +
+            'OR vlocity_ins__GroupCensusMemberId__r.ARC_Relationship__c = \'Temporary Newborn\') ' +
             'ORDER BY vlocity_ins__GroupCensusMemberId__r.vlocity_ins__IsPrimaryMember__c DESC, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__IsSpouse__c DESC, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__Birthdate__c ASC'
         );
 
@@ -157,8 +158,9 @@ global without sharing class ARC_FormCensusController implements vlocity_ins.Vlo
         'vlocity_ins__Gender__c, ARC_Relationship__c, vlocity_ins__Email__c, ARC_Phone__c, vlocity_ins__SocialSecurityNumber__c, ' +
         'ARC_HeightFeet__c, ARC_HeightInches__c, ARC_Weight__c, ARC_PhysicalAddressCity__c, ARC_PhysicalAddressState__c, ' +
         'ARC_PhysicalAddressStreet__c, ARC_PhysicalAddressZipCode__c, ARC_UpdateAllAddress__c, ARC_Age__c, ARC_Smoker__c, ARC_isPregnant__c,' +
-        'vlocity_ins__IsPrimaryMember__c, vlocity_ins__ContactId__r.AccountId, vlocity_ins__MemberIdentifier__c, vlocity_ins__ContactId__c ' +
+        'vlocity_ins__IsPrimaryMember__c, vlocity_ins__ContactId__r.AccountId,vlocity_ins__ContactId__r.Account.IsActive, vlocity_ins__MemberIdentifier__c, vlocity_ins__ContactId__c ' +
         'FROM vlocity_ins__GroupCensusMember__c WHERE Id = \'' + String.valueOf(censusMemberId) + '\' ';
+
 
         vlocity_ins__GroupCensusMember__c inactiveMember = Database.query(query);
         output_map.put('census_member_details', createMemberMap(inactiveMember, null, null));
@@ -194,6 +196,7 @@ global without sharing class ARC_FormCensusController implements vlocity_ins.Vlo
             'vlocity_ins__LastName__c' => member.vlocity_ins__LastName__c,
             'PersonAccountId' => member.vlocity_ins__ContactId__r.AccountId,
             'PersonContactId' => member.vlocity_ins__ContactId__c,
+            'IsActive' => member?.vlocity_ins__ContactId__r?.Account?.IsActive,
             'vlocity_ins__MemberIdentifier__c' => member.vlocity_ins__MemberIdentifier__c,
             'ARC_MiddleInitial__c' => member.ARC_MiddleInitial__c,
             'vlocity_ins__Birthdate__c' => member.vlocity_ins__Birthdate__c,

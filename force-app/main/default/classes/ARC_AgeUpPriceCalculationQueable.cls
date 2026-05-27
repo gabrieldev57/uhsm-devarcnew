@@ -9,14 +9,24 @@ public class ARC_AgeUpPriceCalculationQueable implements Queueable {
 
     public void execute(QueueableContext context) {
         Set<Id> contractIds = new Set<Id>();
+        Set<Id> contractBypassIds = new Set<Id>();
+
         for (Ages_Up__c ageUp : ageUps) {
-            contractIds.add(ageUp.Contract__c);
+            if(ageUp.ARC_BypassContractEffectiveCheck__c == true){
+                contractBypassIds.add(ageUp.Contract__c);
+            } else {
+                contractIds.add(ageUp.Contract__c);
+            }
         }
+
+        system.debug(ageUps);
+        system.debug(contractIds);
 
         Map<Id, vlocity_ins__ContractLineItem__c> plans = new Map<Id, vlocity_ins__ContractLineItem__c>(ARC_AgeUp.getPlans(contractIds));
         Map<Id, List<vlocity_ins__GroupCensusMember__c>> planMembers = mapPlanMembers(plans);
         Map<Id, Date> contractEffectiveDates = mapContractEffectiveDates(ageUps);
         Map<Id, Date> planEffectiveDates = mapPlansEffectiveDate(plans, contractEffectiveDates);
+
         Map<Id, List<Map<String,Object>>> planUserInputs = mapPlanUserInputs(mapPlanMembers(plans), planEffectiveDates);
         
         List<ARC_PriceCalculation.PlanPricingInput> pricingInputs = new List<ARC_PriceCalculation.PlanPricingInput>();
@@ -31,6 +41,28 @@ public class ARC_AgeUpPriceCalculationQueable implements Queueable {
 
             pricingInputs.add(input);
         }
+
+        if (!contractBypassIds.isEmpty()) {
+            Map<Id, vlocity_ins__ContractLineItem__c> plansBypass = new Map<Id, vlocity_ins__ContractLineItem__c>(ARC_AgeUp.getPlans(contractBypassIds));
+            Map<Id, List<vlocity_ins__GroupCensusMember__c>> planMembersBypass = mapPlanMembers(plansBypass);
+            // //Map<Id, Date> contractEffectiveDates = mapContractEffectiveDates(ageUps);
+            Map<Id, Date> planEffectiveDatesByPass = mapPlansEffectiveDate(plansBypass, contractEffectiveDates);
+            Map<Id, List<Map<String,Object>>> planUserInputsBypass = mapPlanUserInputsBypass(planMembersBypass, planEffectiveDatesByPass, contractBypassIds);
+            for (Id planId : planUserInputsBypass.keySet()) {
+                ARC_PriceCalculation.PlanPricingInput input = new ARC_PriceCalculation.PlanPricingInput();
+                input.planId = planId;
+                input.productId = plansBypass.get(planId).vlocity_ins__Product2Id__c;
+                input.priceBeforeAgeUp = plansBypass.get(planId).vlocity_ins__UnitPrice__c;
+                input.contractId = plansBypass.get(planId).vlocity_ins__ContractId__c;  // Add this line
+                input.userInputs = planUserInputsBypass.get(planId);
+                input.plan = plansBypass.get(planId);
+
+                pricingInputs.add(input);
+            }
+            
+        }
+
+
         ARC_PriceCalculation priceCalc = new ARC_PriceCalculation(pricingInputs);
         List<ARC_PriceCalculation.PlanPricingResult> results = priceCalc.calculatePrices();
         
@@ -147,6 +179,109 @@ public class ARC_AgeUpPriceCalculationQueable implements Queueable {
             mapPlanUserInputs.put(planId, memberInputs);
         }
         return mapPlanUserInputs;
+    }
+
+    private static Map<Id, List<Map<String,Object>>> mapPlanUserInputsBypass(Map<Id, List<vlocity_ins__GroupCensusMember__c>> planMembersBypass, Map<Id, Date> planEffectiveDatesByPass, Set<Id> contractBypassIds){
+        Map<Id, List<Map<String,Object>>> mapPlanUserInputsBypass = new Map<Id, List<Map<String,Object>>>();
+        Map<Id, ARC_ContractParticipant__c> accountidcContractParticipantMap = new Map<Id, ARC_ContractParticipant__c>();
+
+        List<Contract> retriveContractsDataList = [
+            SELECT Id, ARC_EffectiveDate__c, Status,
+                (SELECT Id, Name, ARC_Relationship__c, ARC_BirthDate__c, ARC_PersonAccount__c, ARC_Address__StateCode__s, ARC_Smoker__c FROM Contract_Participants__r)
+            FROM Contract
+            WHERE Id IN :contractBypassIds
+        ];
+
+        for (Contract c : retriveContractsDataList) {
+            
+            for (ARC_ContractParticipant__c cp : c.Contract_Participants__r) {
+                accountidcContractParticipantMap.put(cp.ARC_PersonAccount__c, cp);
+                system.debug('cp ' + cp);
+            }
+            
+        }
+
+        for(Id planId : planMembersBypass.keySet()){
+            List<Map<String,Object>> memberInputs = new List<Map<String,Object>>();
+
+            Integer totalMembers = 0;
+            Integer countPrimary = 0;
+            Integer countSpouse = 0;
+            Integer countChilds = 0;
+            Integer oldestMemberAge = 0;
+
+            system.debug('planId '+ planId);
+
+            for(vlocity_ins__GroupCensusMember__c member : planMembersBypass.get(planId)){
+                Id memberAccountId = member.vlocity_ins__ContactId__r.AccountId;
+                String relationship = accountidcContractParticipantMap.get(memberAccountId).ARC_Relationship__c;
+                Date memberBirthdate = accountidcContractParticipantMap.get(memberAccountId).ARC_BirthDate__c;
+
+                Integer memberAge = calculateAge(memberBirthdate, planEffectiveDatesByPass.get(planId));
+                if(memberAge > oldestMemberAge){
+                    oldestMemberAge = memberAge;
+                }
+
+                totalMembers++;
+
+                if(relationship == 'Primary') {
+                    countPrimary++;
+                } else if(relationship == 'Spouse') {
+                    countSpouse++;
+                } else if(relationship == 'Child') {
+                    countChilds++;
+                }
+                
+            }
+
+            String coverageAIDD;
+            String coverageSMART;
+            Integer extraDependants = Math.max(countChilds - 3, 0);
+            Integer dependants = totalMembers - 1;
+            Boolean spouseIsPrimaryOnPlan = countPrimary == 0 && countSpouse == 1 ? true : false;
+
+            // Set Coverages for Anillaries
+            if((countPrimary == 1 && countSpouse == 0 && countChilds == 0) || (countPrimary == 0 && countSpouse == 1 && countChilds == 0)){
+                coverageSMART = 'Primary';
+                coverageAIDD = 'Primary';
+            } else if(countPrimary == 1 && countSpouse == 1 && countChilds == 0){
+                coverageSMART = 'Primary + Spouse';
+                coverageAIDD = 'Primary + Spouse'; 
+            } else if((countPrimary == 1 && countSpouse == 0 && countChilds > 0) || (countPrimary == 0 && countSpouse == 1 && countChilds > 0)){
+                coverageSMART = 'Primary + Child';
+                coverageAIDD = 'Primary + Children';
+            } else {
+                coverageSMART = 'Family';
+                coverageAIDD = 'Family';
+            }
+
+            for(vlocity_ins__GroupCensusMember__c member : planMembersBypass.get(planId)){
+                Id memberAccountId = member.vlocity_ins__ContactId__r.AccountId;
+                String relationship = accountidcContractParticipantMap.get(memberAccountId).ARC_Relationship__c;
+                Boolean isSmoker = accountidcContractParticipantMap.get(memberAccountId).ARC_Smoker__c == true ? true : false;
+                String memberState = accountidcContractParticipantMap.get(memberAccountId).ARC_Address__StateCode__s;
+                Boolean isPrimary = relationship == 'Primary' || relationship == 'Spouse' && spouseIsPrimaryOnPlan == true ? true : false;
+
+                Map<String,Object> input = new Map<String,Object>{
+                    'RF_Census.CM_IsPrimary' => isPrimary,
+                    'RF_Census.CM_Smoker' => isSmoker,
+                    'RF_Census.CRF_PrimaryMemberAge' => oldestMemberAge,
+                    'RF_Census.CRF_ExtraDependants' => extraDependants,
+                    'RF_Census.CRF_Dependants' => dependants,
+                    'RF_Census.CM_State' => memberState,
+                    'RF_Census.CRF_CoverageAIDD' => coverageAIDD,
+                    'RF_Census.CRF_Coverage' => coverageSMART
+                };
+
+                system.debug('input ' + input);
+                memberInputs.add(input);
+            }
+
+            mapPlanUserInputsBypass.put(planId, memberInputs);
+        }
+
+
+        return mapPlanUserInputsBypass;
     }
 
     private  Map<Id, Date> mapContractEffectiveDates(List<Ages_Up__c> ageUps){

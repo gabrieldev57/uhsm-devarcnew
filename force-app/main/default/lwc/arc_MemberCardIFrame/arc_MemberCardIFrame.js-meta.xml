@@ -3,6 +3,7 @@
     <apiVersion>52.0</apiVersion>
     <targets>
     <target>lightningCommunity__Page</target>
+    <target>lightningCommunity__Default</target>
 </targets>
     <isExposed>true</isExposed>
     <runtimeNamespace>vlocity_ins</runtimeNamespace>

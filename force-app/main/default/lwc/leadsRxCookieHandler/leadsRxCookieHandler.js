@@ -8,7 +8,6 @@ export default class LeadsRxCookieHandler extends OmniscriptBaseMixin(LightningE
     connectedCallback() {
         // Retrieve the cookies when the component is loaded
         this.getCookieFromEvent();
-        
     }
 
     // Function to dispatch event to get cookies from the Head Markup

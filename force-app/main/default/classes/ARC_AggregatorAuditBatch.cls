@@ -4,7 +4,6 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
     private String condition;
     // Holds flagged results between executions
     List<String> reportLines = new List<String>();
-    List<ARC_Aggregator__c> aggregatorsToUpdate = new List<ARC_Aggregator__c>();
     List<Id> aggregatorsExceedingLimits = new List<Id>();
 
     // // Define years to include
@@ -44,18 +43,18 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
             query += 'AND ' + condition;
         }
         query += ' ORDER BY ARC_Member__c, ARC_Code__c, ARC_Year__c';
-        query += ' LIMIT 200';
 
         
         return Database.getQueryLocator(query);
     }
 
     global void execute(Database.BatchableContext context, List<ARC_Aggregator__c> aggregators) {
-        // // Preload member anniversary map
+        List<ARC_Aggregator__c> aggregatorsToUpdate = new List<ARC_Aggregator__c>();
         
+        // // Preload member anniversary map
         preloadCoveragePeriods(aggregators);
-        System.debug('------------ coverage periods --------------');
-        System.debug(memberCoveragePeriods);
+        // System.debug('------------ coverage periods --------------');
+        // System.debug(memberCoveragePeriods);
 
         // KEY : Date|Member 
         // Value: aggs list 
@@ -63,11 +62,11 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
 
         for (ARC_Aggregator__c agg : aggregators) {
             if (String.isBlank(agg.ARC_Year__c) || agg.ARC_Member__c == null) continue;
-            System.debug(' ------ ------ ------ ------ ------ ------ ------ ');
-            System.debug(' ------ ------ ------ ------ ------ ------ ------ ');
-            System.debug('Code: ' + agg.ARC_Code__c);
-            System.debug('Year: ' + agg.ARC_Year__c);
-            System.debug('member Name: ' + agg.ARC_Member__r.Name);
+            // System.debug(' ------ ------ ------ ------ ------ ------ ------ ');
+            // System.debug(' ------ ------ ------ ------ ------ ------ ------ ');
+            // System.debug('Code: ' + agg.ARC_Code__c);
+            // System.debug('Year: ' + agg.ARC_Year__c);
+            // System.debug('member Name: ' + agg.ARC_Member__r.Name);
 
             Integer year;
             try {
@@ -77,29 +76,29 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
             }
             Date aggEffDate = agg.ARC_CreatedIn__r.ARC_EffectiveDate__c;
             Date[] aggRange = coverageRange(agg.ARC_Member__c, year, aggEffDate); 
-            System.debug('Aggregator Range: ' + aggRange);
+            // System.debug('Aggregator Range: ' + aggRange);
             if (aggRange == null) continue;
 
             Date contCoverageDate = aggRange[0]; // ranges are based on the appropriate date for newborn cases
             // generate key Date|Member para preexAggsMap
             String rangeMemberKey = contCoverageDate + '|' + agg.ARC_Member__c;
-            System.debug('rangeMemberKey: ' + rangeMemberKey);
+            // System.debug('rangeMemberKey: ' + rangeMemberKey);
             Integer continuousYears = calculateContinuousYears(agg.ARC_Member__c, year, contCoverageDate, aggRange);
-            System.debug('continuousYears : ' + continuousYears);
+            // System.debug('continuousYears : ' + continuousYears);
             if (agg.ARC_Code__c == 'MAT__c') {
                 Decimal expectedLimit;
                 expectedLimit = getExpectedMatLimit(continuousYears); // 1 year progression
-                // System.debug('Current Limit : ' + agg.ARC_LimitValue__c);
-                // System.debug('Expected Limit : ' + expectedLimit);
+                // // System.debug('Current Limit : ' + agg.ARC_LimitValue__c);
+                // // System.debug('Expected Limit : ' + expectedLimit);
                 if (expectedLimit != null && agg.ARC_LimitValue__c != expectedLimit) {
                     reportLines.add(formatLine(agg, continuousYears, expectedLimit));
-                    fixMaternityAggregator(agg, expectedLimit);
+                    aggregatorsToUpdate.add(fixMaternityAggregator(agg, expectedLimit));
                 }
             } else if (agg.ARC_Code__c == 'PREEX__c') {
                 // List<ARC_Aggregator__c> preexAggsList = preexAggsMap.containsKey(rangeMemberKey) ? preexAggsMap.get(rangeMemberKey) : null;
                 Map<String, Object> expectedValues = getExpectedPreexLimit(continuousYears, contCoverageDate);
-                System.debug('Current Limit : ' + agg);
-                System.debug('Expected Values: ' + expectedValues);
+                // System.debug('Current Limit : ' + agg);
+                // System.debug('Expected Values: ' + expectedValues);
                 if (expectedValues.get('aggLimit') != null && agg.ARC_LimitValue__c != (Decimal)expectedValues.get('aggLimit')
                     || agg.ARC_BY1_Limit__c != (Decimal)expectedValues.get('BY1_Limit')
                     || agg.ARC_BY2_Limit__c != (Decimal)expectedValues.get('BY2_Limit')
@@ -108,7 +107,7 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
                     || agg.ARC_BY2_Date__c != (Date)expectedValues.get('BY2_Date')
                     || agg.ARC_BY3_Date__c != (Date)expectedValues.get('BY3_Date') ){
                     reportLines.add(formatLine(agg, continuousYears, (Decimal)expectedValues.get('aggLimit')));
-                    fixPreexAggregator(agg, (Decimal)expectedValues.get('aggLimit'), contCoverageDate);
+                    aggregatorsToUpdate.add(fixPreexAggregator(agg, (Decimal)expectedValues.get('aggLimit'), contCoverageDate));
                 }
                 
                 if(!preexAggsMap.containsKey(rangeMemberKey)){
@@ -117,21 +116,20 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
                 preexAggsMap.get(rangeMemberKey).add(agg);
             }
         }
-        System.debug('---------------------------- RUN UPDATE: ' + runUpdate);
-        System.debug('----------------------------AGGREGATORS TO UPDATE----------------------------');
+        // System.debug('---------------------------- RUN UPDATE: ' + runUpdate);
+        // System.debug('----------------------------AGGREGATORS TO UPDATE----------------------------');
         List<ARC_Aggregator__c> remainingAggregators = new List<ARC_Aggregator__c>();
         for (ARC_Aggregator__c agg : aggregatorsToUpdate) {
             if (agg.ARC_CurrentValue__c > agg.ARC_LimitValue__c) {
                 aggregatorsExceedingLimits.add(agg.Id);
             } else {
                 remainingAggregators.add(agg);
-                System.debug(agg);
+                // System.debug(agg);
             }
         }
 
         if(runUpdate){
-            aggregatorsToUpdate = remainingAggregators;
-            update aggregatorsToUpdate;
+            update remainingAggregators;
         }
     }
 
@@ -143,15 +141,46 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
             mail.setSubject('Aggregator Audit Completed - No Issues Found');
             mail.setPlainTextBody('The audit completed and found no invalid aggregators.');
         } else {
-            String body = 'The following aggregators were flagged:\n\n';
-            body += String.join(reportLines, '\n');
+
+            List<String> csvLines = new List<String>();
+            csvLines.add('AggregatorID\tYear\tCode\tMember\tLimit\tCoverageYears\tExpected');
+            for (String line : reportLines) {
+            // System.debug(line);
+            line = line.remove('\n');
+            List<String> parts = line.split(' - ');
+            // System.debug(parts);
+
+            String aggId = parts.size() > 0 ? parts[0].replace('Aggregator Id: ', '') : '';
+            String year = parts.size() > 1 ? parts[1].replace('Year: ', '') : '';
+            String code = parts.size() > 2 ? parts[2].replace('Code: ', '') : '';
+            String memb = parts.size() > 3 ? parts[3].replace('Member: ', '') : '';
+            String lim = parts.size() > 4 ? parts[4].replace('Limit: ', '') : '';
+            String covy = parts.size() > 5 ? parts[5].replace('Coverage Years: ', '') : '';
+            String exp = parts.size() > 6 ? parts[6].replace('Expected: ', '') : '';
+
+            csvLines.add(aggId + '\t' + year + '\t' + code + '\t' + memb + '\t' + lim + '\t' + covy + '\t' + exp);
+            }
+
+            String csvContent = String.join(csvLines, '\n');
+            Blob csvBlob = Blob.valueOf(csvContent);
+
+            Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+            attachment.setFileName('Wrong Preex-Mat.xls');
+            attachment.setBody(csvBlob);
+            attachment.setContentType('application/vnd.ms-excel');
+
             
+            String body = 'The following aggregators were flagged:\n\n';
+            body += 'Attached you will find the processed records report (' + reportLines.size() + ').';
+            body += String.join(reportLines, '\n');
             body += '\n\nAggregators exceeding Limits:\n';
             body += String.join(aggregatorsExceedingLimits, '\n');
 
             mail.setSubject('Aggregator Audit Report - Issues Found');
             mail.setPlainTextBody(body);
+            mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attachment });
         }
+
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
     }
 
@@ -173,13 +202,14 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
                 ARC_Contract__r.ARC_EffectiveDate__c,
                 ARC_Contract__r.ARC_Inactive_Date__c,
                 ARC_Contract__r.ARC_ContractReason__c,
-                ARC_PersonAccount__r.PersonBirthdate
+                ARC_PersonAccount__r.PersonBirthdate,
+                ARC_Contract__r.ARC_AwaitingActivationDate__c
             FROM ARC_ContractParticipant__c 
             WHERE ARC_PersonAccount__c IN :accountIds
                 AND ARC_Contract__r.Status IN ('Activated', 'Terminated')
                 AND ARC_Contract__r.ARC_EffectiveDate__c != NULL
                 AND ARC_Contract__r.ARC_MedicalPlan__r.Name LIKE '%WeShare%'
-            ORDER BY ARC_PersonAccount__c, ARC_Contract__r.ARC_EffectiveDate__c
+            ORDER BY ARC_PersonAccount__c, ARC_Contract__r.ARC_EffectiveDate__c, ARC_Contract__r.CreatedDate
         ];
 
         // Paso 1: agrupar todos los rangos por AccountId
@@ -201,9 +231,11 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
                 // fix newborn start day at the beggining of its firt plan : if newborn, coverage starts from DOB 
                 // GCMP ordered by effDate => first contract for a member is its initial contract
                 // => => **first contract is its initial coverage period**
-                // => if member is newborn, take its DOB as startDate - if member is newborn its first contract is reason Add Newborn
+                // => if member is newborn, take its DOB as startDate - if member is newborn its first contract is reason Add Newborn  
                 if(isNewborn){
-                    startDate = p.ARC_PersonAccount__r.PersonBirthdate;
+                    // Fix for manual changes where Add Newborn is not the only contract reason.  
+                    // if Add Newborn is the first contract for many members, the true newbon's birthdate is always > effDate (inherited from previous contract)
+                    startDate = p.ARC_PersonAccount__r.PersonBirthdate > p.ARC_Contract__r.ARC_EffectiveDate__c ? p.ARC_PersonAccount__r.PersonBirthdate : p.ARC_Contract__r.ARC_EffectiveDate__c;
                 }
                 rawRanges.put(accId, new List<Map<String, Object>>());
             }
@@ -219,22 +251,22 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
         for (Id accId : rawRanges.keySet()) {
             List<Map<String, Object>> ranges = rawRanges.get(accId);
             ranges.sort(new RangeComparator()); // ordenar por fecha de inicio
-            System.debug('----------RANGES----------');
+            // System.debug('----------RANGES----------');
             for(Map<String, Object> entry : ranges){
 
-                System.debug('[');
-                System.debug('start: ' + entry.get('start'));
-                System.debug('end: ' + entry.get('end'));
-                System.debug('upgrade: ' + entry.get('upgrade'));
-                System.debug(']');
+                // System.debug('[');
+                // System.debug('start: ' + entry.get('start'));
+                // System.debug('end: ' + entry.get('end'));
+                // System.debug('upgrade: ' + entry.get('upgrade'));
+                // System.debug(']');
             }
             List<Date[]> merged = new List<Date[]>();
             Date currentStart = null;
             Date currentEnd = null;
 
             for (Map<String, Object> entry : ranges) {
-                // System.debug('r[0] => ' + r[0]);
-                // System.debug('r[1] => ' + r[1]);
+                // // System.debug('r[0] => ' + r[0]);
+                // // System.debug('r[1] => ' + r[1]);
                 Date entryStart = (Date)entry.get('start');
                 Date entryEnd = (Date)entry.get('end');
                 Boolean isUpgrade = (Boolean)entry.get('upgrade');
@@ -267,8 +299,8 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
 
 
     private Date[] coverageRange(Id accId, Integer year, Date aggEffDate) {
-        System.debug('----coverageRange Agg Year: ' + year);
-        System.debug('----coverageRange Agg EffDate: ' + aggEffDate);
+        // System.debug('----coverageRange Agg Year: ' + year);
+        // System.debug('----coverageRange Agg EffDate: ' + aggEffDate);
         if (!memberCoveragePeriods.containsKey(accId)) return null;
 
         List<Date[]> coverageRanges = memberCoveragePeriods.get(accId);
@@ -276,12 +308,12 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
 
         for (Date[] range : coverageRanges) {
             Boolean yearMatches = range[0].year() <= year && range[1].year() >= year;
-            System.debug(' - period: ' + range + ' -' + yearMatches);
+            // System.debug(' - period: ' + range + ' -' + yearMatches);
 
             if (yearMatches) {
                 // Si además la effDate está dentro del rango, usamos ese
                 if (aggEffDate >= range[0] && aggEffDate <= range[1]) {
-                    System.debug('((FOUND MATCH)) : ' + range);
+                    // System.debug('((FOUND MATCH)) : ' + range);
                     return range;
                 }
                 // Guardamos como posible fallback si no hay match por effDate
@@ -290,18 +322,18 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
                 }
             }
         }
-        System.debug('((FALLBACK MATCH)) : ' + fallbackRange);
+        // System.debug('((FALLBACK MATCH)) : ' + fallbackRange);
         
         return fallbackRange;
     }   
 
 
     private Integer calculateContinuousYears(Id accId, Integer upToYear, Date lastCoverageStartDate, Date[] aggRange) {
-        System.debug('---CALCULATE CONTINUITY YEARS---');
+        // System.debug('---CALCULATE CONTINUITY YEARS---');
         if (!memberCoveragePeriods.containsKey(accId)) return 0; // found an agg that does not belong to a coverage period for the member
         
         Date[] range = aggRange;
-        System.debug('range: ' + range);
+        // System.debug('range: ' + range);
         Integer startYear = range[0].year();
         Integer endYear = range[1].year();
 
@@ -311,11 +343,11 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
         // else => range
         Date periodAniversary = endYear==Date.today().year() ? Date.newInstance(upToYear, lastCoverageStartDate.month(), lastCoverageStartDate.day()) : Date.newInstance(upToYear, range[0].month(), range[0].day()); 
         
-        System.debug('periodAniversary: ' +periodAniversary);
+        // System.debug('periodAniversary: ' +periodAniversary);
         // is last aggregator for the period
         if(endYear == upToYear && range[1] < periodAniversary) {
-            System.debug('+++RANGE 1: ' + range[1]);
-            System.debug('+++periodAniversary: ' + periodAniversary);
+            // System.debug('+++RANGE 1: ' + range[1]);
+            // System.debug('+++periodAniversary: ' + periodAniversary);
             return upToYear - startYear - 1 >= 0 ? upToYear - startYear - 1 : 0;        
         }
         return upToYear - startYear;
@@ -323,17 +355,17 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
     }
     
     private Decimal getExpectedMatLimit(Integer years) {
-        System.debug('Expected limit for ' + years + ' years: ');
+        // System.debug('Expected limit for ' + years + ' years: ');
         if (years < 0) return null;
         // For maternity, increase to max amount after 2 years
         // not update for year 0 and year 1
         Integer yearsFromInitialUpdate =  years- 1 >= 0 ? years - 1 : 0;
-        System.debug('Years to update: ' + yearsFromInitialUpdate);
+        // System.debug('Years to update: ' + yearsFromInitialUpdate);
         return yearsFromInitialUpdate <= 0 ? LIMIT_TIER_1 : LIMIT_MAX;
     }
     
     private Map<String, Object> getExpectedPreexLimit(Integer years, Date contCoverageDate) {
-        System.debug('Expected limit for ' + years + ' years: ');
+        // System.debug('Expected limit for ' + years + ' years: ');
         if (years < 0) return null;
         Map<String, Object> result = new Map<String, Object>();
         Decimal aggLimit = years < LIST_PROGRESSION_LIMITS.size() ? LIST_PROGRESSION_LIMITS[ years ] : LIMIT_MAX;
@@ -371,52 +403,50 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
     }
 
     private String formatLine(ARC_Aggregator__c agg, Integer years, Decimal expectedLimit) {
-        System.debug('--Needs to update.');
+        // System.debug('--Needs to update.');
         return 'Aggregator Id: ' + agg.Id +
-               ' | Year: ' + agg.ARC_Year__c +
-               ' | Code: ' + agg.ARC_Code__c +
-               ' | Member: ' + agg.ARC_Member__c +
-               ' | Limit: ' + agg.ARC_LimitValue__c +
-               ' | Coverage Years: ' + years +
-               ' | Expected: ' + expectedLimit +
+               ' - Year: ' + agg.ARC_Year__c +
+               ' - Code: ' + agg.ARC_Code__c +
+               ' - Member: ' + agg.ARC_Member__c +
+               ' - Limit: ' + agg.ARC_LimitValue__c +
+               ' - Coverage Years: ' + years +
+               ' - Expected: ' + expectedLimit +
                '\n';
     }
 
-    private void fixMaternityAggregator(ARC_Aggregator__c agg, Decimal limitToSet){
-        System.debug('--UPDATE MATERNITY AGGREGATOR');
-
-        if (agg.ARC_Code__c != 'MAT__c') return;
+    private ARC_Aggregator__c fixMaternityAggregator(ARC_Aggregator__c agg, Decimal limitToSet){
+        // System.debug('--UPDATE MATERNITY AGGREGATOR');
         agg.ARC_LimitValue__c = limitToSet;
-        aggregatorsToUpdate.add(agg);        
+        // aggregatorsToUpdate.add(agg);        
+        return agg;        
  
     }
-    private void fixPreexAggregator(ARC_Aggregator__c agg, Decimal limitToSet, Date contCoverageDate){
-        System.debug('--UPDATE PREEX AGGREGATOR');
-
-        if (agg.ARC_Code__c != 'PREEX__c') return;
+    private ARC_Aggregator__c fixPreexAggregator(ARC_Aggregator__c agg, Decimal limitToSet, Date contCoverageDate){
+        // System.debug('--UPDATE PREEX AGGREGATOR');
         updatePreExAggregatorLimit(agg, limitToSet, contCoverageDate);
-        System.debug('UPDATED VALUES: ');
-        System.debug('agg.ARC_LimitValue__c: ' + agg.ARC_LimitValue__c);
-        System.debug('agg.ARC_BY1_Limit__c: ' + agg.ARC_BY1_Limit__c);
-        System.debug('agg.ARC_BY1_Date__c: ' + agg.ARC_BY1_Date__c);
-        System.debug('agg.ARC_BY1_Current__c: ' + agg.ARC_BY1_Current__c);
-        System.debug('agg.ARC_BY2_Limit__c: ' + agg.ARC_BY2_Limit__c);
-        System.debug('agg.ARC_BY2_Date__c: ' + agg.ARC_BY2_Date__c);
-        System.debug('agg.ARC_BY2_Current__c: ' + agg.ARC_BY2_Current__c);
-        System.debug('agg.ARC_BY3_Limit__c: ' + agg.ARC_BY3_Limit__c);
-        System.debug('agg.ARC_BY3_Date__c: ' + agg.ARC_BY3_Date__c);
-        System.debug('agg.ARC_BY3_Current__c: ' + agg.ARC_BY3_Current__c);
-        aggregatorsToUpdate.add(agg);        
+        // System.debug('UPDATED VALUES: ');
+        // System.debug('agg.ARC_LimitValue__c: ' + agg.ARC_LimitValue__c);
+        // System.debug('agg.ARC_BY1_Limit__c: ' + agg.ARC_BY1_Limit__c);
+        // System.debug('agg.ARC_BY1_Date__c: ' + agg.ARC_BY1_Date__c);
+        // System.debug('agg.ARC_BY1_Current__c: ' + agg.ARC_BY1_Current__c);
+        // System.debug('agg.ARC_BY2_Limit__c: ' + agg.ARC_BY2_Limit__c);
+        // System.debug('agg.ARC_BY2_Date__c: ' + agg.ARC_BY2_Date__c);
+        // System.debug('agg.ARC_BY2_Current__c: ' + agg.ARC_BY2_Current__c);
+        // System.debug('agg.ARC_BY3_Limit__c: ' + agg.ARC_BY3_Limit__c);
+        // System.debug('agg.ARC_BY3_Date__c: ' + agg.ARC_BY3_Date__c);
+        // System.debug('agg.ARC_BY3_Current__c: ' + agg.ARC_BY3_Current__c);
+        // aggregatorsToUpdate.add(agg);        
+        return agg;        
  
     }
 
         // Update the limit value for pre-existing condition aggregators based on their current tier
     private void updatePreExAggregatorLimit(ARC_Aggregator__c aggregator, Decimal limitToSet, Date contCoverageDate) {
-        System.debug('UPDATE PREEX AGG:');
-        System.debug('----------lastPreexAgg Data:');
-        // System.debug('----------PreexAggsList: ' + preexAggsList);
-        System.debug('----------limitToSet: ' + limitToSet);
-        System.debug('----------contCoverageDate: ' + contCoverageDate);
+        // System.debug('UPDATE PREEX AGG:');
+        // System.debug('----------lastPreexAgg Data:');
+        // // System.debug('----------PreexAggsList: ' + preexAggsList);
+        // System.debug('----------limitToSet: ' + limitToSet);
+        // System.debug('----------contCoverageDate: ' + contCoverageDate);
 
         if (limitToSet == LIMIT_TIER_1) {
             increaseBenefitTierLimit(LIMIT_TIER_1, aggregator, contCoverageDate);
@@ -485,10 +515,10 @@ global class ARC_AggregatorAuditBatch implements Database.Batchable<sObject>, Da
         public Integer compare(Map<String, Object> a, Map<String, Object> b) {
             Date startA = Date.valueOf(a.get('start'));
             Date startB = Date.valueOf(b.get('start'));
-            System.debug('compare---------------');
-            System.debug('A: ' + startA);
-            System.debug('B: ' + startB);
-            System.debug('----> ' + startB.daysBetween(startA));
+            // System.debug('compare---------------');
+            // System.debug('A: ' + startA);
+            // System.debug('B: ' + startB);
+            // System.debug('----> ' + startB.daysBetween(startA));
 
             return startB.daysBetween(startA);
         }

@@ -1,0 +1,148 @@
+<template>
+    <div class="lookup-container">
+        <!-- Field Label -->
+        <label class="slds-form-element__label" for="lookup-input">
+            <template lwc:if={required}>
+                <abbr class="slds-required" title="required">*</abbr>
+            </template>
+            {label}
+        </label>
+
+        <!-- Selected Record Pill (shown when a record is selected) -->
+        <template lwc:if={hasSelection}>
+            <div class="slds-pill-container">
+                <span class="slds-pill slds-pill_link">
+                    <span class="slds-pill__icon_container">
+                        <lightning-icon 
+                            icon-name={iconName} 
+                            size="x-small"
+                            alternative-text={objectType}>
+                        </lightning-icon>
+                    </span>
+                    <a href="javascript:void(0);" class="slds-pill__action" title={selectedRecordName}>
+                        <span class="slds-pill__label">{selectedRecordName}</span>
+                    </a>
+                    <button 
+                        class="slds-button slds-button_icon slds-button_icon slds-pill__remove" 
+                        title="Remove"
+                        onclick={handleRemoveSelection}
+                        disabled={disabled}>
+                        <lightning-icon 
+                            icon-name="utility:close" 
+                            size="x-small"
+                            alternative-text="Remove">
+                        </lightning-icon>
+                        <span class="slds-assistive-text">Remove</span>
+                    </button>
+                </span>
+            </div>
+        </template>
+
+        <!-- Search Input (shown when no record is selected) -->
+        <template lwc:if={showSearchInput}>
+            <div class="slds-form-element">
+                <div class="slds-form-element__control">
+                    <div class={dropdownClass}>
+                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_left-right" role="none">
+                            <!-- Search Icon -->
+                            <lightning-icon 
+                                icon-name="utility:search" 
+                                size="x-small"
+                                class="slds-input__icon slds-input__icon_left"
+                                alternative-text="Search">
+                            </lightning-icon>
+                            
+                            <!-- Search Input -->
+                            <input 
+                                type="text"
+                                id="lookup-input"
+                                class={inputClass}
+                                role="combobox"
+                                aria-expanded={showDropdown}
+                                aria-haspopup="listbox"
+                                aria-autocomplete="list"
+                                placeholder={placeholder}
+                                value={searchTerm}
+                                oninput={handleSearchInput}
+                                onfocus={handleFocus}
+                                onblur={handleBlur}
+                                onkeydown={handleKeyDown}
+                                disabled={disabled}
+                            />
+
+                            <!-- Loading Spinner -->
+                            <template lwc:if={isLoading}>
+                                <div class="slds-input__icon slds-input__icon_right">
+                                    <lightning-spinner 
+                                        alternative-text="Loading" 
+                                        size="x-small">
+                                    </lightning-spinner>
+                                </div>
+                            </template>
+
+                            <!-- Clear Button -->
+                            <template lwc:if={searchTerm}>
+                                <button 
+                                    class="slds-button slds-button_icon slds-input__icon slds-input__icon_right"
+                                    title="Clear"
+                                    onclick={handleRemoveSelection}>
+                                    <lightning-icon 
+                                        icon-name="utility:clear" 
+                                        size="x-small"
+                                        alternative-text="Clear">
+                                    </lightning-icon>
+                                </button>
+                            </template>
+                        </div>
+
+                        <!-- Dropdown Results -->
+                        <template lwc:if={showDropdown}>
+                            <div id="lookup-listbox" class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid" role="listbox">
+                                <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                    <template for:each={searchResultsWithIndex} for:item="result">
+                                        <li 
+                                            key={result.Id} 
+                                            role="presentation" 
+                                            class="slds-listbox__item">
+                                            <div 
+                                                class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
+                                                role="option"
+                                                data-id={result.Id}
+                                                onclick={handleResultClick}>
+                                                <span class="slds-media__figure slds-listbox__option-icon">
+                                                    <lightning-icon 
+                                                        icon-name={iconName} 
+                                                        size="small"
+                                                        alternative-text={objectType}>
+                                                    </lightning-icon>
+                                                </span>
+                                                <span class="slds-media__body">
+                                                    <span class="slds-listbox__option-text slds-listbox__option-text_entity">{result.Name}</span>
+                                                    <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{result.subtitle}</span>
+                                                </span>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </template>
+
+                        <!-- No Results Message -->
+                        <template lwc:if={noResultsFound}>
+                            <div class="slds-dropdown slds-dropdown_fluid" role="listbox">
+                                <div class="slds-p-around_small slds-text-align_center slds-text-color_weak">
+                                    No results found for "{searchTerm}"
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <template lwc:if={hasError}>
+                    <div class="slds-form-element__help slds-text-color_error">{errorMessage}</div>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

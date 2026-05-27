@@ -1,0 +1,8 @@
+<template>
+    <div if:true={voidedPreAuth} class="alert yellow">
+        <strong>Warning: This claim has a voided authorization.</strong> 
+    </div>
+    <div if:true={hasPrimaryInsuranceAtDOS} class="alert yellow">
+        <strong>Warning: There is a primary insurance registered for the member at DOS.</strong> 
+    </div>
+</template>

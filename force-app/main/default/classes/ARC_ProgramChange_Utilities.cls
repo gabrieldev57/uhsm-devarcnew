@@ -4,12 +4,15 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
             when 'compareCensusMemberChanges'                    { compareCensusMemberChanges(inputMap, outputMap, options); }
             when 'censusPlanSelectionChanges'                    { censusPlanSelectionChanges(inputMap, outputMap, options); }
             when 'readMedicalQuestions'                          { readMedicalQuestions(inputMap, outputMap, options); }
-            //when 'DocuSignDataTransform'                         { DocuSignDataTransform(inputMap, outputMap, options); }
+            when 'includeProductCodeToUserInputs'                { includeProductCodeToUserInputs(inputMap, outputMap, options); }
             when 'TRANSFORM_CensusMemberToUserInputs'            { TRANSFORM_CensusMemberToUserInputs(inputMap, outputMap, options); }
             when 'TRANSFORM_ChooseProductSelectionData'          { TRANSFORM_ChooseProductSelectionData(inputMap, outputMap, options); }
             when 'includeGuardianAsHipaa'                        { includeGuardianAsHipaa(inputMap, outputMap, options); }
             when 'validateUpgradeAndMissingDemoInfo'             { validateUpgradeAndMissingDemoInfo(inputMap, outputMap, options); }
             when 'getUserPermission'                             { getUserPermission(inputMap, outputMap, options); }
+            when 'getMemberBeneficiaries'                        { getMemberBeneficiaries(inputMap, outputMap, options); }
+            when 'includePremierSelected'                        { includePremierSelected(inputMap, outputMap, options); }
+            when 'removeSelectedAncillaries'                     { removeSelectedAncillaries(inputMap, outputMap, options); }
             when else                                            { throw new AuraHandledException('Unknown method: ' + methodName); }
         }
         return true;
@@ -24,9 +27,12 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         List<Object> initial_values = (List<Object>)inputMap.get('InitialValues'); // List of members BEFORE any changes
         List<Object> final_values = (List<Object>)inputMap.get('FinalValues'); // List of members AFTER changes
 
-
+        //Decimal smokerFee = ARC_GroupCensusMemberPlanTriggerHandler.setExtraMemberAndSmokerFees().get('SmokerAditional');
+        Map<String, Decimal> feeMap = ARC_GroupCensusMemberPlanTriggerHandler.setExtraMemberAndSmokerFees();
+        Decimal smokerFee = (feeMap != null && feeMap.containsKey('SmokerAditional') && feeMap.get('SmokerAditional') != null)
+            ? feeMap.get('SmokerAditional')
+            : 0;
     
-        // Set<String> reasonSet = new Set<String>(); // Set of reasons to be returned to the OS
         Map<String,Object> reasonsMap = new Map<String,Object>{
             'addMember' => false,
             'removeMember' => false,
@@ -38,8 +44,10 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
             'programUpgrade' => false,
             'programDowngrade' => false,
             'ancillaryChange' => false,
-            'effectiveDateChange' => false
+            'effectiveDateChange' => false,
+            'addExistingNewborn' => false
         }; // Map of reasons to be returned to the OS
+
 
 
         Map<String,Object> finalPrimaryValues = new Map<String,Object>();
@@ -48,11 +56,14 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         Map<String,Object> EDITBLK_HIPAAAuthorizedParties = new Map<String,Object>();
         List<Map<String,Object>> EDITBLK_HIPAAAuthorizedPartiesList = new List<Map<String,Object>>();
         List<Map<String,Object>> hipaaPartiesList = new List<Map<String,Object>>();
+        List<Map<String,Object>> newbornsList = new List<Map<String,Object>>();
         Set<String> processedMemberIds = new Set<String>(); // Add this line to track processed members
         Integer initialOldestAge = 0;
         Integer finalOldestAge = 0;
         Boolean removeParent = false;
         Boolean DOBIsChange = false;
+        Decimal smokerDelta = 0;
+
 
         //Build a Map for new and old values using id as the key
         Map<String,Object> newValuesMap = new Map<String,Object>();
@@ -60,6 +71,9 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         for (Object member_new : final_values) {
             Map<String,Object> member_new_map = (Map<String,Object>)member_new;
             newValuesMap.put((String)member_new_map.get('Id'), member_new_map);
+            if(member_new_map.get('IsNewborn') == true){
+                newbornsList.add(member_new_map);
+            }
         }
         for (Object member_old : initial_values) {
             Map<String,Object> member_old_map = (Map<String,Object>)member_old;
@@ -69,6 +83,8 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         for (Object member_new : final_values) {
             
             Map<String,Object> member_new_map = (Map<String,Object>)member_new;
+
+            Boolean finalMemberSmoker = member_new_map.containsKey('ARC_Smoker__c') && member_new_map.get('ARC_Smoker__c') instanceof Boolean ? (Boolean)member_new_map.get('ARC_Smoker__c') : false;
 
             // Get final primary values
             Boolean isFinalPrimary = (Boolean)member_new_map.get('vlocity_ins__IsPrimaryMember__c');
@@ -232,6 +248,18 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                         removeParent = true;
                     }
 
+                    //Check if smoker checkbox change
+                    if(isRemoveMember == false && isAddMember == false){
+                        if (member_old_map.containsKey('ARC_Smoker__c')) {
+                            Map<String, Object> smokerField = (Map<String, Object>) member_old_map.get('ARC_Smoker__c');
+                            Boolean oldMemberSmoker = (Boolean) smokerField.get('value');
+                            if (oldMemberSmoker != finalMemberSmoker) {
+                                smokerDelta += finalMemberSmoker ? 1 : -1;
+                            }
+
+                        }
+                    }
+
                     // DOB Change
                     Integer initialMemberAge = (Integer)member_old_map.get('ARC_Age__c');
                     Integer finalMemberAge = (Integer)member_new_map.get('ARC_Age__c');
@@ -276,16 +304,47 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
             }
         }
 
+        
+        
+        Date latestDate;
+        Integer newbornAddDays = 30;
+        for(Map<String,Object> newborn : newbornsList){
+            if((Boolean)newborn.get('IsActive')){
+                Date dob = Date.valueOf((String)newborn.get('vlocity_ins__Birthdate__c'));
+                if(latestDate == null || dob > latestDate){
+                    latestDate = dob;
+                }
+            }
+        }
+        if(newbornsList.size() > 0){
+            reasonsMap.put('addExistingNewborn', true);
+        }
+        latestDate = latestDate != null ? latestDate.addDays(newbornAddDays) : null;
+        if(latestDate != null){
+            reasonsMap.put('addExistingActiveNewborn', true);
+            Map<String, Object> selectedContractInfo = (Map<String, Object>)inputMap.get('SelectedContractInfo');
+            Date oldDate = null;
+            if(selectedContractInfo != null){
+                oldDate = Date.parse((String)selectedContractInfo.get('EffectiveDate'));
+            }
+            Date firstAvailableDate = getFirstAvailableDate(latestDate, oldDate);
+            if(firstAvailableDate != null){
+                outputMap.put('newbornsFirstAvailableDate', firstAvailableDate);
+            }
+        }
+
         Map<String,Object> pcChangesMap = new Map<String,Object>{
             'pcReasons' => reasonsMap
         };
 
-        //STEP_HIPAAAuthorizationForm.put('EDITBLK_HIPAAAuthorizedParties',mymap);
         outputMap.put('STEP_HIPAAAuthorizationForm',mymap);
 
         outputMap.put('removeParent', removeParent);
         outputMap.put('pcChanges', pcChangesMap);
         outputMap.put('finalPrimaryValues', finalPrimaryValues);
+        outputMap.put('newbornsLatestDate', latestDate);
+        outputMap.put('smokerDeltaAmount', smokerDelta * smokerFee);
+
     }
 
     // Method to check the age gap index
@@ -333,7 +392,8 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
     * @MethodName         :   censusPlanSelectionChanges
     * @Description        :   Method to analyze if Program is changed, a new contract is needed, a fee is applicable and which DocuSign needs to be sent
     ********************************************************************/
-    public static void censusPlanSelectionChanges(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {   
+    public static void censusPlanSelectionChanges(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) { 
+        system.debug('utilities.censusPlanSelectionChanges');  
         // Get JSON inputs
         List<Object> oldProductsValues = (List<Object>)inputMap.get('oldProducts');
         //List<Object> newProductsValues = (List<Object>)inputMap.get('newProducts');
@@ -343,7 +403,11 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         Integer contractCount = (Integer)inputMap.get('contractCount');
         String oldEffectiveDateString = (String)inputMap.get('oldEffectiveDate');
         Date oldEffectiveDate = Date.parse(oldEffectiveDateString);
+        Map <String,Object> selectedContractInfo = (Map<String,Object>)inputMap.get('selectedContractInfo');
         String newEffectiveDateString = (String)inputMap.get('newEffectiveDate');
+        Date newbornsFirstAvailableDate = inputMap.containsKey('newbornsFirstAvailableDate') && inputMap.get('newbornsFirstAvailableDate') != null && inputMap.get('newbornsFirstAvailableDate') != '' ? Date.valueOf((String)inputMap.get('newbornsFirstAvailableDate')) : null;
+        List<Map<String,Object>> pcFeeItems = new List<Map<String,Object>>();
+
         Map<String,Object> finalPrimaryValuesMap;
         if (inputMap.containsKey('FinalPrimaryValues') && inputMap.get('FinalPrimaryValues') != null && inputMap.get('FinalPrimaryValues') != 'null') {
             Object finalPrimaryValues = inputMap.get('FinalPrimaryValues');
@@ -364,9 +428,12 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         String newBillingAddress = finalPrimaryValuesMap != null && finalPrimaryValuesMap.containsKey('billingAddress') ? (String)finalPrimaryValuesMap.get('billingAddress'): null;
 
         Date newEffectiveDate;
-        Map <String,Object> selectedContractInfo = (Map<String,Object>)inputMap.get('selectedContractInfo');
         if (newEffectiveDateString != '') {
-            newEffectiveDate = Date.valueOf(newEffectiveDateString);
+            if(newEffectiveDateString.contains('-')) {
+                newEffectiveDate = Date.valueOf(newEffectiveDateString);
+            } else {
+                newEffectiveDate = Date.parse(newEffectiveDateString);
+            }
         }
         // Get Selected Products and only when Change to Programs is selected in OS
         List<Object> selectedProductsValues = new List<Object>();
@@ -405,9 +472,12 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
 
         // Get selected medical plan
         String oldPlanName;
+        String awaitingPlanName = '';
         String selectedPlanName;
-        Set<String> oldAncillaryList = new Set<String>();
-        Set<String> selectedAncillaryList = new Set<String>();
+        List<String> oldAncillaryList = new List<String>();
+        List<String> selectedAncillaryList = new List<String>();
+        Set<String> oldAncillaryCensusIds = new Set<String>();
+        Set<String> newProductAncillaryCensusIds = new Set<String>();
         Double oldMedicalPrice;
         Double newMedicalPrice;
 
@@ -420,13 +490,26 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                 // Get old medical plan name
                 oldPlanName = (String)old_products_map.get('Name');
                 oldMedicalPrice = (Double) old_products_map.get('Price');
+
+                if(((String)selectedContractInfo.get('TXT_ContractStatus')).contains('Awaiting') && ((String)selectedContractInfo.get('TXT_ContractStatus') != 'Awaiting Signature')) {
+                    awaitingPlanName = (String)old_products_map.get('Name');
+                }
             }
             if (oldPlanType == 'Ancillary') {
                 String oldAncillaryName = (String)old_products_map.get('Name');
                 oldAncillaryList.add(oldAncillaryName);
+                List<Object> oldCensusMembers = (List<Object>)old_products_map.get('census_members');
+                if (oldCensusMembers != null) {
+                    for (Object member : oldCensusMembers) {
+                        Map<String,Object> memberMap = (Map<String,Object>)member;
+                        //Cover the scenario when ancillary products are the same but a member switches from one ancillary to another
+                        oldAncillaryCensusIds.add((String)memberMap.get('Id')+oldAncillaryName);
+                    }
+                }
             }
         }
-
+        System.debug('OldAncillaryList: '+oldAncillaryList);
+        System.debug('oldAncillaryCensusIds: '+oldAncillaryCensusIds);
         // Iterate over selected products list
         if (selectedProductsValues != null && !selectedProductsValues.isEmpty()) {
             for (Object selectedProducts : selectedProductsValues) {
@@ -436,32 +519,54 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                     selectedPlanName = (String)selected_products_map.get('Name');
                     newMedicalPrice= (Double) selected_products_map.get('Price');
                 }
-                if (selectedPlanType == 'Ancillary') {
-                    String selectedAncillaryName = (String)selected_products_map.get('Name');
-                    selectedAncillaryList.add(selectedAncillaryName); 
-                }
+                // if (selectedPlanType == 'Ancillary') {
+                //     String selectedAncillaryName = (String)selected_products_map.get('Name');
+                //     selectedAncillaryList.add(selectedAncillaryName); 
+                // }
             }
         }
+   
         // Iterate over new products list
         if (newProductsValues != null) {
             for (Object newProduct : newProductsValues) {
                 Map<String,Object> new_products_map = (Map<String,Object>)newProduct;
                 Map<String,Object> selectedProduct_map = (Map<String,Object>)new_products_map.get('selectedProduct');
                 String selectedProduct = (String)selectedProduct_map.get('Type__c');
+                String ancillaryName = (String)selectedProduct_map.get('Name');
                 if (selectedProduct == 'Medical') {
                     newMedicalPrice= (Double)selectedProduct_map.get('Price');
                 }
+                if(selectedProduct == 'Ancillary') {
+                    selectedAncillaryList.add(ancillaryName);
+                    List<Object> userInputList = (List<Object>)new_products_map.get('userInputs');
+                    if (userInputList != null) {
+                        for(Object userInput : userInputList) {
+                            Map<String,Object> userInputMap = (Map<String,Object>)userInput;
+                            String memberId = (String)userInputMap.get('Id');
+                            newProductAncillaryCensusIds.add(memberId+ancillaryName);
+                        }
+                    }
+                }
             }
         }
+        System.debug('newAncillaryList: '+selectedAncillaryList);
+        System.debug('newProductsValues: '+newProductsValues);
+        System.debug('newProductAncillaryCensusIds: '+newProductAncillaryCensusIds);
 
 
         if (updateType.contains('Change to Programs')) {
             // Checks if Ancillary list sizes are different or if Ancillaries have been all removed
-            if (oldAncillaryList.size() != selectedAncillaryList.size() || (oldAncillaryList.size() > 0 && selectedAncillaryList.size() == 0)) {
+            if (oldAncillaryList.size() != selectedAncillaryList.size() ||(newProductAncillaryCensusIds.size()>0 && oldAncillaryCensusIds != newProductAncillaryCensusIds)|| (oldAncillaryList.size() > 0 && selectedAncillaryList.size() == 0)) {
+                for(String oldAncillary : oldAncillaryCensusIds){
+                    System.debug('Old Ancillary Census Ids: '+oldAncillary);
+                }
+                for(String newProductAncillary : newProductAncillaryCensusIds){
+                    System.debug('New Ancillary Census Ids: '+newProductAncillary);
+                }
                 pcReasons.put('ancillaryChange', true);
             }
             // Checks when ancillary products size is the same but checks if they are different products
-            if (oldAncillaryList.size() == selectedAncillaryList.size() && oldAncillaryList.size() > 0) {
+            else if (oldAncillaryList.size() == selectedAncillaryList.size() && oldAncillaryList.size() > 0) {
                 Integer coincidencesCount = 0;
                 for (String oldAncillaryName : oldAncillaryList) {
                     for (String selectedAncillaryName : selectedAncillaryList) {
@@ -489,7 +594,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         }
         outputMap.put('isLegacyPlan', isLegacyPlan);
         pcReasons.put('agingOut',isLegacyPlan);
-
+        outputMap.put('cantSkipNewApplication', false);
 
         // Get activated medical plan if contract list has more than one contract 
         if (contractCount > 1) {
@@ -508,6 +613,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
 
         // Handle PC reasons
         List<String> trueFeePcReasons = new List<String>();
+        List<String> oldFeePcReasons = new List<String>();
         List<String> truePcReasons = new List<String>();
         String pcReasonsString;
 
@@ -517,12 +623,12 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         Decimal upgradeFee = feeAmounts.ARC_UpgradeChangeFee__c;
         Decimal downgradeFee = feeAmounts.ARC_DowngradeChangeFee__c;
         Decimal appFee = feeAmounts.ARC_AppFee__c;
-        Boolean carryOverFeeApplicable = false;
 
         // Determines the Fee Amount if applies fee to the corresponding scenario
         // First set the fee amount to 0
         pcChangesOutput.put('feeAmount', 0);
-
+        pcChangesOutput.put('feeAmountNew', 0);
+        pcChangesOutput.put('feeAmountPending', 0);
 
         // Compare if old and selected medical plan are different
         if (oldPlanName != selectedPlanName && selectedPlanName != null && updateType.contains('Change to Programs')) {
@@ -530,6 +636,9 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
             // Call the Integration Procedure
             Map<String, Object> IPOutput = (Map<String, Object>) vlocity_ins.IntegrationProcedureService.runIntegrationProcedureServiceFromApex(procedureAPIName, new Map<String, Object>{'Program' => oldPlanName}, new Map<String, Object>());
             List<Object> resultList = (IPOutput.get('result') != null) ? (List<Object>) IPOutput.get('result') : new List<Object>();
+
+            
+            system.debug('GetPrograms_UpgradeAndDowngrade ');
             if (resultList[0] != null) {
                 // Result Map with Upgrade and Downgrade Program results
                 Map<String,Object> resultMap = (Map<String,Object>)resultList[0];
@@ -537,38 +646,36 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                 String downgradePlans = (String)resultMap.get('Downgrade Result');
                 // Get upgrade plans
                 String upgradePlans = (String)resultMap.get('Upgrade Result');
+
                 if (downgradePlans.contains(selectedPlanName)  && !isLegacyPlan) {
-                    pcReasons.put('programDowngrade', true);
+                    if (!String.isBlank(awaitingPlanName) && awaitingPlanName == selectedPlanName) {
+                        truePcReasons.add('Program Downgrade');
+                    } else {
+                        pcReasons.put('programDowngrade', true);
+                    }
                 }
                 if (upgradePlans.contains(selectedPlanName) && !isLegacyPlan) {
-                    pcReasons.put('programUpgrade', true);
+                    if (!String.isBlank(awaitingPlanName) && awaitingPlanName == selectedPlanName) {
+                        truePcReasons.add('Program Upgrade');
+                        pcChangesOutput.put('carryOverMedicalQuestions', true);
+                    } else {
+                        pcReasons.put('programUpgrade', true);
+                    }
                 }
             }
         }
         else if(updateType.contains('Change to Programs') && ((String)selectedContractInfo.get('TXT_ContractStatus')).contains('Awaiting')){
             if(((String)selectedContractInfo.get('TXT_ContractReason')).contains('Program Upgrade')){
                 truePcReasons.add('Program Upgrade');
-                carryOverFeeApplicable = true;
-                pcChangesOutput.put('feeApplicable', true);
-                pcChangesOutput.put('feeAmount', upgradeFee);
                 pcChangesOutput.put('docuSign', 'PC DocuSign');
                 pcChangesOutput.put('carryOverMedicalQuestions', true);
             }
             if(((String)selectedContractInfo.get('TXT_ContractReason')).contains('Program Downgrade')){
-                carryOverFeeApplicable = true;
                 truePcReasons.add('Program Downgrade');
-                pcChangesOutput.put('feeApplicable', true);
-                pcChangesOutput.put('feeAmount', downgradeFee);
                 pcChangesOutput.put('docuSign', 'PC DocuSign');
             }
-            if(((String)selectedContractInfo.get('TXT_ContractReason')).contains('New Application')){
-                pcChangesOutput.put('feeApplicable', true);
-                pcChangesOutput.put('feeAmount', appFee);
-                trueFeePcReasons.add('New Application');
-            }
         }
-        // Boolean isActiveContract = (Boolean)((String)selectedContractInfo.get('TXT_ContractStatus')).contains('Activated');
-        Boolean medicalPriceChange = (oldMedicalPrice ==  null || newMedicalPrice == null)? false:oldMedicalPrice != newMedicalPrice;
+        Boolean medicalPriceChange = (oldMedicalPrice ==  null || newMedicalPrice == null) ? false : oldMedicalPrice != newMedicalPrice;
 
         if(medicalPriceChange){
             pcChangesOutput.put('priceChanged', true);
@@ -576,10 +683,12 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         else{
             pcChangesOutput.put('priceChanged', false);
         }
+
+        Boolean isEffectiveDateAfterNewBornDate = false;
         
         // Check if new Effective Date is changed
         if (newEffectiveDate != null && newEffectiveDate != oldEffectiveDate && 
-            (newEffectiveDate > Date.today() && newEffectiveDate>oldEffectiveDate )||
+            (newEffectiveDate >= Date.today())||
             medicalPriceChange) {
             pcReasons.put('effectiveDateChange', true);
         }
@@ -587,10 +696,17 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
             pcChangesOutput.put('updateEffectiveDateChange', true);
         }
 
+
+        if (newbornsFirstAvailableDate != null && newbornsFirstAvailableDate < newEffectiveDate) {
+            isEffectiveDateAfterNewBornDate = true;
+        }
+
         // Get pcReasons final values for conditional checking
         Boolean isAddMember = (Boolean)pcReasons.get('addMember');
         Boolean isRemoveMember = (Boolean)pcReasons.get('removeMember');
         Boolean isAddExistingMember = (Boolean)pcReasons.get('addExistingMember');
+        Boolean isAddExistingNewborn = (Boolean)pcReasons.get('addExistingNewborn');
+        Boolean isAddExistingActiveNewborn = pcReasons.containsKey('addExistingActiveNewborn') ?  (Boolean)pcReasons.get('addExistingActiveNewborn') : false;
         Boolean isPrimaryChange = (Boolean)pcReasons.get('primaryChange');
         Boolean isAddressStateChange = (Boolean)pcReasons.get('addressStateChange');
         Boolean isRelationshipToPrimaryChange = (Boolean)pcReasons.get('relationshipToPrimaryChange');
@@ -600,7 +716,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         Boolean isAncillaryChange = (Boolean)pcReasons.get('ancillaryChange');
         Boolean isEffectiveDateChange = (Boolean)pcReasons.get('effectiveDateChange');
         Boolean isAgingOut = (Boolean)pcReasons.get('agingOut');
-        Boolean isLegacyProgramFlag = (Boolean)((String)selectedContractInfo.get('TXT_MedicalPlan')).contains('Legacy');
+        Boolean isLegacyProgramFlag = selectedContractInfo.get('TXT_MedicalPlan') != null ? (Boolean)((String)selectedContractInfo.get('TXT_MedicalPlan')).contains('Legacy') : false;
         
         // Checks if New Contract is needed
         if (isAddMember == true || isAddExistingMember == true || isRemoveMember == true || isPrimaryChange == true || isRelationshipToPrimaryChange == true || isDateOfBirthChange == true || isAddressStateChange == true || isProgramUpgrade == true || isProgramDowngrade == true || isAncillaryChange == true || isEffectiveDateChange == true || medicalPriceChange == true) {
@@ -627,42 +743,139 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         }
 
         // Determines if Fee is aplicable or not
-        if (isProgramUpgrade == true || isProgramDowngrade == true || isAddMember == true || isAddExistingMember == true || carryOverFeeApplicable) {
+        if (isProgramUpgrade == true || isProgramDowngrade == true || isAddMember == true || isAddExistingMember == true) {
             pcChangesOutput.put('feeApplicable', true);
         }
         else {
             pcChangesOutput.put('feeApplicable', false);
         }
+
+        Map<String, Object> newFeeItemMap = new Map<String, Object>{
+            'Name' => null,
+            'Amount' => null,
+            'oldPendingItem' => false
+
+        };
+
         
         // Sets the fee amount if corresponds
         if (pcChangesOutput.get('feeApplicable') == true) {
-            if (isAddMember == true || isAddExistingMember == true) {
-                if (addMemberFee > (Decimal)pcChangesOutput.get('feeAmount')) {
-                    pcChangesOutput.put('feeAmount', addMemberFee);
+            if (isAddMember == true) {
+                trueFeePcReasons.add('Add Member');
+                if (addMemberFee > (Decimal)pcChangesOutput.get('feeAmountNew')) {
+                    pcChangesOutput.put('feeAmountNew', addMemberFee);
+                    newFeeItemMap.put('Name', 'Add Member');
+                    newFeeItemMap.put('Amount', addMemberFee.setScale(2));
                 }
             }
             if (isProgramUpgrade == true) {
+                trueFeePcReasons.add('Program Upgrade');
                 // Reset the fee amount only if the new fee is higher than previous one or if fee amount was 0
-                if (upgradeFee > (Decimal)pcChangesOutput.get('feeAmount')) {
-                    pcChangesOutput.put('feeAmount', upgradeFee);
+                if (upgradeFee > (Decimal)pcChangesOutput.get('feeAmountNew')) {
+                    pcChangesOutput.put('feeAmountNew', upgradeFee);
+                    newFeeItemMap.put('Name', 'Program Upgrade');
+                    newFeeItemMap.put('Amount', upgradeFee.setScale(2));
                 }
             }
             if (isProgramDowngrade == true) {
+                trueFeePcReasons.add('Program Downgrade');
                 // Reset the fee amount only if the new fee is higher than previous one or if fee amount was 0
-                if (downgradeFee > (Decimal)pcChangesOutput.get('feeAmount')) {
-                    pcChangesOutput.put('feeAmount', downgradeFee);
+                if (downgradeFee > (Decimal)pcChangesOutput.get('feeAmountNew')) {
+                    pcChangesOutput.put('feeAmountNew', downgradeFee);
+                    newFeeItemMap.put('Name', 'Program Downgrade');
+                    newFeeItemMap.put('Amount', downgradeFee.setScale(2));
                 }
             }
+
+            if (isAddExistingMember == true) {
+                trueFeePcReasons.add('Add Existing Member');
+                if (!isAddExistingActiveNewborn || (isAddExistingActiveNewborn && isEffectiveDateAfterNewBornDate) ) {
+                    if (addMemberFee > (Decimal)pcChangesOutput.get('feeAmountNew')) {
+                        pcChangesOutput.put('feeAmountNew', addMemberFee);
+                        newFeeItemMap.put('Name', 'Add Member');
+                        newFeeItemMap.put('Amount', addMemberFee.setScale(2));
+                    }
+                }
+            }   
         }
 
 
 
         // Get previous pc reasons
+        Boolean awaitingSignatureContract = (String)selectedContractInfo.get('TXT_ContractStatus') == 'Awaiting Signature' ? true : false;
+        String previousTruePcReasonsString = (String)selectedContractInfo.get('TXT_ContractReason');
+        List<String> previousTruePcReasonsList = previousTruePcReasonsString.split(';');
         if(pcChangesOutput.get('createNewContract') == true){
            
             if (((String)selectedContractInfo.get('TXT_ContractStatus')).contains('Awaiting')) {
-                String previousTruePcReasonsString = (String)selectedContractInfo.get('TXT_ContractReason');
-                List<String> previousTruePcReasonsList = previousTruePcReasonsString.split(';');
+
+                // String previousTruePcReasonsString = (String)selectedContractInfo.get('TXT_ContractReason');
+                // List<String> previousTruePcReasonsList = previousTruePcReasonsString.split(';');
+
+                // Boolean awaitingSignatureContract = (String)selectedContractInfo.get('TXT_ContractStatus') == 'Awaiting Signature' ? true : false;
+                Boolean awaitingPendingFee = false;
+                ChargentOrders__ChargentOrder__c appChangeFeeOrder = new ChargentOrders__ChargentOrder__c();
+
+                if (awaitingSignatureContract) {
+                    Id awaitingContractId = ((Id)selectedContractInfo.get('ContractID'));
+
+                    List<ChargentOrders__ChargentOrder__c> appChangeFeeOrderList = [
+                        SELECT Id, ChargentOrders__Total__c, ChargentOrders__Description__c, ChargentOrders__Charge_Amount__c, ARC_FirstMonthPayed__c, (SELECT Id, Name, ARC_ChargentOrder__c, ARC_Amount__c FROM FeeItems__r)
+                        FROM ChargentOrders__ChargentOrder__c
+                        WHERE ARC_Contract__c =: awaitingContractId AND (chargentOrders__Description__c ='App Fee' OR ChargentOrders__Description__c ='Change Fee') LIMIT 1
+                    ];
+                    System.debug('Chargent order list: ' + appChangeFeeOrderList);
+
+                    if (!appChangeFeeOrderList.isEmpty()) {
+                         appChangeFeeOrder = appChangeFeeOrderList[0];
+                        if (appChangeFeeOrder.ARC_FirstMonthPayed__c == false) {
+                            awaitingPendingFee = true;
+                            pcChangesOutput.put('feeAmountPending', appChangeFeeOrder.ChargentOrders__Total__c);
+                            pcChangesOutput.put('feeApplicable', true);
+
+                            if (appChangeFeeOrder.FeeItems__r != null && !appChangeFeeOrder.FeeItems__r.isEmpty()) {
+                                for (ARC_FeeItem__c feeItem : appChangeFeeOrder.FeeItems__r) {
+                                    if (feeItem.ARC_Amount__c != null && feeItem.ARC_Amount__c > 0) {
+                                        Map<String,Object> feeItemMap = new Map<String,Object>{
+                                            'Name' => feeItem.Name,
+                                            'Amount' => feeItem.ARC_Amount__c,
+                                            'oldPendingItem' => true
+                                        };
+                                        pcFeeItems.add(feeItemMap);
+                                    }
+                                }
+                                
+                            } else if(appChangeFeeOrder.chargentOrders__Description__c == 'App Fee' ){
+                                Map<String,Object> feeItemMap = new Map<String,Object>{
+                                    'Name' => 'New Application',
+                                    'Amount' => appChangeFeeOrder.ChargentOrders__Total__c,
+                                    'oldPendingItem' => true
+                                };
+                                pcFeeItems.add(feeItemMap);
+                            } else if(appChangeFeeOrder.chargentOrders__Description__c == 'Change Fee' ){
+                                Map<String,Object> feeItemMap = new Map<String,Object>();
+
+                                if (appChangeFeeOrder.ChargentOrders__Total__c == appFee && previousTruePcReasonsList.contains('New Application')) {
+                                    feeItemMap.put('Name','New Application');
+                                } else if (appChangeFeeOrder.ChargentOrders__Total__c == upgradeFee && previousTruePcReasonsList.contains('Program Upgrade')) {
+                                    feeItemMap.put('Name','Program Upgrade');
+                                } else if (appChangeFeeOrder.ChargentOrders__Total__c == addMemberFee && previousTruePcReasonsList.contains('Add Member')) {
+                                    feeItemMap.put('Name','Add Member');
+                                } else if (appChangeFeeOrder.ChargentOrders__Total__c == downgradeFee && previousTruePcReasonsList.contains('Program Downgrade')) {
+                                    feeItemMap.put('Name','Program Upgrade');
+                                } else {
+                                    feeItemMap.put('To Define','Program Upgrade');
+                                }
+
+                                feeItemMap.put('Amount', appChangeFeeOrder.ChargentOrders__Total__c);
+                                feeItemMap.put('oldPendingItem', true);
+                                pcFeeItems.add(feeItemMap);
+                            }
+                        }
+                    }
+
+                }
+                    
                 for (String previousTrueReason : previousTruePcReasonsList) {
                     // Add previous true reason if reason is different from Program Downgrade/Upgrade
                     if (previousTrueReason != 'Program Upgrade' && previousTrueReason != 'Program Downgrade' ) {
@@ -670,63 +883,80 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                         truePcReasons.add(previousTrueReason);
                         if (previousTrueReason == 'Add Member' || previousTrueReason == 'Add Existing Member') {
                             pcChangesOutput.put('carryOverMedicalQuestions', true);
-                            pcChangesOutput.put('createNewContract', true);
                             pcChangesOutput.put('docuSign', 'PC DocuSign');
-                            pcChangesOutput.put('feeApplicable', true);
-                            pcChangesOutput.put('feeAmount', addMemberFee);
+                            if(awaitingPendingFee) oldFeePcReasons.add('Add Member');
                         } else if (previousTrueReason == 'Remove Member' || previousTrueReason == 'Primary Change' || previousTrueReason == 'Add Ancillary Product') {
                             pcChangesOutput.put('docuSign', 'PC DocuSign');
-                            pcChangesOutput.put('createNewContract', true);
                             if (previousTrueReason == 'Add Ancillary Product') {
                                 previousTrueReason = 'Ancillary Change';
                             }
                         } else if (previousTrueReason == 'Effective Date Change' || previousTrueReason == 'Relationship to Primary Change' || previousTrueReason == 'Date of Birth Change' || previousTrueReason == 'State Change') {
                             pcChangesOutput.put('docuSign', pcChangesOutput.get('docuSign') == 'PC DocuSign' ? 'PC DocuSign' : 'Amendment');
-                            pcChangesOutput.put('createNewContract', true);
                         }
                     } else if ((previousTrueReason == 'Program Upgrade' || previousTrueReason == 'Program Downgrade') && !updateType.contains('Change to Programs')) {
                         truePcReasons.add(previousTrueReason);
-                        pcChangesOutput.put('createNewContract', true);
                         pcChangesOutput.put('docuSign', 'PC DocuSign');
-                        pcChangesOutput.put('feeApplicable', true);
-                        
-                        if(previousTrueReason == 'Program Upgrade') {
-                            pcChangesOutput.put('carryOverMedicalQuestions', true);
-                        }
-
-                        if (previousTrueReason == 'Program Upgrade' && (Decimal)pcChangesOutput.get('feeAmount') < upgradeFee) {
-                            pcChangesOutput.put('feeAmount', upgradeFee);
-                        }
-                        if (previousTrueReason == 'Program Downgrade' && (Decimal)pcChangesOutput.get('feeAmount') < downgradeFee) {
-                            pcChangesOutput.put('feeAmount', downgradeFee);
-                        }
+                        if(awaitingPendingFee) oldFeePcReasons.add(previousTrueReason);
+                        if (previousTrueReason == 'Program Upgrade') pcChangesOutput.put('carryOverMedicalQuestions', true);
                     }
                 }
 
                 if(((String)selectedContractInfo.get('TXT_ContractReason')).contains('New Application')){
-                    pcChangesOutput.put('feeAmount', appFee);
-                    pcChangesOutput.put('feeApplicable', true);
-                    trueFeePcReasons.add('New Application');
+                    if (awaitingPendingFee && appChangeFeeOrder != null && appChangeFeeOrder.chargentOrders__Description__c == 'App Fee') {
+                        outputMap.put('cantSkipNewApplication', true);
+                        pcChangesOutput.put('feeApplicable', true);
+                        oldFeePcReasons.add('New Application');
+                        //pcChangesOutput.put('feeAmountPending', appFee);
+                        pcChangesOutput.put('feeAmountNew', 0);
+                        newFeeItemMap.put('Amount', 0);
+                    }
                 }
             }
         }
+
+        // Check if Beneficiary step should be displayed
+        Boolean canAddBeneficiary = false;
+        String selectedContractPlanName = selectedContractInfo.containsKey('TXT_MedicalPlan') && selectedContractInfo.get('TXT_MedicalPlan') != null ? (String)selectedContractInfo.get('TXT_MedicalPlan') : '';
+        List<Object> userInputs = (List<Object>)inputMap.get('userInputs');
+        Boolean hasAdultNewMembers = userInputs != null ? hasAdultNewMembers(userInputs) : true;
+        System.debug('Update Type: ' + updateType);
+        System.debug('oldPlanName: ' + oldPlanName);
+        System.debug('selectedPlanName: ' + selectedPlanName);
+        System.debug('Awaiting Contract Plan Name: ' + selectedContractPlanName);
+        System.debug('Is add member? ' + isAddMember);
+        System.debug('Is hasAdultNewMembers? ' + hasAdultNewMembers);
+        canAddBeneficiary = 
+            (
+                !updateType.contains('Change to Programs') 
+                && selectedContractPlanName.contains('Premier') 
+                && isAddMember 
+                && hasAdultNewMembers
+            ) || (
+                (
+                    !selectedContractPlanName.contains('Premier') 
+                    || (isAddMember && hasAdultNewMembers)
+                )
+                && selectedPlanName != null 
+                && selectedPlanName.contains('Premier')
+            );
+        pcChangesOutput.put('canAddBeneficiary', canAddBeneficiary);
 
         for (String key : pcReasons.keySet()) {
             if ((Boolean) pcReasons.get(key)) {
                 if (key == 'addMember' && !truePcReasons.contains('Add Member')) {
                     truePcReasons.add('Add Member');
-                    trueFeePcReasons.add('Add Member');
+                    //trueFeePcReasons.add('Add Member');
                 }
                 if (key == 'removeMember' && !truePcReasons.contains('Remove Member')) {
                     truePcReasons.add('Remove Member');
                 }
                 if (key == 'programUpgrade' && !truePcReasons.contains('Program Upgrade')) {
                     truePcReasons.add('Program Upgrade');
-                    trueFeePcReasons.add('Program Upgrade');
+                    //trueFeePcReasons.add('Program Upgrade');
                 }
                 if (key == 'programDowngrade' && !truePcReasons.contains('Program Downgrade')) {
                     truePcReasons.add('Program Downgrade');
-                    trueFeePcReasons.add('Program Downgrade');
+                    //trueFeePcReasons.add('Program Downgrade');
                 }
                 if (key == 'effectiveDateChange' && !truePcReasons.contains('Effective Date Change')) {
                     truePcReasons.add('Effective Date Change');
@@ -745,12 +975,17 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                 }
                 if (key == 'addExistingMember' && !truePcReasons.contains('Add Existing Member')) {
                     truePcReasons.add('Add Existing Member');
+                    //trueFeePcReasons.add('Add Existing Member');
                 }
                 if (key == 'primaryChange' && !truePcReasons.contains('Primary Change')) {
                     truePcReasons.add('Primary Change');
                 }
                 if (key == 'agingOut' && !truePcReasons.contains('Aging Out')) {
                     truePcReasons.add('Aging Out');
+                }
+                if(key == 'addExistingNewborn' && !truePcReasons.contains('Add Newborn')) {
+                    truePcReasons.add('Add Newborn');
+                    trueFeePcReasons.add('Add Newborn');
                 }
             }
             // Turn Eff Date Change to false if any other reason is true
@@ -766,13 +1001,19 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         pcReasonsString = String.join(truePcReasons, '; ');
         pcChangesOutput.put('pcReasonsString', pcReasonsString);
         
-        if (trueFeePcReasons.size() > 0) {
+        if (trueFeePcReasons.size() > 0 && !oldFeePcReasons.contains('New Application')) {
             String feePcReasonsString = String.join(trueFeePcReasons, ', ');
-            String programSummaryFeeText = 'One Time Change Fee (' + feePcReasonsString + '): ' + (Decimal)pcChangesOutput.get('feeAmount');
+            String programSummaryFeeText = 'One Time Change Fee (' + feePcReasonsString + '): ';
             pcChangesOutput.put('programSummaryFeeText', programSummaryFeeText);
         }
+        
+        if (oldFeePcReasons.size() > 0) {
+            String oldFeePcReasonsString = String.join(oldFeePcReasons, ', ');
+            String oldProgramSummaryFeeText = 'Pending Change Fee (' + oldFeePcReasonsString + '): ';
+            pcChangesOutput.put('programSummaryFeeTextPending', oldProgramSummaryFeeText);
+        }
 
-        // True PC reasons for Amendment in case it corresponds
+        // True PC reasons for Amendment in case it corresponds 
         List<String> amendmentReasons = new List<String>();
         for (String key : pcReasons.keySet()) {
             if ((Boolean) pcReasons.get(key) && pcChangesOutput.get('docuSign')=='Amendment') {
@@ -803,6 +1044,16 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
             pcChangesOutput.put('amendmentReasons', amendmentReasonsString);
         }
 
+        if(newFeeItemMap.get('Amount') != null && ((Decimal)newFeeItemMap.get('Amount')) > 0) pcFeeItems.add(newFeeItemMap);
+
+        if(pcFeeItems.size() > 0) outputMap.put('pcFeeItems', pcFeeItems);
+
+        Decimal totalFeeAmount = (Decimal)pcChangesOutput.get('feeAmountNew') + (Decimal)pcChangesOutput.get('feeAmountPending');
+
+        if(totalFeeAmount == 0) pcChangesOutput.put('feeApplicable', false);
+
+        pcChangesOutput.put('feeAmount', totalFeeAmount);
+
         // Add pcReasons map to output map
         pcChangesOutput.put('pcReasons', pcReasons);
         // Add output map to output
@@ -828,7 +1079,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         Boolean isProgramUpgrade = reasons.containsKey('programUpgrade') ?  (Boolean) reasons.get('programUpgrade') : false;
         Boolean isAddExistingMember = reasons.containsKey('addExistingMember') ? (Boolean) reasons.get('addExistingMember') : false;
 
-        Boolean isCarryOverMedicalQuestions = pcChanges.containsKey('carryOverMedicalQuestions') ? (Boolean) pcChanges.get('carryOverMedicalQuestions') : false;
+        Boolean isCarryOverMedicalQuestions = pcChanges.containsKey('carryOverMedicalQuestions') ? (Boolean) pcChanges.get('carryOverMedicalQuestions') : false; // Consider that this is used in the OS and the DocuSign class
         
         if (censusData instanceof List<Object>) {
         
@@ -921,7 +1172,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                 List<vlocity_ins__ConsumerDrug__c> activemembersConsumerDrugList = [SELECT Id, Name, vlocity_ins__PrescribedBy__c, vlocity_ins__MedicationStartDate__c, vlocity_ins__MedicationEndDate__c, ARC_Reason__c, ARC_Active__c, ARC_CensusMember__c, ARC_CensusMember__r.Name FROM vlocity_ins__ConsumerDrug__c WHERE ARC_Active__c = true AND ARC_CensusMember__c IN :activeMembers ORDER BY CreatedDate ASC];
 
                 Integer cancerIndex = 0; 
-                Integer consumerDrugIndex = 0; 
+                Integer consumerDrugIndex = 0;
 
                 if (activemembersMedicalConditionsList.Size() > 0) {
                     for (ARC_MedicalConditions__c memberMc : activemembersMedicalConditionsList) {
@@ -1034,8 +1285,9 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                     Map<String, Object> memberMap = (Map<String, Object>) member;
         
                     if (Boolean.valueOf(memberMap.get('IsNewMember'))) {
-    
+                        
                         addMemberNameToMedicalQuestions(memberMap, questionsMap, selectCensusMemberList);
+
                     }
                 }
             }
@@ -1349,12 +1601,10 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         List<Object> oldProducts;
         Boolean haveAncillaryChange = false;
         Boolean removeParent = inputMap.get('removeParent') instanceof Boolean ? (Boolean)inputMap.get('removeParent') : false;
+        Boolean premierSelected = inputMap.get('premierSelected') instanceof Boolean ? (Boolean)inputMap.get('premierSelected') : false;
+        String medicalCode = '';
+        System.debug('premierSelected: ' + premierSelected);
 
-        // if (inputMap.get('selectedProducts') instanceof List<Object>) {
-        //     selectedProducts = (List<Object>)inputMap.get('selectedProducts');
-        // } else if (inputMap.get('oldProducts') instanceof List<Object>){
-        //     oldProducts = (List<Object>)inputMap.get('oldProducts');
-        // }
         if (inputMap.get('selectedProducts') instanceof List<Object>) {
             selectedProducts = (List<Object>)inputMap.get('selectedProducts');
         } 
@@ -1362,6 +1612,25 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         if (inputMap.get('oldProducts') instanceof List<Object>){
             oldProducts = (List<Object>)inputMap.get('oldProducts');
         }
+
+        if (selectedProducts != null) {
+            for (Object selectedProductObj : selectedProducts) {
+                Map<String, Object> product = (Map<String, Object>)selectedProductObj;
+                if ((String)product.get('Type__c') == 'Medical') {
+                    medicalCode = (String)product.get('ProductCode');
+                    break;
+                }
+            }
+        } else if (oldProducts != null) {
+            for (Object oldProductObj : oldProducts) {
+                Map<String, Object> product = (Map<String, Object>)oldProductObj;
+                if ((String)product.get('Type__c') == 'Medical') {
+                    medicalCode = (String)product.get('ProductCode');
+                    break;
+                }
+            }
+        }
+        System.debug('medicalCode: ' + medicalCode);
 
         List<Object> userInputs = (List<Object>)inputMap.get('userInputs'); 
         Map<String,Integer> ageMembersMap = getOldestAgeMap(userInputs);
@@ -1458,12 +1727,8 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                         String productType = (String)product.get('Type__c');
                         String productSubType = (String)product.get('SubType__c');
 
-                        // if (productType == 'Medical') {
-                        //     medical_product.put('name', (String)product.get('Name'));
-                        //     medical_product.put('value', (String)product.get('productId'));
-                        // }
                         
-                        if (member_relationship == 'Primary' || member_relationship == 'Spouse') {
+                        if (premierSelected || member_relationship == 'Primary' || member_relationship == 'Spouse') {
                             if (productSubType == 'SMART'){
                                 ((List<Map<String,Object>>)smart_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => false});
                             }
@@ -1480,10 +1745,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                         String productType = (String)product.get('Type__c');
                         String productSubType = (String)product.get('SubType__c');
 
-                        // if (productType == 'Medical') {
-                        //     medical_product.put('name', (String)product.get('Name'));
-                        //     medical_product.put('value', (String)product.get('productId'));
-                        // }
+                      
                         
 
                         if (productSubType == 'SMART' && product.get('Id') != lastProductSmart_ContractLineItemId && lastProductSmart_ContractLineItemId != null) {
@@ -1504,7 +1766,6 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                         if (member_has_product == true) {
                             if (member_relationship == 'Primary') {
                                 if (productSubType == 'SMART'){
-                                    // ((List<Map<String,Object>>)smart_product.get('options')).add(new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => false});
                                     ((List<Map<String,Object>>)smart_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => true});
                                     smart_product.put('name', (String)product.get('Name'));
                                     smart_product.put('value', (String)product.get('productId'));
@@ -1512,7 +1773,6 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                                     ((Map<String,Object>)primary_information.get('smart')).put('productId', product.get('productId'));
                                     ((Map<String,Object>)primary_information.get('smart')).put('name', product.get('Name'));
                                 } else if (productSubType == 'AIDD'){
-                                    // ((List<Map<String,Object>>)aidd_product.get('options')).add(new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => false});
                                     ((List<Map<String,Object>>)aidd_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => true});
                                     aidd_product.put('name', (String)product.get('Name'));
                                     aidd_product.put('value', (String)product.get('productId'));
@@ -1522,7 +1782,6 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                                 }
                             } else if (member_relationship == 'Spouse'){
                                 if (productSubType == 'SMART'){
-                                    // ((List<Map<String,Object>>)smart_product.get('options')).add(new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => false});
                                     ((List<Map<String,Object>>)smart_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => true});
                                     smart_product.put('name', (String)product.get('Name'));
                                     smart_product.put('value', (String)product.get('productId'));
@@ -1530,7 +1789,6 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                                     ((Map<String,Object>)spouse_information.get('smart')).put('productId', product.get('productId'));
                                     ((Map<String,Object>)spouse_information.get('smart')).put('name', product.get('Name'));
                                 } else if (productSubType == 'AIDD'){
-                                    // ((List<Map<String,Object>>)aidd_product.get('options')).add(new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => false});
                                     ((List<Map<String,Object>>)aidd_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => true});
                                     aidd_product.put('name', (String)product.get('Name'));
                                     aidd_product.put('value', (String)product.get('productId'));
@@ -1538,7 +1796,17 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                                     ((Map<String,Object>)spouse_information.get('aidd')).put('productId', product.get('productId'));
                                     ((Map<String,Object>)spouse_information.get('aidd')).put('name', product.get('Name'));
                                 }
-                            } else if(member_relationship == 'Child') {
+                            } else if (premierSelected && member_relationship == 'Child') {
+                                if (productSubType == 'SMART'){
+                                    ((List<Map<String,Object>>)smart_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => true});
+                                    smart_product.put('name', (String)product.get('Name'));
+                                    smart_product.put('value', (String)product.get('productId'));
+                                } else if (productSubType == 'AIDD'){
+                                    ((List<Map<String,Object>>)aidd_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => true});
+                                    aidd_product.put('name', (String)product.get('Name'));
+                                    aidd_product.put('value', (String)product.get('productId'));
+                                }
+                            } else if (!premierSelected && member_relationship == 'Child') {
 
                                 if (productSubType == 'SMART' || productSubType == 'AIDD'){
                                     if (
@@ -1621,7 +1889,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                             }
 
                         } else if (member_has_product == false) {
-                            if (member_relationship == 'Primary' || member_relationship == 'Spouse') {
+                            if (premierSelected || member_relationship == 'Primary' || member_relationship == 'Spouse') {
 
                                 
                                 if (productSubType == 'SMART'){
@@ -1631,16 +1899,16 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                                     ((List<Map<String,Object>>)aidd_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => false});
 
                                 }
-                            } else if(member_relationship == 'Child'){
+                            } else if (!premierSelected && member_relationship == 'Child') {
                                 if(((List<Map<String,Object>>)selected_parent.get('options')).isEmpty()){
                                 
-                                        selected_parent.put('value', null);
-                                        ancillary_product_list.add('None');
+                                    selected_parent.put('value', null);
+                                    ancillary_product_list.add('None');
 
-                                        ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Primary Program', 'value' => primary_information.get('memberId'), 'selected' => false});
-                                        if((String)spouse_information.get('memberId') != null){
-                                            ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Spouse Program', 'value' => spouse_information.get('memberId'), 'selected' => false});
-                                        }
+                                    ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Primary Program', 'value' => primary_information.get('memberId'), 'selected' => false});
+                                    if((String)spouse_information.get('memberId') != null){
+                                        ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Spouse Program', 'value' => spouse_information.get('memberId'), 'selected' => false});
+                                    }
                                 }
                             }
                         }
@@ -1695,7 +1963,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                     shareSMART.put('value', false);
                     shareAIDD.put('value', false);
 
-                    if (member_relationship == 'Primary' || member_relationship == 'Spouse') {
+                    if (premierSelected || member_relationship == 'Primary' || member_relationship == 'Spouse') {
 
                         if (((List<Map<String,Object>>)smart_product.get('options')).isEmpty() == true) {
                             ((List<Map<String,Object>>)smart_product.get('options')).add(new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => true});
@@ -1715,7 +1983,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                             ((List<Map<String,Object>>)aidd_product.get('options')).add(1, new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => false});
                         }
 
-                    } else if (member_relationship == 'Child') {
+                    } else if (!premierSelected && member_relationship == 'Child') {
                         selected_parent.put('options', new List<Map<String,Object>>{
                             new Map<String,Object>{'value' => null, 'label' => '-', 'selected' => true},
                             new Map<String,Object>{'value' => 'None', 'label' => 'None', 'selected' => false},
@@ -1727,7 +1995,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                         }
                     }
                 } else if(oldProducts != null) {
-                    if (member_relationship == 'Primary' || member_relationship == 'Spouse') {
+                    if (premierSelected || member_relationship == 'Primary' || member_relationship == 'Spouse') {
                         if ((Boolean)user_input.get('IsNewMember') == true || (Boolean)user_input.get('IsAddExistingMember') == true) {
                             if ((String)smart_product.get('value') == null) {
                                 if (((List<Map<String,Object>>)smart_product.get('options')).isEmpty() == true) {
@@ -1790,15 +2058,11 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
 
                         }
 
-                    } else if (member_relationship == 'Child') {
+                    } else if (!premierSelected && member_relationship == 'Child') {
                         if ((Boolean)user_input.get('IsNewMember') == true  || (Boolean)user_input.get('IsAddExistingMember') == true) {
                             if ((String)selected_parent.get('value') == null) {
                                 ((List<Map<String,Object>>)selected_parent.get('options')).add(0, new Map<String,Object>{'label' => '-', 'value' => null, 'selected' => true});
                                 ((List<Map<String,Object>>)selected_parent.get('options')).add(1, new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => false});
-                                // ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Primary Program', 'value' => (String)primary_information.get('memberId'), 'selected' => false});
-                                // if ((String)spouse_information.get('memberId') != null) {
-                                //     ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Spouse Program', 'value' => (String)spouse_information.get('memberId'), 'selected' => false});
-                                //}
                             }
                         } else if ((Boolean)user_input.get('IsNewMember') == false) {
                             if ((String)selected_parent.get('value') == null) {
@@ -1875,9 +2139,13 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                     Map<String, Object> product_map = new Map<String, Object>{'selectedProduct' => new Map<String,Object>{'Id' => (String)product.get('productId')}, 'userInputs' => userInputs};
                     //Stamp oldestAge on each Member
                     for (Object user_input_object : (List<Object>)product_map.get('userInputs') ) {
-
                         Map<String,Object> user_input = (Map<String,Object>)user_input_object;
-                        user_input.put('RF_Census.CRF_PrimaryMemberAge',oldestMemberAge);
+                        if (premierSelected) {
+                            user_input.put('RF_Census.CRF_PrimaryMemberAge', (Integer)user_input.get('RF_Census.CM_Age'));
+                        } else {
+                            user_input.put('RF_Census.CRF_PrimaryMemberAge', oldestMemberAge);
+                        }
+                        user_input.put('RF_Census.CM_ProductCode', medicalCode);
                     }
                     products_list.add(product_map);
                 }
@@ -1910,8 +2178,9 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                         //FOR EACH OLD USER INPUT
                         for (Object census_member_object : (List<Object>)product.get('census_members')) {
                             Map<String,Object> census_member = (Map<String,Object>)census_member_object;
+
                             //Add the userInput if the member that we are in the loop of UserInput is included has the product.
-                            if ((String)user_input.get('Id') == (String)census_member.get('Id')) {
+                            if (((String)user_input.get('Id') == (String)census_member.get('Id')) && !newMemberIds.contains((String)user_input.get('Id'))) {
                                 if((Boolean)user_input.get('RF_Census.CM_IsPrimary') == true) hasPrimary = true;
                                 if((Integer)user_input.get('RF_Census.CM_Age') == oldestMemberAge){
                                     oldestMemberRelationShip= (String)user_input.get('RF_Census.CM_Relationship');
@@ -1919,11 +2188,13 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                                 }
                              
                                 user_input.put('RF_Census.CRF_PrimaryMemberAge',oldestMemberAge);
+                                user_input.put('RF_Census.CM_ProductCode', medicalCode);
                                 ((List<Map<String,Object>>)product_map.get('userInputs')).add(user_input);
                             }
                             //Add new Members to the UserInputs of that product if they are included
-                            else if (((Boolean)user_input.get('IsNewMember') == true || (Boolean)user_input.get('IsAddExistingMember') == true)&& !newMemberIds.contains((String)user_input.get('Id'))){
+                            else if (((Boolean)user_input.get('IsNewMember') == true || (Boolean)user_input.get('IsAddExistingMember') == true) && !newMemberIds.contains((String)user_input.get('Id'))) {
                                 user_input.put('RF_Census.CRF_PrimaryMemberAge',oldestMemberAge);
+                                user_input.put('RF_Census.CM_ProductCode', medicalCode);
                                 if((Integer)user_input.get('RF_Census.CM_Age')== oldestMemberAge){
                                     oldestMemberRelationShip= (String)user_input.get('RF_Census.CM_Relationship');
                                     hasOldestMember=true;
@@ -1950,25 +2221,28 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                     }
 
                     //Adjust the Oldest Member Age AND Primary Member on the procut if the Primary is not inlcuded or if the oldest member is not included. OR is Ancillary Product
-                    if((String)product.get('Type__c') == 'Ancillary'){
+                    if ((String)product.get('Type__c') == 'Ancillary') {
 
                         for(Object census_Member_object : (List<Map<String,Object>>)product_map.get('userInputs')){
                             Map<String,Object> census_Member_instance = (Map<String,Object>)census_Member_object;
-                            if(!hasPrimary){
-                                if((String)census_Member_instance.get('RF_Census.CM_Relationship') == 'Spouse'){
-                                    census_Member_instance.put('RF_Census.CM_IsPrimary',true);
+                            if (!hasPrimary) {
+                                if (premierSelected || (String)census_Member_instance.get('RF_Census.CM_Relationship') == 'Spouse') {
+                                    census_Member_instance.put('RF_Census.CM_IsPrimary', true);
                                 }
                             }
                             if(!hasOldestMember){
-                                if(oldestMemberRelationShip == 'Primary'){
-                                    census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge',(Integer)ageMembersMap.get('Spouse'));
-                                }
-                                else{
-                                    census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge',(Integer)ageMembersMap.get('Primary'));
+                                if (premierSelected) {
+                                    census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge', (Integer)census_Member_instance.get('RF_Census.CM_Age'));
+                                } else {
+                                    if(oldestMemberRelationShip == 'Primary'){
+                                        census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge',(Integer)ageMembersMap.get('Spouse'));
+                                    }
+                                    else{
+                                        census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge',(Integer)ageMembersMap.get('Primary'));
+                                    }
                                 }
                             }
-                            // Set Coverages for Anillaries
-                            // if ((String)product.get('Type__c') == 'Ancillary') {
+
 
                             if((countPrimary == 1 && countSpouse == 0 && countChilds == 0) || (countPrimary == 0 && countSpouse == 1 && countChilds == 0)){
                                 census_Member_instance.put('RF_Census.CRF_Coverage','Primary');
@@ -1984,11 +2258,13 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
                                 census_Member_instance.put('RF_Census.CRF_CoverageAIDD','Family');
                             }
                                 
-                            // }
                         }
                     }
 
-                    products_list.add(product_map);
+                    List<Object> uInputs = (List<Object>)product_map.get('userInputs');
+                    if (uInputs != null && !uInputs.isEmpty()) {
+                        products_list.add(product_map);
+                    }
                 }
                 
                 outputMap.put('LWC_ChooseProductSelectionOutput', products_list);
@@ -2024,8 +2300,7 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         List<Object> selectedProducts = (List<Object>)inputMap.get('selectedProducts'); // List of members BEFORE any changes
         String procedureAPIName = 'GetPrograms_UpgradeAndDowngrade';
         // Call the Integration Procedure
-        Map<String, Object> IPOutput = (Map<String, Object>) vlocity_ins.IntegrationProcedureService.runIntegrationProcedureServiceFromApex(procedureAPIName, new Map<String, Object>{'Program' => oldMedical
-    }, new Map<String, Object>());
+        Map<String, Object> IPOutput = (Map<String, Object>) vlocity_ins.IntegrationProcedureService.runIntegrationProcedureServiceFromApex(procedureAPIName, new Map<String, Object>{'Program' => oldMedical}, new Map<String, Object>());
         String selectedPlanName;
         // Iterate over selected products list
         if (selectedProducts != null) {
@@ -2076,6 +2351,139 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         else{
             outputMap.put('isUpgradeAndMissingUWDemoInfo',false);
         }
+
+        // Add RF_Census.CM_ProductCode node to UserInputs
+        // List<Object> userInputs = inputMap.containsKey('userInputs') ? (List<Object>)inputMap.get('userInputs') : new List<Object>();
+        // if (userInputs != null && !userInputs.isEmpty()) {
+        //     for (Object ui : userInputs) {
+        //         Map<String,Object> uiMap = (Map<String,Object>)ui;
+        //         uiMap.put('RF_Census.CM_ProductCode', selectedPlanName);
+        //     }
+        //     outputMap.put('userInputs', userInputs);
+        // }
+    }
+
+    /*******************************************************************
+    * @MethodName         :   includeProductCodeToUserInputs
+    * @Description        :   Adds RF_Census.CM_ProductCode node to UserInputs
+    ********************************************************************/
+    public static void includeProductCodeToUserInputs(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        String selectedPlanCode = '';
+        Boolean planSelected = (Boolean)inputMap.get('planSelected');
+
+        if (planSelected) {
+            List<Object> selectedProducts = (List<Object>)inputMap.get('selectedProducts');
+            for (Object selectedProductObj : selectedProducts) {
+                Map<String, Object> product = (Map<String, Object>)selectedProductObj;
+                if ((String)product.get('Type__c') == 'Medical') {
+                    selectedPlanCode = (String)product.get('ProductCode');
+                    break;
+                }
+            }
+        } else {
+            List<Object> oldProducts = (List<Object>)inputMap.get('oldProducts');
+            for (Object oldProductObj : oldProducts) {
+                Map<String, Object> product = (Map<String, Object>)oldProductObj;
+                if ((String)product.get('Type__c') == 'Medical') {
+                    selectedPlanCode = (String)product.get('ProductCode');
+                    break;
+                }
+            }
+        }
+
+        // Add RF_Census.CM_ProductCode node to UserInputs
+        List<Object> userInputs = inputMap.containsKey('userInputs') ? (List<Object>)inputMap.get('userInputs') : new List<Object>();
+        if (userInputs != null && !userInputs.isEmpty()) {
+            for (Object ui : userInputs) {
+                Map<String,Object> uiMap = (Map<String,Object>)ui;
+                uiMap.put('RF_Census.CM_ProductCode', selectedPlanCode);
+            }
+            outputMap.put('userInputs', userInputs);
+        }
+    }
+
+
+    /*******************************************************************
+    * @MethodName         :   getFirstAvailableDate
+    * @Description        :   Returns the first available date based on the input dates. OldDate is old contract eff date
+    ********************************************************************/
+    public static Date getFirstAvailableDate(Date newbornBirthdatePlus30, Date oldDate) {
+        if (newbornBirthdatePlus30 == null) {
+            return null;
+        }
+
+        Date baseDate = newbornBirthdatePlus30 ;
+
+        if (oldDate != null) {
+            return calculateDateWithTargetDay(baseDate, oldDate.day());
+        } else {
+            return calculateNextFirstOrFifteenth(baseDate);
+        }
+    }
+    /*******************************************************************
+    * @MethodName         :   calculateDateWithTargetDay
+    * @Description        :   Returns the next date with the same day as targetDay after baseDate.
+    ********************************************************************/
+
+    private static Date calculateDateWithTargetDay(Date baseDate, Integer targetDay) {
+        Date candidate = Date.newInstance(
+            baseDate.year(),
+            baseDate.month(),
+            Math.min(targetDay, Date.daysInMonth(baseDate.year(), baseDate.month()))
+        );
+        
+        while (candidate <= baseDate) {
+            candidate = moveToNextMonth(candidate, targetDay);
+        }
+        
+        return candidate;
+    }
+     /*******************************************************************
+    * @MethodName         :   calculateNextFirstOrFifteenth
+    * @Description        :   Returns the next date that is either the 1st or 15th of the month after baseDate.
+    ********************************************************************/
+    private static Date calculateNextFirstOrFifteenth(Date baseDate) {
+        Integer day = baseDate.day();
+        Date result;
+        
+        if (day < 15) {
+            result = Date.newInstance(baseDate.year(), baseDate.month(), 15);
+        } else {
+            Date nextMonth = baseDate.addMonths(1);
+            result = Date.newInstance(nextMonth.year(), nextMonth.month(), 1);
+        }
+        
+        while (result <= baseDate) {
+            result = moveToNextMonth(result, result.day());
+        }
+        
+        return result;
+    }
+     /*******************************************************************
+    * @MethodName         :   moveToNextMonth
+    * @Description        :   Returns the date moved to the next month with the same target day.
+    ********************************************************************/
+    private static Date moveToNextMonth(Date currentDate, Integer targetDay) {
+        Integer nextMonth = currentDate.month() == 12 ? 1 : currentDate.month() + 1;
+        Integer nextYear = currentDate.month() == 12 ? currentDate.year() + 1 : currentDate.year();
+        return Date.newInstance(
+            nextYear,
+            nextMonth,
+            Math.min(targetDay, Date.daysInMonth(nextYear, nextMonth))
+        );
+    }
+
+
+    /*******************************************************************
+    * @MethodName         :   lastDateOfMonth
+    * @Description        :   Returns the last date of the month based on the input date.
+    ********************************************************************/
+    public static Date lastDateOfMonth(Date d){
+        if(d!= null){
+            Integer numberOfDays = Date.daysInMonth(d.year(), d.month());
+            return Date.newInstance(d.year(), d.month(), numberOfDays);
+        }
+        else return null;
     }
 
     /*******************************************************************
@@ -2136,4 +2544,164 @@ global without sharing class ARC_ProgramChange_Utilities implements vlocity_ins.
         return age;
     } 
 
+    public static void getMemberBeneficiaries (Map<String, Object> inputMap, Map<String, Object> outputMap, Map<String, Object> options) {
+        String contractId = (String)((Map<String, Object>)inputMap.get('SelectedContractInfo')).get('ContractID');
+
+        List<Object> censusMemberList = inputMap.containsKey('census_component') 
+                && ((Map<String, Object>)inputMap.get('census_component')).containsKey('census_members') 
+                && ((Map<String, Object>)inputMap.get('census_component')).get('census_members') != null 
+            ? (List<Object>)((Map<String, Object>)inputMap.get('census_component')).get('census_members') 
+            : new List<Object>();
+        Boolean premierSelected = inputMap.get('premierSelected') instanceof Boolean ? (Boolean)inputMap.get('premierSelected') : false;
+
+        List<ARC_CoverageParticipant__c> coverageParticipantList = [
+            SELECT Id, ARC_PrimaryBeneficiaryName__c, ARC_PrimaryBeneficiaryBirthdate__c, ARC_PrimaryBeneficiaryPhone__c, ARC_PrimaryBeneficiaryRelationship__c, ARC_PrimaryBeneficiaryOther__c, ARC_SecondaryBeneficiaryName__c, ARC_SecondaryBeneficiaryBirthdate__c, ARC_SecondaryBeneficiaryPhone__c, ARC_SecondaryBeneficiaryRelationship__c, ARC_SecondaryBeneficiaryOther__c, ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId
+            FROM ARC_CoverageParticipant__c
+            WHERE ARC_Policy__r.ARC_Contract__c = :contractId AND ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.vlocity_ins__Type__c = 'Medical'];
+
+        Map<String, ARC_CoverageParticipant__c> memberToCoveragePartMap = new Map<String, ARC_CoverageParticipant__c>();
+        if (coverageParticipantList != null && !coverageParticipantList.isEmpty()) {
+            for (ARC_CoverageParticipant__c covPart : coverageParticipantList) {
+                String memberId = covPart.ARC_PolicyParticipant__r?.PrimaryParticipantContact?.AccountId;
+                if (memberId != null && !memberToCoveragePartMap.containsKey(memberId)) memberToCoveragePartMap.put(memberId, covPart);
+            }
+        }
+        
+        if (censusMemberList != null && !censusMemberList.isEmpty()) {
+            List<Object> finalMemberList = new List<Object>();
+            for (Object member : censusMemberList) {
+                Map<String, Object> memberMap = (Map<String, Object>)member;
+                String memberAccountId = (String)memberMap.get('PersonAccountId');
+                List<Object> memberBeneficiariesList = new List<Object>();
+                if (premierSelected && memberToCoveragePartMap.get(memberAccountId) != null) {
+                    ARC_CoverageParticipant__c memberCovPart = memberToCoveragePartMap.get(memberAccountId);
+                    if (memberCovPart.ARC_PrimaryBeneficiaryName__c != null && memberCovPart.ARC_PrimaryBeneficiaryName__c != '') {
+                        Map<String, Object> primaryBenefMap = new Map<String, Object>{
+                            'Id' => String.valueOf(memberCovPart.Id + '-primary'),
+                            'Label' => 'Primary Beneficiary',
+                            'BeneficiaryName' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryName__c),
+                            'BeneficiaryBirthdate' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryBirthdate__c),
+                            'BeneficiaryPhone' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryPhone__c),
+                            'BeneficiaryRelationship' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryRelationship__c),
+                            'BeneficiaryOtherRelationship' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryOther__c),
+                            'isOtherRelationship' => memberCovPart.ARC_PrimaryBeneficiaryRelationship__c == 'Other' ? true : false
+                        };
+                        memberBeneficiariesList.add(primaryBenefMap);
+                    }
+                    if (memberCovPart.ARC_SecondaryBeneficiaryName__c != null && memberCovPart.ARC_SecondaryBeneficiaryName__c != '') {
+                        Map<String, Object> secondaryBenefMap = new Map<String, Object>{
+                            'Id' => String.valueOf(memberCovPart.Id + '-secondary'),
+                            'Label' => 'Secondary Beneficiary',
+                            'BeneficiaryName' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryName__c),
+                            'BeneficiaryBirthdate' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryBirthdate__c),
+                            'BeneficiaryPhone' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryPhone__c),
+                            'BeneficiaryRelationship' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryRelationship__c),
+                            'BeneficiaryOtherRelationship' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryOther__c),
+                            'isOtherRelationship' => memberCovPart.ARC_SecondaryBeneficiaryRelationship__c == 'Other' ? true : false
+                        };
+                        memberBeneficiariesList.add(secondaryBenefMap);
+                    }
+                }
+                memberMap.put('beneficiaries', memberBeneficiariesList);
+                finalMemberList.add(memberMap);
+            }
+            outputMap.put('census_component', new Map<String, Object>{
+                'census_members' => finalMemberList
+            });
+        }
+    }
+
+    public static void includePremierSelected(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        String medicalCode = '';
+        Boolean planSelected = (Boolean)inputMap.get('planSelected');
+
+        if (planSelected) {
+            List<Object> selectedProducts = (List<Object>)inputMap.get('selectedProducts');
+            for (Object selectedProductObj : selectedProducts) {
+                Map<String, Object> product = (Map<String, Object>)selectedProductObj;
+                if ((String)product.get('Type__c') == 'Medical') {
+                    medicalCode = (String)product.get('ProductCode');
+                    break;
+                }
+            }
+        } else {
+            List<Object> oldProducts = (List<Object>)inputMap.get('oldProducts');
+            for (Object oldProductObj : oldProducts) {
+                Map<String, Object> product = (Map<String, Object>)oldProductObj;
+                if ((String)product.get('Type__c') == 'Medical') {
+                    medicalCode = (String)product.get('ProductCode');
+                    break;
+                }
+            }
+        }
+
+        outputMap.put('premierSelected', medicalCode.contains('Premier'));
+    }
+
+    public static Boolean hasAdultNewMembers(List<Object> userInputs) {
+        Boolean result = false;
+        for (Object userInputObj : userInputs) {
+            Map<String, Object> userInput = (Map<String, Object>)userInputObj;
+            Boolean isNewMember = (Boolean)userInput.get('IsNewMember');
+            Boolean isAdult = (Integer)userInput.get('RF_Census.CM_Age') >= 18;
+            result = isNewMember && isAdult;
+            if (result) break;
+        }
+        return result;
+    }
+
+    /*******************************************************************
+    * @MethodName         :   removeSelectedAncillaries
+    * @Description        :   Method to remove the Ancillaries that are not related to the Medical Product
+    ********************************************************************/
+    public static void removeSelectedAncillaries(Map<String, Object> inputMap, Map<String, Object> outputMap, Map<String, Object> options) {
+        List<Object> selectedProducts = (List<Object>)inputMap.get('selectedProducts');
+
+        Map<String, Object> medicalProduct;
+        String medicalCode;
+
+        Boolean hasInvalidAncillary = false;
+
+        for (Object productObject : selectedProducts) {
+            Map<String, Object> product = (Map<String, Object>)productObject;
+
+            if ((String)product.get('Type__c') == 'Medical') {
+                medicalProduct = product;
+                medicalCode = (String)product.get('ProductCode');
+            }
+        }
+
+        Boolean isPremier = medicalCode != null && medicalCode.contains('Premier');
+
+        for (Object productObject : selectedProducts) {
+            Map<String, Object> product = (Map<String, Object>)productObject;
+
+            if ((String)product.get('Type__c') != 'Medical') {
+                String ancillaryCode = (String)product.get('ProductCode');
+
+                Boolean isPremierAncillary =
+                    ancillaryCode != null &&
+                    (ancillaryCode.contains('CriticalCare') ||
+                    ancillaryCode.contains('AccidentalInjury'));
+
+                if (
+                    (isPremier && !isPremierAncillary) ||
+                    (!isPremier && isPremierAncillary)
+                ) {
+                    hasInvalidAncillary = true;
+                    break;
+                }
+            }
+        }
+
+        List<Object> newSelectedProducts = new List<Object>();
+
+        if (hasInvalidAncillary && medicalProduct != null) {
+            newSelectedProducts.add(medicalProduct);
+        } else {
+            newSelectedProducts = selectedProducts;
+        }
+
+        outputMap.put('selectedProducts', newSelectedProducts);
+    }
 }

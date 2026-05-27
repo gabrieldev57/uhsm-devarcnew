@@ -1,0 +1,28 @@
+<template>
+  <div class="wizardWrap">
+    <template if:true={isLoading}>
+      <div class="spinnerWrap">
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+      </div>
+    </template>
+
+    <template if:false={isLoading}>
+      <template if:true={showCreation}>
+        <c-a-r-c_employer-contribution-creation
+          record-id={recordId}
+          oncreated={handleCreated}>
+        </c-a-r-c_employer-contribution-creation>
+      </template>
+
+      <template if:true={showConfiguration}>
+        <c-a-r-c_employer-contribution-configuration
+          key={refreshKey}
+          record-id={recordId}
+          refresh-key={refreshKey}
+          onchangegroupclasses={handleChangeGroupClasses}
+          onnogroupclasses={handleNoGroupClasses}>
+        </c-a-r-c_employer-contribution-configuration>
+      </template>
+    </template>
+  </div>
+</template>

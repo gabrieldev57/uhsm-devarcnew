@@ -9,7 +9,7 @@ public with sharing class ARC_DocuSignEFTForm {
         for (Case case_i : casesToUpdate) {
             censusMemberIds.add(case_i.ARC_CensusMember__c);
         }
-        List<vlocity_ins__GroupCensusMember__c> members = [SELECT Id,vlocity_ins__CensusId__c, vlocity_ins__Birthdate__c, vlocity_ins__FirstName__c, vlocity_ins__LastName__c, Name, ARC_PhysicalAddressCity__c, ARC_PhysicalAddressState__c, ARC_PhysicalAddressZipCode__c, ARC_PhysicalAddressStreet__c, vlocity_ins__Email__c, ARC_Phone__c, Member_ID__c,vlocity_ins__ContactId__r.AccountId FROM vlocity_ins__GroupCensusMember__c WHERE Id IN: censusMemberIds];
+        List<vlocity_ins__GroupCensusMember__c> members = [SELECT Id,vlocity_ins__CensusId__c, vlocity_ins__Birthdate__c, vlocity_ins__FirstName__c, vlocity_ins__LastName__c, Name, ARC_PhysicalAddressCity__c, ARC_PhysicalAddressState__c, ARC_PhysicalAddressZipCode__c, ARC_PhysicalAddressStreet__c, vlocity_ins__Email__c, ARC_Phone__c, Member_ID__c,vlocity_ins__ContactId__r.AccountId, vlocity_ins__ContactId__r.IsEmailBounced FROM vlocity_ins__GroupCensusMember__c WHERE Id IN: censusMemberIds];
         Map<Id,vlocity_ins__GroupCensusMember__c> censusMembersMap = new Map<Id,vlocity_ins__GroupCensusMember__c>();
         Set<Id> censusIds = new Set<Id>();
         for(vlocity_ins__GroupCensusMember__c member : members) {
@@ -19,7 +19,7 @@ public with sharing class ARC_DocuSignEFTForm {
 
         for (Case case_i : casesToUpdate) {
             vlocity_ins__GroupCensusMember__c member = censusMembersMap.containsKey(case_i.ARC_CensusMember__c)? censusMembersMap.get(case_i.ARC_CensusMember__c):null;
-            if(member == null) continue;
+            if(member == null || member?.vlocity_ins__ContactId__r?.IsEmailBounced == true) continue;
             Map<String, Object> inputMap = new Map<String, Object> {
                 'templateId' => envelope[0].vlocity_ins__TemplateIdentifier__c,
                 'status' => 'sent',

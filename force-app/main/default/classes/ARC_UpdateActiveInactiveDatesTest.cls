@@ -25,7 +25,7 @@ public with sharing class ARC_UpdateActiveInactiveDatesTest {
         cli.vlocity_ins__Product2Id__c = p.Id;
         update cli;
 
-        List<InsurancePolicy> policies = ARC_TestUtility.createTestPolicies(1);
+        List<InsurancePolicy> policies = ARC_TestUtility.createTestPolicies(1, 'ARC_IndividualAndFamily');
         InsurancePolicy pol = policies[0];
         pol.ARC_Contract__c = contract.Id;
         pol.Product = p;

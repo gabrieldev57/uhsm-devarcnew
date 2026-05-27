@@ -1,0 +1,136 @@
+<template>
+    <div class="dependents-wrapper">
+        <lightning-spinner
+            if:true={isLoading}
+            alternative-text="Loading Dependents"
+            size="large">
+        </lightning-spinner>
+
+        <div class="header">
+            <span>Dependents</span>
+            <template lwc:if={showEditButton}>
+                <button class="edit-btn" onclick={handleEdit}>
+                    <lightning-icon icon-name="utility:edit" size="xx-small"></lightning-icon>
+                    Edit
+                </button>
+            </template>
+        </div>
+
+        <!-- ================= NO DEPENDENTS MESSAGE ================= -->
+        <template if:true={hasNoDependents}>
+            <div
+                class="slds-notify "
+                role="alert">
+                <h3>
+                    No dependents data available to show.
+                </h3>
+            </div>
+        </template>
+
+        <!-- ================= DEPENDENTS LIST ================= -->
+          <template if:false={hasNoDependents}>
+            <div class="dependents-list">
+            <template for:each={activeMemberList} for:item="member">
+                <div class="dependent" key={member.Id}>
+
+                    <!-- ================= VIEW MODE ================= -->
+                    <template if:false={editMode}>
+                        <div class="dependent-info">
+                            <p class="dependent-name">
+                                {member.Name}
+                            </p>
+
+                            <p class="relationship">
+                                {member.DependentRelationship}
+                                - {member.Birthdate}
+                                - {member.SSN}
+                                - {member.Gender}
+
+                                <template if:true={member.showAddress}>
+                                    - <span class="address-inline">
+                                        {member.displayAddress}
+                                    </span>
+                                </template>
+                            </p>
+                        </div>
+                    </template>
+
+                    <!-- ================= EDIT MODE ================= -->
+                    <template if:true={editMode}>
+                        <template if:true={member.isSaving}>
+                            <div class="spinner-overlay slds-align_absolute-center slds-text-align_center">
+                                <lightning-spinner size="large"></lightning-spinner>
+                                <p class="slds-m-top_small">Updating Dependent Details...</p>
+                            </div>
+                        </template>
+
+                <lightning-record-edit-form
+                record-id={member.PersonAccountId} object-api-name="Account" onsuccess={handleSuccess} onerror={handleError} onsubmit={handleSubmit}>
+                <lightning-messages></lightning-messages>
+
+                <!-- First Row: First Name / Last Name -->
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input-field field-name="FirstName"></lightning-input-field>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input-field field-name="LastName"></lightning-input-field>
+                    </div>
+                </div>
+
+                <!-- Second Row: Birthdate / Gender -->
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 date-field-container">
+                        <lightning-input-field field-name="PersonBirthdate" variant="label-stacked"></lightning-input-field>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input-field field-name="PersonGender" variant="label-stacked"></lightning-input-field>
+                    </div>
+                </div>
+                
+                <!-- Third Row: Billing Address (full width) -->
+                <div class="address-section">
+                    <label class="address-label">Billing Address</label>
+
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-1">
+                            <lightning-input-field field-name="BillingStreet" variant="label-hidden"></lightning-input-field>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <lightning-input-field field-name="BillingCity"></lightning-input-field>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <lightning-input-field field-name="BillingState"></lightning-input-field>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <lightning-input-field field-name="BillingPostalCode"></lightning-input-field>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <lightning-input-field field-name="BillingCountry"></lightning-input-field>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="slds-var-m-top_medium buttons-container">
+                    <lightning-button variant="brand" type="submit" label="Save Changes"></lightning-button>
+                    <lightning-button variant="neutral" type="button" label="Cancel" onclick={handleCancel}></lightning-button>
+                </div>
+
+            </lightning-record-edit-form>
+            </template>
+
+
+
+                </div>
+            </template>
+        </div>
+          </template>
+
+        
+    </div>
+</template>

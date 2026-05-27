@@ -1,0 +1,246 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ARC_CollapsibleSection - Modern Card Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:host {
+    display: block;
+    --brand: #2563eb;
+    --brand-soft: #eff6ff;
+    --success: #16a34a;
+    --success-soft: #ecfdf5;
+    --warning: #f59e0b;
+    --warning-soft: #fff7ed;
+    --border: #e5e7eb;
+    --text-muted: #6b7280;
+}
+
+/* Card Container */
+.groupCard {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.groupCard.expanded {
+    box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+}
+
+/* Card Header */
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 18px;
+    cursor: pointer;
+    background: #f8fafc;
+    gap: 12px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.cardHeaderLeft {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.iconWrap {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #9ea2ad;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.iconWrap.open {
+    background: #2563eb;
+}
+
+.cardIcon {
+    --slds-c-icon-color-foreground-default: #2563eb;
+}
+
+.cardIconImg {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.cardHeaderText {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.cardTitle {
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.cardSub {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.cardHeaderRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.chev {
+    --slds-c-icon-color-foreground-default: #6b7280;
+}
+
+/* Status Badge */
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    max-width: 100%;
+}
+
+.statusBadge.not-started {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.statusBadge.in-progress {
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+.statusBadge.complete {
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.statusIcon {
+    --slds-c-icon-color-foreground-default: currentColor;
+}
+
+.statusText {
+    font-weight: 600;
+}
+
+/* Save Button */
+.saveAllBtn {
+    background: #2563eb;
+    border: 1px solid #2563eb;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
+.saveAllBtn:hover {
+    background: #1d4ed8;
+}
+
+.saveAllBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Card Body */
+.cardBody {
+    padding: 20px 22px 24px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* TABLET / MOBILE */
+@media (max-width: 768px) {
+    .cardHeader {
+        padding: 14px 16px;
+    }
+
+    .cardBody {
+        padding: 18px 16px 20px;
+    }
+
+    .groupCard.expanded {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+}
+
+/* IPHONES */
+@media (max-width: 480px) {
+    .groupCard {
+        margin-bottom: 12px;
+        margin-top: 150px;
+    }
+
+    .cardHeader {
+        padding: 14px;
+        align-items: flex-start;
+    }
+
+    .cardHeaderLeft {
+        align-items: flex-start;
+    }
+
+    .iconWrap {
+        width: 32px;
+        height: 32px;
+    }
+
+    .cardTitle {
+        font-size: 14px;
+    }
+
+    .cardSub {
+        font-size: 11px;
+    }
+
+    .cardHeaderRight {
+        align-self: flex-start;
+        gap: 6px;
+    }
+
+    .saveAllBtn {
+        margin-left: 0;
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .statusBadge {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .cardBody {
+        padding: 16px 14px 18px;
+    }
+}

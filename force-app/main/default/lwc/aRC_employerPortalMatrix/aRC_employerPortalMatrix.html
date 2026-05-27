@@ -1,0 +1,102 @@
+<template>
+    <section class="portal-container">
+        <h2 class="header">Group Class & Contributions</h2>
+
+        <template if:true={hasGroupClasses}>
+            <template if:true={hasData}>
+
+                <div class="accordion">
+                    <template for:each={groupClasses} for:item="gc">
+                        <div key={gc.id} class="accItem">
+
+                            <button
+                                class="accHeader"
+                                data-id={gc.id}
+                                onclick={toggleGroupClass}
+                                type="button">
+
+                                <span class="accTitle">{gc.name}</span>
+
+                                <span class={gc.chevronClass} aria-hidden="true"></span>
+                            </button>
+
+                            <template if:true={gc.open}>
+                                <div class="accContent">
+
+                                    <p class="gc-subtitle">
+                                        <template if:true={gc.employeeType}>
+                                            {gc.employeeType}
+                                        </template>
+
+                                        <template if:true={gc.employeeDivision}>
+                                            <template if:true={gc.employeeType}>
+                                                &nbsp;-&nbsp;
+                                            </template>
+                                            {gc.employeeDivision}
+                                        </template>
+                                    </p>
+
+                                    <div class="table-wrapper">
+                                        <table class="matrix-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Program</th>
+                                                    <th>Employee Type</th>
+                                                    <th>Division</th>
+                                                    <th>Tier</th>
+                                                    <th>Contribution Type</th>
+                                                    <th class="numeric">% Contribution</th>
+                                                    <th class="numeric">Amount ($)</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                <template for:each={gc.rows} for:item="row">
+                                                    <tr key={row.rowKey}>
+                                                        <td>{row.programName}</td>
+                                                        <td>{row.employeeType}</td>
+                                                        <td>{row.employeeDivision}</td>
+                                                        <td>{row.employeeTier}</td>
+                                                        <td>{row.contributionType}</td>
+
+                                                        <td class="numeric">
+                                                            <template if:true={row.percent}>
+                                                                {row.percent}%
+                                                            </template>
+                                                        </td>
+
+                                                        <td class="numeric">
+                                                            <template if:true={row.amount}>
+                                                                {row.amount}
+                                                            </template>
+                                                        </td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </template>
+
+                        </div>
+                    </template>
+                </div>
+
+            </template>
+
+            <template if:false={hasData}>
+                <div class="empty-state">
+                    Group Classes have been configured, but no contributions have been set up for this user yet.
+                </div>
+            </template>
+        </template>
+
+        <template if:false={hasGroupClasses}>
+            <div class="empty-state">
+                No Group classes have been defined.
+            </div>
+        </template>
+
+    </section>
+</template>

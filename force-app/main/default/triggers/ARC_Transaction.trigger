@@ -6,6 +6,9 @@ trigger ARC_Transaction on ChargentOrders__Transaction__c (after update, after i
  
         //CREATES THE TLI FOR TRANSACTIONS OF TYPE CHARGE
         ARC_TransactionHandler.handleCreationTLI(Trigger.new);
+
+        //UPDATE COVERAGE PAID THROUGH FOR SMALL GROUP CONTRACTS
+        ARC_TransactionHandler.updateCoveragePaidThrough(Trigger.new, null);
     }
 
     if(Trigger.isAfter && Trigger.isUpdate){
@@ -25,6 +28,9 @@ trigger ARC_Transaction on ChargentOrders__Transaction__c (after update, after i
 
         //CREATE TLI FOR REFUNDS
         ARC_TransactionHandler.handleUpdateCreationTLI(newTransactionMap,oldTransactionMap);
+
+        //UPDATE COVERAGE PAID THROUGH FOR SMALL GROUP CONTRACTS
+        ARC_TransactionHandler.updateCoveragePaidThrough(Trigger.new, oldTransactionMap);
 
     }
 }

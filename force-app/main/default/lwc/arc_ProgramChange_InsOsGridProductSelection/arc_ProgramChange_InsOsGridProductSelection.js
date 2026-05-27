@@ -5,7 +5,6 @@ import pubsub from 'vlocity_ins/pubsub';
 import template from './arc_ProgramChange_InsOsGridProductSelection.html';
 const MAX_CONCURRENT_SERVICE_REQUEST = 5;
 
-
 export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGridProductSelection {
     productsByGroup;
     showWarning;
@@ -60,7 +59,6 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
     filteredAttributes;
     uniqueAttributesFilter;
 
-
     @api get showCartButton() {
         return this.programType == 'Medical' && this.productCount > 0;
     }
@@ -77,6 +75,15 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         printThisProducts: this.printThisProducts.bind(this),
     };
 
+    waitForRender() {
+        return new Promise((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(resolve));
+        });
+    }
+    microTick() {
+        return Promise.resolve();
+    }
+
     openCompareModal() {
         pubsub.fire(this.rootChannel, 'openProductModal', {
             products: this.selectedCompareProducts,
@@ -89,7 +96,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         const selectedProductId = event.detail;
         const eventSource = event.from;
 
-        // Ignore if the product is already in the cart and the event is from renderedCallback
+        // Ignore si ya está en cart y viene del renderedCallback
         if (eventSource === 'renderedCallback' && omniscriptUtils.getCartProducts(this)?.some(cartProd => cartProd.Id === selectedProductId)) {
             return;
         }
@@ -100,12 +107,12 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         if (!selectedProductDetails) return;
         selectedProductDetails.isSelected = !selectedProductDetails.isSelected;
         pubsub.fire(this.rootChannel, 'updateProduct', { product: selectedProductDetails });
-        console.log('PRODUCTS',JSON.parse(JSON.stringify(this.products)))
+        console.log('PRODUCTS', JSON.parse(JSON.stringify(this.products)))
         const cartProducts = omniscriptUtils.getCartProducts(this);
-        console.log('PRODUCTS2',JSON.parse(JSON.stringify(cartProducts)))
+        console.log('PRODUCTS2', JSON.parse(JSON.stringify(cartProducts)))
         const productIndex = cartProducts.findIndex(product => product.Id === selectedProductId);
 
-        if (productIndex === -1) { // Product is not in Cart already
+         if (productIndex === -1) { // Product is not in Cart already
             cartProducts.push(selectedProductDetails); // Add product to cart
         } else { // Product is in Cart already
             cartProducts.splice(productIndex, 1); // Remove product from cart
@@ -138,7 +145,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         console.log('this.hadAncillaries ' + this.hadAncillaries);
         console.log('this.userInputs ' + this.userInputs);
         
-        if(legacyProductsCount > 0) {
+        if (legacyProductsCount > 0) {
             this.wantsAncillary = 'No';
             this.disableAncillary = true;
         }
@@ -157,13 +164,12 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         this.productCount = cartProducts.length;
         this.lastMedicalSelectionId = cartProducts.find(p => p.Type__c === "Medical")?.productId;
 
-        // Update data JSON with cart product IDs
+         // Update data JSON with cart product IDs
         const cartProductIds = cartProducts
             .filter(cartProd => this.products.some(prod => prod.Id === cartProd.Id))
             .map(p => p.Id);
         this.omniUpdateDataJson({ cartProductIds });
     }
-
 
     async refreshProds() {
         this.isProductsLoading = true;
@@ -191,7 +197,6 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         this.stateData = null;
         return template;
     }
-
 
     recalculateEffDate(omniJsonData) {
         try {
@@ -325,7 +330,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
                             }
                         }
 
-                        // Check if the user wants to upgrade or downgrade their plan (OS: ARC_IndividualAndFamilyProgramChangeAncillary)
+                        // Upgrade/Downgrade
                         if (this.changeplan != undefined || this.changeplan != null) {
                             let records = [];
                             let changePlanRes;
@@ -363,16 +368,19 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
                 this.filteredProducts = this.filteredProducts.sort(this.dynamicSort('Price', this.sortValue));
                 console.log('filteredProducts2: ', JSON.parse(JSON.stringify(this.filteredProducts)));
                 
-
                 // Populate the product JSON with the price + healthy discount applied
                 this.populateHealthyDiscount();
-                this.preSelectOldProducts();
+
+                await this.preSelectOldProducts();
+
                 this.filteredProducts = this.splitProductsInGroups(this.filteredProducts);
                 console.log('filteredProducts3: ', JSON.parse(JSON.stringify(this.filteredProducts)));
                 await this.updateProducts();
+
                 if (this.initAction.optionsMap.filters) {
                     this.initAction.optionsMap.filters = this.getFilter();
                 }
+
                 this.isLoaded = true;
             } else {
                 this.products = [];
@@ -476,7 +484,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
     }
 
     async updateProducts() {
-        const cartProducts = await omniscriptUtils.getCartProducts(this); // Assuming this is async
+        const cartProducts = await omniscriptUtils.getCartProducts(this);
         if (cartProducts) {
             this.filteredProducts.forEach(group => {
                 group.products.forEach(product => {
@@ -662,7 +670,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         }
         const cartProducts = omniscriptUtils.getCartProducts(this);
         if (cartProducts.length === 0) {
-            // Update the OS json to an empty array
+             // Update the OS json to an empty array
             omniscriptUtils.updateCartProducts(this, [], this.rootChannel);
         }
         this.cartProductCount();
@@ -670,7 +678,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         let wantsAncillaryFromJson = this.omniJsonData?.STEP_PlanSelection?.RAD_WantsAncillary;
         let enforceWantsAncillarySelection = this.omniJsonData?.STEP_PlanSelection?.EnforceWantsAncillarySelection;
         let selectedProducts = this.omniJsonData?.selectedProducts;
-        let isLegacyProductSelected = selectedProducts.some(product => product.Name === 'WeShare Legacy')
+        let isLegacyProductSelected = selectedProducts?.some(product => product.Name === 'WeShare Legacy')
 
         if (isLegacyProductSelected) {
             this.wantsAncillary = 'No'
@@ -705,7 +713,6 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
 
     }
 
-
     /**
     * Inherits userInputs and optionsMap from productsAction
     * Used by configuration modal/inline component
@@ -734,7 +741,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         }
     }
 
-    preSelectOldProducts() {
+    async preSelectOldProducts() {
         // Log the current state of relevant properties for debugging purposes.
         // Using JSON.parse(JSON.stringify()) ensures a deep copy of the data,
         // which avoids logging class properties which are reactive or proxied objects that might change over time.
@@ -746,11 +753,6 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         // and are included in the list of old product IDs.
         // - The product must match the current step, which can be either its `SubType__c` or `Type__c`.
         // - The product's ID must also exist in the `oldProductIds` list.
-        const oldPlans = this.filteredProducts.filter(product =>
-            (this.programType === product.SubType__c ||
-                this.programType === product.Type__c) &&
-            this.oldProductIds.includes(product.Id)
-        );
 
         // Iterate over the filtered list of old products and trigger the 'selectProduct' event
         // for each product after a 2-second delay. This delay is necessary because this function
@@ -758,36 +760,41 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         // be fully rendered yet. Without the delay, the event will not work as intended.
 
         // if selected products include an old product, return
-        if (this.omniJsonData.selectedProducts) {
-            let exitFlag = false;
-            this.omniJsonData.selectedProducts.forEach(product => {
-                if (this.programType === product.SubType__c ||
-                    this.programType === product.Type__c) {
-                    exitFlag = true;
-                }
-            });
-            if (exitFlag) {
-                return;
-            }
+        const alreadyHasSelection =
+            Array.isArray(this.omniJsonData?.selectedProducts) &&
+            this.omniJsonData.selectedProducts.some(product =>
+                this.programType === product?.SubType__c ||
+                this.programType === product?.Type__c
+            );
+        if (alreadyHasSelection) {
+            return;
         }
 
-        oldPlans.forEach(product => {
-            setTimeout(() => {
-                // Publish a 'selectProduct' event to the root channel using the pubsub module.
-                // The event includes the product ID
-                pubsub.fire(this.rootChannel, 'selectProduct', {
-                    detail: product.Id,
-                });
-                this.isLoaded = true;
-            }, 3000); // 3-second delay to ensure the component is ready.
-        });
+        const oldPlans = (this.filteredProducts || []).filter(product =>
+            (this.programType === product?.SubType__c ||
+             this.programType === product?.Type__c) &&
+            (this.oldProductIds || []).includes(product?.Id)
+        );
+
+        if (!oldPlans.length) {
+            return;
+        }
+
+        await this.waitForRender();
+
+        for (const product of oldPlans) {
+            pubsub.fire(this.rootChannel, 'selectProduct', { detail: product.Id });
+            await this.microTick();
+        }
     }
 
     renderedCallback() {
         const stepCartProductIds = this.omniJsonData[this.stepName]?.[this.lwcName]?.cartProductIds;
         if (stepCartProductIds?.length) {
-            stepCartProductIds.forEach(prod => {
-                setTimeout(() => { pubsub.fire(this.rootChannel, 'selectProduct', { detail: prod, from: 'renderedCallback' }); }, 0)
+            requestAnimationFrame(() => {
+                stepCartProductIds.forEach(prod => {
+                    pubsub.fire(this.rootChannel, 'selectProduct', { detail: prod, from: 'renderedCallback' });
+                });
             });
         }
         console.log('filteredproducts rend: ', JSON.parse(JSON.stringify(this.filteredProducts)));
@@ -796,8 +803,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
 
     splitProductsInGroups(products) {
         console.log('this.productsByGroup: ', this.productsByGroup);
-        
-        // Create a lookup map for productsByGroup
+         // Create a lookup map for productsByGroup
         const groupMap = this.productsByGroup.reduce((map, group) => {
             group.products.forEach(productCode => {
                 map[productCode] = {
@@ -811,8 +817,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         }, {});
         console.log('groupMap: ', groupMap);
         
-
-        // Group products by their groupName
+         // Group products by their groupName
         const groupedProducts = products.reduce((acc, product) => {
             const groupInfo = groupMap[product.ProductCode];
             if (groupInfo) {
@@ -826,7 +831,7 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
         }, {});
         console.log('groupedProducts: ', groupedProducts);
 
-        // Transform the grouped products into the desired output format
+         // Transform the grouped products into the desired output format
         return Object.entries(groupedProducts).map(([groupName, products]) => ({
             groupName,
             products,
@@ -836,7 +841,6 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
             showHealthyDiscountColumn: this.programType === 'Medical' && groupName !== 'Medal' && groupName !== 'Legacy',
         }));
     }
-
 
     handleDataFromChild(event) {
         this.filteredProducts.forEach(group => {
@@ -848,10 +852,10 @@ export default class arc_ProgramChange_InsOsGridProductSelection extends insOsGr
                         group.generalAttributes.push(JSON.parse(JSON.stringify(attribute)));
                     });
                 }
-
             }
         });
     }
+
     async getPlanGroups() {
 
         const params = {

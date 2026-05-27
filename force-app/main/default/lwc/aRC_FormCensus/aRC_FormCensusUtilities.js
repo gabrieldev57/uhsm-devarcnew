@@ -73,7 +73,9 @@ export function addNewMember(census_members) {
         PersonContactId: fictionalId,
         PersonAccountId: fictionalId,
         IsNewMember: true,
+        IsNewborn: false,
         IsRemoveMember: false,
+        IsActive:true,
         ShowMember: true,
         DISABLE_INPUT_FIELDS: false,
         DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS: false,
@@ -121,7 +123,10 @@ export function addNewMember(census_members) {
  * @returns {Array} - The updated census_members array with the inactive member added.
  */
 export function addExistingMember(census_members, existing_member, census_errors) {
-    const updatedMember = { ...existing_member, IsInactiveMember: true, IsNewMember: false, IsRemoveMember: false, ShowMember: true, DISABLE_INPUT_FIELDS: false, DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS: false, DISPLAY_BUTTON_REMOVE_MEMBER: true };
+    const updatedMember = { ...existing_member, IsInactiveMember: true, IsNewMember: false, 
+        IsRemoveMember: false, ShowMember: true, DISABLE_INPUT_FIELDS: false, 
+        DISABLE_PRIMARY_ADDRESS_AND_COPY_ADDRESS: false, DISPLAY_BUTTON_REMOVE_MEMBER: true };
+    
     const updated_members_list = [...census_members, updatedMember];
     const member_index = updated_members_list.length - 1;
 
@@ -287,8 +292,9 @@ export function updatePrimaryCopyAddressVisibility(census_members, select_update
 export function updateEmailAndPhoneVisibility(member) {
     const isAdult = member.ARC_Age__c >= 18;
     const isChild = member.ARC_Relationship__c?.value === 'Child';
-
-    if (!isChild || (isChild && isAdult)) {
+    const isRelNull = !member.ARC_Relationship__c?.value;
+    const showContactInfo = isAdult || (!isRelNull && !isChild);
+    if (showContactInfo) {
         member.ARC_Phone__c.DISPLAY_FIELD = true
         member.vlocity_ins__Email__c.DISPLAY_FIELD = true
     } else {

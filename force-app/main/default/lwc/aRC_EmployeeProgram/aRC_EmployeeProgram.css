@@ -1,0 +1,97 @@
+.program-wrapper {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #dfdfdf;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: white;
+    margin-top: 15px;
+    position: relative;
+}
+
+.header {
+    font-weight: 600;
+    font-size: 18px;
+     font-family: Aktiv Grotesk Ex;
+    margin-bottom: 0.75rem;
+}
+
+.label {
+    font-size: 0.75rem;
+    color: #888;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.value {
+    font-size: 0.85rem;
+    color: #080707;
+}
+
+.no-programs {
+    font-size: 15px;
+    padding: 5px;
+    text-align: center;
+    color: #2b2b2b;
+}
+
+/* ── Plan card ── */
+.plan-card {
+    border: 1px solid #dfdfdf;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.plan-card:last-child {
+    margin-bottom: 0;
+}
+
+.plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #dfdfdf;
+}
+
+.plan-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.member-id-btn {
+    background-color: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.member-id-btn:hover {
+    background-color: #333;
+}
+
+.plan-body {
+    padding: 12px 16px;
+}
+
+.plan-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 10px;
+}
+
+.plan-row:last-child {
+    margin-bottom: 0;
+}
+
+.plan-field {
+    min-width: 140px;
+    flex: 1;
+}

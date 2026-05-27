@@ -1,0 +1,36 @@
+<template>
+    <c-a-r-c_-collapsible-section
+        title="Account Manager"
+        subtitle="Assign an account manager"
+        custom-icon-url={sectionIconUrl}
+        status={status}
+        accent-color="#0D9488"
+        auto-close-on-save
+        onsave={handleSave}>
+
+        <!-- Content Wrapper with position relative for overlay -->
+        <div class="content-wrapper">
+            <!-- Saving Spinner Overlay -->
+            <template lwc:if={isSaving}>
+                <div class="saving-overlay">
+                    <div class="saving-message">
+                        <lightning-spinner alternative-text="Saving account manager..." size="large" variant="brand"></lightning-spinner>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Account Manager Field -->
+            <div class="slds-m-bottom_medium">
+                <c-a-r-c_-generic-lookup
+                    label="Account Manager"
+                    data-type="account"
+                    placeholder="Search for User"
+                    object-type="User"
+                    icon-name="standard:user"
+                    onselect={handleAccountManagerSelect}
+                    onclear={handleAccountManagerClear}>
+                </c-a-r-c_-generic-lookup>
+            </div>
+        </div>
+    </c-a-r-c_-collapsible-section>
+</template>

@@ -1,0 +1,87 @@
+<template>
+    <lightning-card >
+
+        <!-- Inline Multi-Select Status Filter -->
+            <div class="filter-row" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+
+                <div class="filter-item" style="flex: 1;">
+                    <lightning-input 
+                    type="search" 
+                    label="Search cases" 
+                    placeholder="Search cases..."
+                    variant="label-hidden" 
+                    onchange={handleSearch}>
+                    </lightning-input>
+                </div>
+
+                <div class="filter-item">
+                    <lightning-button-menu label="Filter by Status" icon-name="utility:filterList">
+                        <template for:each={statusOptionsWithChecked} for:item="status">
+                            <div key={status.value} class="slds-p-around_x-small">
+                                <lightning-input type="checkbox"
+                                    label={status.label}
+                                    checked={status.checked}
+                                    value={status.value}
+                                    onchange={handleCheckboxChange}>
+                                </lightning-input>
+                            </div>
+                        </template>
+                    </lightning-button-menu>
+                </div>
+    
+                <div class="total" style="margin-left:auto;">
+                    <!-- <span>Total Cases:</span> {filteredData.length} -->
+                     <span>Total Cases:</span> {totalCount}
+                </div>
+            </div>
+        
+
+        <!-- Table Container with Spinner Overlay -->
+        <div class="table-container slds-m-around_small">
+
+            <!-- Spinner Overlay -->
+            <template if:true={isLoading}>
+                <div class="spinner-overlay">
+                    <lightning-spinner
+                        alternative-text="Saving..."
+                        size="medium"
+                        variant="brand">
+                    </lightning-spinner>
+                </div>
+            </template>
+
+            <c-custom-datatable
+                key-field="Id"
+                data={processedPaginatedData}
+                columns={columns}
+                onrowaction={handleRowAction}
+                hide-checkbox-column>
+            </c-custom-datatable>
+
+        
+            
+        
+
+            <!-- Pagination Footer -->
+            <div class="footer slds-m-top_small slds-text-align_center" style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="results-count">
+                    <!-- Showing {showingFrom} to {showingTo} of {filteredData.length} results -->
+                     Showing {showingFrom} to {showingTo} of {totalCount} results
+                </div>
+                <div class="pagination">
+                    <button class="pagination-btn" onclick={handlePrevious} disabled={isPreviousDisabled}>Previous</button>
+                    <span class="page-number">Page {currentPage} of {totalPages}</span>
+                    <button class="pagination-btn" onclick={handleNext} disabled={isNextDisabled}>Next</button>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+
+    <!-- <template if:true={showConfirm}>
+            <c-a-r-c_-confirm-modal-void
+                case-number={caseToVoid}
+                oncancel={handleCancelVoid}
+                onconfirm={handleConfirmVoid}>
+            </c-a-r-c_-confirm-modal-void>
+        </template> -->
+</template>

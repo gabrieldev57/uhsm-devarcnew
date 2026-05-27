@@ -44,8 +44,20 @@ global without sharing class ARC_SpinOff_BaseService implements vlocity_ins.Vloc
         else if (methodName == 'getDocuSignData') {
             getDocuSignData(inputMap, outputMap, options);
         }
+        else if (methodName == 'sendEnvelope') {
+            sendEnvelope(inputMap, outputMap);
+        }
         else if (methodName == 'updateEnvelopeContractData') {
             updateEnvelopeContractData(inputMap, outputMap);
+        }
+        else if (methodName == 'includeProductCodeToUserInputs') {
+            includeProductCodeToUserInputs(inputMap, outputMap, options);
+        }
+        else if (methodName == 'includePremierSelected') {
+            includePremierSelected(inputMap, outputMap, options);
+        }
+        else if (methodName == 'removeSelectedAncillaries') {
+            removeSelectedAncillaries(inputMap, outputMap, options);
         }
         
         return true;       
@@ -112,10 +124,7 @@ global without sharing class ARC_SpinOff_BaseService implements vlocity_ins.Vloc
     public static Map<String, Object> TRANSFORM_RemoveMemberContractCalculatePrice(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
          Map<String,Object> result = ARC_SpinOff_Utilities.TRANSFORM_RemoveMemberContractCalculatePrice(inputData, outputMap, options);
             outputMap.put('transformUserInputsRetainedPriceData', result.get('transformUserInputsRetainedPriceData'));
-            // outputMap.put('childsLostAncillaryBoolean', result.get('childsLostAncillaryBoolean'));
-            // if(result.get('childsLostAncillaryData') != null) {
-            //     outputMap.put('childsLostAncillaryData', result.get('childsLostAncillaryData'));
-            // }
+            
         return outputMap;
     }
 
@@ -156,7 +165,6 @@ global without sharing class ARC_SpinOff_BaseService implements vlocity_ins.Vloc
      */
     public static Map<String, Object> childLoseAncillary(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
         Map<String,Object> result = ARC_SpinOff_Utilities.childLoseAncillary(inputData, outputMap, options);
-        //if(result.get('STEP_MedicalQuestions') != null) outputMap.put('STEP_MedicalQuestions', result.get('STEP_MedicalQuestions'));
 
         return outputMap;
     }
@@ -184,7 +192,6 @@ global without sharing class ARC_SpinOff_BaseService implements vlocity_ins.Vloc
             outputMap.put('success', false);
             outputMap.put('errorMessage', e.getMessage());
             outputMap.put('errorStackTrace', e.getStackTraceString());
-            //throw new AuraHandledException('Error processing member/contract changes.');
             String apexErrorEmail = System.Label.ARC_ApexErrorEmail; 
             String inputDataString = JSON.serialize(inputData);
             String emailBody = 'Error in ARC_PCBaseService.cls: ' + e.getMessage() + 
@@ -210,7 +217,6 @@ global without sharing class ARC_SpinOff_BaseService implements vlocity_ins.Vloc
             outputMap.put('STEP_HIPAAAuthorizationForm', outputMap.get('STEP_HIPAAAuthorizationForm'));
         }
 
-        //outputMap.put('showHIPAAEditBlockGuardian', outputMap.get('showHIPAAEditBlockGuardian'));
     
         return outputMap;
     }
@@ -234,7 +240,6 @@ global without sharing class ARC_SpinOff_BaseService implements vlocity_ins.Vloc
                 spinOffContract.ARC_Signer_Email__c = (String)envelopeContractData.get('signerEmail');
                 spinOffContract.ARC_Signer_Name__c = (String)envelopeContractData.get('signerName');
                 spinOffContract.vlocity_ins__LastDocuSignEnvelopeId__c = (String)envelopeContractData.get('envelopeId');
-                //spinOffContract.vlocity_ins__LastDocuSignEnvelopeStatus__c = (String)envelopeContractData.get('vlocity_ins__LastDocuSignEnvelopeStatus__c');
                 update spinOffContract;
                 response.put('spinOffContractUpdated', spinOffContract);
                 System.debug('spinOffContract: ' + spinOffContract); 
@@ -262,11 +267,82 @@ global without sharing class ARC_SpinOff_BaseService implements vlocity_ins.Vloc
      * @returns {Map<String, Object>} - DocuSign data.
      */
     public static void getDocuSignData(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
-        ARC_SpinOff_Utilities.getDocuSignData(inputData, outputMap, options);
-        outputMap.put('DocuSignTemplateId', outputMap.get('DocuSignTemplateId'));
-        outputMap.put('SignerList', outputMap.get('SignerList'));
-        outputMap.put('RAresponse', outputMap.get('RAresponse'));
+        Map<String,Object> output = new Map<String,Object>();
+        ARC_SpinOff_Utilities.getDocuSignData(inputData, output, options);
+        // outputMap.put('DocuSignTemplateId', output.get('DocuSignTemplateId'));
+        // outputMap.put('SignerList', output.get('SignerList'));
+        // outputMap.put('RAresponse', output.get('RAresponse'));
+        outputMap.put('EnvelopeInformation', output.get('EnvelopeInformation'));
 
     }
+
+    /**
+     * @Description: Get the input information of the envelope and call the method to send the envelope
+     * @param inputData: Map containing teh envelope information
+     * @throws AuraHandledException: If there's an error during processing
+     */
+    public static Map<String, Object> sendEnvelope(Map<String, Object> inputData, Map<String,Object> outputMap) {
+        Map<String, Object> response = new Map<String, Object>();
+        try {
+            Map<String,Object> envelopeInfoMap = inputData.containsKey('EnvelopeInformation') ? (Map<String,Object>)inputData.get('EnvelopeInformation') : new Map<String,Object>();
+
+            String subjectStr = 'Please DocuSign: UHSM Spin Off';
+            String signerListStr = envelopeInfoMap.containsKey('signerList') ? JSON.serialize(envelopeInfoMap.get('signerList')) : null; System.debug('Signer List Str: ' + signerListStr);
+            String templatesIdListStr = envelopeInfoMap.containsKey('templateIdList') ? JSON.serialize(envelopeInfoMap.get('templateIdList')) : null; System.debug('Templates Id List Str: ' + templatesIdListStr);
+            String tabsMapStr = envelopeInfoMap.containsKey('tabs') ? JSON.serialize(envelopeInfoMap.get('tabs')) : null; System.debug('Tabs Map Str: ' + tabsMapStr);
+            String contractId = inputData.containsKey('contractId') && inputData.get('contractId') != null ? (String)inputData.get('contractId') : null; System.debug('Contract Id: ' + contractId);
+
+            ARC_DocuSignApi.sendCompositeEnvelope(subjectStr, signerListStr, templatesIdListStr, tabsMapStr, contractId);
+
+            response.put('success', true);
+            outputMap.put('success', true);
+        } catch (Exception e) {
+            System.debug('Error in sendEnvelope method: ' + e.getMessage() + e.getStackTraceString());
+            response.put('success', false);
+            outputMap.put('success', false);
+        }
+        return response;
+    }
+
+    /**
+     * @Description: Include the product code in the user inputs
+     * 
+     * @param userInputs: Map containing the user inputs
+     * @param selectedProducts: Map containing the selected products
+     * @param oldProducts: Map containing the old products
+     * @param planSelected: Boolean that indicates if a product was selected or the old product is needed
+     * @return Map<String, Object>: Returns processed data
+     */
+    public static Map<String, Object> includeProductCodeToUserInputs(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
+        Map<String, Object> result = ARC_SpinOff_Utilities.includeProductCodeToUserInputs(inputData, outputMap, options);
+        outputMap.put('userInputs', result.get('userInputs'));
+        return outputMap;
+    }
     
+    /**
+     * @Description: Indicate if the plan selected for spinned off family is a Premier
+     * 
+     * @param selectedProducts: Map containing the selected products
+     * @param oldProducts: Map containing the old products
+     * @param planSelected: Boolean that indicates if a product was selected or the old product is needed
+     * @return Map<String, Object>: Boolean node
+     */
+    public static Map<String, Object> includePremierSelected(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
+        Map<String, Object> result = ARC_SpinOff_Utilities.includePremierSelected(inputData, outputMap, options);
+        outputMap.put('premierSelected', result.get('premierSelected'));
+        outputMap.put('originalPremierSelected', result.get('originalPremierSelected'));
+        return outputMap;
+    }
+
+    /**
+     * @Description: Method to remove the Ancillaries that are not related to the Medical Product
+     * 
+     * @param selectedProducts: Map containing the selected products
+     * @return Map<String, Object>: Map selectedProducts
+     */
+    public static Map<String, Object> removeSelectedAncillaries(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
+        Map<String, Object> result = ARC_SpinOff_Utilities.removeSelectedAncillaries(inputData, outputMap, options);
+        outputMap.put('selectedProducts', result.get('selectedProducts'));
+        return outputMap;
+    }
 }

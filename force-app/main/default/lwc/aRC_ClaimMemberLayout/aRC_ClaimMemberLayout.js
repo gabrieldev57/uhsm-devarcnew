@@ -67,7 +67,7 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
         if (data) {
             getFieldValue(data, POLICY) ? this.policyPopulated = true : this.policyPopulated = false;
             this.inputMember = getFieldValue(data, INPUT_MEMBER);
-            if(this.inputMember?.length > 0) {
+            if (this.inputMember?.length > 0) {
                 this.memberName = this.inputMember.split(';')[0];
                 this.memberBirthdate = this.inputMember.split(';')[1].substring(0, 10);
                 this.memberStreet = this.inputMember.split(';')[2];
@@ -75,21 +75,21 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
             this.dosFrom = getFieldValue(data, DOS_FROM); 
             this.dosTo = getFieldValue(data, DOS_TO);
 
-        }else{
+        } else {
             console.error(error);
         }
     }
 
     // CONFIRM BUTTON
-    get isData(){
+    get isData() {
         if (this.participantSelected) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    resetComponent(){
+    resetComponent() {
         this.isLoading = false;
         this.modalOpen = false;
         this.searched = false;
@@ -104,7 +104,7 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
         this.disDuplicate = false;
     }
 
-    displayMessage(title, variant){
+    displayMessage(title, variant) {
         const evt = new ShowToastEvent({
             title: title,
             variant: variant,
@@ -121,26 +121,26 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
         this.dispatchEvent(even);
     }
 
-    handleManageModal(e){
+    handleManageModal(e) {
         const action = e.currentTarget.dataset.manage;
         action == 'open' ? this.modalOpen = true : this.resetComponent();  
     }
 
-    renderedCallback(){ 
-        if(this.isCssLoaded){
+    renderedCallback() { 
+        if (this.isCssLoaded) {
             return
         } 
  
         this.isCssLoaded = true
  
-        loadStyle(this, ARC_CustomStyles+'/ARC_FindPatientStyle.css').then(()=>{
+        loadStyle(this, ARC_CustomStyles+'/ARC_FindPatientStyle.css').then(() => {
             console.log("Loaded Successfully")
-        }).catch(error=>{ 
+        }).catch(error => { 
             console.log(error)
         });
     }
 
-    handleSearch(){
+    handleSearch() {
         if (this.memberName && this.memberBirthdate && this.memberStreet && this.dosFrom && this.dosTo) {
             this.isLoading = true;
             getPolicyParticipants({name: this.memberName, birthdate: this.memberBirthdate, street: this.memberStreet, dosFrom: this.dosFrom, dosTo: this.dosTo})
@@ -157,7 +157,7 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
                             polparts.push(obj);
                         });
                         result.polparts2.forEach(participant => {
-                            if(!participantSet.has(participant.Id)){
+                            if (!participantSet.has(participant.Id)) {
                                 let obj = {};
                                 obj['participant'] = participant;
                                 obj['restrictedQuery'] = false;
@@ -187,9 +187,9 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
                             this.participantsNotFound=false;
                         });
                         this.dataParticipant = allData;
-                        if(result.message == 'InvalidPP') this.displayMessage('These members are not within the date of service', 'warning');
+                        if (result.message == 'InvalidPP') this.displayMessage('These members are not within the date of service', 'warning');
                         else if (result.message == 'SomeInvalidPP') this.displayMessage('There are some members not within the date of service', 'warning');
-                    }else{
+                    } else {
                         this.searched = false;
                         this.dataParticipant = [];
                         this.participantsNotFound = true;
@@ -202,31 +202,32 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
                     this.isLoading = false;
                     this.participantSelected = null;
                 })
-        }else{
+        } else {
             this.displayMessage('Missing data', 'error');
         }
     }
 
     
-    handleSelectParticipant(e){
+    handleSelectParticipant(e) {
         this.participantSelected = e.detail.selectedRows[0].id;
     }
 
-    handleSelectPolicy(e){
+    handleSelectPolicy(e) {
         this.policySelected = e.detail.selectedRows[0].id;
     }
 
-    handleConfirmPolPart(){
+    handleConfirmPolPart() {
         if (this.participantSelected) {
             this.isLoading = true;
+            
             selectParticipant({claimId: this.recordId, participantId: this.participantSelected})
                 .then(response => {
                     this.isLoading = false;
-                    if(response != 'Updated'){
+                    if (response != 'Updated') {
                         memberPolicyMessage = response;
                         this.policyLayout = true;
                         this.memberLayout = false;
-                    }else{
+                    } else {
                         this.resetComponent();
                         this.displayMessage('The SMB has been updated!', 'success');
                     }
@@ -237,12 +238,12 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
         }
     }
 
-    handleManageAlert(e){
+    handleManageAlert(e) {
         const action = e.currentTarget.dataset.manage;
         action == 'open' ? this.isReseting = true : this.isReseting = false;
     }
 
-    handleReset(){
+    handleReset() {
         this.isReseting = false;
         
         resetPatient({claimId: this.recordId})
@@ -262,7 +263,7 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
             })
     }
 
-    handleChangeMember(e){
+    handleChangeMember(e) {
         const inp = e.currentTarget.dataset.id;
         switch (inp) {
             case 'memberName':
@@ -283,7 +284,7 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
         }
     }
 
-    handleConfirmPolicy(e){
+    handleConfirmPolicy(e) {
         const selected = e.currentTarget.dataset.id;
         let inputMember = this.participantSelected;
         let inputPolicy = selected == 'policy' ? this.policySelected : null;
@@ -291,9 +292,9 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
         this.isLoading = true;
         policyAssignment({member: inputMember, policy: inputPolicy, claimId: this.recordId})
             .then(response => {
-                if(response == 'updated'){
+                if (response == 'updated') {
                     this.displayMessage('The SMB has been updated!', 'success');
-                }else if(response == 'error'){
+                } else if (response == 'error') {
                     this.displayMessage('Error', 'error');
                 }
             })
@@ -306,9 +307,9 @@ export default class ARC_ClaimMemberLayout extends LightningElement {
     }
     
 
-    get disPayBtn(){
+    get disPayBtn() {
         let disable = false;
-        if(this.memberName != null && this.memberName != '' && this.memberBirthdate != null && this.memberStreet != null && this.memberStreet != '' && this.dosFrom != null && this.dosTo != null) disable = false;
+        if (this.memberName != null && this.memberName != '' && this.memberBirthdate != null && this.memberStreet != null && this.memberStreet != '' && this.dosFrom != null && this.dosTo != null) disable = false;
         else disable = true;
         return disable;
     }

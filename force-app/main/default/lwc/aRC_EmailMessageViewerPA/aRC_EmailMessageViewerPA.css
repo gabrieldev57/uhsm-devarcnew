@@ -114,9 +114,6 @@
   .htmlbody{
     padding: 20px;
   }
-  p {
-    margin-bottom: 2rem !important; /* Espacio de 1 rem entre los párrafos */
-  }
   .deletebutton{
     
     display: flex;

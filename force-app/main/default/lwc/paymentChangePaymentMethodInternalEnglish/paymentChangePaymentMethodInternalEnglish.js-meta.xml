@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
         <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
             <apiVersion>62.0</apiVersion>
-            <description>Vlocity OmniScript Auto-generated - a4rVA000000CdjxYAC</description>
+            <description>Vlocity OmniScript Auto-generated - a4rcf000000CgZlAAK</description>
             <isExposed>true</isExposed><runtimeNamespace>vlocity_ins</runtimeNamespace>
             <masterLabel>Payment/ChangePaymentMethodInternal/English</masterLabel>
             

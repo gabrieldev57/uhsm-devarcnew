@@ -66,6 +66,7 @@ public without sharing class ARC_ScheduleExpiringCreditCards implements Database
                 AND ChargentOrders__Payment_Method__c = 'Credit Card'
                 AND Card_Expiration_Date__c >=: TODAY AND Card_Expiration_Date__c <=: TODAY_PLUS_TWO_MONTHS
                 AND ARC_Contract__r.Status NOT IN :INVALID_CONTRACT_STATUSES
+                AND ARC_ContractRecordTypeName__c = 'ARC_IndividualAndFamily'
         ]);
     }
 
@@ -84,6 +85,8 @@ public without sharing class ARC_ScheduleExpiringCreditCards implements Database
         Map<Id,Id> contractid_to_censusid = new Map<Id,Id>();
         Map<Id,ChargentOrders__ChargentOrder__c> contractid_to_chargentorder = new Map<Id,ChargentOrders__ChargentOrder__c>();
 
+        System.debug('Processing ' + chargent_order_list.size() + ' credit card records for expiration checks.');
+        System.debug('Chargent order list: ' + chargent_order_list);
         for (ChargentOrders__ChargentOrder__c chargent_order : chargent_order_list) {
             census_ids.add(chargent_order.ARC_Contract__r.vlocity_ins__EnrollmentCensusId__c);
             contract_ids.add(chargent_order?.ARC_Contract__r?.Id);
@@ -105,6 +108,8 @@ public without sharing class ARC_ScheduleExpiringCreditCards implements Database
             FROM vlocity_ins__GroupCensus__c
             WHERE Id IN: census_ids
         ]);
+        System.debug('Queried ' + censusid_to_census_map.size() + ' census records for email preparation.');
+        System.debug('Census map: ' + censusid_to_census_map);
 
         // Query existing credit card expiration cases to avoid duplicates
         List<Case> existing_cc_expiration_cases = [

@@ -1,0 +1,269 @@
+.pageWrap {
+  background: #f6f7fb;
+  padding: 16px;
+  position: relative;
+}
+
+.pageOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 10;
+}
+
+.pageHeader {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.crumbRow {
+  font-size: 12px;
+  color: #6b6d70;
+  margin-bottom: 6px;
+}
+
+.crumbSep {
+  margin: 0 6px;
+  color: #b0b1b3;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.titleLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.backIcon {
+  font-size: 18px;
+  color: #2e2e2e;
+  line-height: 1;
+  user-select: none;
+}
+
+.pageTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: #1f1f1f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+}
+
+.bodyCard {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.sectionHeader {
+  margin-bottom: 14px;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.optionCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.optionCard:hover {
+  border-color: #2563eb;
+  background: #f9fbff;
+}
+
+.optionCard.selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+  background: #eff6ff;
+}
+
+.cardInner {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px 14px 46px;
+}
+
+.radioFix {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.cardInner::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid #9ca3af;
+  background: #ffffff;
+}
+
+.optionCard.selected .cardInner::before {
+  border-color: #2563eb;
+}
+
+.optionCard.selected .cardInner::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #2563eb;
+}
+
+.cardTitle {
+  font-weight: 600;
+  color: #181818;
+  line-height: 1.2;
+}
+
+.cardDesc {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: #5c5c5c;
+  line-height: 1.35;
+}
+
+.list {
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.listRow {
+  padding: 12px 12px;
+  border-top: 1px solid #eeeeee;
+}
+
+.listRow:first-child {
+  border-top: none;
+}
+
+.rowLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rowIcon {
+  color: #1b96ff;
+}
+
+.rowIcon.success {
+  color: #2e844a;
+}
+
+.rowLabel {
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.rowMeta {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #6b6d70;
+  font-weight: 400;
+}
+
+.footerActions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.footerActions.split {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.warningBox {
+  border: 1px solid #f3d07a;
+  background: #fffaf0;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.warnTop {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.warnIcon {
+  color: #b06700;
+  margin-top: 2px;
+}
+
+.warnTitle {
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.warnText {
+  font-size: 12.5px;
+  color: #4a4a4a;
+  margin-top: 2px;
+}
+
+.warnMissing {
+  margin-left: 6px;
+  font-weight: 600;
+}
+
+.warnChoices {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.createdHeader {
+  font-weight: 700;
+  margin: 10px 0 8px;
+  color: #1f1f1f;
+  font-size: 13px;
+}
+
+.list.compact .compactRow {
+  padding: 10px 12px;
+}

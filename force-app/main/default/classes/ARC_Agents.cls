@@ -13,8 +13,13 @@ global without sharing class ARC_Agents implements vlocity_ins.VlocityOpenInterf
                               Did you receive assistance from one of our sales agents?
     ********************************************************************/
     global static void readAgents(Map<String,Object> inputMap, Map<String,Object> outMap, Map<String,Object> options) {
-        String agentName = (String)inputMap.get('AgentName');
-        String soqlQuery = 'SELECT Name FROM User WHERE Name LIKE \'%' + agentName + '%\' AND Profile.Name = \'WS Sales\' AND IsActive = true';
+        String soqlQuery = '';
+        String agentName = inputMap.containsKey('AgentName') ? (String)inputMap.get('AgentName') : null;
+        if (agentName != null) {
+            soqlQuery = 'SELECT Id, Name FROM User WHERE Name LIKE \'%' + agentName + '%\' AND Profile.Name = \'WS Sales\' AND IsActive = true';
+        } else {
+            soqlQuery = 'SELECT Id, Name FROM User WHERE Profile.Name = \'WS Sales\' AND IsActive = true';
+        }
         List<User> agents = Database.query(soqlQuery);
         outMap.put('agents', agents);
     }

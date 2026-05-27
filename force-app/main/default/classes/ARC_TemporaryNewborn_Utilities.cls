@@ -1,34 +1,99 @@
-global with sharing class ARC_TemporaryNewborn_Utilities {
+global without sharing class ARC_TemporaryNewborn_Utilities {
 
-    /*global Boolean invokeMethod(String methodName, Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
-        try{
-            switch on methodName {
-                when 'populateMedicalQuestions'                    { populateMedicalQuestions(inputMap, outputMap, options); }
-                when 'TRANSFORM_CensusMemberToUserInputs'          { TRANSFORM_CensusMemberToUserInputs(inputMap, outputMap, options); }
-                when 'TRANSFORM_ChooseProductSelectionData'        { TRANSFORM_ChooseProductSelectionData(inputMap, outputMap, options); }
-                
-                // when 'censusPlanSelectionChanges'                    { censusPlanSelectionChanges(inputMap, outputMap, options); }
-                // when 'readMedicalQuestions'                          { readMedicalQuestions(inputMap, outputMap, options); }
-                // when 'DocuSignDataTransform'                         { DocuSignDataTransform(inputMap, outputMap, options); }
-                // when 'includeGuardianAsHipaa'                        { includeGuardianAsHipaa(inputMap, outputMap, options); }
-                // when 'validateUpgradeAndMissingDemoInfo'             { validateUpgradeAndMissingDemoInfo(inputMap, outputMap, options); }
-                // when 'getUserPermission'                             { getUserPermission(inputMap, outputMap, options); }
-                when else                                            { throw new AuraHandledException('Unknown method: ' + methodName); }
-            }
-
-            return true;
-
-        } catch(Exception e){
-			           
-         return false;
-			        
-      }
-    }*/
+    
     
     ////Main methods/////////////////////
     /////////////////////////////////////////////
 
     private static integer daysToAdd = 60;
+    private static Integer dependentCount = 0;
+    private static Map<String,Object> signerInfoMap = new Map<String,Object>();
+    private static Map<String,Object> primaryMember = new Map<String,Object>();
+    private static Map<String,Object> spouseMember = new Map<String,Object>();
+    private static List<Object> dependents = new List<Object>();
+    private static List<Object> allMemberList = new List<Object>();
+    private static List<Object> newProductList = new List<Object>();
+    private static List<String> templatesIdList = new List<String>();
+    private static Map<String,Object> docuSignDataMap = new Map<String,Object>();
+    private static Map<String,Object> docuSignOutputMap = new Map<String,Object>();
+    private static Map<String,Object> docuSignOptionsMap = new Map<String,Object>();
+
+    // private static Map<String,Object> legalGuardian = new Map<String,Object>();
+
+
+    /*******************************************************************
+    * @MethodName         :   hasTemporaryNewBornMember
+    * @Description        :   Returns true if any census member qualifies as a temporary newborn
+    *                         (current implementation: any Child under 18 years old).
+    *                         Also places the result in outputMap under key 'hasTemporaryNewBornMember'.
+    ********************************************************************/
+    public static Map<String, Object> hasTemporaryNewBornMember(Map<String, Object> inputMap, Map<String, Object> outputMap, Map<String, Object> options) {
+        System.debug('inputMap ' + inputMap);
+        Boolean result = false;
+        String accountId = (String)inputMap.get('ContextId');
+        Account accTNNewborn;
+        //Date oneYearAgo = Date.today();
+        Date oneYearAgo = Date.today().addYears(-1);
+
+        Account account = [SELECT Id, Name,ARC_PrimaryMemberAccount__c,ARC_DependentRelationship__c FROM Account WHERE Id = :accountId LIMIT 1];
+        System.debug('account 1' + account);
+
+        if(account.ARC_PrimaryMemberAccount__c == null) {
+           List<Account> accounts = [SELECT Id, Name,ARC_PrimaryMemberAccount__c,ARC_DependentRelationship__c,FirstName,LastName FROM Account WHERE ARC_PrimaryMemberAccount__c = :accountId AND CreatedDate > :oneYearAgo];
+           System.debug('accounts 2' + accounts);
+          
+           for(Account acc : accounts) {
+                if(acc.ARC_DependentRelationship__c != null && acc.ARC_DependentRelationship__c == 'Temporary Newborn') {
+                    accTNNewborn = acc;
+                    System.debug('accTNNewborn 3' + accTNNewborn);
+                    break;
+                }
+           }
+           if(accTNNewborn != null) {
+                System.debug('accTNNewborn 4' + accTNNewborn);
+                List<ARC_ContractParticipant__c> cps = [SELECT Id, ARC_Contract__c FROM ARC_ContractParticipant__c WHERE ARC_PersonAccount__c = :accTNNewborn.Id LIMIT 1];
+                ARC_ContractParticipant__c cp = cps.isEmpty() ? null : cps[0];
+                if(cp != null) {
+                    result = false;
+                }
+                else {
+                    result = true;
+                }
+            }
+            if(accTNNewborn == null) {
+                result = false;
+            }
+        }else {
+            List<Account> accounts = [SELECT Id, Name,ARC_PrimaryMemberAccount__c,ARC_DependentRelationship__c,FirstName,LastName FROM Account WHERE ARC_PrimaryMemberAccount__c = :account.ARC_PrimaryMemberAccount__c AND CreatedDate > :oneYearAgo];
+            
+            for(Account acc : accounts) {
+                    if(acc.ARC_DependentRelationship__c != null && acc.ARC_DependentRelationship__c == 'Temporary Newborn') {
+                        accTNNewborn = acc;
+                        break;
+                    }
+            }
+            if(accTNNewborn != null) {
+                System.debug('accTNNewborn 5' + accTNNewborn);
+                List<ARC_ContractParticipant__c> cps = [SELECT Id, ARC_Contract__c FROM ARC_ContractParticipant__c WHERE ARC_PersonAccount__c = :accTNNewborn.Id LIMIT 1];
+                ARC_ContractParticipant__c cp = cps.isEmpty() ? null : cps[0];
+                if(cp != null) {
+                    result = false;
+                }
+                else {
+                    result = true;
+                }
+            }
+            else {
+                result = false;
+            }
+        }
+        System.debug('result 5' + result);
+        outputMap.put('hasTemporaryNewBornMember', result);
+        outputMap.put('NBFirstName', accTNNewborn != null ? accTNNewborn.FirstName : null);
+        outputMap.put('NBLastName', accTNNewborn != null ? accTNNewborn.LastName : null);
+        return outputMap;
+    }
+
 
 
     /*******************************************************************
@@ -50,7 +115,6 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
             censusDataList.add(censusDataMap);
         }
 
-        // censusMembers = (List<Object>) censusDataList[1];
         censusMembers = censusDataList;
 
         system.debug('censusMembers 1 '+ censusMembers);
@@ -70,11 +134,7 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
         if (censusMembers.Size() > 0) {
             for (Object member : censusMembers) {
                 Map<String, Object> memberMap = (Map<String, Object>) member;
-    
-                // if (Boolean.valueOf(memberMap.get('IsNewMember'))) { bypass this condition because all of them are new members
-
-                    addMemberNameToMedicalQuestions(memberMap, questionsMap, selectCensusMemberList);
-                // }
+                addMemberNameToMedicalQuestions(memberMap, questionsMap, selectCensusMemberList);
             }
         }
         
@@ -100,8 +160,175 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
         system.debug('Final OutputMap: ' + JSON.serializePretty(outputMap));
     }
 
+    public static void mergeMedicalQuestions(Map<String, Object> inputMap, Map<String, Object> outputMap, Map<String, Object> options) {
+        // Get census member list && medical questions step
+        List<Object> censusMembers = (List<Object>)inputMap.get('censusMembers');
+        Map<String,Object> medicalQuestions = (Map<String,Object>)inputMap.get('STEP_MedicalQuestions');
+        // Output contractor
+        Map<String, Object> stepMedicalQuestions = new Map<String, Object>();
+        // Map questions values to blocks
+        Map<String, List<Map<String, Object>>> questionsMap = new Map<String, List<Map<String, Object>>>();
+        // Use to populate arc_SelectCensusMember and arc_SelectCensusMemberCancer LWC SELECTS on the Omniscript
+        List<Object> selectCensusMemberList = new List<Object>();
 
-         /**
+        Set<Id> activeMembers = new Set<Id>();
+        if (censusMembers.Size() > 0) {
+            // Populate Member Names on Omniscript inputs and store active members (exclude remove members and new members) to query medical questions
+            for (Object member : censusMembers) {
+                Map<String, Object> memberMap = (Map<String, Object>) member;
+                Boolean isNewMember = memberMap.containsKey('IsNewMember') ? (Boolean) memberMap.get('IsNewMember') : false;
+                if (!isNewMember) activeMembers.add((String) memberMap.get('Id'));
+            }
+        }
+
+        if (!activeMembers.isEmpty()) {
+            // Query medical questions of active members (exclude remove members and new members)
+            List<ARC_MedicalConditions__c> activemembersMedicalConditionsList = 
+            [SELECT Id, 
+                ARC_ParentsOrSiblingsDiagnosed__c, ARC_ParentsOrSiblingsDiagnosedNote__c, ARC_ParentsOrSiblingsDiagnosedDate__c, 
+                ARC_UnexplainedConditions__c, ARC_Unexplained_Conditions_Notes__c, ARC_Unexplained_Conditions_Date__c,
+                ARC_Tests__c, ARC_Tests_Notes__c, ARC_Tests_Date__c,
+                ARC_IllegalDrugsAlcohol__c, ARC_Illegal_Drugs_Alcohol_Notes__c, ARC_Illegal_Drugs_Alcohol_Date__c,
+                ARC_LicenceSuspended__c, ARC_LicenceSuspendedNote__c, ARC_LicenseSuspendedDate__c, 
+                ARC_Condition__c, ARC_OtherConditions__c,
+                ARC_Type_Of_Cancer__c, ARC_Year_Diagnosed_Cancer__c, ARC_Currently_Under_Treatment__c,
+                ARC_CensusMember__c , ARC_CensusMember__r.Name, ARC_CensusMember__r.ARC_PhysicianCity__c, ARC_CensusMember__r.ARC_PhysicianName__c, ARC_CensusMember__r.ARC_PhysicianPhone__c
+            FROM ARC_MedicalConditions__c WHERE ARC_Active__c = true AND ARC_CensusMember__c IN :activeMembers ORDER BY CreatedDate ASC];
+
+            // Query consumer drug of active members (exclude remove members and new members)
+            List<vlocity_ins__ConsumerDrug__c> activemembersConsumerDrugList = [SELECT Id, Name, vlocity_ins__PrescribedBy__c, vlocity_ins__MedicationStartDate__c, vlocity_ins__MedicationEndDate__c, ARC_Reason__c, ARC_Active__c, ARC_CensusMember__c, ARC_CensusMember__r.Name FROM vlocity_ins__ConsumerDrug__c WHERE ARC_Active__c = true AND ARC_CensusMember__c IN :activeMembers ORDER BY CreatedDate ASC];
+
+            Integer cancerIndex = 0; 
+            Integer consumerDrugIndex = 0; 
+
+            if (activemembersMedicalConditionsList.Size() > 0) {
+                for (ARC_MedicalConditions__c memberMc : activemembersMedicalConditionsList) {
+
+                    if (memberMc.ARC_ParentsOrSiblingsDiagnosed__c){
+                        addQuestionResponse(questionsMap, 'BLK_ParentSiblingDiagnosed', 'CHKBOX_MemberParentDiagnosed', true, memberMc.ARC_CensusMember__c);
+                        addQuestionResponse(questionsMap, 'BLK_ParentSiblingDiagnosed', 'TXT_MemberIdParentDiagnosed', memberMc.ARC_CensusMember__c, memberMc.ARC_CensusMember__c);
+                        if(String.isNotBlank(memberMc.ARC_ParentsOrSiblingsDiagnosedNote__c)) addQuestionResponse(questionsMap, 'BLK_ParentSiblingDiagnosed', 'TXTAREA_MemberParentDiagnosed', memberMc.ARC_ParentsOrSiblingsDiagnosedNote__c, memberMc.ARC_CensusMember__c);
+                        if(memberMc.ARC_ParentsOrSiblingsDiagnosedDate__c != null) addQuestionResponse(questionsMap, 'BLK_ParentSiblingDiagnosed', 'DATE_MemberParentDiagnosed', memberMc.ARC_ParentsOrSiblingsDiagnosedDate__c, memberMc.ARC_CensusMember__c);
+                        // Set Radio Button for Parent Silibing to Yes
+                        stepMedicalQuestions.put('RAD_ParentSiblingDiagnosed', 'Yes');
+                    } 
+                    if(memberMc.ARC_UnexplainedConditions__c){
+
+                        addQuestionResponse(questionsMap, 'BLK_UnexpectedSymptoms', 'CHKBOX_UnexpectedSymptoms', true, memberMc.ARC_CensusMember__c);
+                        addQuestionResponse(questionsMap, 'BLK_UnexpectedSymptoms', 'TXT_MemberIdUnexpectedSymptoms', memberMc.ARC_CensusMember__c, memberMc.ARC_CensusMember__c); 
+                        if(String.isNotBlank(memberMc.ARC_Unexplained_Conditions_Notes__c)) addQuestionResponse(questionsMap, 'BLK_UnexpectedSymptoms', 'TXTAREA_MemberUnexpectedSymptoms', memberMc.ARC_Unexplained_Conditions_Notes__c, memberMc.ARC_CensusMember__c);
+                        if(memberMc.ARC_Unexplained_Conditions_Date__c != null) addQuestionResponse(questionsMap, 'BLK_UnexpectedSymptoms', 'DATE_MemberUnexpectedSymptoms', memberMc.ARC_Unexplained_Conditions_Date__c, memberMc.ARC_CensusMember__c);
+                        // Set Radio Button for Unexplained Symptoms to Yes
+                        stepMedicalQuestions.put('RAD_UnexplainedSymptoms', 'Yes');
+                    }
+                    if(memberMc.ARC_Tests__c){
+
+                        addQuestionResponse(questionsMap, 'BLK_PendingTests', 'CHKBOX_PendingTests', true, memberMc.ARC_CensusMember__c);
+                        addQuestionResponse(questionsMap, 'BLK_PendingTests', 'TXT_MemberIdPendingTests', memberMc.ARC_CensusMember__c, memberMc.ARC_CensusMember__c);
+                        if(String.isNotBlank(memberMc.ARC_Tests_Notes__c)) addQuestionResponse(questionsMap, 'BLK_PendingTests', 'TXTAREA_MemberPendingTests', memberMc.ARC_Tests_Notes__c, memberMc.ARC_CensusMember__c);
+                        if(memberMc.ARC_Tests_Date__c != null) addQuestionResponse(questionsMap, 'BLK_PendingTests', 'DATE_MemberPendingTests', memberMc.ARC_Tests_Date__c, memberMc.ARC_CensusMember__c);
+                        // Set Radio Button for Pending Test to Yes
+                        stepMedicalQuestions.put('RAD_PendingTests', 'Yes');
+                    }
+                    if(memberMc.ARC_IllegalDrugsAlcohol__c){
+
+                        addQuestionResponse(questionsMap, 'BLK_Addictions', 'CHKBOX_Addictions', true, memberMc.ARC_CensusMember__c);
+                        addQuestionResponse(questionsMap, 'BLK_Addictions', 'TXT_MemberIdAddictions', memberMc.ARC_CensusMember__c, memberMc.ARC_CensusMember__c);
+                        if(String.isNotBlank(memberMc.ARC_Illegal_Drugs_Alcohol_Notes__c)) addQuestionResponse(questionsMap, 'BLK_Addictions', 'TXTAREA_MemberAddictions', memberMc.ARC_Illegal_Drugs_Alcohol_Notes__c, memberMc.ARC_CensusMember__c);
+                        if(memberMc.ARC_Illegal_Drugs_Alcohol_Date__c != null) addQuestionResponse(questionsMap, 'BLK_Addictions', 'DATE_MemberAddictions', memberMc.ARC_Illegal_Drugs_Alcohol_Date__c, memberMc.ARC_CensusMember__c);
+                        // Set Radio Button for Addictions to Yes
+                        stepMedicalQuestions.put('RAD_Addictions', 'Yes');
+                    }
+                    if(memberMc.ARC_LicenceSuspended__c){
+                        
+                        addQuestionResponse(questionsMap, 'BLK_LicenceSuspended', 'CHKBOX_LicenceSuspended', true, memberMc.ARC_CensusMember__c);
+                        addQuestionResponse(questionsMap, 'BLK_LicenceSuspended', 'TXT_MemberIdLicenceSuspended', memberMc.ARC_CensusMember__c, memberMc.ARC_CensusMember__c);
+                        if(String.isNotBlank(memberMc.ARC_LicenceSuspendedNote__c)) addQuestionResponse(questionsMap, 'BLK_LicenceSuspended', 'TXTAREA_MemberLicenceSuspended', memberMc.ARC_LicenceSuspendedNote__c, memberMc.ARC_CensusMember__c);
+                        if(memberMc.ARC_LicenseSuspendedDate__c != null) addQuestionResponse(questionsMap, 'BLK_LicenceSuspended', 'DATE_MemberLicenceSuspended', memberMc.ARC_LicenseSuspendedDate__c, memberMc.ARC_CensusMember__c);
+                        // Set Radio Button for Licence Suspended to Yes
+                        stepMedicalQuestions.put('RAD_LicenceSuspended', 'Yes');
+                    }
+                    
+                    if(String.isNotBlank(memberMc.ARC_Condition__c)) {
+                        
+                        addQuestionResponse(questionsMap, 'EB_PastConditions', 'MULSEL_Conditions', memberMc.ARC_Condition__c, memberMc.ARC_CensusMember__c);
+                        addQuestionResponse(questionsMap, 'EB_PastConditions', 'TXT_MemberIdPastConditions', memberMc.ARC_CensusMember__c, memberMc.ARC_CensusMember__c);
+                        if(String.isNotBlank(memberMc.ARC_OtherConditions__c)) addQuestionResponse(questionsMap, 'EB_PastConditions', 'TXT_MemberOtherPastConditions', memberMc.ARC_OtherConditions__c, memberMc.ARC_CensusMember__c);                        
+                        // Set Radio Button for Past Conditions to Yes
+                        stepMedicalQuestions.put('RAD_PastConditions', 'Yes');
+                    }
+                    
+                    if (String.isNotBlank(memberMc.ARC_Type_Of_Cancer__c)) {
+
+                        addQuestionResponse(questionsMap, 'LWC_SelectCensusMemberCancer', 'SelectedCensusMemberId', memberMc.ARC_CensusMember__c, memberMc.ARC_CensusMember__c);
+                        addQuestionResponse(questionsMap, 'LWC_SelectCensusMemberCancer', 'SelectedCensusMemberName', memberMc.ARC_CensusMember__r.Name, memberMc.ARC_CensusMember__c);                        
+                        
+                        // Is possible to have multiple record of cancer per member
+                        addQuestionResponseList(questionsMap, 'EB_Cancer', 'TXT_TypeOfCancer', memberMc.ARC_Type_Of_Cancer__c, memberMc.ARC_CensusMember__c, cancerIndex);
+                        addQuestionResponseList(questionsMap, 'EB_Cancer', 'TXT_MemberIdCancer', memberMc.ARC_CensusMember__c, memberMc.ARC_CensusMember__c, cancerIndex);
+                        if(String.isNotBlank(memberMc.ARC_CensusMember__r.Name)) addQuestionResponseList(questionsMap, 'EB_Cancer', 'TXT_MemberNameCancer', memberMc.ARC_CensusMember__r.Name, memberMc.ARC_CensusMember__c, cancerIndex);
+                        if(memberMc.ARC_Year_Diagnosed_Cancer__c != null) addQuestionResponseList(questionsMap, 'EB_Cancer', 'DATE_Cancer', memberMc.ARC_Year_Diagnosed_Cancer__c, memberMc.ARC_CensusMember__c, cancerIndex);
+                        if(memberMc.ARC_Currently_Under_Treatment__c != null)  addQuestionResponseList(questionsMap, 'EB_Cancer', 'CHK_CheckCancer', memberMc.ARC_Currently_Under_Treatment__c, memberMc.ARC_CensusMember__c, cancerIndex);
+                        // Set Radio Button for Past Conditions to Yes
+                        stepMedicalQuestions.put('RAD_Cancer', 'Yes');
+                        cancerIndex++;
+                    }
+
+                    if (String.isNotBlank(memberMc.ARC_CensusMember__r.ARC_PhysicianName__c)) addQuestionResponse(questionsMap, 'EB_Physicians', 'TXT_PhysicianName', memberMc.ARC_CensusMember__r.ARC_PhysicianName__c, memberMc.ARC_CensusMember__c);
+                    if (String.isNotBlank(memberMc.ARC_CensusMember__r.ARC_PhysicianCity__c)) addQuestionResponse(questionsMap, 'EB_Physicians', 'TXT_PhysicianCity', memberMc.ARC_CensusMember__r.ARC_PhysicianCity__c, memberMc.ARC_CensusMember__c);
+                    if (memberMc.ARC_CensusMember__r.ARC_PhysicianPhone__c != null) addQuestionResponse(questionsMap, 'EB_Physicians', 'TXT_PhysicianPhone', memberMc.ARC_CensusMember__r.ARC_PhysicianPhone__c, memberMc.ARC_CensusMember__c);
+                    
+                }
+            }
+
+            if (activemembersConsumerDrugList.Size() > 0) {
+                for (vlocity_ins__ConsumerDrug__c memberCD : activemembersConsumerDrugList) {
+                    // Is possible to have multiple record of prescription per member
+                    if(String.isNotBlank(memberCD.ARC_CensusMember__r.Name)) addQuestionResponseList(questionsMap, 'ED_MemberPrescription', 'TXT_MemberName', memberCD.ARC_CensusMember__r.Name, memberCD.ARC_CensusMember__c, consumerDrugIndex);
+                    if(String.isNotBlank(memberCD.Name)) addQuestionResponseList(questionsMap, 'ED_MemberPrescription', 'TXT_NameOfMedication', memberCD.Name, memberCD.ARC_CensusMember__c, consumerDrugIndex);
+                    if(String.isNotBlank(memberCD.vlocity_ins__PrescribedBy__c)) addQuestionResponseList(questionsMap, 'ED_MemberPrescription', 'TXT_PrescribingPhysician', memberCD.vlocity_ins__PrescribedBy__c, memberCD.ARC_CensusMember__c, consumerDrugIndex);
+                    if(memberCD.vlocity_ins__MedicationStartDate__c != null)  addQuestionResponseList(questionsMap, 'ED_MemberPrescription', 'TXT_DatePrescribed', memberCD.vlocity_ins__MedicationStartDate__c, memberCD.ARC_CensusMember__c, consumerDrugIndex);
+                    if(memberCD.vlocity_ins__MedicationEndDate__c != null)  addQuestionResponseList(questionsMap, 'ED_MemberPrescription', 'TXT_DateDiscontinued', memberCD.vlocity_ins__MedicationEndDate__c, memberCD.ARC_CensusMember__c, consumerDrugIndex);
+                    if(String.isNotBlank(memberCD.ARC_Reason__c)) addQuestionResponseList(questionsMap, 'ED_MemberPrescription', 'TXT_ReasonForMedication', memberCD.ARC_Reason__c, memberCD.ARC_CensusMember__c, consumerDrugIndex);
+                    addQuestionResponseList(questionsMap, 'ED_MemberPrescription', 'TXT_MemberIdPrescription', memberCD.ARC_CensusMember__c, memberCD.ARC_CensusMember__c,consumerDrugIndex);
+                    addQuestionResponse(questionsMap, 'LWC_SelectCensusMember', 'SelectedCensusMemberId', memberCD.ARC_CensusMember__c, memberCD.ARC_CensusMember__c);
+                    addQuestionResponse(questionsMap, 'LWC_SelectCensusMember', 'SelectedCensusMemberName', memberCD.Name, memberCD.ARC_CensusMember__c);
+                    
+                    // Set Radio Button for Prescription Medications to Yes
+                    stepMedicalQuestions.put('RAD_PrescriptionMedications', 'Yes');
+                    consumerDrugIndex++;
+                }
+            } 
+        }
+
+        // Populate Step Medical Qustions Blocks
+        if (!questionsMap.isEmpty()) {
+            for (String key : questionsMap.keySet()) {
+                if (medicalQuestions.containsKey(key) && medicalQuestions.get(key) != null) {
+                    Map<String,Object> newbornQuestionMap = (Map<String,Object>)medicalQuestions.get(key);
+                    questionsMap.get(key).add(newbornQuestionMap);
+                }
+                stepMedicalQuestions.put(key, questionsMap.get(key));
+            }
+        } else {
+            return;
+        }
+        
+        // If Radio Buttons are null we will set them to 'No'
+        if(stepMedicalQuestions.get('RAD_ParentSiblingDiagnosed') == null) stepMedicalQuestions.put('RAD_ParentSiblingDiagnosed', 'No');
+        if(stepMedicalQuestions.get('RAD_UnexplainedSymptoms') == null) stepMedicalQuestions.put('RAD_UnexplainedSymptoms', 'No');
+        if(stepMedicalQuestions.get('RAD_PendingTests') == null) stepMedicalQuestions.put('RAD_PendingTests', 'No');
+        if(stepMedicalQuestions.get('RAD_Cancer') == null) stepMedicalQuestions.put('RAD_Cancer', 'No');
+        if(stepMedicalQuestions.get('RAD_Addictions') == null) stepMedicalQuestions.put('RAD_Addictions', 'No');
+        if(stepMedicalQuestions.get('RAD_LicenceSuspended') == null) stepMedicalQuestions.put('RAD_LicenceSuspended', 'No');
+        if(stepMedicalQuestions.get('RAD_PastConditions') == null) stepMedicalQuestions.put('RAD_PastConditions', 'No');
+        if(stepMedicalQuestions.get('RAD_PrescriptionMedications') == null) stepMedicalQuestions.put('RAD_PrescriptionMedications', 'No');
+
+        outputMap.put('carryOverMedicalQuestions', stepMedicalQuestions);
+    }
+
+
+    /**
      * Transform the census members to user inputs
      * @param {Map<String,Object>} inputMap - The input map.
      * @param {Map<String,Object>} outputMap - The output map.
@@ -118,7 +345,13 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
         system.debug('inputMap ' + inputMap);
         system.debug('EffectiveDate ' + inputMap.get('EffectiveDate'));
         Date effectiveDate = (String)inputMap.get('EffectiveDate') != null && String.isNotBlank((String)inputMap.get('EffectiveDate')) ? Date.valueOf((String)inputMap.get('EffectiveDate')): null;
-
+        
+        List<Object> oldProducts;
+        if (inputMap.get('oldProducts') instanceof List<Object>) {
+            oldProducts = (List<Object>)inputMap.get('oldProducts');
+        }
+        Map<String, Object> medical = (Map<String, Object>)oldProducts[0];
+        String medicalCode = (String)medical.get('ProductCode');
 
         Map<Id, String> censusMemberRelationshipMap = new Map<Id, String>();
         // Iterate over each CP and map their relationships to census member Id
@@ -134,7 +367,6 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
         Set<Id> censusMemberIds = getContractMemberIds(contractId, censusId, isSpinOff);
         // Query active census members
         List<Map<String, Object>> census_members_list = new List<Map<String, Object>>();
-        // vlocity_ins__GroupCensusMember__c primaryMember;
         for (vlocity_ins__GroupCensusMember__c member : [
             SELECT Id, vlocity_ins__FirstName__c, vlocity_ins__LastName__c, ARC_MiddleInitial__c, vlocity_ins__Birthdate__c, 
                    vlocity_ins__Gender__c, ARC_Relationship__c, vlocity_ins__Email__c, ARC_Phone__c, vlocity_ins__SocialSecurityNumber__c, 
@@ -278,18 +510,13 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
         user_input_list.sort(new RelationshipComparator());
 
         Integer extraDependents = hasSpouse == true ? Math.max(dependentCount - 4, 0) : Math.max(dependentCount - 3, 0);
-        // Integer user_input_list_size = user_input_list.size();
-
-        // String aidd = hasPrimary == true & user_input_list_size == 1 ? 'Primary' : hasPrimary == true & hasSpouse == true & user_input_list_size == 2 ? 'Primary + Spouse' : hasPrimary == true & hasSpouse != true & user_input_list_size > 1 ? 'Primary + Children' : 'Family';
-        // String smart = hasPrimary == true & user_input_list_size == 1 ? 'Primary' : hasPrimary == true & hasSpouse == true & user_input_list_size == 2 ? 'Primary + Spouse' : hasPrimary == true & hasSpouse != true & user_input_list_size > 1 ? 'Primary + Child' : 'Family';
-
+       
         for (Map<String, Object> ui : user_input_list) {
             Map<String,Object> user_input = (Map<String,Object>)ui;
-            // user_input.put('RF_Census.CRF_Coverage', smart);
-            // user_input.put('RF_Census.CRF_CoverageAIDD', aidd);
             user_input.put('RF_Census.CRF_ExtraDependants', extraDependents);
             user_input.put('RF_Census.CRF_PrimaryMemberAge', oldestAge);
-            user_input.put('RF_Census.CRF_Dependants', dependentCount);
+            user_input.put('RF_Census.CRF_Dependants', dependentCount);    
+            user_input.put('RF_Census.CM_ProductCode', medicalCode);
         }
 
         Boolean applyExtraDependentFee = extraDependents > 0 ? true : false;
@@ -305,306 +532,186 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
      * @param {List<Object>} census_members - The census members.
      * @returns {Map<String, Object>} - DocuSign data.
      */
-    public static void getDocuSignData(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
-        List<Object> census_members = (List<Object>)inputMap.get('census_members');
-        Map<String, Object> DocuSignMap = (Map<String, Object>)inputMap.get('DocuSign');
-
-        System.debug('census_members: ' + census_members);
-        // Get the primary
-        Map<String, Object> primaryData = new Map<String, Object>();
-        ARC_ContractParticipant__c contractParticipantData = new ARC_ContractParticipant__c();
-        List<Contract> guardianInfo = new List<Contract>();
+    public static void getDocuSignDataNew(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        List<Object> census_members = inputMap.containsKey('census_members') ? (List<Object>)inputMap.get('census_members') : new List<Object>();
+        String recipientStepLabel;
+        if (!census_members.isEmpty() && census_members != null ) {
+            for (Object censusMember : census_members) {
+                Map<String,Object> cm = transformMemberMapKeys((Map<String,Object>)censusMember);
+                String memberRelationship = (String)cm.get('Relationship');
+                if ((Boolean)cm.get('IsRemoveMember')) continue;
+                if (memberRelationship == 'Primary') {
+                    primaryMember = cm;
+                    recipientStepLabel = (String)cm.get('FirstName') + ' ' + (String)cm.get('LastName') + ' - ' + (String)cm.get('Email');
+                    signerInfoMap.put('recipientId', '1');
+                    signerInfoMap.put('name', (String)cm.get('FirstName') + ' ' + (String)cm.get('LastName'));
+                    signerInfoMap.put('email', (String)cm.get('Email'));
+                    signerInfoMap.put('deliveryMethod', 'Email');
+                    signerInfoMap.put('roleName', 'Primary');
+                } 
+                if (memberRelationship == 'Spouse') spouseMember = cm;
+                if (memberRelationship == 'Child') dependents.add(cm);
+                dependentCount = memberRelationship == 'Primary' || memberRelationship == 'Spouse' ? dependentCount : dependentCount + 1;
+                allMemberList.add(cm);
+            }
+        }
         
+        Map<String,Object> memberInfo = new Map<String,Object>();
+        memberInfo.put('primaryMember', primaryMember);
+        memberInfo.put('spouseMember', !spouseMember.isEmpty() ? spouseMember : null);
+        if (!dependents.isEmpty() && dependents.size() > 0) memberInfo.put('dependentMembers', dependents);
+
+        // Get medical program complete map
+        newProductList = (List<Object>)inputMap.get('NewProductList');
+        Map<String,Object> medicalProgramMap = new Map<String,Object>();
+        System.debug('newProductList:'+ newProductList);
+        for (Object product : newProductList) {
+            System.debug('productMap'+((Map<String,Object>)product).get('selectedProduct'));
+            Map<String,Object> productMap = (Map<String,Object>)((Map<String,Object>)product).get('selectedProduct');
+            if ((String)productMap.get('Type__c') == 'Medical') medicalProgramMap = (Map<String,Object>)product;
+        }
+
+        //Build DocuSign map
+        Map<String,Object> nbChangesMap = (Map<String,Object>)inputMap.get('nbChanges');
+        nbChangesMap.put('pcReasonsString', nbChangesMap.get('nbReasonsString'));
+        nbChangesMap.put('feeApplicable', (Boolean)nbChangesMap.get('feeApplicable') == true ? true : false);
+        nbChangesMap.put('feeAmount', (Boolean)nbChangesMap.get('feeApplicable') == true ? Integer.valueOf(nbChangesMap.get('newFeeAmount')) : Integer.valueOf(nbChangesMap.get('feeAmount')));
+        nbChangesMap.put('pcReasons', nbChangesMap.get('nbReasons'));
+        nbChangesMap.put('createNewContract', true);
+
+        String contractId = (String)((Map<String,Object>)((Map<String,Object>)inputMap.get('EligibleContract')).get('ContractInfo')).get('Id');
+
+        Map<String,Object> docuSignMap = new Map<String,Object>();
+        docuSignMap.put('Hipaa', new List<Object>());
+        docuSignMap.put('Medicare', null);
+        docuSignMap.put('NewProductList', inputMap.get('NewProductList'));
+        docuSignMap.put('OldProductList', inputMap.get('OldProductList'));
+        docuSignMap.put('PlanSummary', inputMap.get('PlansSummary'));
+        //docuSignMap.put('PlanSummary', inputMap.get('PlanSummary'));
+        docuSignMap.put('STEP_MedicalQuestions', inputMap.containsKey('carryOverMedicalQuestions') ? inputMap.get('carryOverMedicalQuestions') : inputMap.get('STEP_MedicalQuestions'));
+        docuSignMap.put('STEP_SignTheDocument', inputMap.get('STEP_SignTheDocument'));
+        docuSignMap.put('Step_PaymentChangeFee', inputMap.get('Step_PaymentChangeFee'));
+        docuSignMap.put('pcChanges', nbChangesMap);
+        docuSignMap.put('userId', String.valueOf(inputMap.get('userId')));
+        docuSignMap.put('SelectedContractInfo', new Map<String,Object>{
+            'ContractID' => contractId
+        });
+
+        docuSignDataMap.put('DocuSign', docuSignMap);
+        docuSignDataMap.put('MembersInfo', memberInfo);
+        docuSignDataMap.put('MembersList', census_members);
+        docuSignDataMap.put('EffectiveDate', (String)inputMap.get('EffectiveDate'));
+        docuSignDataMap.put('allMembersInfo', allMemberList);
+        docuSignDataMap.put('primaryState', (String)primaryMember.get('State'));
+        docuSignDataMap.put('newMedicalProduct', medicalProgramMap);
+        docuSignDataMap.put('UpdateType', 'Add Newborn');
         
-        String signerFullName = '';
-        Boolean primaryIsOver18;
+        System.debug('docuSignDataMap:'+ docuSignDataMap);
+        System.debug('docuSignDataMap:'+ docuSignDataMap.get('DocuSign'));
 
-        // Look for the primary and check if is over 18, otherwise, the guardian is retrieved
-        for (Object census_member : census_members) {
-            Map<String,Object> cm = (Map<String,Object>)census_member;
-            if ((String)cm.get('ARC_Relationship__c') == 'Primary' && (Integer)cm.get('ARC_Age__c') >= 18) {
-                inputMap.put('signerEmail', (String)cm.get('vlocity_ins__Email__c'));
-                inputMap.put('primaryState', (String)cm.get('ARC_PhysicalAddressState__c'));
-                signerFullName = (String) cm.get('vlocity_ins__FirstName__c') + ' ' + (String) cm.get('vlocity_ins__LastName__c');
-                primaryIsOver18 = true;
-            }
-        }
-        System.debug('primary is over 18? ' + primaryIsOver18);
-        // If primary is minor, query the guardian
-        if (primaryIsOver18 != true) {
-            String contractId = (String)((Map<String,Object>)DocuSignMap.get('SelectedContractInfo')).get('ContractID');
-            System.debug('contract Id:' + contractId);
-            guardianInfo = [
-                SELECT ARC_Guardian__r.FirstName, ARC_Guardian__r.LastName, ARC_Guardian__r.vlocity_ins__Email__c, ARC_Guardian__r.BillingState
-                FROM Contract
-                WHERE Id = :contractId 
-                LIMIT 1
-            ];
-            System.debug('Guardian info: ' + guardianInfo);
-            inputMap.put('signerEmail', guardianInfo[0].ARC_Guardian__r.vlocity_ins__Email__c);
-            inputMap.put('primaryState', guardianInfo[0].ARC_Guardian__r.BillingState);
-            signerFullName = guardianInfo[0].ARC_Guardian__r.FirstName + ' ' + guardianInfo[0].ARC_Guardian__r.LastName;
-        }
-        // // Verify if the first census_member is the primary, otherwise, the guardian is retrieved
-        // if ((((Map<String, Object>) census_members[0]).get('ARC_Relationship__c')) == 'Primary' && ((Integer)(((Map<String, Object>) census_members[0]).get('ARC_Age__c'))) >= 18){
-        //     primaryData = (Map<String, Object>) census_members[0];
-        //     inputMap.put('signerEmail', (String) primaryData.get('vlocity_ins__Email__c'));
-        //     inputMap.put('primaryState', (String) primaryData.get('ARC_PhysicalAddressState__c'));
-        //     signerFullName = (String) primaryData.get('vlocity_ins__FirstName__c') + ' ' + (String) primaryData.get('vlocity_ins__LastName__c');
-        // } 
-        // else {
-        //     String accountId = (String) inputMap.get('ContextId');
-        //     System.debug('Context Id:' + (String)inputMap.get('ContextId'));
-        //     contractParticipantData = [SELECT ARC_Contract__r.ARC_Guardian__r.FirstName, ARC_Contract__r.ARC_Guardian__r.LastName, 
-        //                                         ARC_Contract__r.ARC_Guardian__r.vlocity_ins__Email__c, ARC_Contract__r.ARC_Guardian__r.BillingState
-        //                                FROM ARC_ContractParticipant__c
-        //                                WHERE ARC_PersonAccount__c = :accountId 
-        //                                AND ARC_Contract__r.Status = 'Activated'
-        //                                LIMIT 1];
-        //     inputMap.put('signerEmail', contractParticipantData.ARC_Contract__r.ARC_Guardian__r.vlocity_ins__Email__c);
-        //     inputMap.put('primaryState', contractParticipantData.ARC_Contract__r.ARC_Guardian__r.BillingState);
-        //     signerFullName = contractParticipantData.ARC_Contract__r.ARC_Guardian__r.FirstName + ' ' + contractParticipantData.ARC_Contract__r.ARC_Guardian__r.LastName;
-        // }
+        // GET ALL THE REQUIRED TEMPLATES
+        getDocuSignTemplateIds();
 
-        // Number of dependents
-        Integer numberDependents = 0;
-        for (Object census_member : census_members) {
-            Map<String, Object> member = (Map<String, Object>)census_member;
-            if ((String)member.get('ARC_Relationship__c') == 'Child') {
-                numberDependents++;
-            }
-        }
-        System.debug('numberDependents: ' + numberDependents);
-        String signerEmail = (String)inputMap.get('signerEmail');
-        System.debug('signerEmail: ' + signerEmail);
-        String primaryState = (String)inputMap.get('primaryState');
-        System.debug('primaryState: ' + primaryState);
+        // MAP ALL THE PROGRAM CHANGE INFORMATION
+        ARC_ProgramChange_DocuSign.DocuSignDataTransform(docuSignDataMap, docuSignOutputMap, docuSignOptionsMap);
 
-        // Get the necessary data for the STEP_SignTheDocument
-        outputMap.put('signerEmail', signerEmail);
-        outputMap.put('signerFullName', signerFullName);
-
-        // Is Legacy
-        Boolean isLegacy = false;
-        // Object selectedProducts_obj = inputMap.get('selectedProducts');
-
-        Map<String, Object> PlansSummary = (Map<String, Object>) DocuSignMap.get('PlanSummary');
-        Map<String, Object> BLK_ProductSummary = (Map<String, Object>) PlansSummary.get('BLK_ProductSummary');
-        Map<String, Object> BLK_ProductsPrices = (Map<String, Object>) BLK_ProductSummary.get('BLK_ProductsPrices');
-        Object selectedProducts_obj = BLK_ProductsPrices.get('BLK_IndividualProducts');
-
-        if (selectedProducts_obj != null && selectedProducts_obj != '') {
-            List<Object> selectedProducts = (List<Object>)selectedProducts_obj;
-            for (Object selectedProduct_obj : selectedProducts) {
-                Map<String, Object> selectedProduct = (Map<String, Object>)selectedProduct_obj;
-                if ((String)selectedProduct.get('Type') == 'Medical' && (String)selectedProduct.get('TXT_PlanSelected') == 'WeShare Legacy') {
-                    isLegacy = true;
-                    break;
-                }
-            }
-        }
-        // Query template
-        String templateNameStr = '';
-        if (isLegacy) {
-            if (primaryState == 'CA') {
-                templateNameStr = 'WeShare Legacy Membership Application CA';
-            }
-            else {
-                templateNameStr = 'WeShare Legacy Membership Application';
-            }
-        } else {
-            String queryStr = 'SELECT ARC_Template_Name__c, ARC_DRTransform__c ';
-            queryStr += 'FROM ARC_DocuSignTemplates__c';
-            queryStr += ' WHERE ARC_Contract_Reasons__c LIKE \'%Spin Off%\'';
-            queryStr += ' AND ARC_Min_Dependents__c <= ' + numberDependents;
-            queryStr += ' AND ARC_Max_Dependents__c >= ' + numberDependents;
-            if (primaryState == 'CA') {
-                queryStr += ' AND ARC_State__c =  \'CA\'';
-            }
-            queryStr += ' ORDER BY ARC_Template_Name__c ASC LIMIT 1';
-            ARC_DocuSignTemplates__c templateSettings = Database.query(queryStr);
-            templateNameStr = templateSettings.ARC_Template_Name__c;
-        }
-        System.debug('templateNameStr: ' + templateNameStr);
-        vlocity_ins__VlocityDocuSignTemplate__c template = [
-            SELECT Id, Name, vlocity_ins__templateidentifier__c
-            FROM vlocity_ins__VlocityDocuSignTemplate__c
-            WHERE name = :templateNameStr
-            ORDER BY LastModifiedDate DESC LIMIT 1
-        ];
-        System.debug('template: ' + template);
-        Map<String, Object> DocuSignTemplateId = new Map<String, Object>();
-        DocuSignTemplateId.put('Id', template.Id);
-        DocuSignTemplateId.put('Name', template.Name);
-        DocuSignTemplateId.put('TemplateId', template.vlocity_ins__templateidentifier__c);
-        outputMap.put('DocuSignTemplateId', DocuSignTemplateId);
-        // Signers....
-        List<Object> recipients = new List<Object>();
-        Integer dependentCount = 1;
-        for (Object census_member_obj : census_members) {
-            Map<String, Object> census_member = (Map<String, Object>)census_member_obj;
-            String name = (String)census_member.get('vlocity_ins__FirstName__c') + ' ' + (String)census_member.get('vlocity_ins__LastName__c');
-            String relationship = (String)census_member.get('ARC_Relationship__c');
-            if ((Integer)census_member.get('ARC_Age__c') < 18 || (relationship != 'Primary' && !(Boolean)census_member.get('IsNewMember'))) continue;
-            String templateRole;
-            if (relationship == 'Primary' || relationship == 'Spouse') {
-                templateRole = relationship == 'Primary' ? 'Primary' : 'Spouse';
-            } else if (relationship == 'Child') {
-                templateRole = 'Dependent' + dependentCount;
-                dependentCount++;
-            }
-            Map<String, Object> recipient = new Map<String, Object>();
-            recipient.put('templateRole', templateRole);
-            recipient.put('signerEmail', signerEmail);
-            recipient.put('signerName', name);
-            recipients.add(recipient);
-        }
-
-        // Get the Guardian if there is no a Primary
-        if (recipients.size() == 0) {
-            String templateRole = 'Primary';
-
-            // Map<String, Object> guardianStep = (Map<String, Object>)inputMap.get('STEP_GuardiansInformation');
-            String guardianFirstName = guardianInfo[0].ARC_Guardian__r.FirstName;
-            String guardianLastName = guardianInfo[0].ARC_Guardian__r.LastName;
-            String guardianName = guardianFirstName + ' ' + guardianLastName;
-            Map<String, Object> recipient = new Map<String, Object>();
-            recipient.put('templateRole', templateRole);
-            recipient.put('signerEmail', signerEmail);
-            recipient.put('signerName', guardianName);
-            recipients.add(recipient);
-        }
-        System.debug('SignerList: ' + recipients);
-        outputMap.put('SignerList', recipients);
-        // Info....
-        // Transform DATA
-        // GET Input DATA
-        Map<String,Object> inputMapDSTrans = new Map<String,Object>();
-
-        Map<String, Object> MembersInfo = new Map<String, Object>();
-        List<Object> dependentMembers = new List<Object>();
-        for (Object census_member_obj : census_members) {
-            Map<String, Object> census_member = (Map<String, Object>)census_member_obj;
-            String relationship = (String)census_member.get('ARC_Relationship__c');
-            System.debug('Relationship: ' + relationship);
-
-            if (relationship == 'Primary') {
-                Map<String, Object> primaryMember = new Map<String, Object>();
-                Object isPregnant_obj = census_member.get('ARC_isPregnant__c');
-                primaryMember.put('Pregnant',isPregnant_obj != null && isPregnant_obj != '' ? (Boolean)isPregnant_obj : false);
-                Object Smoker_obj = census_member.get('ARC_Smoker__c');
-                primaryMember.put('Smoker', Smoker_obj != null && Smoker_obj != '' ? (Boolean)Smoker_obj : false);
-                primaryMember.put('MI', (String)census_member.get('ARC_MiddleInitial__c'));
-                primaryMember.put('Phone', (String)census_member.get('ARC_Phone__c'));
-                primaryMember.put('City', (String)census_member.get('ARC_PhysicalAddressCity__c'));
-                primaryMember.put('State', (String)census_member.get('ARC_PhysicalAddressState__c'));
-                primaryMember.put('Address', (String)census_member.get('ARC_PhysicalAddressStreet__c'));
-                primaryMember.put('ZipCode', (String)census_member.get('ARC_PhysicalAddressZipCode__c'));
-                primaryMember.put('Weight', (String)census_member.get('ARC_Weight__c'));
-                primaryMember.put('DayOfBirth', (Date.valueOf((String)census_member.get('vlocity_ins__Birthdate__c'))).day());
-                primaryMember.put('Height', (String)census_member.get('ARC_HeightFeet__c') + '\'' + (String)census_member.get('ARC_HeightInches__c'));
-                primaryMember.put('Id', (String)census_member.get('Id'));
-                //primaryMember.put('IsInactiveMember', (Boolean)census_member.get('IsInactiveMember'));
-                primaryMember.put('IsNewMember', (Boolean)census_member.get('IsNewMember'));
-                primaryMember.put('IsRemoveMember', (Boolean)census_member.get('IsRemoveMember'));
-                primaryMember.put('MonthOfBirth', (Date.valueOf((String)census_member.get('vlocity_ins__Birthdate__c'))).month());
-                primaryMember.put('YearOfBirth', (Date.valueOf((String)census_member.get('vlocity_ins__Birthdate__c'))).year());
-                primaryMember.put('DOB', (String)census_member.get('vlocity_ins__Birthdate__c'));
-                primaryMember.put('Email', (String)census_member.get('vlocity_ins__Email__c'));
-                primaryMember.put('FirstName', (String)census_member.get('vlocity_ins__FirstName__c'));
-                primaryMember.put('LastName', (String)census_member.get('vlocity_ins__LastName__c'));
-                primaryMember.put('Gender', (String)census_member.get('vlocity_ins__Gender__c'));
-                primaryMember.put('SocialSecurity', (String)census_member.get('vlocity_ins__SocialSecurityNumber__c'));
-                MembersInfo.put('primaryMember', primaryMember);
-            } else if (relationship == 'Spouse') {
-                Map<String, Object> spouseMember = new Map<String, Object>();
-                Object isPregnant_obj = census_member.get('ARC_isPregnant__c');
-                spouseMember.put('Pregnant', isPregnant_obj != null && isPregnant_obj != '' ? (Boolean)isPregnant_obj : false);
-                Object Smoker_obj = census_member.get('ARC_Smoker__c');
-                spouseMember.put('Smoker', Smoker_obj != null && Smoker_obj != '' ? (Boolean)Smoker_obj : false);
-                spouseMember.put('MI', (String)census_member.get('ARC_MiddleInitial__c'));
-                spouseMember.put('Weight', (String)census_member.get('ARC_Weight__c'));
-                spouseMember.put('Height', (String)census_member.get('ARC_HeightFeet__c') + '\'' + (String)census_member.get('ARC_HeightInches__c'));
-                spouseMember.put('Id', (String)census_member.get('Id'));
-                //spouseMember.put('IsInactiveMember', (Boolean)census_member.get('IsInactiveMember'));
-                spouseMember.put('IsNewMember', (Boolean)census_member.get('IsNewMember'));
-                spouseMember.put('IsRemoveMember', (Boolean)census_member.get('IsRemoveMember'));
-                spouseMember.put('DOB', (String)census_member.get('vlocity_ins__Birthdate__c'));
-                spouseMember.put('Email', (String)census_member.get('vlocity_ins__Email__c'));
-                spouseMember.put('FirstName', (String)census_member.get('vlocity_ins__FirstName__c'));
-                spouseMember.put('LastName', (String)census_member.get('vlocity_ins__LastName__c'));
-                spouseMember.put('Gender', (String)census_member.get('vlocity_ins__Gender__c'));
-                spouseMember.put('SocialSecurity', (String)census_member.get('vlocity_ins__SocialSecurityNumber__c'));
-                MembersInfo.put('spouseMember', spouseMember);
-            } else if (relationship == 'Child') {
-                Map<String, Object> dependentMember = new Map<String, Object>();
-                Object isPregnant_obj = census_member.get('ARC_isPregnant__c');
-                dependentMember.put('Pregnant', isPregnant_obj != null && isPregnant_obj != '' ? (Boolean)isPregnant_obj : false);
-                Object Smoker_obj = census_member.get('ARC_Smoker__c');
-                dependentMember.put('Smoker', Smoker_obj != null && Smoker_obj != '' ? (Boolean)Smoker_obj : false);
-                dependentMember.put('MI', (String)census_member.get('ARC_MiddleInitial__c'));
-                dependentMember.put('Weight', String.valueOf(census_member.get('ARC_Weight__c')));
-                dependentMember.put('Height', String.valueOf(census_member.get('ARC_HeightFeet__c')) + '\'' + String.valueOf(census_member.get('ARC_HeightInches__c')));
-                dependentMember.put('Id', (String)census_member.get('Id'));
-                //dependentMember.put('IsInactiveMember', (Boolean)census_member.get('IsInactiveMember'));
-                dependentMember.put('IsNewMember', (Boolean)census_member.get('IsNewMember'));
-                dependentMember.put('IsRemoveMember', (Boolean)census_member.get('IsRemoveMember'));
-                dependentMember.put('DOB', (String)census_member.get('vlocity_ins__Birthdate__c'));
-                dependentMember.put('Email', (String)census_member.get('vlocity_ins__Email__c'));
-                dependentMember.put('FirstName', (String)census_member.get('vlocity_ins__FirstName__c'));
-                dependentMember.put('LastName', (String)census_member.get('vlocity_ins__LastName__c'));
-                dependentMember.put('Gender', (String)census_member.get('vlocity_ins__Gender__c'));
-                dependentMember.put('SocialSecurity', (String)census_member.get('vlocity_ins__SocialSecurityNumber__c'));
-                dependentMembers.add(dependentMember);
-            }
-
-        }
-        if (!dependentMembers.isEmpty()) {
-            MembersInfo.put('dependentMembers', dependentMembers);
-        }
-        System.debug('MembersInfo: ' + MembersInfo);
-
-        // Adapt Payment Step in DocuSign Map to PC DocuSign class so information is correctly populated in DS
-        Map<String,Object> pcChangesMap = (Map<String, Object>)DocuSignMap.get('pcChanges');
-        // Map<String,Object> pcChangesMap = (Map<String, Object>)DocuSignMap.get('nbChanges');
-
-        // ((Map<String, Object>)((Map<String, Object>)DocuSignMap.get('Step_PaymentChangeFee')).get('BLK_ChargeFee')).put('RAD_KeepRecurringMethodOfPayment', 'No');
-        // (((Map<String, Object>)DocuSignMap.get('Step_PaymentChangeFee'))).put('RAD_ChargeAppFeeDefTrue', 'Yes');
-
-        //Testing values
-        // pcChangesMap.put('feeAmount', 0);
-        // System.debug('Updated DocuSign Map: ' + DocuSignMap);
-        // System.debug('pc changes map : ' + pcChangesMap);
-
-
-        inputMapDSTrans.put('MembersInfo', MembersInfo);
-        inputMapDSTrans.put('DocuSign', DocuSignMap);
-        inputMapDSTrans.put('EffectiveDate', (String)inputMap.get('effectiveDate'));
-        inputMapDSTrans.put('pcChanges', pcChangesMap);
-        inputMapDSTrans.put('allMembersInfo', census_members);
-        inputMapDSTrans.put('primaryState', primaryState);
-        
-        Map<String, Object> newMedicalProduct = new Map<String, Object>();
-        List<Object> productList = (List<Object>)DocuSignMap.get('NewProductList');
-        for (Object product_obj : productList) {
-            Map<String, Object> product = (Map<String, Object>)product_obj;
-            Map<String, Object> selectedProduct = (Map<String, Object>)product.get('selectedProduct');
-            if (selectedProduct.get('Type__c') == 'Medical') {
-                newMedicalProduct.put('selectedProduct', selectedProduct);
-                break;
-            }
-        }
-        if (newMedicalProduct.containsKey('selectedProduct')) {
-            inputMapDSTrans.put('newMedicalProduct', newMedicalProduct);
-        }
-        inputMapDSTrans.put('UpdateType', 'Add Newborn');
-        Map<String,Object> outputMapDSTrans = new Map<String,Object>();
-
-        ARC_ProgramChange_DocuSign.DocuSignDataTransform(inputMapDSTrans, outputMapDSTrans, new Map<String,Object>());
-        outputMap.put('RAresponse', outputMapDSTrans);
+        System.debug('OUTPUT MAP: ' + docuSignOutputMap);
+        System.debug('SIGNER LIST: ' + new List<Object>{signerInfoMap});
+        System.debug('TEMPLATES IDS LIST: ' + templatesIdList);
+        Map<String,Object> envelopeMap = new Map<String,Object>{
+            'signerList' => new List<Object>{signerInfoMap}
+            ,
+            'templateIdList' => templatesIdList
+            ,
+            'tabs' => docuSignOutputMap.get('tabs')
+        };
+        outputMap.put('EnvelopeInformation', envelopeMap);
+        outputMap.put('recipientStepLabel', recipientStepLabel);
     }
 
+    /**************************************************************************
+    * @MethodName         :   getDocuSignTemplateIds
+    * @Description        :   method to get the templates than need to be used
+    ***************************************************************************/
+    private static void  getDocuSignTemplateIds() {
+        System.debug('Getting DocuSign templates...');
 
+        Integer primaryAge = (Integer)primaryMember.get('Age'); System.debug('Primary Age: ' + primaryAge);
+        Boolean isChildFamily = primaryAge < 18 ? true : false; System.debug('isChildFamily: ' + isChildFamily);
+        Integer dependents = dependentCount; System.debug('Dependents: ' + dependents);
+        String primaryState = (String)primaryMember.get('State'); System.debug('Primary State: ' + primaryState);
+        String medicalPlanName = '';
+
+        for (Object product : newProductList) {
+            Map<String,Object> productMap = (Map<String,Object>)((Map<String,Object>)product).get('selectedProduct');
+            if ((String)productMap.get('Type__c') == 'Medical') medicalPlanName = (String)productMap.get('Name');
+        }
+        System.debug('Medical Plan Name: ' + medicalPlanName); 
+        String programType = medicalPlanName.contains('Legacy') ? 'Senior' : medicalPlanName.contains('Premier') ? 'Premier' : medicalPlanName.contains('Access') ? 'Essential' : 'Enhanced';
+        System.debug('Program Type: ' + programType);
+        Boolean isLegacy = medicalPlanName.contains('Legacy') ? true : false;
+
+        // Section order map
+        Map<String,Integer> orderMap = new Map<String,Integer> {
+            'ProgramChange' => 1,
+            'Application' => 2,
+            'Program' => 3,
+            'Beneficiaries' => 4,
+            'Payment' => 5, 
+            'State' => 6
+        };
+
+        List<String> clausesList = new List<String>();
+        for (String section : orderMap.keySet()) {
+            String sectionStr = '(ARC_Section__c = ' + '\'' + section +'\' ';
+            if (section == 'ProgramChange') {
+                sectionStr += 'AND ARC_BusinessSegment__c = \'IndividualAndFamily\'';
+            } else if (section == 'Application') {
+                sectionStr += 'AND ARC_BusinessSegment__c = \'IndividualAndFamily\' AND ARC_MinDependents__c <= ' + dependents + ' AND ARC_MaxDependents__c >= ' + dependents + ' AND ARC_ChildOnly__c = ' + isChildFamily + ' AND ARC_IsLegacy__c = ' + isLegacy;
+            } else if (section == 'Program' || section == 'Beneficiaries') {
+                sectionStr += 'AND ARC_ProgramType__c = \'' + programType + '\'';
+            } else if (section == 'State') {
+                sectionStr += 'AND ARC_BusinessSegment__c = \'IndividualAndFamily\' AND ARC_State__c = \'' + primaryState + '\'';
+            }
+            sectionStr += ') \n';
+            clausesList.add(sectionStr);
+        }
+
+        // Query
+        String queryStr = 'SELECT Id, ARC_TemplateName__c, ARC_Section__c FROM ARC_DocuSignCompositeTemplates__c '; // Base query string
+        if (clausesList != null && !clausesList.isEmpty()) {
+            String allClausesStr = String.join(clausesList, ' OR ');
+            queryStr += 'WHERE ' + allClausesStr;
+        }
+        System.debug('Query String: ' + queryStr);
+
+        List<ARC_DocuSignCompositeTemplates__c> compTemplates = Database.query(queryStr);
+        List<String> templatesList = new List<String>();
+        Map<Integer,String> orderToTemplateNameMap = new Map<Integer,String>();
+        for (ARC_DocuSignCompositeTemplates__c compTemplate : compTemplates) {
+            String templateName = compTemplate.ARC_TemplateName__c;
+            orderToTemplateNameMap.put(orderMap.get(compTemplate.ARC_Section__c), templateName);
+            templatesList.add(templateName);
+        }
+        List<vlocity_ins__VlocityDocuSignTemplate__c> templates = [
+            SELECT Id, Name, vlocity_ins__templateidentifier__c
+            FROM vlocity_ins__VlocityDocuSignTemplate__c
+            WHERE Name IN :templatesList
+        ];
+
+        // Order the vlocity templates in the correct seciton order
+        Map<String,String> tempNameToTempId = new Map<String,String>();
+        for (vlocity_ins__VlocityDocuSignTemplate__c temp : templates) {
+            String tempName = temp.Name;
+            tempNameToTempId.put(tempName, temp.vlocity_ins__templateidentifier__c);
+        }
+        for (Integer i = 1 ; i <= orderMap.values().size() ; i++) {
+            String tempNameToAdd = orderToTemplateNameMap.get(i);
+            System.debug('Template ' + i + ': ' + tempNameToAdd);
+            if (tempNameToAdd != null) templatesIdList.add(tempNameToTempId.get(tempNameToAdd));
+        }
+        System.debug('Final template ID list: ' + templatesIdList);
+    }
 
         /**
     * Method to transform data of member family and send it to calculate price lwc
@@ -618,6 +725,13 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
         List<Object> userInputs = (List<Object>)inputMap.get('userInputs'); 
         Map<String,Integer> ageMembersMap = getOldestAgeMap(userInputs);
         Integer oldestMemberAge = (Integer)ageMembersMap.get('oldestAge');
+        System.debug('oldProduct'+  oldProducts[0]);
+        Map<String, Object> medicalProduct = (Map<String, Object>)oldProducts[0];
+        System.debug('medicalProduct'+ medicalProduct);
+        System.debug('ProductCode'+ (String)medicalProduct.get('ProductCode'));
+        System.debug('premierSelected'+ ((String)medicalProduct.get('ProductCode')).contains('Premier'));
+        
+        Boolean premierSelected = ((String)medicalProduct.get('ProductCode')).contains('Premier');
 
         if (oldProducts != null && !oldProducts.isEmpty()) {
             String oldestMemberRelationShip;
@@ -645,70 +759,69 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
                         if ((String)user_input.get('Id') == (String)census_member.get('Id')) {
                             if ((Boolean)user_input.get('RF_Census.CM_IsPrimary') == true) hasPrimary = true;
                             if ((Integer)user_input.get('RF_Census.CM_Age') == oldestMemberAge) {
-                                oldestMemberRelationShip= (String)user_input.get('RF_Census.CM_Relationship');
-                                hasOldestMember=true;
+                                oldestMemberRelationShip = (String)user_input.get('RF_Census.CM_Relationship');
+                                hasOldestMember = true;
                             }
-                            user_input.put('RF_Census.CRF_PrimaryMemberAge',oldestMemberAge);
+                            user_input.put('RF_Census.CRF_PrimaryMemberAge', oldestMemberAge);
                             ((List<Map<String,Object>>)product_map.get('userInputs')).add(user_input);
                         }
                         // Add newborns only to Medical plans 
                         else if ((Boolean)user_input.get('IsNewMember') == true && !newMemberIds.contains((String)user_input.get('Id')) && (String)product.get('Type__c') == 'Medical') {
-                            user_input.put('RF_Census.CRF_PrimaryMemberAge',oldestMemberAge);
+                            user_input.put('RF_Census.CRF_PrimaryMemberAge', oldestMemberAge);
                             ((List<Map<String,Object>>)product_map.get('userInputs')).add(user_input);
                             newMemberIds.add((String)user_input.get('Id'));
                         }
                     }
                 }
 
-                if((String)product.get('Type__c') == 'Ancillary'){
-                    for(Object census_Member_object : (List<Map<String,Object>>)product_map.get('userInputs')){
+                if ((String)product.get('Type__c') == 'Ancillary') {
+                    for (Object census_Member_object : (List<Map<String,Object>>)product_map.get('userInputs')) {
                         Map<String,Object> census_Member = (Map<String,Object>)census_Member_object;
                             
-                        if((String)census_Member.get('RF_Census.CM_Relationship') == 'Primary'){
+                        if ((String)census_Member.get('RF_Census.CM_Relationship') == 'Primary') {
                             countPrimary ++;
-                        } else if ((String)census_Member.get('RF_Census.CM_Relationship') == 'Spouse'){
+                        } else if ((String)census_Member.get('RF_Census.CM_Relationship') == 'Spouse') {
                             countSpouse ++;
-                        } else if((String)census_Member.get('RF_Census.CM_Relationship') == 'Child'){
+                        } else if ((String)census_Member.get('RF_Census.CM_Relationship') == 'Child') {
                             countChilds ++;
                         }
                     }
                 }
 
                 //Adjust the Oldest Member Age AND Primary Member on the procut if the Primary is not inlcuded or if the oldest member is not included. OR is Ancillary Product
-                if((String)product.get('Type__c') == 'Ancillary'){
-                    for(Object census_Member_object : (List<Map<String,Object>>)product_map.get('userInputs')){
+                if ((String)product.get('Type__c') == 'Ancillary') {
+                    for (Object census_Member_object : (List<Map<String,Object>>)product_map.get('userInputs')) {
                         Map<String,Object> census_Member_instance = (Map<String,Object>)census_Member_object;
-                        if(!hasPrimary){
-                            if((String)census_Member_instance.get('RF_Census.CM_Relationship') == 'Spouse'){
-                                census_Member_instance.put('RF_Census.CM_IsPrimary',true);
+                        if (premierSelected) {
+                            census_Member_instance.put('RF_Census.CM_IsPrimary', true);
+                        } else if (!hasPrimary) {
+                            if ((String)census_Member_instance.get('RF_Census.CM_Relationship') == 'Spouse') {
+                                census_Member_instance.put('RF_Census.CM_IsPrimary', true);
                             }
                         }
-                        if(!hasOldestMember){
-                            if(oldestMemberRelationShip == 'Primary'){
-                                census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge',(Integer)ageMembersMap.get('Spouse'));
-                            }
-                            else{
-                                census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge',(Integer)ageMembersMap.get('Primary'));
+                        if (premierSelected) {
+                            census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge', (Integer)census_Member_instance.get('RF_Census.CM_Age'));
+                        } else if (!hasOldestMember) {
+                            if (oldestMemberRelationShip == 'Primary') {
+                                census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge', (Integer)ageMembersMap.get('Spouse'));
+                            } else {
+                                census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge', (Integer)ageMembersMap.get('Primary'));
                             }
                         }
-                        // Set Coverages for Anillaries
-                        // if ((String)product.get('Type__c') == 'Ancillary') {
 
-                        if((countPrimary == 1 && countSpouse == 0 && countChilds == 0) || (countPrimary == 0 && countSpouse == 1 && countChilds == 0)){
-                            census_Member_instance.put('RF_Census.CRF_Coverage','Primary');
-                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD','Primary');
-                        } else if(countPrimary == 1 && countSpouse == 1 && countChilds == 0){ 
-                            census_Member_instance.put('RF_Census.CRF_Coverage','Primary + Spouse');
-                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD','Primary + Spouse');
-                        } else if((countPrimary == 1 && countSpouse == 0 && countChilds > 0) || (countPrimary == 0 && countSpouse == 1 && countChilds > 0)){
-                            census_Member_instance.put('RF_Census.CRF_Coverage','Primary + Child');
-                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD','Primary + Children');
+                        if ((countPrimary == 1 && countSpouse == 0 && countChilds == 0) || (countPrimary == 0 && countSpouse == 1 && countChilds == 0)) {
+                            census_Member_instance.put('RF_Census.CRF_Coverage', 'Primary');
+                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD', 'Primary');
+                        } else if (countPrimary == 1 && countSpouse == 1 && countChilds == 0) {
+                            census_Member_instance.put('RF_Census.CRF_Coverage', 'Primary + Spouse');
+                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD', 'Primary + Spouse');
+                        } else if ((countPrimary == 1 && countSpouse == 0 && countChilds > 0) || (countPrimary == 0 && countSpouse == 1 && countChilds > 0)) {
+                            census_Member_instance.put('RF_Census.CRF_Coverage', 'Primary + Child');
+                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD', 'Primary + Children');
                         } else {
-                            census_Member_instance.put('RF_Census.CRF_Coverage','Family');
-                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD','Family');
-                        }
-                            
-                        // }
+                            census_Member_instance.put('RF_Census.CRF_Coverage', 'Family');
+                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD', 'Family');
+                        }     
                     }
                 }
 
@@ -728,20 +841,15 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
 
         Set<Id> setOrderId = new Set<Id>();
 
-        Id recurringMonthlyOrderId = inputMap.containsKey('RecurringMonthlyOrderId') ? (Id)inputMap.get('RecurringMonthlyOrderId') : null;
+        Id recurringMonthlyOrderId = inputMap.containsKey('RecurringMonthlyOrderId') && (String)inputMap.get('RecurringMonthlyOrderId') != null && (String)inputMap.get('RecurringMonthlyOrderId') != '' ? (Id)inputMap.get('RecurringMonthlyOrderId') : null;
         if (recurringMonthlyOrderId != null) setOrderId.add(recurringMonthlyOrderId);
-    
-        if (inputMap.containsKey('CarryOverAppFee') && (Boolean)inputMap.get('CarryOverAppFee') == true) {
-            Id appFeeOrderId = inputMap.containsKey('AppFeeOrderId') ? (Id)inputMap.get('AppFeeOrderId') : null;
-            if (appFeeOrderId != null) setOrderId.add(appFeeOrderId);
-        }
         
-        Map<Id, ChargentOrders__ChargentOrder__c> mapChargentOrders = new Map<Id, ChargentOrders__ChargentOrder__c>([SELECT Id, ChargentOrders__Charge_Date__c, ChargentOrders__Bank_Routing_Number__c, ChargentOrders__Bank_Account_Number__c, ChargentOrders__Bank_Account_Type__c, ChargentOrders__Bank_Name__c, ChargentOrders__Billing_First_Name__c, ARC_FirstMonthPayed__c, ChargentOrders__Billing_Last_Name__c, ChargentOrders__Billing_Address__c, ChargentOrders__Billing_City__c, ChargentOrders__Billing_State__c, ChargentOrders__Billing_Zip_Postal__c, ChargentOrders__Card_Expiration_Month__c, ChargentOrders__Card_Expiration_Year__c, ChargentOrders__Card_Last_4__c, ChargentOrders__Card_Month_Indicator__c, ChargentOrders__Card_Number__c, ChargentOrders__Card_Type__c, ChargentOrders__Card_Year_Indicator__c, ChargentOrders__Charge_Amount__c, ChargentOrders__Description__c, ChargentOrders__Gateway__c, ChargentOrders__Payment_Frequency__c, ChargentOrders__Payment_Method__c, ChargentOrders__Payment_Status__c, ChargentOrders__Subtotal__c, ChargentOrders__Manual_Charge__c, ChargentOrders__Tokenization__c FROM ChargentOrders__ChargentOrder__c WHERE Id IN :setOrderId LIMIT 2]);
+        Id appFeeOrderId = inputMap.containsKey('AppFeeOrderId') && (String)inputMap.get('AppFeeOrderId') != null && (String)inputMap.get('AppFeeOrderId') != '' ? (Id)inputMap.get('AppFeeOrderId') : null;
+        if (appFeeOrderId != null) setOrderId.add(appFeeOrderId);
+        
+        Map<Id, ChargentOrders__ChargentOrder__c> mapChargentOrders = new Map<Id, ChargentOrders__ChargentOrder__c>([SELECT Id,(SELECT Id, Name, ARC_ChargentOrder__c, ARC_Amount__c FROM FeeItems__r), ChargentOrders__Charge_Date__c, ChargentOrders__Bank_Routing_Number__c, ChargentOrders__Bank_Account_Number__c, ChargentOrders__Bank_Account_Type__c, ChargentOrders__Bank_Name__c, ChargentOrders__Billing_First_Name__c, ARC_FirstMonthPayed__c, ChargentOrders__Billing_Last_Name__c, ChargentOrders__Billing_Address__c, ChargentOrders__Billing_City__c, ChargentOrders__Billing_State__c, ChargentOrders__Billing_Zip_Postal__c, ChargentOrders__Card_Expiration_Month__c, ChargentOrders__Card_Expiration_Year__c, ChargentOrders__Card_Last_4__c, ChargentOrders__Card_Month_Indicator__c, ChargentOrders__Card_Number__c, ChargentOrders__Card_Type__c, ChargentOrders__Card_Year_Indicator__c, ChargentOrders__Charge_Amount__c, ChargentOrders__Description__c, ChargentOrders__Gateway__c, ChargentOrders__Payment_Frequency__c, ChargentOrders__Payment_Method__c, ChargentOrders__Payment_Status__c, ChargentOrders__Subtotal__c, ChargentOrders__Manual_Charge__c, ChargentOrders__Tokenization__c FROM ChargentOrders__ChargentOrder__c WHERE Id IN :setOrderId LIMIT 2 ]);
 
         ChargentBase__Chargent_Settings__c feeAmounts = [SELECT Id, Name, ARC_UpgradeChangeFee__c, ARC_AddMemberChangeFee__c,ARC_DowngradeChangeFee__c, ARC_AppFee__c FROM ChargentBase__Chargent_Settings__c LIMIT 1];
-        Decimal addMemberFee = feeAmounts.ARC_AddMemberChangeFee__c;
-        Decimal upgradeFee = feeAmounts.ARC_UpgradeChangeFee__c;
-        Decimal downgradeFee = feeAmounts.ARC_DowngradeChangeFee__c;
         
         Map<String, Object> nbReasons = new Map<String, Object> {
             'Add Newborn' => true
@@ -749,44 +857,103 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
 
         Boolean feeApplicable = false;
         Decimal feeAmount = 0;
+        Decimal pendingFeeAmount  = 0;
 
-        String nbReasonsString = 'Add Newborn; ';
-        String nbFeeReasonsString = 'Add Newborn, ';
+        List<String> allReasons = new List<String>{'Add Newborn'};
+        List<String> pendingReasons = new List<String>();
+        
 
+        //List of fee items based on the application fee order
+        List<Map<String,Object>> nbFeeItems = new List<Map<String,Object>>();
+        Map<String,Object> nbFeeItemMap = new Map<String,Object>{
+                'Name' => 'Add Member',
+                'Amount' => feeAmounts.ARC_AddMemberChangeFee__c
+        };
+        
 
-        if(inputMap.containsKey('ContractStatus') && contractStatus.contains('Awaiting')) {
+        if (inputMap.containsKey('GapInPermNB') && (Boolean)inputMap.get('GapInPermNB') == true) {
+            feeApplicable = true;
+            feeAmount = feeAmounts.ARC_AddMemberChangeFee__c;
+        }
+        List<String> reasonsToMap = new List<String>{'Add Newborn','Add Member', 'Program Upgrade', 'Program Downgrade', 'New Application'};
+        List<String> listReasons = new List<String>();
+        
+        if(inputMap.containsKey('ContractStatus') && contractStatus.contains('Awaiting')) { 
             String reasonsString = inputMap.containsKey('ContractReasons') ? (String)inputMap.get('ContractReasons') : null;
 
             if (reasonsString != null && reasonsString.contains('Add Ancillary Product')) {
                 reasonsString = reasonsString.replace('Add Ancillary Product', 'Ancillary Change');
             }
 
-            List<String> listReasons = reasonsString.contains(';') ? reasonsString.split(';') : new List<String>{reasonsString};
+            listReasons = reasonsString.contains(';') ? reasonsString.split(';') : new List<String>{reasonsString};
             for(String reason : listReasons) {
-                nbReasons.put(reason, true);
-                nbReasonsString = nbReasonsString += reason + '; ';
-
-                if (reason == 'Add Member') {
-                    feeApplicable = true;
-                    nbFeeReasonsString += 'Add Member, ';
-                    if (feeAmounts.ARC_AddMemberChangeFee__c > feeAmount) feeAmount = feeAmounts.ARC_AddMemberChangeFee__c;
+                if (reason != 'Add Newborn') {
+                    nbReasons.put(reason, true);
+                    allReasons.add(reason);
                 }
-                if (reason == 'Program Upgrade') {
+                if (reasonsToMap.contains(reason) ) {
+                    pendingReasons.add(reason);
                     feeApplicable = true;
-                    nbFeeReasonsString += 'Program Upgrade, ';
-                    if (feeAmounts.ARC_UpgradeChangeFee__c > feeAmount) feeAmount = feeAmounts.ARC_UpgradeChangeFee__c;
-                }
-                if (reason == 'Program Downgrade') {
-                    feeApplicable = true;
-                    nbFeeReasonsString += 'Program Downgrade, ';
-                    if (feeAmounts.ARC_DowngradeChangeFee__c > feeAmount) feeAmount = feeAmounts.ARC_DowngradeChangeFee__c;
-                }
-                if (reason == 'New Application') {
-                    feeApplicable = true;
-                    nbFeeReasonsString += 'New Application, ';
-                    if (feeAmounts.ARC_AppFee__c > feeAmount) feeAmount = feeAmounts.ARC_AppFee__c;
                 }
             }
+        }
+        
+
+        ChargentOrders__ChargentOrder__c cAppOrder = appFeeOrderId != null ? mapChargentOrders.get(appFeeOrderId) : null;
+        if (cAppOrder != null && cAppOrder.FeeItems__r != null && cAppOrder.ARC_FirstMonthPayed__c == false) {
+            for (ARC_FeeItem__c feeItem : cAppOrder.FeeItems__r) {
+                if (feeItem.ARC_Amount__c != null && feeItem.ARC_Amount__c > 0) {
+                    feeAmount += feeItem.ARC_Amount__c;
+                    pendingFeeAmount += feeItem.ARC_Amount__c;
+                    Map<String,Object> feeItemMap = new Map<String,Object>{
+                        'Name' => feeItem.Name,
+                        'Amount' => feeItem.ARC_Amount__c
+                    };
+                    nbFeeItems.add(feeItemMap);
+                }
+            }
+        }
+        if(cAppOrder != null && cAppOrder.ARC_FirstMonthPayed__c == false 
+        && cAppOrder.FeeItems__r.isEmpty() && pendingReasons != null && !pendingReasons.isEmpty() && cAppOrder.ChargentOrders__Subtotal__c != null && cAppOrder.ChargentOrders__Subtotal__c > 0) {
+            pendingFeeAmount += cAppOrder.ChargentOrders__Subtotal__c;
+            feeAmount += cAppOrder.ChargentOrders__Subtotal__c;
+            //Create feeItem based on the reasons since there are no fee items on the order
+            //If reasons are more than 1, we need to create 1 fee item with 1 reason, prioritizin: 1: Upgrade, 2: Add Member, 3: Downgrade
+            
+            if(pendingReasons.size() > 1) {
+                Map<String,Object> feeItemMap = new Map<String,Object>();
+                String prioritizedReason = '';
+                if(pendingReasons.contains('Program Upgrade')) {
+                    prioritizedReason = 'Program Upgrade';
+                } else if(pendingReasons.contains('Add Member') || pendingReasons.contains('Add Newborn')) {
+                    prioritizedReason = 'Add Member';
+                } else if(pendingReasons.contains('Program Downgrade')) {
+                    prioritizedReason = 'Program Downgrade';
+                } 
+                // else {
+                //     prioritizedReason = listReasons[0];
+                // }
+
+                feeItemMap.put('Name', prioritizedReason);
+                feeItemMap.put('Amount', cAppOrder.ChargentOrders__Subtotal__c);
+
+                nbFeeItems.add(feeItemMap);
+            }else{
+                Map<String,Object> feeItemMap = new Map<String,Object>();
+                String singleReason = listReasons[0];
+                feeItemMap.put('Name', singleReason);
+                feeItemMap.put('Amount', cAppOrder.ChargentOrders__Subtotal__c);
+                nbFeeItems.add(feeItemMap);
+            }
+        }
+
+        
+
+        outputMap.put('nbFeeItems', nbFeeItems);
+        outputMap.put('nbFeeItemMap', nbFeeItemMap);
+
+        if(feeAmount == 0) {
+            feeApplicable = false;
         }
 
         Map<String,Object> nbReasonsOutput = new Map<String,Object> {
@@ -794,26 +961,93 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
             'feeAmount' => feeAmount
         };
 
-        if (nbReasonsString.endsWith('; ')) {
-            nbReasonsString = nbReasonsString.substring(0, nbReasonsString.length() - 2);
-        }
 
-        if (nbFeeReasonsString.endsWith(', ')) {
-            nbFeeReasonsString = nbFeeReasonsString.substring(0, nbFeeReasonsString.length() - 2);
-        }
 
-        if (nbFeeReasonsString != null) {
-            String programSummaryFeeText = 'One Time Change Fee (' + nbFeeReasonsString + '): ' + (Decimal)nbReasonsOutput.get('feeAmount');
+
+        if(cAppOrder != null && pendingReasons != null && !pendingReasons.isEmpty()) {
+            nbReasonsOutput.put('nbPendingFeesString', String.join(pendingReasons, ', '));
+            String programSummaryPendingFeesText = 'Pending Change Fees (' + String.join(pendingReasons, ', ') + '): '; //+ pendingFeeAmount;
+            nbReasonsOutput.put('programSummaryPendingFeesText', programSummaryPendingFeesText);
+            
+        }
+        nbReasonsOutput.put('pendingFeeAmount', pendingFeeAmount);
+
+        if (inputMap.containsKey('GapInPermNB') && (Boolean)inputMap.get('GapInPermNB') == true) {
+            String programSummaryFeeText = 'New Change Fee (Add Newborn): '; //+ feeAmounts.ARC_AddMemberChangeFee__c;
             nbReasonsOutput.put('programSummaryFeeText', programSummaryFeeText);
-        }        
+            
+        }      
+        nbReasonsOutput.put('newFeeAmount', inputMap.containsKey('GapInPermNB') && (Boolean)inputMap.get('GapInPermNB') == true ? feeAmounts.ARC_AddMemberChangeFee__c : 0);
 
         nbReasonsOutput.put('nbReasons', nbReasons);
-        nbReasonsOutput.put('nbReasonsString', nbReasonsString);
+        nbReasonsOutput.put('nbReasonsString', String.join(allReasons, '; '));
         outputMap.put('nbChanges', nbReasonsOutput);
         outputMap.put('mapChargentOrders', mapChargentOrders);
         return outputMap;
     }
 
+    public static Map<String,Object> getMemberBeneficiaries (Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        String contractId = (String)((Map<String,Object>)inputMap.get('ContractInfo')).get('Id');
+        List<Object> censusMemberList = (List<Object>)inputMap.get('census_members');
+
+        List<ARC_CoverageParticipant__c> coverageParticipantList = [
+            SELECT Id, ARC_PrimaryBeneficiaryName__c, ARC_PrimaryBeneficiaryBirthdate__c, ARC_PrimaryBeneficiaryPhone__c, ARC_PrimaryBeneficiaryRelationship__c, ARC_PrimaryBeneficiaryOther__c, ARC_SecondaryBeneficiaryName__c, ARC_SecondaryBeneficiaryBirthdate__c, ARC_SecondaryBeneficiaryPhone__c, ARC_SecondaryBeneficiaryRelationship__c, ARC_SecondaryBeneficiaryOther__c, ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId
+            FROM ARC_CoverageParticipant__c
+            WHERE ARC_Policy__r.ARC_Contract__c = :contractId AND ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.vlocity_ins__Type__c = 'Medical'
+        ];
+
+        Map<String, ARC_CoverageParticipant__c> memberToCoveragePartMap = new Map<String, ARC_CoverageParticipant__c>();
+        if (coverageParticipantList != null && !coverageParticipantList.isEmpty()) {
+            for (ARC_CoverageParticipant__c covPart : coverageParticipantList) {
+                String memberId = covPart.ARC_PolicyParticipant__r?.PrimaryParticipantContact?.AccountId;
+                if (memberId != null && !memberToCoveragePartMap.containsKey(memberId))
+                    memberToCoveragePartMap.put(memberId, covPart);
+            }
+        }
+        
+        if (censusMemberList != null && !censusMemberList.isEmpty()) {
+            List<Object> finalMemberList = new List<Object>();
+            for (Object member : censusMemberList) {
+                Map<String,Object> memberMap = (Map<String,Object>)member;
+                String memberAccountId = (String)memberMap.get('PersonAccountId');
+                List<Object> memberBeneficiariesList = new List<Object>();
+                if (memberToCoveragePartMap.get(memberAccountId) != null) {
+                    ARC_CoverageParticipant__c memberCovPart = memberToCoveragePartMap.get(memberAccountId);
+                    if (memberCovPart.ARC_PrimaryBeneficiaryName__c != null && memberCovPart.ARC_PrimaryBeneficiaryName__c != '') {
+                        Map<String,Object> primaryBenefMap = new Map<String,Object>{
+                            'Id' => String.valueOf(memberCovPart.Id + '-primary'),
+                            'Label' => 'Primary Beneficiary',
+                            'BeneficiaryName' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryName__c),
+                            'BeneficiaryBirthdate' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryBirthdate__c),
+                            'BeneficiaryPhone' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryPhone__c),
+                            'BeneficiaryRelationship' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryRelationship__c),
+                            'BeneficiaryOtherRelationship' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryOther__c),
+                            'isOtherRelationship' => memberCovPart.ARC_PrimaryBeneficiaryRelationship__c == 'Other' ? true : false
+                        };
+                        memberBeneficiariesList.add(primaryBenefMap);
+                    }
+                    if (memberCovPart.ARC_SecondaryBeneficiaryName__c != null && memberCovPart.ARC_SecondaryBeneficiaryName__c != '') {
+                        Map<String,Object> secondaryBenefMap = new Map<String,Object>{
+                            'Id' => String.valueOf(memberCovPart.Id + '-secondary'),
+                            'Label' => 'Secondary Beneficiary',
+                            'BeneficiaryName' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryName__c),
+                            'BeneficiaryBirthdate' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryBirthdate__c),
+                            'BeneficiaryPhone' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryPhone__c),
+                            'BeneficiaryRelationship' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryRelationship__c),
+                            'BeneficiaryOtherRelationship' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryOther__c),
+                            'isOtherRelationship' => memberCovPart.ARC_SecondaryBeneficiaryRelationship__c == 'Other' ? true : false
+                        };
+                        memberBeneficiariesList.add(secondaryBenefMap);
+                    }
+                }
+                memberMap.put('beneficiaries', memberBeneficiariesList);
+                finalMemberList.add(memberMap);
+            }
+            outputMap.put('census_members', finalMemberList);
+        }
+
+        return outputMap;
+    }
 
     /////////////////////////////////////////////
     ////////Auxiliary methods/////////////////////
@@ -856,6 +1090,43 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
         response.put(fieldName, value);
     }
 
+    /*******************************************************************
+    * @MethodName         :   addQuestionResponseList
+    * @Description        :   Aux method to populate input fields for the medical questions Cancer and Preescriptions
+    ********************************************************************/
+    private static void addQuestionResponseList(Map<String, List<Map<String, Object>>> questionMap, String blockName, String fieldName, Object value, String memberId, Integer index) {
+        // Check if the block already exists in the questionMap
+        if (!questionMap.containsKey(blockName)) {
+            // If it doesn't exist, create a new list for that block
+            questionMap.put(blockName, new List<Map<String, Object>>());
+        }
+    
+        // Get the list of responses for the block
+        List<Map<String, Object>> responsesForBlock = questionMap.get(blockName);
+    
+        // Check if an object with the same index and member already exists
+        Boolean foundExistingIndex = false;
+        for (Map<String, Object> response : responsesForBlock) {
+            if (response.get('memberId') == memberId && (Integer)response.get('index') == index) {
+                // If the same member and index are found, add the new field to the existing object
+                response.put(fieldName, value);
+                foundExistingIndex = true;
+                break;
+            }
+        }
+    
+        // If the index wasn't found, create a new entry for the member
+        if (!foundExistingIndex) {
+            Map<String, Object> newResponse = new Map<String, Object>();
+            newResponse.put(fieldName, value);
+            newResponse.put('memberId', memberId);
+            newResponse.put('index', index);
+    
+            // Add the new response to the block
+            responsesForBlock.add(newResponse);
+        }    
+    }
+
 
     /*******************************************************************
     * @MethodName         :   addMemberNameToMedicalQuestions
@@ -880,7 +1151,6 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
         addQuestionResponse(questionsMap, 'EB_PastConditions', 'TXT_MemberPastConditions', fullName, memberId);
         addQuestionResponse(questionsMap, 'EB_PastConditions', 'TXT_MemberIdPastConditions', memberId, memberId);
         addQuestionResponse(questionsMap, 'EB_Physicians', 'TXT_CensusMemberName', fullName, memberId);
-        //addQuestionResponse(questionsMap, 'EB_Physicians', 'TXT_CensusMemberId', memberId, memberId);
 
         Map<String, Object> selectMemberDetail = new Map<String, Object>();
         selectMemberDetail.put('CensusMemberName', fullName);
@@ -955,7 +1225,7 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
         String address = String.join(new List<String>{member.ARC_PhysicalAddressStreet__c, member.ARC_PhysicalAddressCity__c, member.ARC_PhysicalAddressState__c, member.ARC_PhysicalAddressZipCode__c}, ', ');
 
         String relationship = isSpinOff == true ? member.ARC_Relationship__c : censusMemberRelationshipMap.get(member.Id);
-
+        
         Map<String, Object> memberMap = new Map<String, Object>{
             'Id' => member.Id,
             'vlocity_ins__FirstName__c' => member.vlocity_ins__FirstName__c,
@@ -1034,4 +1304,49 @@ global with sharing class ARC_TemporaryNewborn_Utilities {
 
         return age;
     } 
+
+    @TestVisible
+    private static Boolean hasTemporaryNewBornMember(vlocity_ins__GroupCensusMember__c member, Map<Id, String> censusMemberRelationshipMap, Boolean isSpinOff) {
+        Boolean isTemporaryNewborn = false;
+        if (member.ARC_Relationship__c == 'Child' && member.ARC_Age__c < 18) {
+            isTemporaryNewborn = true;
+        }
+        return isTemporaryNewborn;
+    }
+
+    /**
+     * @Description: Auxiliar method to transform member map keys
+     * @param memberMap: All the member information map received from JSON
+     */
+    @TestVisible
+    private static Map<String,Object> transformMemberMapKeys(Map<String,Object> memberMap) {
+        String height = String.valueOf(memberMap.get('ARC_HeightFeet__c')) + '\'' + String.valueOf(memberMap.get('ARC_HeightInches__c')) + '\"';
+        String memberSSN = (String)memberMap.get('vlocity_ins__SocialSecurityNumber__c');
+        Map<String,Object> transformedMemberMap = new Map<String,Object> {
+            'Id' => (String)memberMap.get('Id'),
+            'FirstName' => (String)memberMap.get('vlocity_ins__FirstName__c'),
+            'MI' => (String)memberMap.get('ARC_MiddleInitial__c'),
+            'LastName' => (String)memberMap.get('vlocity_ins__LastName__c'),
+            'DOB' => (String)memberMap.get('vlocity_ins__Birthdate__c'),
+            'Age' => Integer.valueOf(memberMap.get('ARC_Age__c')),
+            'Gender' => (String)memberMap.get('vlocity_ins__Gender__c'),
+            'Phone' => (String)memberMap.get('ARC_Phone__c'),
+            'Email' => (String)memberMap.get('vlocity_ins__Email__c'),
+            'SocialSecurity' => memberSSN != null ? 'XXX-XX-' + memberSSN.right(4) : '',
+            'SSN' => memberSSN ?? '',
+            'Height' => height,
+            'Weight' => String.valueOf(memberMap.get('ARC_Weight__c')),
+            'Pregnant' => memberMap.get('ARC_isPregnant__c') != null && memberMap.get('ARC_isPregnant__c') != '' ? (Boolean)memberMap.get('ARC_isPregnant__c') : false,
+            'Smoker' => memberMap.get('ARC_Smoker__c') != null && memberMap.get('ARC_Smoker__c') != '' ? (Boolean)memberMap.get('ARC_Smoker__c') : false,
+            'Address' => (String)memberMap.get('ARC_PhysicalAddressStreet__c'),
+            'City' => (String)memberMap.get('ARC_PhysicalAddressCity__c'),
+            'State' => (String)memberMap.get('ARC_PhysicalAddressState__c'),
+            'ZipCode' => (String)memberMap.get('ARC_PhysicalAddressZipCode__c'),
+            'Relationship' => (String)memberMap.get('ARC_Relationship__c'),
+            'IsRemoveMember' => (Boolean)memberMap.get('IsRemoveMember'),
+            'IsNewMember' => (Boolean)memberMap.get('IsNewMember')
+        };
+
+        return transformedMemberMap;
+    }
 }

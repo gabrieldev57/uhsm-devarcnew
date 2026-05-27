@@ -1,0 +1,127 @@
+.container {
+    margin-bottom: 1.5rem;
+    background-color: #ffffff;
+}
+
+.header {
+    font-weight: bold;
+    font-size: 18px;
+    font-family: Aktiv Grotesk Ex;
+    display: flex;
+    align-items: center;
+    line-height: 1.2;
+    padding-top: 2px !important;
+}
+
+.header-container {
+    margin-bottom: 1rem;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    gap: 10px;
+}
+
+.header-container > div:first-child {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.header-container > .header {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    max-width: none !important;
+}
+
+.form-row-container {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-row-item {
+    flex: 1 1 45%;
+}
+
+.address-display {
+    border: 1px solid #ccc;
+    background-color: #f3f3f3;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    color: #888;
+    display: block;
+    font-size: 0.875rem;
+}
+
+lightning-input .slds-form-element__label .slds-required {
+    display: none !important;
+}
+
+lightning-icon {
+    --sds-c-icon-color-foreground-default: #F2BC30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-container lightning-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tablet (iPad portrait) */
+@media (max-width: 1024px) {
+    .container {
+        margin-bottom: 1.5rem;
+        padding: 0rem;
+        padding-top: initial;
+    }
+
+    .header-container {
+        gap: 8px;
+    }
+
+    .header {
+        font-size: 18px;
+        padding-top: 2px !important;
+    }
+
+    .header-container > div:first-child {
+        flex: 0 0 auto !important;
+        width: auto !important;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .container {
+        margin-bottom: 1.5rem;
+        padding: 0rem;
+        padding-top: initial;
+    }
+
+    .header-container {
+        gap: 8px;
+        align-items: center !important;
+    }
+
+    .header {
+        font-size: 18px;
+        padding-top: 2px !important;
+    }
+
+    .header-container > div:first-child {
+        flex: 0 0 auto !important;
+        width: auto !important;
+    }
+
+    .header-container > .header {
+        flex: 1 1 auto !important;
+        width: auto !important;
+    }
+}

@@ -17,34 +17,9 @@ public without sharing class ARC_PCSOMapper {
      */
     public void executeChanges(ARC_PCSOManager manager) {
         this.manager = manager;
-        Map<String,Object> soChangesMap = (Map<String,Object>)manager.inputMap.get('soChanges');
+        Map<String,Object> soChangesMap = (Map<String,Object>)manager.soChanges;
 
-        /*
-        "soChanges": {
-            "soReasonsString": "Spin Off; Program Downgrade; Ancillary Change; Add Member",
-            "feeAmount": 50,
-            "soReasons": {
-            "ancillaryChange": true,
-            "removeMember": false,
-            "addMember": true,
-            "agingOut": false,
-            "programDowngrade": true,
-            "programUpgrade": false,
-            "spinOff": true
-            },
-            "programSummaryFeeText": "One Time Change Fee (Add Member): 50",
-            "feeApplicable": true
-        },
-          Do we need to add?
-          primaryChange
-          addressStateChange
-          relationshipToPrimaryChange
-          dateOfBirthChange
-          removeAllAncillary
-          effectiveDateChange
-          demographicChange
-          effectiveBackDateChange
-        */
+        
         Map<String,Object> stepChangeSelect = manager.inputMap.containsKey('STEP_ChangeSelect') ? (Map<String,Object>)manager.inputMap.get('STEP_ChangeSelect') : null;
         String updateTypes = null;
         if(stepChangeSelect != null){
@@ -62,16 +37,7 @@ public without sharing class ARC_PCSOMapper {
         }
 
 
-        /* Backdate Detection 
-        Boolean effectiveBackDateChange = false;
-        Map<String,Object> selectedContractInfo = manager.inputMap.containsKey('SelectedContractInfo') ? (Map<String,Object>)manager.inputMap.get('SelectedContractInfo') : null;
-        if(selectedContractInfo != null){
-            if(selectedContractInfo.containsKey('SEL_EffectiveBackDate') && selectedContractInfo.get('EffectiveDate') != null){
-                if(selectedContractInfo.get('EffectiveDate') < selectedContractInfo.get('SEL_EffectiveBackDate')){
-                    effectiveBackDateChange = true;
-                }
-            }
-        }*/
+        
 
         if(updateTypes == 'Complete Spin-Off without Changes'){
             System.debug('UpdateTypes Complete Spin-Off without Changes');
@@ -83,21 +49,18 @@ public without sharing class ARC_PCSOMapper {
             if (FRML_HadAncillaries) {
                 noChanges = false;
                 manager.ActionsSelected.add('ancillaryChange');
-                // actionsToExecute.add('upsertGuardian');
                 actionsToExecute.add('insertCaseForFeeSkipped'); 
                 actionsToExecute.add('createUWCase');
                 actionsToExecute.add('createUWCaseMembers');
-                // actionsToExecute.add('insertContract');
-                // actionsToExecute.add('createCLI');
-                // actionsToExecute.add('insertContractParticipants');
                 actionsToExecute.add('createChargentOrders');
                 actionsToExecute.add('insertHipaaAuthorization');
                 actionsToExecute.add('insertPromotionDiscount');
+                actionsToExecute.add('mapAncillaryDiscount');
+                actionsToExecute.add('mapMemberBeneficiaries');
             }
             if (manager.soReasons.containsKey('removeMember') && (Boolean) manager.soReasons.get('removeMember')) {
                 noChanges = false;
                 manager.ActionsSelected.add('removeMember');
-                //actionsToExecute.add('upsertGuardian'); If primary under 18
                 actionsToExecute.add('updateContract');
                 actionsToExecute.add('createCLI');
                 actionsToExecute.add('insertContractParticipants');
@@ -107,6 +70,8 @@ public without sharing class ARC_PCSOMapper {
                 actionsToExecute.add('createChargentOrders');
                 actionsToExecute.add('insertHipaaAuthorization');
                 actionsToExecute.add('insertPromotionDiscount');
+                actionsToExecute.add('mapAncillaryDiscount');
+                actionsToExecute.add('mapMemberBeneficiaries');
             }
             if (manager.soReasons.containsKey('addMember') && (Boolean) manager.soReasons.get('addMember')) {
                 noChanges = false;
@@ -119,12 +84,13 @@ public without sharing class ARC_PCSOMapper {
                 actionsToExecute.add('createUWCaseMembers');
                 actionsToExecute.add('updateContract');
                 actionsToExecute.add('createCLI');
-                //actionsToExecute.add('insertContractParticipants');
                 actionsToExecute.add('upsertMedicalQuesitons');
                 actionsToExecute.add('insertContractParticipants');
                 actionsToExecute.add('createChargentOrders');
                 actionsToExecute.add('insertHipaaAuthorization');
                 actionsToExecute.add('insertPromotionDiscount');
+                actionsToExecute.add('mapAncillaryDiscount');
+                actionsToExecute.add('mapMemberBeneficiaries');
             }            
             if (manager.soReasons.containsKey('programDowngrade') && (Boolean) manager.soReasons.get('programDowngrade')) {
                 noChanges = false;
@@ -139,6 +105,8 @@ public without sharing class ARC_PCSOMapper {
                 actionsToExecute.add('createChargentOrders');
                 actionsToExecute.add('insertHipaaAuthorization');
                 actionsToExecute.add('insertPromotionDiscount');
+                actionsToExecute.add('mapAncillaryDiscount');
+                actionsToExecute.add('mapMemberBeneficiaries');
             }
             if (manager.soReasons.containsKey('programUpgrade') && (Boolean) manager.soReasons.get('programUpgrade')) {
                 noChanges = false;
@@ -149,19 +117,19 @@ public without sharing class ARC_PCSOMapper {
                 actionsToExecute.add('createUWCaseMembers');
                 actionsToExecute.add('updateContract');
                 actionsToExecute.add('createCLI');
-                //actionsToExecute.add('insertContractParticipants');
                 actionsToExecute.add('upsertMedicalQuesitons');
                 actionsToExecute.add('insertContractParticipants');
                 actionsToExecute.add('createChargentOrders');
                 actionsToExecute.add('insertHipaaAuthorization');
                 actionsToExecute.add('insertPromotionDiscount');
+                actionsToExecute.add('mapAncillaryDiscount');
+                actionsToExecute.add('mapMemberBeneficiaries');
             }
             if (manager.soReasons.containsKey('agingOut') && (Boolean) manager.soReasons.get('agingOut')) {
                 noChanges = false;
                 manager.ActionsSelected.add('agingOut');
                 actionsToExecute.add('updateAccountMedicare');
                 actionsToExecute.add('updateGCMdemographicChange');
-                //actionsToExecute.add('upsertGuardian');
                 actionsToExecute.add('insertCaseForFeeSkipped');
                 actionsToExecute.add('updateContract');
                 actionsToExecute.add('createCLI');
@@ -169,6 +137,8 @@ public without sharing class ARC_PCSOMapper {
                 actionsToExecute.add('createChargentOrders');
                 actionsToExecute.add('createUWCase');
                 actionsToExecute.add('createUWCaseMembers');
+                actionsToExecute.add('mapAncillaryDiscount');
+                actionsToExecute.add('mapMemberBeneficiaries');
             }
             if(demographicChange){
                 noChanges = false;
@@ -182,6 +152,8 @@ public without sharing class ARC_PCSOMapper {
                 actionsToExecute.add('createChargentOrders');
                 actionsToExecute.add('createUWCase');
                 actionsToExecute.add('createUWCaseMembers');
+                actionsToExecute.add('mapAncillaryDiscount');
+                actionsToExecute.add('mapMemberBeneficiaries');
             }            
             if (manager.soReasons.containsKey('spinOff') && (Boolean) manager.soReasons.get('spinOff') && noChanges == true) {
                 System.debug('Soreasons Complete Spin-Off without Changes');
@@ -195,21 +167,12 @@ public without sharing class ARC_PCSOMapper {
                 actionsToExecute.add('createChargentOrders');
                 actionsToExecute.add('createUWCase');
                 actionsToExecute.add('createUWCaseMembers');
+                actionsToExecute.add('mapAncillaryDiscount');
+                actionsToExecute.add('mapMemberBeneficiaries');
             } 
             
                          
         }
-        // else if (soChangesMap.containsKey('createNewContract') && (Boolean)soChangesMap.get('createNewContract') == false){
-        //     if(manager.inputMap.containsKey('demographicUpdates') && (Boolean)manager.inputMap.get('demographicUpdates') == true){            
-        //         actionsToExecute.add('updateGCMdemographicChange');
-        //         actionsToExecute.add('insertHipaaAuthorization');
-        //     }       
-        //     if( soChangesMap.containsKey('effectiveBackDateChange') && (Boolean) soChangesMap.get('effectiveBackDateChange') == true){
-        //         manager.ActionsSelected.add('effectiveBackDateChange');
-        //         actionsToExecute.add('updateContract');
-        //         actionsToExecute.add('insertHipaaAuthorization');
-        //     }             
-        // }
         try{
             executeActions(actionsToExecute);        
         }catch(Exception e){
@@ -270,10 +233,6 @@ public without sharing class ARC_PCSOMapper {
                         when 'updateContract' {
                             upsertContracts('Update');
                         }
-                        when 'insertContract' {
-                            //upsertContracts('Insert');
-                            //upsertContracts('oldContracts');
-                        }
                         when 'createCLI' {
                             createContractLineItems('Insert');
                         }
@@ -292,6 +251,9 @@ public without sharing class ARC_PCSOMapper {
                         when 'insertPromotionDiscount' {
                             insertPromotionDiscount();
                         }
+                        when 'mapMemberBeneficiaries' {
+                            mapMemberBeneficiaries();
+                        }
                         when 'updateGCMdemographicChange' {
                             updateGCM('demographicChange');
                         }
@@ -301,18 +263,22 @@ public without sharing class ARC_PCSOMapper {
                         when 'updateAccountMedicare'{
                             updateAccountMedicare();
                         }
+                        when 'mapAncillaryDiscount' {
+                            mapCriticalCarePromotionDiscount();
+                        }
                         when 'spinOffWithoutChanges' {
                             spinOffWithoutChanges();
                             upsertContracts('Update');
                             createContractLineItems('Insert');
                             createContractParticipants();
                             upsertGuardian();
-                            //createContractParticipants();
                             createChargentOrders();
                             handlerUWCases();
                             handlerUWCaseMembers();
                             createHipaaAuthorization();
                             insertPromotionDiscount();    
+                            mapMemberBeneficiaries();
+                            mapCriticalCarePromotionDiscount();
                         }
                     }
                 } catch (Exception e) {
@@ -376,14 +342,11 @@ public without sharing class ARC_PCSOMapper {
                             censusMember.vlocity_ins__IsSpouse__c = true;
                         }
                         
-                        //censusMember.vlocity_ins__RelatedCensusMemberId__c = oldPrimaryValues.get('Id');
                         censusMember.vlocity_ins__PrimaryMemberIdentifier__c = oldPrimaryValues.get('vlocity_ins__MemberIdentifier__c');
                         
                          //Add to global list
-                        manager.temporalIdToCensusMembers.put((String)member.get('Id'), censusMember);
                         manager.censusMemberByTemporalId.put((String)member.get('Id'), censusMember);
                         
-                        //manager.censusMembersToInsert.add(censusMember);
                     }
                     else if(member.containsKey('IsNewMember') && (Boolean)member.get('IsNewMember') == false ){
                         vlocity_ins__GroupCensusMember__c censusMember = new vlocity_ins__GroupCensusMember__c();
@@ -421,60 +384,7 @@ public without sharing class ARC_PCSOMapper {
                 System.debug('Exception updateGCM.addMember ' + e.getMessage() + ' ' + e.getStackTraceString());
                 throw e;
             }
-        }       
-        // else if(action == 'dateOfBirthChange'){
-        //     System.debug('Demographic change action');
-        //     try{
-        //         List<Map<String,Object>> censusMembersDateOfBirth = getCensusMembers();
-        //         for(Map<String,Object> member : censusMembersDateOfBirth){
-        //             if(member.containsKey('IsNewMember') && (Boolean)member.get('IsNewMember') == false && member.containsKey('IsInactiveMember') && (Boolean)member.get('IsInactiveMember') == false){
-        //                 vlocity_ins__GroupCensusMember__c censusMember = new vlocity_ins__GroupCensusMember__c();
-        //                 censusMember.Id =(Id)(member.containsKey('Id') ? member.get('Id') : 'null');
-        //                 censusMember.vlocity_ins__Birthdate__c = (member.containsKey('vlocity_ins__Birthdate__c') && member.get('vlocity_ins__Birthdate__c') != null)? Date.valueOf((String)member.get('vlocity_ins__Birthdate__c')) : null;
-        //                 manager.censusMembersToUpdate.add(censusMember);
-        //             }
-                    
-        //         }    
-        //     }
-        //     catch(Exception e){
-        //         System.debug('Exception updateGCM.dateOfBirthChange ' + e.getMessage() + ' ' + e.getStackTraceString());
-        //         throw e;
-        //     }
-        // }
-        // else if(action == 'addressStateChange'){
-        //     System.debug('Demographic change action');
-        //     try{
-        //         List<Map<String,Object>> censusMembersAddressState = getCensusMembers();
-        //         for(Map<String,Object> member : censusMembersAddressState){
-        //             if(member.containsKey('IsNewMember') && (Boolean)member.get('IsNewMember') == false && !member.containsKey('IsInactiveMember')){
-        //                 vlocity_ins__GroupCensusMember__c censusMember = new vlocity_ins__GroupCensusMember__c();
-        //                 censusMember.Id =(Id)(member.containsKey('Id') ? member.get('Id') : 'null');
-                       
-        //                 censusMember.ARC_PhysicalAddressState__c = member.containsKey('ARC_PhysicalAddressState__c') ? (String)member.get('ARC_PhysicalAddressState__c') : null;
-        //                 censusMember.ARC_PhysicalAddressCity__c = member.containsKey('ARC_PhysicalAddressCity__c') ? (String)member.get('ARC_PhysicalAddressCity__c') : null;
-        //                 censusMember.vlocity_ins__Email__c = member.containsKey('vlocity_ins__Email__c') ? (String)member.get('vlocity_ins__Email__c') : null;
-        //                 censusMember.ARC_Phone__c = member.containsKey('ARC_Phone__c') ? (String)member.get('ARC_Phone__c') : null;
-        //                 censusMember.ARC_PhysicalAddressZipCode__c = member.containsKey('ARC_PhysicalAddressZipCode__c') ? (String)member.get('ARC_PhysicalAddressZipCode__c') : null;
-        //                 censusMember.ARC_PhysicalAddressStreet__c = member.containsKey('ARC_PhysicalAddressStreet__c') ? (String)member.get('ARC_PhysicalAddressStreet__c') : null;
-                        
-                        
-        //                 ///////
-
-        //                 censusMember.ARC_PhysicalAddressCity__c = member.containsKey('ARC_PhysicalAddressCity__c') ? (String)member.get('ARC_PhysicalAddressCity__c') : null;
-        //                 censusMember.ARC_PhysicalAddressState__c = member.containsKey('ARC_PhysicalAddressState__c') ? (String)member.get('ARC_PhysicalAddressState__c') : null;
-        //                 censusMember.ARC_PhysicalAddressStreet__c = member.containsKey('ARC_PhysicalAddressStreet__c') ? (String)member.get('ARC_PhysicalAddressStreet__c') : null;
-        //                 censusMember.ARC_PhysicalAddressZipCode__c = member.containsKey('ARC_PhysicalAddressZipCode__c') ? (String)member.get('ARC_PhysicalAddressZipCode__c') : null;
-        //                 censusMember.vlocity_ins__Email__c = member.containsKey('vlocity_ins__Email__c') ? (String)member.get('vlocity_ins__Email__c') : null;
-
-        //                 manager.censusMembersToUpdate.add(censusMember);
-        //             }    
-        //         }
-        //     }
-        //     catch(Exception e){
-        //         System.debug('Exception updateGCM.addressStateChange ' + e.getMessage() + ' ' + e.getStackTraceString());
-        //         throw e;
-        //     }
-        // }
+        }
         else if(action == 'demographicChange'){
             System.debug('Demographic change action');
             try{
@@ -577,8 +487,8 @@ public without sharing class ARC_PCSOMapper {
     ********************************************************************/
     private void insertCaseForFeeSkipped() {
         try {
-            if (manager.inputMap.containsKey('STEP_ChargentPayment') && manager.inputMap.get('STEP_ChargentPayment') != null) {
-                Map<String, Object> paymentFee = (Map<String, Object>)manager.inputMap.get('STEP_ChargentPayment');
+            if (manager.sTEP_ChargentPayment != null) {
+                Map<String, Object> paymentFee = (Map<String, Object>)manager.sTEP_ChargentPayment;
                 if ('No'.equals((String)paymentFee.get('RAD_ChargeAppFeeDefTrue'))) {
                     Case newCase = new Case();
         
@@ -592,12 +502,11 @@ public without sharing class ARC_PCSOMapper {
                     newCase.Origin = 'System';
                     newCase.Subject = 'Program change fee waived';
 
-                    Map<String, Object> selectedContractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');
-                    if(selectedContractInfo != null && selectedContractInfo.containsKey('GroupAccountId')) {
-                        newCase.AccountId = (String)selectedContractInfo.get('GroupAccountId');
+                    if(manager.selectedContractInfo != null && manager.selectedContractInfo.containsKey('GroupAccountId')) {
+                        newCase.AccountId = (String)manager.selectedContractInfo.get('GroupAccountId');
                     }
-                    if(selectedContractInfo != null && selectedContractInfo.containsKey('ContractID')) {
-                        newCase.ARC_Contract__c = (Id)SelectedContractInfo.get('ContractID');
+                    if(manager.selectedContractInfo != null && manager.selectedContractInfo.containsKey('ContractID')) {
+                        newCase.ARC_Contract__c = (Id)manager.selectedContractInfo.get('ContractID');
                     }
 
                     // Get Primary Member 
@@ -637,12 +546,9 @@ public without sharing class ARC_PCSOMapper {
     ********************************************************************/
     public void handlerUWCases() {
         try {
-            Map<String, Object> soChanges = (Map<String, Object>)manager.inputMap.get('soChanges');
-            List<Object> userInputs = (List<Object>)manager.inputMap.get('userInputs');
-            Map<String, Object> soReasonsObj = (Map<String, Object>)soChanges.get('soReasons');
+            Map<String, Object> soReasonsObj = manager.soReasons;
 
-            
-            Case newCase = new Case();                
+            Case newCase = new Case();
             Id recordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName().get('Admission').getRecordTypeId();
 
             Boolean addMember = soReasonsObj.get('addMember') != null ? (Boolean)soReasonsObj.get('addMember') : false;
@@ -666,9 +572,9 @@ public without sharing class ARC_PCSOMapper {
             newCase.Status = 'Draft';
             newCase.OwnerId = (Id)manager.inputMap.get('userId');
                 
-            Map<String, Object> selectedContractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');
-            if(selectedContractInfo != null && selectedContractInfo.containsKey('GroupAccountId')) {
-                newCase.AccountId = (String)selectedContractInfo.get('GroupAccountId');
+
+            if(manager.selectedContractInfo != null && manager.selectedContractInfo.containsKey('GroupAccountId')) {
+                newCase.AccountId = (String)manager.selectedContractInfo.get('GroupAccountId');
             }
             
             if (!manager.casesUWToInsert.containsKey('UWCase')) {
@@ -688,8 +594,7 @@ public without sharing class ARC_PCSOMapper {
     ********************************************************************/
     public void handlerUWCaseMembers() {
         try {
-            Map<String, Object> soChanges = (Map<String, Object>)manager.inputMap.get('soChanges');
-            Map<String, Object> soReasons = (Map<String, Object>)soChanges.get('soReasons');
+            Map<String, Object> soReasons = manager.soReasons;
 
             Boolean addMember = false;
             Boolean programUpgrade = false;
@@ -697,10 +602,9 @@ public without sharing class ARC_PCSOMapper {
                 addMember = soReasons.containsKey('addMember') ? (Boolean)soReasons.get('addMember') : false;
                 programUpgrade = soReasons.containsKey('programUpgrade') ? (Boolean)soReasons.get('programUpgrade') : false;
             }
-            
-            Map<String, Object> contractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');
-            Id contractId = (Id)((Map<String, Object>)manager.inputMap.get('SelectedContractInfo')).get('ExpiredContract');
-            String contractStatus = (String)contractInfo.get('TXT_ContractStatus');
+
+            Id contractId = (Id)manager.selectedContractInfo.get('ExpiredContract');
+            String contractStatus = (String)manager.selectedContractInfo.get('TXT_ContractStatus');
 
             Map<String, ARC_UnderwritingCaseMember__c> aux = new Map<String, ARC_UnderwritingCaseMember__c>();
 
@@ -708,8 +612,7 @@ public without sharing class ARC_PCSOMapper {
             if (programUpgrade) {
                 List<ARC_UnderwritingCaseMember__c> listUWCMToCopy = [SELECT ARC_ApprovalResolution__c, ARC_Member__c, ARC_PersonAccount__c, ARC_Reason__c, ARC_Score__c, Name, ARC_ReviewedBy__c,  ARC_LastStatusUpdate__c, LastModifiedById, ARC_Description__c FROM ARC_UnderwritingCaseMember__c WHERE ARC_Contract__c =: contractId ];
 
-                //Add condition to not void previous UW Case if the case is already closed
-                //List<Case> previousUWCase  = [SELECT Id, Status FROM Case WHERE ARC_Contract__c =: contractId AND RecordType.Name =: 'Underwriting' AND IsClosed = false];
+                
 
                 for (ARC_UnderwritingCaseMember__c UWCM : listUWCMToCopy) {
                     for (Map<String,Object> member : manager.censusMembersInPcContract) {
@@ -735,10 +638,7 @@ public without sharing class ARC_PCSOMapper {
                                 manager.censusMemberIdOrFakeIdToUWCM.put(newCaseMember.ARC_Member__c, newCaseMember);
                                 aux.put(newCaseMember.ARC_PersonAccount__c, newCaseMember);
                                 
-                                //manager.casesUWToInsert[0].ARC_Reason__c = 'Underwriting';
-                                /*for(Case c : previousUWCase) {
-                                    c.ARC_Reason__c = 'Underwriting';
-                                }*/  
+                               
                             } catch (Exception e) {
                                 System.debug('Exception when trying to clone previous UWM Cases ' + e.getMessage() + ' ' + e.getStackTraceString());
                                 throw e;
@@ -753,15 +653,12 @@ public without sharing class ARC_PCSOMapper {
                     ARC_UnderwritingCaseMember__c newCaseMember;
 
                     if (aux.containsKey((String)cm.get('PersonAccountId'))) {
-                        //newCaseMember = aux.get((String)cm.get('PersonAccountId'));
-                        //if (newCaseMember.ARC_Reason__c == 'Add Member' && programUpgrade == false){
                         continue;
-                        //}
                     }
                     else{
                         newCaseMember = new ARC_UnderwritingCaseMember__c();
                         newCaseMember.ARC_ApprovalResolution__c = 'Pending';
-                        newCasemember.Name = (String)cm.get('vlocity_ins__FirstName__c') + ' ' + (String)cm.get('vlocity_ins__LastName__c');
+                        newCaseMember.Name = (String)cm.get('vlocity_ins__FirstName__c') + ' ' + (String)cm.get('vlocity_ins__LastName__c');
                     }
                     
                     // Set case member details based on change type
@@ -776,40 +673,10 @@ public without sharing class ARC_PCSOMapper {
                         newCaseMember.ARC_PersonAccount__c = (Id)cm.get('PersonAccountId');
                         manager.censusMemberIdOrFakeIdToUWCM.put((String)cm.get('Id'), newCaseMember);
 
-                        
-                        // for (String key : manager.censusMemberIdOrFakeIdToUWCM.keySet()) {
-                        //     if(manager.censusMemberIdOrFakeIdToUWCM.get(key).ARC_PersonAccount__c == (String)cm.get('PersonAccountId')) {
-                        //     } else{
-
-                        //     }
-                        // }
-                        //aux.put((String)cm.get('PersonAccountId'), newCaseMember); 
-
                         System.debug('newmember = false & programupgrade = true: ' + newCaseMember);
                     } 
                 }
             }
-            //Evaluate if the UW Case should be created in Draft or Closed Approved
-            /*Boolean uwCaseNeedsEvaluation = false;
-            for (ARC_UnderwritingCaseMember__c UWCM : manager.censusMemberIdOrFakeIdToUWCM.values()) {
-                if (UWCM.ARC_Reason__c != 'Remove Member') {
-                    uwCaseNeedsEvaluation = true;
-                }
-            }
-            if (uwCaseNeedsEvaluation == false) {
-                for(Case c : previousUWCase) {
-                    c.Status = 'Closed Approved';
-                }
-            }
-            if(!previousUWCase.isEmpty()) {
-                for(Case c : previousUWCase) {
-                    c.Status = 'Closed Voided';
-                }
-                if (!manager.casesUWToInsert.containsKey('previuosUWCase')) {
-                    manager.casesUWToInsert.put('previuosUWCase', new List<Case>());
-                }
-                manager.casesUWToInsert.get('previuosUWCase').addAll(previousUWCase);
-            }*/
         } catch (Exception e) {
             System.debug('Exception handler UW Case Member: ' + e.getMessage() + ' ' + e.getStackTraceString());
             throw e;
@@ -821,157 +688,12 @@ public without sharing class ARC_PCSOMapper {
     * @Description        :   map Contracts to create
     ********************************************************************/
     private void upsertContracts(String action) {
-        /*
-        if(action == 'Insert') {
-            try{
-                Map<String, Object> guardianInfo = (Map<String, Object>)manager.inputMap.get('STEP_GuardiansInfo');
-                Contract newContract = new Contract();
-                
-                // Get selected contract info
-                Map<String, Object> selectedContractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');               
-                if(selectedContractInfo != null) {                    
-                    newContract.AccountId = (String)selectedContractInfo.get('GroupAccountId');
-                    newContract.Account_Name_Text__c = (String)selectedContractInfo.get('GroupAccountName');                    
-                }
-                
-                // Get effective date
-                Date effectiveDate;
-                Map<String, Object> effectiveDateMap = (Map<String, Object>)manager.inputMap.get('STEP_EffectiveDate') !=null ? (Map<String, Object>)manager.inputMap.get('STEP_EffectiveDate') : new Map<String, Object>();
-                if(effectiveDateMap != null && effectiveDateMap.containsKey('aRC_DatePicker')){
-                    Map<String, Object> datePickerMap = (Map<String, Object>)effectiveDateMap.get('aRC_DatePicker');
-                    if(datePickerMap != null && datePickerMap.containsKey('DATE_SubscriberEffectiveDate')) {
-                        String dateStr = (String)datePickerMap.get('DATE_SubscriberEffectiveDate');
-                        if(String.isNotBlank(dateStr)) {
-                            try {
-                                // Handle both MM/DD/YYYY and YYYY-MM-DD formats
-                                if(dateStr.contains('-')) {
-                                    effectiveDate = Date.valueOf(dateStr);
-                                } else {
-                                    effectiveDate = Date.parse(dateStr);
-                                }
-                            } catch(Exception e) {
-                                System.debug('Error parsing date: ' + dateStr + ' - ' + e.getMessage());
-                                throw new AuraHandledException('Invalid date format: ' + dateStr);
-                            }
-                        }
-                    }
-                }                
-                else if(effectiveDate == null && manager.inputMap.containsKey('EffectiveDate')) {
-                    String dateStr = (String)manager.inputMap.get('EffectiveDate');
-                    if(String.isNotBlank(dateStr)) {
-                        try {
-                            // Handle both MM/DD/YYYY and YYYY-MM-DD formats
-                            if(dateStr.contains('-')) {
-                                effectiveDate = Date.valueOf(dateStr);
-                            } else {
-                                effectiveDate = Date.parse(dateStr);
-                            }
-                        } catch(Exception e) {
-                            System.debug('Error parsing date: ' + dateStr + ' - ' + e.getMessage());
-                            throw new AuraHandledException('Invalid date format: ' + dateStr);
-                        }
-                    }
-                }
-                
-                else if(effectiveDate == null) {
-                    throw new AuraHandledException('Effective date is required');
-                }
-                
-                newContract.RecordTypeId = Schema.SObjectType.Contract.getRecordTypeInfosByDeveloperName().get('ARC_IndividualAndFamily').getRecordTypeId();
-                
-                
-                // Get PC changes
-                Map<String, Object> pcChanges = (Map<String, Object>)manager.inputMap.get('pcChanges');
-                if(pcChanges != null) {
-                    String reasons = (String)pcChanges.get('pcReasonsString');
-                    if (reasons != null && reasons.contains('Ancillary Change')) {
-                        reasons = reasons.replace('Ancillary Change', 'Add Ancillary Product');
-                    }
-                    newContract.ARC_ContractReason__c = reasons;
-                }
-                
-                newContract.ARC_Selling_Agent__c = (String)manager.inputMap.get('userId');
-                
-                if(guardianInfo != null && guardianInfo.containsKey('Id')) {
-                    newContract.ARC_Guardian__c = (Id)guardianInfo.get('Id');
-                }
-                
-                newContract.ARC_EffectiveDate__c = effectiveDate;
-                newContract.Status = 'Draft';//'Awaiting Signature';
-                newContract.vlocity_ins__EnrollmentCensusId__c = (Id)manager.inputMap.get('CensusId');
-                newContract.Id = (Id)manager.inputMap.get()
-                
-                if(selectedContractInfo != null && selectedContractInfo.containsKey('ContractID')) {
-                    newContract.vlocity_ins__ExpiredContractId__c = (Id)selectedContractInfo.get('ContractID');
-                } 
-                
-                newContract.StartDate = effectiveDate;
-                newContract.ContractTerm = 12;
 
-                vlocity_ins__GroupCensusMember__c primary = manager.primaryCensusMemberWithId;
-
-                List<ARC_Available_States__mdt> availableStates = [SELECT id, allStatesAbbreviation__c, Abbreviation__c, DeveloperName FROM ARC_Available_States__mdt WHERE allStatesAbbreviation__c = null AND Abbreviation__c =:primary.ARC_PhysicalAddressState__c];
-
-                String fullSate = availableStates.size() > 0 ? availableStates[0].DeveloperName : null;
-                
-
-                newContract.ARC_PrimaryAddress__Street__s = primary.ARC_PhysicalAddressStreet__c;
-                newContract.ARC_PrimaryAddress__City__s = primary.ARC_PhysicalAddressCity__c;
-                newContract.ARC_PrimaryAddress__StateCode__s = primary.ARC_PhysicalAddressState__c;
-                //newContract.ARC_PrimaryAddress__State__s = fullSate;
-                //newContract.ARC_PrimaryAddress__Country__s = 'United States';
-                newContract.ARC_PrimaryAddress__PostalCode__s = primary.ARC_PhysicalAddressZipCode__c;
-                newContract.ARC_PrimaryAddress__CountryCode__s = 'US';
-
-                Map<String, Object> changeSelect = (Map<String, Object>)manager.inputMap.get('STEP_ChangeSelect');
-                if(changeSelect != null){
-                    if(changeSelect.containsKey('SEL_ReasonsForChange')){
-                        String changeSelectValue = (String)changeSelect.get('SEL_ReasonsForChange');
-                        if(changeSelectValue != null ){
-                            newContract.ARC_ContractSubReason__c = changeSelectValue;
-                        }
-                    }
-                    if(changeSelect.containsKey('TXT_OtherReason')){
-                        String otherReason = (String)changeSelect.get('TXT_OtherReason');
-                        if(otherReason != null){
-                            newContract.ARC_ContractOtherSubReason__c = otherReason;
-                        }
-                    }
-                }
-                
-                
-                manager.contractsToInsert.add(newContract);                
-            }
-            catch(Exception e){
-                System.debug('Exception mapContractsToCreate.Insert ' + e.getMessage() + ' ' + e.getStackTraceString());
-                throw e;
-            }
-        }
-            */
         if(action == 'Update') {
             try{
                 Date effectiveDate;
-                Map<String, Object> effectiveDateMap = (Map<String, Object>)manager.inputMap.get('STEP_EffectiveDate') !=null ? (Map<String, Object>)manager.inputMap.get('STEP_EffectiveDate') : new Map<String, Object>();
-                if(effectiveDateMap != null && effectiveDateMap.containsKey('aRC_DatePicker')){
-                    Map<String, Object> datePickerMap = (Map<String, Object>)effectiveDateMap.get('aRC_DatePicker');
-                    if(datePickerMap != null && datePickerMap.containsKey('DATE_SubscriberEffectiveDate')) {
-                        String dateStr = (String)datePickerMap.get('DATE_SubscriberEffectiveDate');
-                        if(String.isNotBlank(dateStr)) {
-                            try {
-                                // Handle both MM/DD/YYYY and YYYY-MM-DD formats
-                                if(dateStr.contains('-')) {
-                                    effectiveDate = Date.valueOf(dateStr);
-                                } else {
-                                    effectiveDate = Date.parse(dateStr);
-                                }
-                            } catch(Exception e) {
-                                System.debug('Error parsing date: ' + dateStr + ' - ' + e.getMessage());
-                                throw new AuraHandledException('Invalid date format: ' + dateStr);
-                            }
-                        }
-                    }
-                }                
-                else if(effectiveDate == null && manager.inputMap.containsKey('EffectiveDate')) {
+                
+                if(effectiveDate == null && manager.inputMap.containsKey('EffectiveDate')) {
                     String dateStr = (String)manager.inputMap.get('EffectiveDate');
                     if(String.isNotBlank(dateStr)) {
                         try {
@@ -989,12 +711,15 @@ public without sharing class ARC_PCSOMapper {
                 }         
 
                 Contract contractToUpdate = new Contract();
-                Map<String, Object> SelectedContractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');
-                contractToUpdate.Id = (Id)SelectedContractInfo.get('ContractID');
+                Id selectedContractId = (Id)manager.selectedContractInfo.get('ContractID');
+                Date selectedContractEffectiveDate = Date.parse((String)manager.selectedContractInfo.get('EffectiveDate'));
+                Id selectedContractExpireContractId = (Id)manager.selectedContractInfo.get('ExpiredContract');
+
+                contractToUpdate.Id = selectedContractId;
                 contractToUpdate.ARC_EffectiveDate__c = effectiveDate;
                 contractToUpdate.Status = 'Awaiting Signature';
-                if (manager.inputMap.containsKey('soChanges') && (Map<String, Object>)manager.inputMap.get('soChanges') != null) {
-                    Map<String, Object> soChanges = (Map<String, Object>)manager.inputMap.get('soChanges');
+                if (manager.soChanges != null) {
+                    Map<String, Object> soChanges = manager.soChanges;
                     String reasons = (String)soChanges.get('soReasonsString');
 
                     if (reasons != null && reasons.contains('Ancillary Change')) {
@@ -1002,54 +727,95 @@ public without sharing class ARC_PCSOMapper {
                     }
                     contractToUpdate.ARC_ContractReason__c = reasons;
                 }
+                // If user changed for legacy plan and need to update contract effective date, we also nee to update spin off related contracts effective dates
+                Boolean isLegacy = manager.inputMap.containsKey('isLegacy') ? (Boolean)manager.inputMap.get('isLegacy') : false;
+                if(isLegacy) {
+                    contractToUpdate.ARC_Selling_Agent__c = UserInfo.getUserId();
+                }
                 manager.contractsToInsert.add(contractToUpdate);
+
+
+                if (isLegacy == true && effectiveDate != selectedContractEffectiveDate) {
+                    List<Contract> relatedSpinOffContractList = [
+                        SELECT Id, ARC_EffectiveDate__c, Status,
+                            (SELECT Id, Name, ARC_BirthDate__c, ARC_PersonAccount__c FROM Contract_Participants__r)
+                        FROM Contract
+                        WHERE vlocity_ins__ExpiredContractId__c = :selectedContractExpireContractId
+                            AND Id != :selectedContractId
+                            AND ARC_ContractReason__c INCLUDES ('Spin Off')
+                            AND Status != 'Voided' AND Status != 'Terminated' AND Status != 'Activated'
+                    ];
+
+                    if (!relatedSpinOffContractList.isEmpty()) {
+                        for (Contract rEC : relatedSpinOffContractList) {
+                            Contract c = new Contract();
+                            c.Id = rEC.Id;
+                            c.ARC_EffectiveDate__c = effectiveDate;
+
+                            if (rEC.Status != 'Draft' && rEC.Contract_Participants__r != null) {
+                                ARC_ContractParticipant__c oldestParticipant;
+                                Date oldestBirthDate;
+
+                                for (ARC_ContractParticipant__c contPart : rEC.Contract_Participants__r) {
+                                    if (contPart.ARC_BirthDate__c != null) {
+                                        if (oldestBirthDate == null || contPart.ARC_BirthDate__c < oldestBirthDate) {
+                                            oldestBirthDate = contPart.ARC_BirthDate__c;
+                                            oldestParticipant = contPart;
+                                        }
+                                    }
+                                }
+
+                                if (oldestParticipant != null) {
+                                    Date effectivePlus60 = effectiveDate.addDays(60);
+
+                                    Date birthdayInEffectiveYear = Date.newInstance(effectiveDate.year(), oldestBirthDate.month(), oldestBirthDate.day());
+                                    Date birthdayInPlus60Year = Date.newInstance(effectivePlus60.year(), oldestBirthDate.month(), oldestBirthDate.day());
+
+                                    Date birthdayThisYear;
+                                    if (birthdayInEffectiveYear >= effectiveDate && birthdayInEffectiveYear <= effectivePlus60) {
+                                        birthdayThisYear = birthdayInEffectiveYear;
+                                    } else if (birthdayInPlus60Year >= effectiveDate && birthdayInPlus60Year <= effectivePlus60) {
+                                        birthdayThisYear = birthdayInPlus60Year;
+                                    }
+
+                                    if (birthdayThisYear != null) {
+
+                                    List<String> ageBrackets = System.Label.ARC_AgeBracket.trim().split(',');
+                                    List<Integer> ageBracketList = new List<Integer>();
+                                    for (String age : ageBrackets) ageBracketList.add(Integer.valueOf(age));
+
+                                    Integer ageAtBirthday = birthdayThisYear.year() - oldestBirthDate.year();
+
+                                        if (ageBracketList.contains(ageAtBirthday)) {
+                                            Date ageUpEffectiveDate = birthdayThisYear.addMonths(1).toStartOfMonth();
+                                            
+                                            Ages_Up__c ageUp = new Ages_Up__c();
+                                            ageUp.Name = oldestParticipant.Name + ' - Age Up';
+                                            ageUp.Age__c = ageAtBirthday;
+                                            ageUp.Contract__c = c.Id;
+                                            ageUp.ARC_Account__c = oldestParticipant.ARC_PersonAccount__c;
+                                            ageUp.ARC_EffectiveDate__c = ageUpEffectiveDate;
+                                            ageUp.ARC_ManualDelay__c = null;
+                                            ageUp.ARC_BypassContractEffectiveCheck__c = true;
+
+                                            manager.agesUpToInsert.add(ageUp);
+
+                                        }
+                                    }
+                                }
+                            }
+
+                            manager.contractToUpdateEffectiveDate.add(c);
+                        }
+                    }
+                }
+
             } 
             catch(Exception e){
                 System.debug('Exception mapContractsToCreate.Update ' + e.getMessage() + ' ' + e.getStackTraceString());
                 throw e;
             }
         }
-
-        /*
-        if(action == 'oldContracts'){
-            try{               
-                
-                if(manager.inputMap != null && manager.inputMap.containsKey('STEP_SelectContract') && (Integer)manager.inputMap.get('ContractCount') != 1){
-                    Map<String, Object> oldContracts = (Map<String, Object>)manager.inputMap.get('STEP_SelectContract');
-                    if(oldContracts != null && oldContracts.containsKey('EB_ContractList')){
-                        List<Object> EB_ContractList = (List<Object>)oldContracts.get('EB_ContractList');
-                        if(EB_ContractList != null){
-                            for(Object oldContract : EB_ContractList){
-                                Map<String, Object> oldContractMap = (Map<String, Object>)oldContract;
-                                //Add more statuses to void  
-                                if(oldContractMap != null && ((String)oldContractMap.get('TXT_ContractStatus')).contains('Awaiting') && !((String)oldContractMap.get('TXT_ContractStatus')).contains('Activated')){
-                                    Contract oldContractToUpdate = new Contract();
-                                    oldContractToUpdate.Id = (Id)oldContractMap.get('ContractID');
-                                    oldContractToUpdate.Status = 'Voided';
-                                    oldContractToUpdate.ARC_CancellationReason__c = 'Program Change';
-                                    manager.contractsToUpdate.add(oldContractToUpdate);
-                                }
-                            }
-                        }
-                    } 
-                }
-                else if((Integer)manager.inputMap.get('ContractCount') == 1 ){
-                    // Get selected contract info
-                    Map<String, Object> selectedContractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');               
-                    if(selectedContractInfo != null && ((String)selectedContractInfo.get('TXT_ContractStatus')).contains('Awaiting') && !((String)selectedContractInfo.get('TXT_ContractStatus')).contains('Activated')) {                    
-                        Contract con = new Contract();
-                        con.Id = (Id)selectedContractInfo.get('ContractID');
-                        con.Status = 'Voided';
-                        con.ARC_CancellationReason__c = 'Program Change';
-                        manager.contractsToUpdate.add(con);
-                    }
-                }   
-            }
-            catch(Exception e){
-                System.debug('Exception mapContractsToCreate.oldContracts ' + e.getMessage() + ' ' + e.getStackTraceString());
-                throw e;
-            }
-        }*/
     }   
     
     /*******************************************************************
@@ -1087,8 +853,7 @@ public without sharing class ARC_PCSOMapper {
                 }
                 
                 // Get account ID
-                Map<String, Object> selectedContractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');
-                String accountId = selectedContractInfo != null ? (String)selectedContractInfo.get('GroupAccountId') : null;
+                String accountId = manager.selectedContractInfo != null ? (String)manager.selectedContractInfo.get('GroupAccountId') : null;
                 
                 
                 Map<String, Object> medicalWithMembers = (Map<String, Object>)productToMembersMap.get('Medical');
@@ -1107,11 +872,8 @@ public without sharing class ARC_PCSOMapper {
                         medicalLineItem.vlocity_ins__Quantity__c = 1;                       
                         medicalLineItem.vlocity_ins__EffectiveStartDate__c = DateTime.newInstance(contractEffectiveDate, Time.newInstance(0, 0, 0, 0)).addDays(1);                      
                         
-                        manager.contractLineItemsToInsert.add(medicalLineItem);
                         manager.indexToParentCLI.put(index,medicalLineItem);
                         
-                        
-                        //manager.ParentToChildCLI.put(medicalLineItem,new List<vlocity_ins__ContractLineItem__c>());
                         for(Object member : medicalMembers){
                             Map<String,Object> memberMap = (Map<String,Object>)member;
                             if(memberMap.containsKey('CensusMemberId')){
@@ -1144,7 +906,6 @@ public without sharing class ARC_PCSOMapper {
                                 medicalChildLineItem.vlocity_ins__AccountId__c = accountId;
                                 medicalChildLineItem.vlocity_ins__ProductId__c = (Id)medicalProduct.get('Id');
                                 
-                                manager.contractLineItemsToInsert.add(medicalChildLineItem);
                                 if(!manager.indexToChildCLI.containsKey(index)){
                                     manager.indexToChildCLI.put(index,new List<vlocity_ins__ContractLineItem__c>{medicalChildLineItem});
                                 }
@@ -1177,7 +938,6 @@ public without sharing class ARC_PCSOMapper {
                             ancillaryLineItem.vlocity_ins__EffectiveStartDate__c = DateTime.newInstance(contractEffectiveDate, Time.newInstance(0, 0, 0, 0)).addDays(1);
                             ancillaryLineItem.vlocity_ins__Quantity__c = 1;
                             ancillaryLineItem.vlocity_ins__UnitPrice__c = (Decimal)product.get('Price');
-                            manager.contractLineItemsToInsert.add(ancillaryLineItem);
                             manager.indexToParentCLI.put(index,ancillaryLineItem);
 
                             for(Object member : ancilaryMembers){
@@ -1193,7 +953,6 @@ public without sharing class ARC_PCSOMapper {
                                 else{
                                     List<vlocity_ins__ContractLineItem__c> ancillaryLineItems = new List<vlocity_ins__ContractLineItem__c>();
                                     ancillaryLineItems.add(ancillaryLineItem);
-                                    manager.CMIdToCLI.put((String)memberMap.get('CensusMemberId'),ancillaryLineItems);
                                 }
                             }
                             /////// Process Ancillary Child Products
@@ -1241,9 +1000,9 @@ public without sharing class ARC_PCSOMapper {
             if((Map<String, Object>)manager.inputMap.get('STEP_MedicalQuestions') != null){
 
                 Map<String, Object> stepMedicalQuestions = (Map<String, Object>)manager.inputMap.get('STEP_MedicalQuestions');
-                Map<String, Object> soChanges = (Map<String, Object>)manager.inputMap.get('soChanges');
+                Map<String, Object> soChanges = manager.soChanges;
 
-                Map<String, Object> reasons = (Map<String, Object>) soChanges.get('soReasons'); // Catch Program Change Reasons 
+                Map<String, Object> reasons = manager.soReasons; // Catch Program Change Reasons 
                 Boolean haveAddMember = (Boolean) reasons.get('addMember');
                 Boolean haveProgramUpgrade = reasons.containsKey('programUpgrade') ? (Boolean) reasons.get('programUpgrade') : false;
                 Boolean haveExistingMember = reasons.containsKey('addExistingMember') ?(Boolean) reasons.get('addExistingMember') : false;
@@ -1277,11 +1036,9 @@ public without sharing class ARC_PCSOMapper {
                             }
 
                             if (processMember) {
-                                // oldMembersIds.add((Id)member.get('Id'));
                                 oldMembersIds.add((Id)member.get('PersonAccountId'));
                             }
 
-                            // system.debug('censusId ' + censusId + ' - accountId ' +accountId + ' - isRemoveMember ' + isRemoveMember + ' - isNewMember ' +isNewMember + ' - isInactiveMember ' + isInactiveMember);
                         }
                     }
                 }
@@ -1534,13 +1291,10 @@ public without sharing class ARC_PCSOMapper {
 
                             newContractParticipant = personAccountToContractParticipant.get((Id)member.get('PersonAccountId'));
 
-
-                            //manager.personAccIdOrFakeIdToContractPart.put((String)member.get('Id'), (personAccountToContractParticipant.get((Id)member.get('PersonAccountId'))));
                         }
                     }
 
                     //If Add new members
-                    // if(member.containsKey('Id') && member.get('Id') != null && member.containsKey('IsNewMember') && (Boolean)member.get('IsNewMember') == true){
                         newContractParticipant.ARC_Address__CountryCode__s = 'US';
                         newContractParticipant.ARC_Address__Street__s = String.valueOf(member.get('ARC_PhysicalAddressStreet__c'));
                         newContractParticipant.ARC_Address__City__s = String.valueOf(member.get('ARC_PhysicalAddressCity__c'));
@@ -1562,7 +1316,7 @@ public without sharing class ARC_PCSOMapper {
                         newContractParticipant.ARC_Smoker__c = member.containsKey('ARC_Smoker__c') && convertToBoolean(member.get('ARC_Smoker__c')) != null ? convertToBoolean(member.get('ARC_Smoker__c')) : false;
     
                        manager.personAccIdOrFakeIdToContractPart.put((String)member.get('Id'), newContractParticipant);                        
-                    // }
+
                 }
                 //If remove members
                 else if(member.containsKey('IsRemoveMember') && (Boolean)member.get('IsRemoveMember') == true){
@@ -1581,16 +1335,14 @@ public without sharing class ARC_PCSOMapper {
     * @MethodName         :   createChargentOrders
     * @Description        :   map Chargent Orders to create
     /********************************************************************/   
-    private void createChargentOrders() {
-        //manager.chargentOrdersRecurringOrder
-        //manager.chargentOrdersChangeFee        
+    private void createChargentOrders() {     
         try{
             //Get Contract Id from JSON
-            Map<String,Object> soChanges = (Map<String,Object>)manager.inputMap.get('soChanges');
-            Map<String,Object> SelectedContractInfo = (Map<String,Object>)manager.inputMap.get('SelectedContractInfo');
+            Map<String,Object> soChanges = manager.soChanges;
+            Map<String,Object> SelectedContractInfo = manager.selectedContractInfo;
             Map<String,Object> PlansSummary = (Map<String,Object>)manager.inputMap.get('PlansSummary');
             Map<String,Object> BLK_ProductSummary = (Map<String,Object>)PlansSummary.get('BLK_ProductSummary');
-            Map<String, Object> Step_PaymentChangeFee = (Map<String, Object>) manager.inputMap.get('STEP_ChargentPayment') != null ? (Map<String, Object>)manager.inputMap.get('STEP_ChargentPayment') : null;
+            Map<String, Object> Step_PaymentChangeFee = manager.sTEP_ChargentPayment;
             Map<String, Object> BLK_ChargeFee = (Map<String, Object>)Step_PaymentChangeFee.get('BLK_ChargeFee');
             Map<String,Object> BLK_PaymentInfo = (Map<String,Object>)BLK_ChargeFee.get('BLK_PaymentInfo');
             Id contractId = (Id)SelectedContractInfo.get('ContractID');
@@ -1788,16 +1540,18 @@ public without sharing class ARC_PCSOMapper {
                     newContact.Birthdate = Date.valueOf((String)otherAuth.get('TXT_NewBirthdate'));
                     newContact.Email = (String)otherAuth.get('TXT_NewEmailAdress');
                     newContact.Phone = (String)otherAuth.get('TXT_NewTelephone');
-                    newContact.MailingCity = (String)address.get('TXT_AddCity');
-                    newContact.MailingCountry = (String)address.get('TXT_AddCountry');
-                    newContact.MailingState = (String)address.get('TXT_AddState');
-                    newContact.MailingPostalCode = (String)address.get('TXT_AddZipCode');
-                    newContact.MailingStreet = (String)address.get('TXT_AddAddress');
+                    if (address != null) {
+                        newContact.MailingCity = (String)address.get('TXT_AddCity');
+                        newContact.MailingCountry = (String)address.get('TXT_AddCountry');
+                        newContact.MailingState = (String)address.get('TXT_AddState');
+                        newContact.MailingPostalCode = (String)address.get('TXT_AddZipCode');
+                        newContact.MailingStreet = (String)address.get('TXT_AddAddress');
+                    }
+
                     newContact.RecordTypeId = recordTypeId;
                     
-                    Map<String, Object> selectedContractInfo = (Map<String, Object>)manager.inputMap.get('SelectedContractInfo');
-                    if (selectedContractInfo != null) {
-                        newContact.AccountId = (String)selectedContractInfo.get('GroupAccountId');
+                    if (manager.selectedContractInfo != null) {
+                        newContact.AccountId = (String)manager.selectedContractInfo.get('GroupAccountId');
                     }
 
                     manager.hippaExternalContact = newContact;
@@ -1815,9 +1569,9 @@ public without sharing class ARC_PCSOMapper {
     ********************************************************************/
     private void insertPromotionDiscount(){
         try {
-            if ((manager.inputMap.get('Step_PaymentChangeFee') != null ? manager.inputMap.get('Step_PaymentChangeFee') : manager.inputMap.get('STEP_ChargentPayment')) != null) {
+            if ((manager.inputMap.get('Step_PaymentChangeFee') != null ? manager.inputMap.get('Step_PaymentChangeFee') : manager.sTEP_ChargentPayment) != null) {
 
-                Map<String, Object> stepPaymentChangeFee = (Map<String, Object>) (manager.inputMap.get('Step_PaymentChangeFee') != null ? manager.inputMap.get('Step_PaymentChangeFee') : manager.inputMap.get('STEP_ChargentPayment'));
+                Map<String, Object> stepPaymentChangeFee = (Map<String, Object>) (manager.inputMap.get('Step_PaymentChangeFee') != null ? manager.inputMap.get('Step_PaymentChangeFee') : manager.sTEP_ChargentPayment);
                 Map<String, Object> blkChargeFee = stepPaymentChangeFee.containsKey('BLK_ChargeFee') && (Map<String, Object>)stepPaymentChangeFee.get('BLK_ChargeFee') != null ? (Map<String, Object>)stepPaymentChangeFee.get('BLK_ChargeFee') : null;
 
                 if(blkChargeFee != null) {
@@ -1837,11 +1591,7 @@ public without sharing class ARC_PCSOMapper {
                         discount.ARC_ExonerateAppChangeFee__c = promoDiscount.containsKey('DiscountPrice') && Decimal.valueOf((String)promoDiscount.get('DiscountPrice')) == 0 ? true : false ;
                         discount.ARC_Agent__c = promoDiscount.containsKey('AgentId') ? (Id) promoDiscount.get('AgentId') : null;
                         discount.RecordTypeId = recordTypeId; 
-                       
-                        // discount.ARC_ApplyOver__c = promoDiscount.containsKey('ApplyOver') ? (String) promoDiscount.get('ApplyOver') : null;
-                        // discount.ARC_StartDate__c = Date.today();
-                        // discount.ARC_TimesUsed__c = 0;
-                        // discount.ARC_TypeOfDiscount__c =  promoDiscount.containsKey('ApplyOver') ? (String) promoDiscount.get('ApplyOver') : null;
+
                         manager.promotionDiscountToInsert.add(discount);
                     } 
                 }
@@ -1849,6 +1599,99 @@ public without sharing class ARC_PCSOMapper {
         } catch (Exception e) {
             System.debug('Exception insertPromotionDiscount: ' + e.getMessage() + ' ' + e.getStackTraceString());
             throw e;
+        }
+    }
+
+    /*******************************************************************
+    * @MethodName         :   mapCriticalCarePromotionDiscount  
+    * @Description        :   Method to insert Ancillary discount if apply
+    ********************************************************************/
+    private void mapCriticalCarePromotionDiscount() {
+        try {
+            if (
+                !manager.inputMap.containsKey('price_calculation') ||
+                manager.inputMap.get('price_calculation') == null
+            ) {
+                return;
+            }
+
+            Map<String, Object> priceCalc = (Map<String, Object>)manager.inputMap.get('price_calculation');
+            List<Object> plans = (List<Object>)priceCalc.get('plans');
+            if (plans == null || plans.isEmpty()) return;
+
+            Map<String, String> productCodeToProductId = new Map<String, String>();
+            Map<String, Set<String>> productCodeToMemberIds = new Map<String, Set<String>>();
+
+            for (Object planObj : plans) {
+                Map<String, Object> plan = (Map<String, Object>)planObj;
+                Map<String, Object> sp = (Map<String, Object>)plan.get('selectedProduct');
+                String productId   = (String)sp.get('Id');
+                String productCode = (String)sp.get('ProductCode');
+                if (productCode == null) continue;
+                if (productCode != 'PROG_CriticalCare' && productCode != 'PROG_AccidentalInjury') continue;
+                productCodeToProductId.put(productCode, productId);
+                List<Object> userInputs = (List<Object>)plan.get('userInputs');
+                if (userInputs == null || userInputs.isEmpty()) continue;
+                if (!productCodeToMemberIds.containsKey(productCode)) {
+                    productCodeToMemberIds.put(productCode, new Set<String>());
+                }
+                for (Object inputObj : userInputs) {
+                    productCodeToMemberIds.get(productCode).add((String)((Map<String,Object>)inputObj).get('Id'));
+                }
+            }
+
+            Set<String> smartMembers = productCodeToMemberIds.containsKey('PROG_CriticalCare')
+                ? productCodeToMemberIds.get('PROG_CriticalCare') : new Set<String>();
+            Set<String> aiddMembers  = productCodeToMemberIds.containsKey('PROG_AccidentalInjury')
+                ? productCodeToMemberIds.get('PROG_AccidentalInjury') : new Set<String>();
+            String smartProductId = productCodeToProductId.get('PROG_CriticalCare');
+            String aiddProductId  = productCodeToProductId.get('PROG_AccidentalInjury');
+            if (smartProductId == null || aiddProductId == null) return;
+
+            for (String memberId : smartMembers) {
+                if (!aiddMembers.contains(memberId)) continue;
+                manager.memberIdToCriticalCareBundle.put(memberId, new Map<String, String>{
+                    'SMART' => smartProductId,
+                    'AIDD'  => aiddProductId
+                });
+            }
+        } catch (Exception e) {
+            System.debug('Error in mapCriticalCarePromotionDiscount (PCSO): '
+                + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
+            throw e;
+        }
+    }
+
+    /*******************************************************************
+    * @MethodName         :   mapMemberBeneficiaries  
+    * @Description        :   Method to map the beneficiaries for each census member
+    ********************************************************************/
+    private void mapMemberBeneficiaries() {
+        List<Map<String,Object>> censusMembers  = getCensusMembers();
+        Map<String, Object> memberToBeneficiariesMap = new Map<String, Object>();
+        for (Map<String,Object> cm : censusMembers) {
+            if ((Boolean)cm.get('IsRemoveMember') == false) {
+                String contactOrFakeId = (Boolean)cm.get('IsNewMember') && ((String)cm.get('Id')).startsWith('MEM-') ? (String)cm.get('Id') : (String)cm.get('PersonContactId');
+                System.debug('Contact Id in MAPPER: ' + contactOrFakeId);
+                if (cm.containsKey('beneficiaries') && cm.get('beneficiaries') != null && ((List<Object>)cm.get('beneficiaries')).size() > 0) {
+                    List<Object> beneficiaryList = (List<Object>)cm.get('beneficiaries');
+                    System.debug('Beneficiary list size: ' + beneficiaryList.size());
+                    Map<String,Object> beneficiaryMapPerMember = new Map<String,Object>();
+                    for (Object beneficiary : beneficiaryList) {
+                        Map<String,Object> beneficiaryMap = (Map<String,Object>)beneficiary;
+                        String beneficiaryKey = (String)beneficiaryMap.get('Label') == 'Primary Beneficiary' ? 'primaryBeneficiary' : 'secondaryBeneficiary';
+                        beneficiaryMapPerMember.put(beneficiaryKey , new Map<String,Object>{
+                            'fullname' => (String)beneficiaryMap.get('BeneficiaryName'),
+                            'birthdate' => (String)beneficiaryMap.get('BeneficiaryBirthdate'),
+                            'phone' => (String)beneficiaryMap.get('BeneficiaryPhone'),
+                            'relationship' => (String)beneficiaryMap.get('BeneficiaryRelationship'),
+                            'otherRelationship' => (String)beneficiaryMap.get('BeneficiaryOtherRelationship')
+                        });
+                    }
+                    if (contactOrFakeId != null) memberToBeneficiariesMap.put(contactOrFakeId, beneficiaryMapPerMember);
+                }
+                if (!memberToBeneficiariesMap.isEmpty()) this.manager.contactOrFakeIdToBeneficiaries = memberToBeneficiariesMap;
+            }
         }
     }
 
@@ -1872,7 +1715,6 @@ public without sharing class ARC_PCSOMapper {
                     primary.vlocity_ins__MemberIdentifier__c = member.containsKey('vlocity_ins__MemberIdentifier__c') ? (String)member.get('vlocity_ins__MemberIdentifier__c') : null;
                     primary.vlocity_ins__ContactId__c = member.containsKey('PersonContactId') ? (String)member.get('PersonContactId') : null;
                     primary.Id = member.containsKey('Id') ? (String)member.get('Id') : null;
-                    //primary.ARC_Address__c = member.containsKey('ARC_Address__c') ? (String)member.get('ARC_Address__c') : null;
                     primary.ARC_PhysicalAddressZipCode__c = member.containsKey('ARC_PhysicalAddressZipCode__c') ? (String)member.get('ARC_PhysicalAddressZipCode__c') : null;
                     primary.ARC_PhysicalAddressStreet__c = member.containsKey('ARC_PhysicalAddressStreet__c') ? (String)member.get('ARC_PhysicalAddressStreet__c') : null;
                     primary.ARC_PhysicalAddressState__c = member.containsKey('ARC_PhysicalAddressState__c') ? (String)member.get('ARC_PhysicalAddressState__c') : null;
@@ -1907,20 +1749,7 @@ public without sharing class ARC_PCSOMapper {
     } 
     
 
-    /**
-     * @Description: Retrieves old census members from the input data
-     * @return List<Map<String,Object>>: List of census member data 
-    /*  
-    Map<String,String> getOldPrimaryValues() {
-        Map<String,String> oldPrimaryValues = new Map<String,String>();
-        Id CensusId = (Id)manager.inputMap.get('CensusId');
-        vlocity_ins__GroupCensusMember__c primaryCM = [SELECT Id, vlocity_ins__MemberIdentifier__c FROM vlocity_ins__GroupCensusMember__c WHERE vlocity_ins__CensusId__c  = :CensusId AND vlocity_ins__IsPrimaryMember__c = true LIMIT 1];
-        oldPrimaryValues.put('Id', primaryCM.Id);
-        oldPrimaryValues.put('vlocity_ins__MemberIdentifier__c', primaryCM.vlocity_ins__MemberIdentifier__c);
-        
-        return oldPrimaryValues;
-    } 
-    */
+    
 
     /**
     * @Description: Retrieves old census members from the input data
@@ -2077,11 +1906,7 @@ public without sharing class ARC_PCSOMapper {
     // Auxiliary Methods //
     ///////////////////////   
 
-    private void InsertAccountsWithCensusMemberIds() {
-        if (!manager.censusMemberToAccount.isEmpty()) {
-            manager.accountsToInsert = new List<Account>(manager.censusMemberToAccount.values());
-        }
-    }
+   
     
     /**
     * @Description: Converts a value to Boolean
@@ -2223,7 +2048,7 @@ public without sharing class ARC_PCSOMapper {
     }
     private void spinOffWithoutChanges(){
         String censusId = manager.inputMap.containsKey('CensusId') ? (String)manager.inputMap.get('CensusId') : null;
-        Map<String,Object> SelectedContractInfo = manager.inputMap.containsKey('SelectedContractInfo') ? (Map<String,Object>)manager.inputMap.get('SelectedContractInfo') : null;
+        Map<String,Object> SelectedContractInfo = manager.selectedContractInfo;
         String contractId = SelectedContractInfo.containsKey('ContractID') ? (String)SelectedContractInfo.get('ContractID') : null;
         String primaryAccountId = manager.inputMap.containsKey('ContextId') ? (String)manager.inputMap.get('ContextId') : null;
 

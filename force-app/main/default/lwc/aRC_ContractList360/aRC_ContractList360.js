@@ -18,15 +18,25 @@ export default class ARC_ContractList360 extends NavigationMixin(LightningElemen
         this.wiredContracts = result;
         const { error, data } = result;
         if (data) {
-            
-            this.contractList = JSON.parse(JSON.stringify(data));
-            console.log('ARC_ContractList360 data', data);
-            this.isLoading = false
-
+          
+            this.contractList = JSON.parse(JSON.stringify(data)).map(c => {
+                c.isVoided = (c.status === 'Voided');
+                c._expanded = false;             
+                return c;
+            });
+            this.isLoading = false;
         }
         else if (error) {
             console.log('ARC_ContractList360 error', error);
         }
+    }
+
+    toggleContractDetails(event) {
+        const contractId = event.currentTarget.dataset.id;
+        const idx = this.contractList.findIndex(c => c.id === contractId);
+        if (idx === -1) return;
+        this.contractList[idx]._expanded = !this.contractList[idx]._expanded;
+        this.contractList = [...this.contractList]; 
     }
 
 
@@ -94,4 +104,5 @@ export default class ARC_ContractList360 extends NavigationMixin(LightningElemen
             });
 
     }
+
 }

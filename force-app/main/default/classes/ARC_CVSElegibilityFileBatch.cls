@@ -618,7 +618,7 @@ global with sharing class ARC_CVSElegibilityFileBatch implements Database.Batcha
         if (groupCensusMember.vlocity_ins__IsSpouse__c) {
             addColumn('Relationship', '2', lineMap,3);
         }
-        if (groupCensusMember.ARC_DependentRelationship__c == 'Child') {
+        if (groupCensusMember.ARC_DependentRelationship__c == 'Child' || groupCensusMember.ARC_DependentRelationship__c == 'Temporary Newborn' ) {
             addColumn('Relationship', '3', lineMap,3);
         }
         if (groupCensusMember.vlocity_ins__SocialSecurityNumber__c != null) {
@@ -1353,7 +1353,7 @@ global with sharing class ARC_CVSElegibilityFileBatch implements Database.Batcha
         ARC_CVSElegibilityFileBatch a = new ARC_CVSElegibilityFileBatch();
         //a.sendFilesToTestSites = true;
         //a.limitRecords = 100;
-        a.sendFileEachNMembers = 1000;
+        a.sendFileEachNMembers = 500;
         Database.executeBatch(a,10);
     }
 }

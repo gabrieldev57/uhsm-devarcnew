@@ -29,11 +29,11 @@ private class ARC_ProgramChange_DocuSignTest {
         for (vlocity_ins__GroupCensusMember__c cm : members) {
             if(i == 0) cm.vlocity_ins__IsPrimaryMember__c = true;
             if(i == 1) cm.ARC_DependentRelationship__c = 'Spouse';
-            if(i == 1) cm.ARC_DependentRelationship__c = 'Child';
+            if(i == 2) cm.ARC_DependentRelationship__c = 'Child';
 
             if(i == 0) cm.vlocity_ins__ContactId__c = contacts[0].Id;
             if(i == 1) cm.vlocity_ins__ContactId__c = contacts[1].Id;
-            if(i == 1) cm.vlocity_ins__ContactId__c = contacts[2].Id;
+            if(i == 2) cm.vlocity_ins__ContactId__c = contacts[2].Id;
             i++;
         }
         i = 0;
@@ -137,17 +137,36 @@ private class ARC_ProgramChange_DocuSignTest {
         insert promotionDiscount;
     }
 
-    @isTest
-    static void DocuSignDataTransformTest() {
-        List<vlocity_ins__GroupCensusMember__c> members = [SELECT Id, vlocity_ins__AccountId__c, vlocity_ins__CensusId__c, vlocity_ins__ContactId__c FROM vlocity_ins__GroupCensusMember__c ORDER BY CreatedDate LIMIT 3];
-        List<Account> groupAccount =  [SELECT Id FROM Account WHERE RecordType.DeveloperName = 'Group' ORDER BY CreatedDate LIMIT 1];
+    private static Map<String, Object> deepCloneMap(Map<String, Object> sourceMap) {
+        return (Map<String, Object>)JSON.deserializeUntyped(JSON.serialize(sourceMap));
+    }
+
+    private static Map<String, Object> buildGetDocuSignBaseInput() {
+        List<vlocity_ins__GroupCensusMember__c> members = [
+            SELECT Id, vlocity_ins__AccountId__c, vlocity_ins__CensusId__c, vlocity_ins__ContactId__c
+            FROM vlocity_ins__GroupCensusMember__c
+            ORDER BY CreatedDate
+            LIMIT 3
+        ];
+        List<Account> groupAccount = [
+            SELECT Id
+            FROM Account
+            WHERE RecordType.DeveloperName = 'Group'
+            ORDER BY CreatedDate
+            LIMIT 1
+        ];
         List<Contact> contacts = [SELECT Id FROM Contact ORDER BY CreatedDate LIMIT 3];
-        List<Account> accounts = [SELECT Id FROM Account WHERE RecordType.DeveloperName = 'ARC_IFPPersonAccount' ORDER BY CreatedDate LIMIT 3];
+        List<Account> accounts = [
+            SELECT Id
+            FROM Account
+            WHERE RecordType.DeveloperName = 'ARC_IFPPersonAccount'
+            ORDER BY CreatedDate
+            LIMIT 3
+        ];
         Contract cnt = [SELECT Id, AccountId FROM Contract ORDER BY CreatedDate LIMIT 1];
         List<Product2> prods = [SELECT Id FROM Product2 ORDER BY CreatedDate LIMIT 4];
         ARC_PromotionCode__c promo = [SELECT Id FROM ARC_PromotionCode__c LIMIT 1];
-        vlocity_ins__ProductChildItem__c childItem = [SELECT Id FROM vlocity_ins__ProductChildItem__c LIMIT 1];
-
+    
         Map<String, Object> SelectedContractInfo = new Map<String, Object>{
             'ContractID' => cnt.Id,
             'SelectedContract' => true,
@@ -166,11 +185,11 @@ private class ARC_ProgramChange_DocuSignTest {
             'TXT_MedicalPlan' => 'WeShare 6k',
             'TXT_Members' => 'Carl Beer, Mary Beer, Gaby Beer'
         };
-
-        Map<String, Object> pcChanges = new Map<String, Object> {
+    
+        Map<String, Object> pcChanges = new Map<String, Object>{
             'pcReasonsString' => 'Add Member',
             'feeApplicable' => true,
-            'pcReasons' => new Map<String, Object> {
+            'pcReasons' => new Map<String, Object>{
                 'effectiveDateChange' => false,
                 'ancillaryChange' => false,
                 'programDowngrade' => false,
@@ -188,16 +207,16 @@ private class ARC_ProgramChange_DocuSignTest {
             'feeAmount' => 99,
             'carryOverMedicalQuestions' => true
         };
-
-        List<Map<String, Object>> oldUserInputs = new List<Map<String, Object>> {
-            new Map<String, Object> {
+    
+        List<Map<String, Object>> oldUserInputs = new List<Map<String, Object>>{
+            new Map<String, Object>{
                 'CensusMemberFirstName' => 'Carl',
                 'CensusMemberLastName' => 'Beer',
                 'LastName' => 'Beer',
                 'FirstName' => 'Carl',
                 'CensusMemberId' => members[0].Id
             },
-            new Map<String, Object> {
+            new Map<String, Object>{
                 'CensusMemberFirstName' => 'Mary',
                 'CensusMemberLastName' => 'Beer',
                 'LastName' => 'Beer',
@@ -205,9 +224,9 @@ private class ARC_ProgramChange_DocuSignTest {
                 'CensusMemberId' => members[1].Id
             }
         };
-
-        List<Map<String, Object>> newUserInputs = new List<Map<String, Object>> {
-            new Map<String, Object> {
+    
+        List<Map<String, Object>> newUserInputs = new List<Map<String, Object>>{
+            new Map<String, Object>{
                 'CensusMemberFirstName' => 'Gaby',
                 'CensusMemberLastName' => 'Beer',
                 'LastName' => 'Beer',
@@ -215,33 +234,9 @@ private class ARC_ProgramChange_DocuSignTest {
                 'CensusMemberId' => 'MEM-1748006579105335'
             }
         };
-
-        List<Map<String, Object>> allUserInputs = new List<Map<String, Object>> {
-            new Map<String, Object> {
-                'CensusMemberFirstName' => 'Carl',
-                'CensusMemberLastName' => 'Beer',
-                'LastName' => 'Beer',
-                'FirstName' => 'Carl',
-                'CensusMemberId' => members[0].Id
-            },
-            new Map<String, Object> {
-                'CensusMemberFirstName' => 'Mary',
-                'CensusMemberLastName' => 'Beer',
-                'LastName' => 'Beer',
-                'FirstName' => 'Mary',
-                'CensusMemberId' => members[1].Id
-            },
-            new Map<String, Object> {
-                'CensusMemberFirstName' => 'Gaby',
-                'CensusMemberLastName' => 'Beer',
-                'LastName' => 'Beer',
-                'FirstName' => 'Gaby',
-                'CensusMemberId' => 'MEM-1748006579105335'
-            }
-        };
-
-        Map<String, Object> OldProduct1 = new Map<String, Object> {
-            'selectedProduct' => new Map<String, Object> {
+    
+        Map<String, Object> OldProduct1 = new Map<String, Object>{
+            'selectedProduct' => new Map<String, Object>{
                 'productId' => prods[0].Id,
                 'Type__c' => 'Medical',
                 'Id' => prods[0].Id,
@@ -250,9 +245,9 @@ private class ARC_ProgramChange_DocuSignTest {
             },
             'userInputs' => oldUserInputs
         };
-
-        Map<String, Object> OldProduct2 = new Map<String, Object> {
-            'selectedProduct' => new Map<String, Object> {
+    
+        Map<String, Object> OldProduct2 = new Map<String, Object>{
+            'selectedProduct' => new Map<String, Object>{
                 'productId' => prods[1].Id,
                 'Type__c' => 'Ancillary',
                 'Id' => prods[1].Id,
@@ -261,9 +256,9 @@ private class ARC_ProgramChange_DocuSignTest {
             },
             'userInputs' => oldUserInputs
         };
-
-         Map<String, Object> NewProduct1 = new Map<String, Object> {
-            'selectedProduct' => new Map<String, Object> {
+    
+        Map<String, Object> NewProduct1 = new Map<String, Object>{
+            'selectedProduct' => new Map<String, Object>{
                 'productId' => prods[0].Id,
                 'Type__c' => 'Medical',
                 'Id' => prods[0].Id,
@@ -272,9 +267,9 @@ private class ARC_ProgramChange_DocuSignTest {
             },
             'userInputs' => newUserInputs
         };
-
-        Map<String, Object> NewProduct2 = new Map<String, Object> {
-            'selectedProduct' => new Map<String, Object> {
+    
+        Map<String, Object> NewProduct2 = new Map<String, Object>{
+            'selectedProduct' => new Map<String, Object>{
                 'productId' => prods[1].Id,
                 'Type__c' => 'Ancillary',
                 'Id' => prods[1].Id,
@@ -283,20 +278,20 @@ private class ARC_ProgramChange_DocuSignTest {
             },
             'userInputs' => newUserInputs
         };
-
-        List<Map<String, Object>> OldProductList = new List<Map<String, Object>> {
+    
+        List<Map<String, Object>> OldProductList = new List<Map<String, Object>>{
             OldProduct1,
             OldProduct2
         };
-
-        List<Map<String, Object>> NewProductList = new List<Map<String, Object>> {
+    
+        List<Map<String, Object>> NewProductList = new List<Map<String, Object>>{
             NewProduct1,
             NewProduct2
         };
-
-        Map<String, Object> SignTheDocument = new Map<String, Object> {
+    
+        Map<String, Object> SignTheDocument = new Map<String, Object>{
             'CHK_AgreeingSigning' => true,
-            'Recipient-Block' => new Map<String, Object> {
+            'Recipient-Block' => new Map<String, Object>{
                 'Recipient' => 'Carl Beer - nosetep608@bamsrad.com',
                 'Id' => members[0].Id,
                 'FirstName' => 'Carl',
@@ -311,9 +306,9 @@ private class ARC_ProgramChange_DocuSignTest {
             'FRLM_isMemberServicesManagerUser' => false,
             'FRLM_SendEmail' => true
         };
-
-        Map<String, Object> MedicalQuestions = new Map<String, Object> {
-            'BLK_ParentSiblingDiagnosed' => new Map<String, Object> {
+    
+        Map<String, Object> MedicalQuestions = new Map<String, Object>{
+            'BLK_ParentSiblingDiagnosed' => new Map<String, Object>{
                 'CHKBOX_MemberParentDiagnosed' => true,
                 'DATE_MemberParentDiagnosed' => '2023-04-30',
                 'memberId' => 'MEM-1748006579105335',
@@ -323,7 +318,7 @@ private class ARC_ProgramChange_DocuSignTest {
             },
             'FRML_ParentSiblingDiagnosedNull' => false,
             'MSG_WrongUnexpectedDate' => null,
-            'BLK_UnexpectedSymptoms' => new Map<String, Object> {
+            'BLK_UnexpectedSymptoms' => new Map<String, Object>{
                 'CHKBOX_UnexpectedSymptoms' => true,
                 'DATE_MemberUnexpectedSymptoms' => '2024-04-29',
                 'TXTAREA_MemberUnexpectedSymptoms' => 'testing mental health symptoms',
@@ -334,7 +329,7 @@ private class ARC_ProgramChange_DocuSignTest {
             },
             'FRML_CheckSymptoms' => false,
             'FRML_DateUnexpectedWrong' => false,
-            'BLK_PendingTests' => new Map<String, Object> {
+            'BLK_PendingTests' => new Map<String, Object>{
                 'CHKBOX_PendingTests' => true,
                 'DATE_MemberPendingTests' => '2022-05-06',
                 'TXTAREA_MemberPendingTests' => 'testing surgeries pending',
@@ -343,12 +338,12 @@ private class ARC_ProgramChange_DocuSignTest {
                 'TXT_MemberPendingTests' => 'Gaby Beer'
             },
             'FRML_CheckPendingTests' => false,
-            'LWC_SelectCensusMemberCancer' => new Map<String, Object> {
+            'LWC_SelectCensusMemberCancer' => new Map<String, Object>{
                 'SelectedCensusMemberName' => 'Gaby Beer',
                 'SelectedCensusMemberId' => 'MEM-1748006579105335',
                 'SelectedCensusMemberBirthdate' => '2000-05-11'
             },
-            'EB_Cancer' => new Map<String, Object> {
+            'EB_Cancer' => new Map<String, Object>{
                 'FRML_MemberIdCancerBirthdate' => '2000-05-11T00:00:00.000Z',
                 'CHK_CheckCancer' => true,
                 'CHK_MemberBeenDiagnosedWithCancer' => true,
@@ -362,7 +357,7 @@ private class ARC_ProgramChange_DocuSignTest {
             'MSG_DateWrongCancer' => null,
             'MSG_WrongDateAddiction' => null,
             'FRML_DateWrongCancer' => false,
-            'BLK_Addictions' => new Map<String, Object> {
+            'BLK_Addictions' => new Map<String, Object>{
                 'CHKBOX_Addictions' => true,
                 'DATE_MemberAddictions' => '2021-04-29',
                 'TXTAREA_MemberAddictions' => 'testing alcohol or drug use',
@@ -373,7 +368,7 @@ private class ARC_ProgramChange_DocuSignTest {
             },
             'FRML_CheckAddictions' => false,
             'FMRL_WrongDateAddictions' => false,
-            'BLK_LicenceSuspended' => new Map<String, Object> {
+            'BLK_LicenceSuspended' => new Map<String, Object>{
                 'CHKBOX_LicenceSuspended' => true,
                 'DATE_MemberLicenceSuspended' => '2024-05-22',
                 'TXTAREA_MemberLicenceSuspended' => 'testing DUI for drugs or alcohol',
@@ -383,7 +378,7 @@ private class ARC_ProgramChange_DocuSignTest {
                 'TXT_MemberLicenceSuspended' => 'Gaby Beer'
             },
             'FRML_LicenceSuspended' => false,
-            'EB_PastConditions' => new Map<String, Object> {
+            'EB_PastConditions' => new Map<String, Object>{
                 'memberId' => 'MEM-1748006579105335',
                 'TXT_MemberIdPastConditions' => 'MEM-1748006579105335',
                 'TXT_MemberPastConditions' => 'Gaby Beer',
@@ -392,11 +387,11 @@ private class ARC_ProgramChange_DocuSignTest {
             },
             'FRML_CheckPastConditionsNull' => false,
             'MSG_DateWrongPrescription' => null,
-            'LWC_SelectCensusMember' => new Map<String, Object> {
+            'LWC_SelectCensusMember' => new Map<String, Object>{
                 'SelectedCensusMemberName' => 'Gaby Beer',
                 'SelectedCensusMemberId' => 'MEM-1748006579105335'
             },
-            'ED_MemberPrescription' => new Map<String, Object> {
+            'ED_MemberPrescription' => new Map<String, Object>{
                 'FRML_MemberBirthdate' => null,
                 'TXT_MemberName' => 'Gaby Beer',
                 'TXT_MemberIdPrescription' => 'MEM-1748006579105335',
@@ -411,20 +406,20 @@ private class ARC_ProgramChange_DocuSignTest {
             'FRML_DateWrongPrescription' => false,
             'MSG_WrongDatePCP' => null,
             'FRML_WrongDatePCP' => false,
-            'EB_Physicians' => new List<Map<String, Object>> {
-                new Map<String, Object> {
+            'EB_Physicians' => new List<Map<String, Object>>{
+                new Map<String, Object>{
                     'memberId' => members[0].Id,
                     'TXT_hasErrorPCP' => 'false',
                     'TXT_CensusMemberId' => members[0].Id,
                     'TXT_CensusMemberName' => 'Carl Beer'
                 },
-                new Map<String, Object> {
+                new Map<String, Object>{
                     'memberId' => members[1].Id,
                     'TXT_hasErrorPCP' => 'false',
                     'TXT_CensusMemberId' => members[1].Id,
                     'TXT_CensusMemberName' => 'Mary Beer'
                 },
-                new Map<String, Object> {
+                new Map<String, Object>{
                     'memberId' => 'MEM-1748006579105335',
                     'TXT_hasErrorPCP' => 'false',
                     'TXT_CensusMemberId' => 'MEM-1748006579105335',
@@ -432,7 +427,7 @@ private class ARC_ProgramChange_DocuSignTest {
                     'TXT_PhysicianName' => 'Carla',
                     'TXT_PhysicianCity' => 'San Diego',
                     'TXT_PhysicianPhone' => '5555555555'
-                }    
+                }
             },
             'RAD_PrescriptionMedications' => 'Yes',
             'RAD_PastConditions' => 'Yes',
@@ -448,15 +443,15 @@ private class ARC_ProgramChange_DocuSignTest {
                 'hasErrorPCP' => false,
                 'hasErrorCancer' => false,
                 'hasErrorMedication' => false
-            }  
+            }
         };
-
-        Map<String, Object> PaymentChangeFee = new Map<String, Object> {
-            'BLK_ChargeFee' => new Map<String, Object> {
+    
+        Map<String, Object> PaymentChangeFee = new Map<String, Object>{
+            'BLK_ChargeFee' => new Map<String, Object>{
                 'RAD_MethodOfPayment' => 'Bank Account',
-                'BLK_PaymentInfo' => new Map<String, Object> {
+                'BLK_PaymentInfo' => new Map<String, Object>{
                     'BLK_CreditCard' => null,
-                    'BLK_BankAccount' => new Map<String, Object> {
+                    'BLK_BankAccount' => new Map<String, Object>{
                         'TXT_RoutingNumber' => '557788899',
                         'TXT_AccNumber' => '545454545454545',
                         'TXT_LastNameOnAccount' => 'Roulling',
@@ -466,7 +461,7 @@ private class ARC_ProgramChange_DocuSignTest {
                     }
                 },
                 'RAD_KeepRecurringMethodOfPayment' => 'No',
-                'LWC_PromoDiscountCodeRefactor' => new Map<String, Object> {
+                'LWC_PromoDiscountCodeRefactor' => new Map<String, Object>{
                     'Id' => null,
                     'PromotionCodeId' => promo.Id,
                     'PromotionCodeName' => 'RECURRING DISCOUNT',
@@ -481,28 +476,28 @@ private class ARC_ProgramChange_DocuSignTest {
             'BLK_CaseCreationDetails' => null,
             'RAD_ChargeAppFeeDefTrue' => 'Yes'
         };
-
-        Map<String, Object> EffectiveDate = new Map<String, Object> {
+    
+        Map<String, Object> EffectiveDate = new Map<String, Object>{
             'MSG_EffectiveDateMissing' => null,
             'FRML_EffectiveDateSelected' => true,
-            'aRC_DatePicker' => new Map<String, Object> {
+            'aRC_DatePicker' => new Map<String, Object>{
                 'DATE_SubscriberEffectiveDate' => '2025-06-01'
             }
         };
-
-        Map<String, Object> PlanSummary = new Map<String, Object> {
-            'BLK_ProductSummary' => new Map<String, Object> {
+    
+        Map<String, Object> PlanSummary = new Map<String, Object>{
+            'BLK_ProductSummary' => new Map<String, Object>{
                 'TXT_ProgramSummaryFeeText' => null,
                 'TXT_FeeAmount' => '$99.00',
-                'BLK_ProductsPrices' => new Map<String, Object> {
+                'BLK_ProductsPrices' => new Map<String, Object>{
                     'TXT_EffDate' => '2025-06-01',
-                    'BLK_IndividualProducts' => new List<Map<String, Object>> {
-                        new Map<String, Object> {
+                    'BLK_IndividualProducts' => new List<Map<String, Object>>{
+                        new Map<String, Object>{
                             'TXT_PlanSelectedPrice' => '$33.04',
                             'TXT_PlanSelected' => 'SMART Share 45000',
                             'Type' => 'Ancillary'
                         },
-                        new Map<String, Object> {
+                        new Map<String, Object>{
                             'TXT_PlanSelectedPrice' => '$520.23',
                             'TXT_PlanSelected' => 'WeShare 6k',
                             'Type' => 'Medical'
@@ -512,9 +507,9 @@ private class ARC_ProgramChange_DocuSignTest {
                 'TXT_MonthlyPrice' => '553.27'
             }
         };
-
-        List<Map<String, Object>> Hipaa = new List<Map<String, Object>> {
-            new Map<String, Object> {
+    
+        List<Map<String, Object>> Hipaa = new List<Map<String, Object>>{
+            new Map<String, Object>{
                 'value' => 'nosetep608@bamsrad.com',
                 'role' => 'Primary',
                 'label' => 'Carl Beer - nosetep608@bamsrad.com',
@@ -523,7 +518,7 @@ private class ARC_ProgramChange_DocuSignTest {
                 'FirstName' => 'Carl',
                 'Id' => members[0].Id
             },
-            new Map<String, Object> {
+            new Map<String, Object>{
                 'value' => 'uatagustest@yopmail.com',
                 'role' => 'Spouse',
                 'label' => 'Mary Beer - uatagustest@yopmail.com',
@@ -533,9 +528,9 @@ private class ARC_ProgramChange_DocuSignTest {
                 'Id' => members[1].Id
             }
         };
-
-        List<Map<String, Object>> allMembersInfo = new List<Map<String, Object>> {
-            new Map<String, Object> {
+    
+        List<Map<String, Object>> allMembersInfo = new List<Map<String, Object>>{
+            new Map<String, Object>{
                 'DISPLAY_BUTTON_REMOVE_MEMBER' => true,
                 'isLast' => false,
                 'Id' => members[0].Id,
@@ -574,7 +569,7 @@ private class ARC_ProgramChange_DocuSignTest {
                 'ARC_Relationship__c' => 'Primary',
                 'vlocity_ins__Gender__c' => 'Male'
             },
-            new Map<String, Object> {
+            new Map<String, Object>{
                 'DISPLAY_BUTTON_REMOVE_MEMBER' => true,
                 'isLast' => false,
                 'Id' => members[1].Id,
@@ -613,7 +608,7 @@ private class ARC_ProgramChange_DocuSignTest {
                 'ARC_Relationship__c' => 'Spouse',
                 'vlocity_ins__Gender__c' => 'Female'
             },
-            new Map<String, Object> {
+            new Map<String, Object>{
                 'DISPLAY_MODAL_REMOVE_MEMBER' => false,
                 'DISPLAY_BUTTON_REMOVE_MEMBER' => true,
                 'isLast' => true,
@@ -654,102 +649,285 @@ private class ARC_ProgramChange_DocuSignTest {
                 'vlocity_ins__Gender__c' => 'Male'
             }
         };
-
-        Map<String, Object> inputMap = new Map<String, Object> {
-            'MembersInfo' => new Map<String, Object> {
-                'primaryMember' => new Map<String, Object> {
-                    'Pregnant' => false,
-                    'State' => 'CA',
-                    'Height' => '5\'7\"',
-                    'Phone' => '4444444444',
-                    'Gender' => 'Male',
-                    'City' => 'San Diego',
-                    'Email' => 'nosetep608@bamsrad.com',
-                    'DOB' => '2000-04-27',
-                    'YearOfBirth' => 2000,
-                    'SocialSecurity' => '555555555',
-                    'MonthOfBirth' => 4,
-                    'DayOfBirth' => 27,
-                    'IsNewMember' => false,
-                    'IsRemoveMember' => false,
-                    'Id' => members[0].Id,
-                    'MI' => 'B',
-                    'Smoker' => false,
-                    'FirstName' => 'Carl',
-                    'Weight' => '6',
-                    'ZipCode' => '92154',
-                    'Address' => 'Siempre Viva Court',
-                    'LastName' => 'Beer'
-                },
-                'spouseMember' => new Map<String, Object> {
-                    'IsNewMember' => false,
-                    'IsRemoveMember' => false,
-                    'Id' => members[1].Id,
-                    'Height' => '5\'4\"',
-                    'DOB' => '2000-05-04',
-                    'Email' => 'uatagustest@yopmail.com',
-                    'Weight' => '3',
-                    'Pregnant' => false,
-                    'Gender' => 'Female',
-                    'LastName' => 'Beer',
-                    'SocialSecurity' => '444444444',
-                    'FirstName' => 'Mary',
-                    'Smoker' => false
-                },
-                'dependentMembers' => new List<Object> { 
-                    new Map<String, Object> {
-                        'IsNewMember' => true,
-                        'IsRemoveMember' => false,
-                        'SocialSecurity' => '333344444',
-                        'Id' => 'MEM-1748006579105335',
-                        'Smoker' => false,
-                        'Height' => '2\'3\"',
-                        'LastName' => 'Beer',
-                        'MI' => 'B',
-                        'Weight' => 3,
-                        'FirstName' => 'Gaby',
-                        'Gender' => 'Female',
-                        'DOB' => '2000-04-27',
-                        'Email' => 'uatagustest@yopmail.com'
-                    }
-                }
-            },
-            'EffectiveDate' => '2025-06-01',
-            'DocuSign' => new Map<String, Object> {
-                'userId' =>  UserInfo.getUserId(),
-                'SelectedContractInfo' => SelectedContractInfo,
-                'pcChanges' => pcChanges,
-                'OldProductList' => OldProductList,
-                'NewProductList' => NewProductList,
-                'STEP_SignTheDocument' => SignTheDocument,
-                'STEP_MedicalQuestions' => MedicalQuestions,
-                'Step_PaymentChangeFee' => PaymentChangeFee,
-                'STEP_EffectiveDate' => EffectiveDate,
-                'PlanSummary' => PlanSummary,
-                'Hipaa' => Hipaa
-            },
-            'newMedicalProduct' => new Map<String, Object> {
-                'selectedProduct' => new Map<String, Object>{
-                    'Price' => '520.23',
-                    'Id' => prods[0].Id,
-                    'Type__c' => 'Medical',
-                    'productId' => prods[0].Id,
-                    'Name' => 'WeShare 6k'
-                },
-                'userInputs' => allUserInputs
-            },
-            'UpdateType' =>  'Add or Remove a Member',
-            'primaryState' => 'CA',
-            'allMembersInfo' => allMembersInfo
+    
+        Map<String, Object> primaryMemberForAmendment = new Map<String, Object>{
+            'Name' => 'Carl Beer',
+            'MemberID' => 'MEMBER-0001',
+            'BillingStreet' => 'Siempre Viva Court',
+            'BillingCity' => 'San Diego',
+            'BillingState' => 'CA',
+            'BillingPostalCode' => '92154'
         };
+    
+        Map<String, Object> baseInputMap = new Map<String, Object>{
+            'STEP_SignTheDocument' => SignTheDocument,
+            'pcChanges' => pcChanges,
+            'census_component' => new Map<String, Object>{
+                'census_members' => allMembersInfo,
+                'initial_values' => new List<Object>()
+            },
+            'NewProductList' => NewProductList,
+            'OldProductList' => OldProductList,
+            'PlansSummary' => PlanSummary,
+            'STEP_EffectiveDate' => EffectiveDate,
+            'STEP_MedicalQuestions' => MedicalQuestions,
+            'SelectedContractInfo' => SelectedContractInfo,
+            'Step_PaymentChangeFee' => PaymentChangeFee,
+            'userId' => UserInfo.getUserId(),
+            'STEP_GuardiansInfo' => null,
+            'EffectiveDate' => '2025-06-01',
+            'UpdateTypes' => 'Add or Remove a Member',
+            'FinalHipaaRecipients' => Hipaa,
+            'PrimaryMember' => primaryMemberForAmendment,
+            'STEP_MedicareCoverage' => new Map<String, Object>{
+                'BLK_MedicareId' => new Map<String, Object>{
+                    'FRML_MedicareInformationChange' => false
+                }
+            }
+        };
+    
+        return baseInputMap;
+    }
 
+    @isTest
+    static void getDocuSignData_NormalFlow_Test() {
         ARC_ProgramChange_DocuSign docuSignPC = new ARC_ProgramChange_DocuSign();
-        
+        Map<String, Object> inputMap = buildGetDocuSignBaseInput();
         Map<String, Object> outputMap = new Map<String, Object>();
         Map<String, Object> options = new Map<String, Object>();
-        
+
         Test.startTest();
-        docuSignPC.invokeMethod('DocuSignDataTransform', inputMap, outputMap, options);
+        docuSignPC.invokeMethod('getDocuSignData', inputMap, outputMap, options);
         Test.stopTest();
+
+        System.assert(outputMap.containsKey('EnvelopeInformation'), 'EnvelopeInformation should be populated for the normal flow.');
+        Map<String, Object> envelopeInfo = (Map<String, Object>)outputMap.get('EnvelopeInformation');
+        System.assertNotEquals(null, envelopeInfo.get('tabs'), 'Tabs should be populated for the normal flow.');
+    }
+
+    @isTest
+    static void getDocuSignData_Amendment_Basic_Test() {
+        ARC_ProgramChange_DocuSign docuSignPC = new ARC_ProgramChange_DocuSign();
+        Map<String, Object> inputMap = buildGetDocuSignBaseInput();
+        Map<String, Object> pcChanges = (Map<String, Object>)inputMap.get('pcChanges');
+        pcChanges.put('docuSign', 'Amendment');
+        pcChanges.put('amendmentReasons', 'Fix contract information');
+        inputMap.put('STEP_MedicareCoverage', new Map<String, Object>{
+            'BLK_MedicareId' => new Map<String, Object>{
+                'FRML_MedicareInformationChange' => false
+            }
+        });
+
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        Test.startTest();
+        docuSignPC.invokeMethod('getDocuSignData', inputMap, outputMap, options);
+        Test.stopTest();
+
+        System.assert(outputMap.containsKey('EnvelopeInformation'), 'EnvelopeInformation should be populated for amendment flow.');
+        Map<String, Object> envelopeInfo = (Map<String, Object>)outputMap.get('EnvelopeInformation');
+        System.assertNotEquals(null, envelopeInfo.get('tabs'), 'Tabs should be populated for amendment flow.');
+    }
+
+    @isTest
+    static void getDocuSignData_Amendment_Medicare_Test() {
+        ARC_ProgramChange_DocuSign docuSignPC = new ARC_ProgramChange_DocuSign();
+        Map<String, Object> inputMap = buildGetDocuSignBaseInput();
+        Map<String, Object> pcChanges = (Map<String, Object>)inputMap.get('pcChanges');
+        pcChanges.put('docuSign', 'Amendment');
+        pcChanges.put('amendmentReasons', 'Fix Medicare information');
+        inputMap.put('STEP_MedicareCoverage', new Map<String, Object>{
+            'BLK_MedicareId' => new Map<String, Object>{
+                'FRML_MedicareInformationChange' => true,
+                'MedicareIdNumber' => '1EG4-TE5-MK73',
+                'Medicare_A_Effective_Date' => '2024-01-01',
+                'Part_B_Effective_Date' => '2024-02-01',
+                'Part_D_Effective_Date' => '2024-03-01'
+            }
+        });
+
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        Test.startTest();
+        docuSignPC.invokeMethod('getDocuSignData', inputMap, outputMap, options);
+        Test.stopTest();
+
+        System.assert(outputMap.containsKey('EnvelopeInformation'), 'EnvelopeInformation should be populated for amendment with Medicare flow.');
+        Map<String, Object> envelopeInfo = (Map<String, Object>)outputMap.get('EnvelopeInformation');
+        System.assertNotEquals(null, envelopeInfo.get('tabs'), 'Tabs should be populated for amendment with Medicare flow.');
+    }
+
+    @isTest
+    static void getDocuSignData_RemoveMember_Premier_Test() {
+        ARC_ProgramChange_DocuSign docuSignPC = new ARC_ProgramChange_DocuSign();
+        Map<String, Object> inputMap = buildGetDocuSignBaseInput();
+
+        Map<String, Object> pcChanges = (Map<String, Object>)inputMap.get('pcChanges');
+        pcChanges.put('docuSign', 'PC DocuSign');
+        pcChanges.put('pcReasonsString', 'Remove Member');
+        Map<String, Object> pcReasons = (Map<String, Object>)pcChanges.get('pcReasons');
+        pcReasons.put('addMember', false);
+        pcReasons.put('removeMember', true);
+
+        Map<String, Object> selectedContractInfo = (Map<String, Object>)inputMap.get('SelectedContractInfo');
+        selectedContractInfo.put('TXT_MedicalPlan', 'Premier 5000');
+
+        Map<String, Object> censusComponent = (Map<String, Object>)inputMap.get('census_component');
+        List<Object> censusMembers = (List<Object>)censusComponent.get('census_members');
+        Map<String, Object> removedDependentMember = (Map<String, Object>)censusMembers[2];
+        removedDependentMember.put('IsNewMember', false);
+        removedDependentMember.put('IsRemoveMember', true);
+        removedDependentMember.put('ShowMember', false);
+
+        List<Object> newProductList = (List<Object>)inputMap.get('NewProductList');
+        Map<String, Object> newMedicalProduct = (Map<String, Object>)newProductList[0];
+        Map<String, Object> newMedicalSelectedProduct = (Map<String, Object>)newMedicalProduct.get('selectedProduct');
+        newMedicalSelectedProduct.put('Name', 'Premier 5000');
+
+        List<Object> oldProductList = (List<Object>)inputMap.get('OldProductList');
+        Map<String, Object> oldMedicalProduct = (Map<String, Object>)oldProductList[0];
+        Map<String, Object> oldMedicalSelectedProduct = (Map<String, Object>)oldMedicalProduct.get('selectedProduct');
+        oldMedicalSelectedProduct.put('Name', 'Premier 5000');
+
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        Test.startTest();
+        docuSignPC.invokeMethod('getDocuSignData', inputMap, outputMap, options);
+        Test.stopTest();
+
+        System.assert(outputMap.containsKey('EnvelopeInformation'), 'EnvelopeInformation should be populated for remove member flow.');
+        Map<String, Object> envelopeInfo = (Map<String, Object>)outputMap.get('EnvelopeInformation');
+        System.assertNotEquals(null, envelopeInfo.get('tabs'), 'Tabs should be populated for remove member flow.');
+    }
+
+    @isTest
+    static void getDocuSignData_PrimaryChange_Test() {
+        ARC_ProgramChange_DocuSign docuSignPC = new ARC_ProgramChange_DocuSign();
+        Map<String, Object> inputMap = buildGetDocuSignBaseInput();
+
+        Map<String, Object> pcChanges = (Map<String, Object>)inputMap.get('pcChanges');
+        pcChanges.put('pcReasonsString', 'Primary Change');
+        Map<String, Object> pcReasons = (Map<String, Object>)pcChanges.get('pcReasons');
+        pcReasons.put('addMember', false);
+        pcReasons.put('primaryChange', true);
+
+        Map<String, Object> censusComponent = (Map<String, Object>)inputMap.get('census_component');
+        censusComponent.put('initial_values', new List<Object>{
+            new Map<String, Object>{
+                'ARC_Age__c' => 35,
+                'ARC_Relationship__c' => new Map<String, Object>{
+                    'value' => 'Primary'
+                },
+                'Id' => 'OLD-PRIMARY-1',
+                'Name' => 'Old Primary Member',
+                'FirstName' => new Map<String, Object>{
+                    'value' => 'Old'
+                },
+                'LastName' => new Map<String, Object>{
+                    'value' => 'Primary'
+                },
+                'vlocity_ins__FirstName__c' => new Map<String, Object>{
+                    'value' => 'Old'
+                },
+                'vlocity_ins__LastName__c' => new Map<String, Object>{
+                    'value' => 'Primary'
+                },
+                'vlocity_ins__Email__c' => new Map<String, Object>{
+                    'value' => 'oldprimary@yopmail.com'
+                },
+                'ARC_Phone__c' => new Map<String, Object>{
+                    'value' => '5551112222'
+                },
+                'label' => 'Old Primary Member - oldprimary@yopmail.com',
+                'value' => 'oldprimary@yopmail.com',
+                'role' => 'Primary'
+            }
+        });
+
+        inputMap.put('FinalHipaaRecipients', new List<Object>{
+            new Map<String, Object>{
+                'value' => 'oldprimary@yopmail.com',
+                'role' => 'Primary',
+                'label' => 'Old Primary Member - oldprimary@yopmail.com',
+                'LastName' => 'Primary',
+                'Name' => 'Old Primary Member',
+                'FirstName' => 'Old',
+                'Id' => 'OLD-PRIMARY-1'
+            },
+            new Map<String, Object>{
+                'value' => 'nosetep608@bamsrad.com',
+                'role' => 'Primary',
+                'label' => 'Carl Beer - nosetep608@bamsrad.com',
+                'LastName' => 'Beer',
+                'Name' => 'Carl Beer',
+                'FirstName' => 'Carl',
+                'Id' => 'NEW-PRIMARY-1'
+            }
+        });
+
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        Test.startTest();
+        docuSignPC.invokeMethod('getDocuSignData', inputMap, outputMap, options);
+        Test.stopTest();
+
+        System.assert(outputMap.containsKey('EnvelopeInformation'), 'EnvelopeInformation should be populated for primary change flow.');
+        Map<String, Object> envelopeInfo = (Map<String, Object>)outputMap.get('EnvelopeInformation');
+        System.assertNotEquals(null, envelopeInfo.get('tabs'), 'Tabs should be populated for primary change flow.');
+    }
+
+    @isTest
+    static void getDocuSignData_AddMember_MergeMedicalQuestions_Test() {
+        ARC_ProgramChange_DocuSign docuSignPC = new ARC_ProgramChange_DocuSign();
+        Map<String, Object> inputMap = buildGetDocuSignBaseInput();
+
+        Map<String, Object> pcChanges = (Map<String, Object>)inputMap.get('pcChanges');
+        pcChanges.put('docuSign', 'PC DocuSign');
+        pcChanges.put('pcReasonsString', 'Add Member');
+        pcChanges.put('carryOverMedicalQuestions', false);
+
+        Map<String, Object> pcReasons = (Map<String, Object>)pcChanges.get('pcReasons');
+        pcReasons.put('programUpgrade', false);
+        pcReasons.put('addExistingMember', false);
+        pcReasons.put('addMember', true);
+
+        Map<String, Object> selectedContractInfo = (Map<String, Object>)inputMap.get('SelectedContractInfo');
+        selectedContractInfo.put('TXT_ContractReason', 'Add Member');
+
+        inputMap.put('STEP_MedicalQuestions', new Map<String, Object>{
+            'BLK_ParentSiblingDiagnosed' => new Map<String, Object>{
+                'CHKBOX_MemberParentDiagnosed' => true,
+                'DATE_MemberParentDiagnosed' => '2023-04-30',
+                'memberId' => 'MEM-1748006579105335',
+                'TXT_hasErrorParentDiagnosed' => 'false',
+                'TXT_MemberIdParentDiagnosed' => 'MEM-1748006579105335',
+                'TXT_MemberParentDiagnosed' => 'Gaby Beer'
+            },
+            'EB_Cancer' => new Map<String, Object>{
+                'FRML_MemberIdCancerBirthdate' => '2000-05-11T00:00:00.000Z',
+                'CHK_CheckCancer' => true,
+                'CHK_MemberBeenDiagnosedWithCancer' => true,
+                'TXT_MemberNameCancer' => 'Gaby Beer',
+                'TXT_MemberIdCancer' => 'MEM-1748006579105335',
+                'TXT_hasErrorCancer' => 'false',
+                'TXT_TypeOfCancer' => 'Skin Cancer',
+                'DATE_Cancer' => '2025-05-06'
+            }
+        });
+
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+
+        Test.startTest();
+        docuSignPC.invokeMethod('getDocuSignData', inputMap, outputMap, options);
+        Test.stopTest();
+
+        System.assert(outputMap.containsKey('EnvelopeInformation'), 'EnvelopeInformation should be populated for add member merge medical questions flow.');
+        Map<String, Object> envelopeInfo = (Map<String, Object>)outputMap.get('EnvelopeInformation');
+        System.assertNotEquals(null, envelopeInfo.get('tabs'), 'Tabs should be populated for add member merge medical questions flow.');
     }
 }

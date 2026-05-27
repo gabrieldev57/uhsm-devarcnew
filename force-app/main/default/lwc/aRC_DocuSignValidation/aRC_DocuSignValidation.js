@@ -320,7 +320,7 @@ export default class ARC_DocuSignValidation extends OmniscriptBaseMixin(Lightnin
     }
 
     // Executes Reprice Case last IPs
-    repriceNextStep(context = this) {
+    async repriceNextStep(context = this) {
         context.loadingNext = true;
 
         console.log("IsRepriceOmniscript: ", context.omniJsonData.IsRepriceOmniscript);
@@ -376,17 +376,39 @@ export default class ARC_DocuSignValidation extends OmniscriptBaseMixin(Lightnin
             options: {}
         };
 
-        Promise.all([
-            context.omniRemoteCall(paramsPolicy, true),
-            context.omniRemoteCall(paramsSubmitMedicalQuestions, true),
-            context.omniRemoteCall(paramsContractStatusPCAncillary, true),
-            context.omniRemoteCall(paramsFinishRepriceCase, true),
-        ])
-            .then(() => {
-                context.omniNextStep();
-            })
-            .catch(err => {
-                console.error(err);
-            })
+        try {
+            // Policy creation
+            console.log('Starting createAllPolicyRecords');
+            await context.omniRemoteCall(paramsPolicy, true);
+            console.log('Finished createAllPolicyRecords');
+
+            context.loadingNext = true;
+
+            // Submit medical questions
+            console.log('Starting SubmitMedicalQuestions');
+            await context.omniRemoteCall(paramsSubmitMedicalQuestions, true);
+            console.log('Finished SubmitMedicalQuestions');
+
+            // Finish reprice case
+            console.log('Starting FinishRepriceCase');
+            await context.omniRemoteCall(paramsFinishRepriceCase, true);
+            console.log('Finished FinishRepriceCase');
+
+            // MUST BE LAST
+            console.log('Starting Update_ContractStatusPCAncillary');
+            await context.omniRemoteCall(paramsContractStatusPCAncillary,true);
+            console.log('Finished Update_ContractStatusPCAncillary');
+        
+            // Only after EVERYTHING is done
+            await new Promise(resolve => setTimeout(resolve, 300));
+            context.omniNextStep();
+
+            console.log('SPINNER = ' + context.loadingNext);
+            context.loadingNext = false;
+            console.log('SPINNER = ' + context.loadingNext);
+
+        } catch (error) {
+            console.error('Error during repriceNextStep execution', error);
+        }
     }
 }

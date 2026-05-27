@@ -1,0 +1,105 @@
+<template>
+
+    <template lwc:if={isLoading}>
+        <lightning-spinner size="medium"></lightning-spinner>
+    </template>
+
+    <template lwc:if={isSmallGroupOrRenewal}>
+        <div class="slds-var-p-around_medium">
+            <div class="titleBar">
+                <div class="titleLeft">
+                    <div class="sectionIconWrap blue">
+                        <lightning-icon icon-name="utility:quote" size="x-small"
+                            class="sectionIconSvg"></lightning-icon>
+                    </div>
+                    <h2 class="pageTitle">Select Accepted Products</h2>
+                </div>
+
+                <div class="titleRight">
+                    <lightning-button label={editLabel} variant="neutral" icon-name="utility:edit" icon-position="left"
+                        onclick={handleEdit} disabled={isEditDisabled}>
+                    </lightning-button>
+
+                    <lightning-button label="Save Products" variant="brand" onclick={handleSave}
+                        disabled={isSaveDisabled}>
+                    </lightning-button>
+                </div>
+            </div>
+
+            <!--alert on edit section-->
+            <template lwc:if={isEditing}>
+                <div class="slds-notify slds-notify_alert slds-alert_info slds-m-bottom_medium" role="alert">
+                    <h2>
+                        You are editing the product selection. Click Save Products to apply your changes.
+                    </h2>
+                </div>
+            </template>
+
+            <div class="quote-card">
+                <div class="quote-table-wrap">
+                    <table class="slds-table slds-table_cell-buffer slds-table_fixed-layout quote-table">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th scope="col">
+                                    <div class="slds-truncate title-product">Product Name</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate title-product">Line Item Number</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate title-product">Eligible For Contract</div>
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <template for:each={quoteLineItems} for:item="item">
+                                <tr key={item.id} class="quote-row">
+                                    <td>
+                                        <div class="product-cell">
+                                            <span class={item.statusIconClass}>
+                                                <lightning-icon icon-name={item.statusIcon} size="xx-small"
+                                                    variant={item.statusIconVariant}
+                                                    alternative-text={item.eligibleStatus} class="status-icon-svg">
+                                                </lightning-icon>
+                                            </span>
+                                            <div class="slds-truncate product-name">
+                                                {item.productName}
+                                                <template lwc:if={item.isCurrentProduct}>
+                                                    <lightning-badge label="Current" class="current-badge"></lightning-badge>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate product-name">{item.lineItemNumber}</div>
+                                    </td>
+                                    <td>
+                                        <lightning-combobox value={item.eligibleStatus} options={eligibleOptions}
+                                            data-id={item.id} onchange={handleStatusChange} disabled={isInputsDisabled}
+                                            class="pill-combobox">
+                                        </lightning-combobox>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <template lwc:if={cannotEditQLI}>
+            <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
+                <h2>
+                    You do not have permission to edit products on an Accepted Quote.
+                </h2>
+            </div>
+        </template>
+    </template>
+
+    <template lwc:else>
+        <div class="sg-quote">
+            This component is only available for Small Group Quotes or Renewal Quotes.
+        </div>
+    </template>
+</template>

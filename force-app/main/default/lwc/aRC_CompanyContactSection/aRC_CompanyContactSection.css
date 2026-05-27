@@ -1,0 +1,562 @@
+/* CompanyContactSection Styles */
+
+:host {
+    display: block;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+    position: relative;
+    min-height: 200px;
+}
+
+/* Saving Overlay */
+.saving-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(2px);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.saving-message {
+    text-align: center;
+}
+
+/* Inline spinner for save actions */
+.inline-spinner-container {
+    position: relative;
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+.saved-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #2e7d32;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+    animation: savedFade 2.5s ease-in-out forwards;
+}
+
+@keyframes savedFade {
+    0%   { opacity: 0; transform: translateY(-3px); }
+    8%   { opacity: 1; transform: translateY(0); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.table-spinner-container {
+    position: relative;
+    min-height: 3rem;
+}
+
+.table-spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 3rem;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 4px;
+}
+
+.loading-container {
+    position: relative;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Custom header icons */
+.header-icon-custom {
+    width: 20px;
+    height: 20px;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+.community-mode .header-icon-custom {
+    color: #F2BC30;
+}
+
+.community-mode .primary-contact-card,
+.community-mode .officer-contact-card,
+.community-mode .tpa-section {
+    background-color: #F8FAFC;
+    border-color: #E2E8F0;
+}
+
+.community-mode .section-card-title {
+    color: black;
+}
+
+.community-mode .contact-avatar,
+.community-mode .officer-avatar {
+    background-color: #747474;
+}
+
+.community-mode .officer-info-row {
+    border-color: #E2E8F0;
+}
+
+.community-mode .edit-icon {
+    --sds-c-icon-color-foreground-default: #F2BC30 !important;
+}
+
+.community-mode .change-link {
+    color: #F2BC30 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* PRIMARY BUSINESS CONTACT - Violet/Purple Card */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+.primary-contact-card {
+    background-color: #FAF5FF;
+    border: 1px solid #E9D5FF;
+    border-radius: 8px;
+    overflow: visible;
+}
+
+.primary-contact-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.primary-contact-header .header-icon {
+    --sds-c-icon-color-foreground-default: #9B59B6;
+}
+
+.primary-contact-title {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.required-indicator {
+    color: #c23934;
+    text-decoration: none;
+    font-style: normal;
+    margin-left: 2px;
+}
+
+.primary-contact-body {
+    padding: 0 16px 16px 16px;
+}
+
+.contact-info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #ffffff;
+    border: 1px solid #E0D4F7;
+    border-radius: 6px;
+    padding: 12px 16px;
+}
+
+.contact-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #9B59B6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.contact-avatar lightning-icon {
+    --sds-c-icon-color-foreground-default: white;
+}
+
+.contact-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.contact-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #181818;
+    margin: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.contact-detail {
+    font-size: 13px;
+    color: #706e6b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.lock-icon {
+    --sds-c-icon-color-foreground-default: #706e6b;
+}
+
+.contact-action {
+    flex-shrink: 0;
+}
+
+.change-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #9B59B6;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.change-link:hover {
+    text-decoration: underline;
+}
+
+.edit-icon {
+    --sds-c-icon-color-foreground-default: #9B59B6;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* COMPANY OFFICER CONTACT - Teal Card */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+.officer-contact-card {
+    background-color: #F0FDFA;
+    border: 1px solid #99F6E4;
+    border-radius: 8px;
+    overflow: visible;
+}
+
+.officer-contact-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.officer-contact-header .header-icon {
+    --sds-c-icon-color-foreground-default: #0D9488;
+}
+
+.officer-contact-title {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.officer-contact-body {
+    padding: 0 16px 16px 16px;
+}
+
+/* Officer Contact Info Row (when different from primary) */
+.officer-info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #ffffff;
+    border: 1px solid #99F6E4;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 12px;
+}
+
+.officer-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #0D9488;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.officer-avatar lightning-icon {
+    --sds-c-icon-color-foreground-default: white;
+}
+
+.officer-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.officer-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #181818;
+    margin: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.officer-detail {
+    font-size: 13px;
+    color: #706e6b;
+    margin: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.officer-action {
+    flex-shrink: 0;
+}
+
+.officer-change-link {
+    color: #0D9488 !important;
+}
+
+.officer-change-link .edit-icon {
+    --sds-c-icon-color-foreground-default: #0D9488;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* OTHER SECTION CARDS (Other Contacts, TPA) */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.section-card {
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.section-card-header {
+    padding: 16px 20px;
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+}
+
+.section-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0176d3;
+    line-height: 1.25;
+}
+
+.section-card-body {
+    padding: 0 20px 20px 20px;
+}
+
+.section-description {
+    font-size: 13px;
+    color: #706e6b;
+    font-style: italic;
+    margin-top: 4px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* TPA Header Layout */
+.tpa-header-left {
+    flex: 1;
+    min-width: 0;
+    padding-right: 16px;
+}
+
+.tpa-header-right {
+    flex-shrink: 0;
+}
+
+.tpa-section {
+    background-color: #ECFEFF;
+    border: 1px solid #A5F3FC;
+}
+
+/* Radio Box (Company Officer Question) */
+.radio-box {
+    background-color: #EBF5FE;
+    border: none;
+    border-radius: 6px;
+    padding: 16px 20px;
+}
+
+.radio-box .slds-form-element__legend {
+    font-size: 14px;
+    color: #181818;
+    font-weight: normal;
+}
+
+/* Ensure radio buttons display horizontally */
+.radio-box .slds-form-element__control {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.slds-radio {
+    display: inline-flex;
+    align-items: center;
+}
+
+.slds-radio .slds-radio_faux {
+    margin-right: 4px;
+}
+
+.slds-radio .slds-form-element__label {
+    padding-left: 0;
+    font-size: 14px;
+}
+
+/* Portal Access Badge Styling */
+.portal-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    min-width: 70px;
+}
+
+.portal-badge-admin {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.portal-badge-viewer {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.portal-badge-none {
+    background-color: #f5f5f5;
+    color: #706e6b;
+}
+
+/* Table Styling Override for this section */
+.section-card-body c-a-r-c_-form-table {
+    --table-border-color: #e5e5e5;
+}
+
+/* Count text */
+.count-text {
+    font-size: 13px;
+    color: #706e6b;
+    padding: 8px 0;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding-top: 20%;
+    }
+
+    .contact-info-row,
+    .officer-info-row {
+        align-items: flex-start;
+    }
+
+    .tpa-section .section-card-header > .slds-grid {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .tpa-header-left {
+        width: 100%;
+        padding-right: 0;
+    }
+
+    .tpa-header-right {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .tpa-header-left .section-description {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-card-header {
+        padding: 14px 16px;
+    }
+
+    .section-card-body {
+        padding: 0 16px 16px 16px;
+    }
+
+    .contact-info-row,
+    .officer-info-row {
+        flex-wrap: wrap;
+    }
+
+    .contact-details,
+    .officer-details {
+        min-width: 0;
+        width: calc(100% - 48px);
+    }
+
+    .contact-action,
+    .officer-action {
+        width: 100%;
+        padding-left: 48px;
+        margin-top: 4px;
+    }
+
+    .tpa-header-right {
+        margin-top: 4px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    :host {
+        display: block;
+        margin-top: 150px;
+    }
+
+    .content-wrapper {
+        padding-top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    :host {
+        display: block;
+        margin-top: 150px;
+    }
+
+    .content-wrapper {
+        padding-top: 0;
+    }
+}
+
+@media (max-height: 720px) and (max-width: 1024px) {
+    :host {
+        margin-top: 150px;
+    }
+
+    .content-wrapper {
+        padding-top: 0;
+    }
+}

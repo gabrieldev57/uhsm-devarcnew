@@ -3,7 +3,7 @@ public with sharing class ARC_IdHandlerTest {
 
     @isTest
     public static void insertPolicyIdTest() {
-        List<InsurancePolicy> insurancePolicies = ARC_TestUtility.createTestPolicies(1);
+        List<InsurancePolicy> insurancePolicies = ARC_TestUtility.createTestPolicies(1, 'ARC_IndividualAndFamily');
         insurancePolicies[0].Name = 'ShopAndEnroll Policy';
         update insurancePolicies;
         Test.startTest();

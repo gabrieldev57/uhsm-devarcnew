@@ -102,6 +102,7 @@ private class ARC_ClaimLineItemReassignmentBatchTest {
         ccpdList[0].ARC_Deductible__c = 20;
         ccpdList[0].ARC_Coinsurance__c = 0;
         ccpdList[0].ARC_ProcedureCode__c = generalCode.Id;
+        ccpdList[0].Status = 'Paid';
         update ccpdList;
     }
 

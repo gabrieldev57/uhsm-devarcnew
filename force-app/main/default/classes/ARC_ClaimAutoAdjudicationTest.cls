@@ -25,6 +25,8 @@ public with sharing class ARC_ClaimAutoAdjudicationTest {
         codesList.add(threeHoundredFiveCode);
         vlocity_ins__VlocityCode__c threeHoundredNineCode = new vlocity_ins__VlocityCode__c(Name = '3079F', RecordTypeId = idCPT);
         codesList.add(threeHoundredNineCode);
+        vlocity_ins__VlocityCode__c htFourCode = new vlocity_ins__VlocityCode__c(Name = 'HT904', RecordTypeId = idRARC, ARC_Status__c = 'Informational');
+        codesList.add(htFourCode);
         insert codesList;
 
         Id accRecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('Group').getRecordTypeId();
@@ -185,11 +187,10 @@ public with sharing class ARC_ClaimAutoAdjudicationTest {
         System.assertEquals('Informational', lineItems[0].Status);
         System.assertEquals('Code PH900 added to line items', updatedClaims[0].ARC_AutoAdjudicationReview__c);
     }
-/*
     @IsTest
     static void testAAClaimElig01() {
 
-        List<Claim> claimsForAA = [SELECT Id, ARC_Vendor__c,ARC_PayTo_ZipCode__c,ARC_PayTo_State__c,ARC_PayToCity__c,ARC_PayToStreet__c, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c, 
+        List<Claim> claimsForAA = [SELECT Id, ARC_Vendor__c,ARC_PayTo_ZipCode__c,ARC_PayTo_State__c,ARC_PayToCity__c,ARC_PayToStreet__c, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
         (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r)
          FROM Claim];
 
@@ -205,13 +206,9 @@ public with sharing class ARC_ClaimAutoAdjudicationTest {
         ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
         Test.stopTest();
 
-        // Retrieve the updated claims for assertions
-        List<Claim> updatedClaims = [SELECT Id, Status, ARC_AutoAdjudicationReview__c, (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r)
-                                     FROM Claim
-                                     WHERE Id IN :claimIds];
-        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Name, Status, ARC_Claim__c FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: updatedClaims[0].Id];
+        List<Claim> updatedClaims = [SELECT Id, Status, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: updatedClaims[0].Id];
 
-        // Perform assertions to verify the expected results
         System.assertEquals('Denied', lineItems[0].Status);
         System.assertEquals('AA Denied', updatedClaims[0].Status);
         System.assertEquals('SMB DOS before Policy Effective Date', updatedClaims[0].ARC_AutoAdjudicationReview__c);
@@ -220,7 +217,7 @@ public with sharing class ARC_ClaimAutoAdjudicationTest {
     @IsTest
     static void testAAClaimElig02() {
 
-        List<Claim> claimsForAA = [SELECT Id, ARC_Vendor__c,ARC_PayTo_ZipCode__c,ARC_PayTo_State__c,ARC_PayToCity__c,ARC_PayToStreet__c, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c, 
+        List<Claim> claimsForAA = [SELECT Id, ARC_Vendor__c,ARC_PayTo_ZipCode__c,ARC_PayTo_State__c,ARC_PayToCity__c,ARC_PayToStreet__c, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
         (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r)
          FROM Claim];
 
@@ -236,18 +233,13 @@ public with sharing class ARC_ClaimAutoAdjudicationTest {
         ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
         Test.stopTest();
 
-        // Retrieve the updated claims for assertions
-        List<Claim> updatedClaims = [SELECT Id, Status, ARC_AutoAdjudicationReview__c, (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r)
-                                     FROM Claim
-                                     WHERE Id IN :claimIds];
-        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Name, Status, ARC_Claim__c FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: updatedClaims[0].Id];
+        List<Claim> updatedClaims = [SELECT Id, Status, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: updatedClaims[0].Id];
 
-        // Perform assertions to verify the expected results
         System.assertEquals('Denied', lineItems[0].Status);
         System.assertEquals('AA Denied', updatedClaims[0].Status);
         System.assertEquals('SMB DOS after Policy Expiration Date', updatedClaims[0].ARC_AutoAdjudicationReview__c);
     }
-*/
     @IsTest
     static void testAADuplicateClm() {
         
@@ -311,7 +303,7 @@ public with sharing class ARC_ClaimAutoAdjudicationTest {
     @IsTest
     static void testAAClaimHEU() {
 
-        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c, 
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
         (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r)
          FROM Claim];
         claimsForAA[0].ARC_NTE837IBNoteSegment__c = 'something##HEU';
@@ -326,14 +318,211 @@ public with sharing class ARC_ClaimAutoAdjudicationTest {
         ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
         Test.stopTest();
 
-        // Retrieve the updated claims for assertions
-        List<Claim> updatedClaims = [SELECT Id, Status, ARC_AutoAdjudicationReview__c, (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r)
-                                     FROM Claim
-                                     WHERE Id IN :claimIds];
-        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Name, Status, ARC_ProcedureCode__c, ARC_Allowed__c, ARC_Claim__c FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: updatedClaims[0].Id];
+        List<Claim> updatedClaims = [SELECT Id, Status, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status, ARC_ProcedureCode__c, ARC_Allowed__c FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: updatedClaims[0].Id];
 
-        //System.assertEquals(expectedStatus, updatedClaims[0].Status);
         System.assertEquals('Informational', lineItems[0].Status);
         System.assertEquals('Code HT902 added to line items', updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+
+    // --- Optum plain-text NTE format tests ---
+
+    @IsTest
+    static void testAAClaimOptum140Pricing() {
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = '140 Pricing - Medicare'; // 140 Pricing → HS900
+        update claimsForAA;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        System.assertEquals('Informational', lineItems[0].Status);
+        System.assertEquals('Code HS900 added to line items', updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+
+    @IsTest
+    static void testAAClaimOptumA1Exact() {
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = 'A1';
+        update claimsForAA;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        System.assertEquals('Informational', lineItems[0].Status);
+        System.assertEquals('Code PH900 added to line items', updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+
+    @IsTest
+    static void testAAClaimOptumA1Space() {
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = 'A1 Multiplan repricing';
+        update claimsForAA;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        System.assertEquals('Informational', lineItems[0].Status);
+        System.assertEquals('Code PH900 added to line items', updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+
+    @IsTest
+    static void testAAClaimOptumA1CollisionNoAdjudication() {
+        // 'A10' must NOT match PH900 — validates the length-2 / startsWith-space guard
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = 'A10';
+        update claimsForAA;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        System.assertNotEquals('Informational', lineItems[0].Status);
+        System.assertEquals(null, updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+
+    @IsTest
+    static void testAAClaimOptum120Pricing() {
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = '120 Pricing - Medicare'; // 120 Pricing → HS901
+        update claimsForAA;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        System.assertEquals('Informational', lineItems[0].Status);
+        System.assertEquals('Code HS901 added to line items', updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+
+    @IsTest
+    static void testAAClaimOptumFNR() {
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = 'FNR';
+        update claimsForAA;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        System.assertEquals('Informational', lineItems[0].Status);
+        System.assertEquals('Code HT902 added to line items', updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+
+    /*
+    @IsTest
+    static void testAAClaimZelisHEV() {
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = 'something#HEV';
+        update claimsForAA;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        System.assertEquals('Informational', lineItems[0].Status);
+        System.assertEquals('Code HT904 added to line items', updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+    */
+
+    @IsTest
+    static void testAAClaimOptumNEG() {
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = 'NEG';
+        update claimsForAA;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        System.assertEquals('Informational', lineItems[0].Status);
+        System.assertEquals('Code HT904 added to line items', updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+
+    // --- Exclusion / no-match tests ---
+
+    @IsTest
+    static void testAAClaimExcludedProcedureCode3075F() {
+        // Line item with 3075F procedure code must not be adjudicated even with a valid NTE
+        vlocity_ins__VlocityCode__c excCode = [SELECT Id FROM vlocity_ins__VlocityCode__c WHERE Name = '3075F' LIMIT 1];
+
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = '#HET';
+        update claimsForAA;
+
+        ClaimCoveragePaymentDetail li = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimsForAA[0].Id LIMIT 1];
+        li.ARC_ProcedureCode__c = excCode.Id;
+        update li;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        List<ARC_ClaimReasonCode__c> crcs = [SELECT Id FROM ARC_ClaimReasonCode__c WHERE ARC_ClaimCoveragePaymentDetail__c =: lineItems[0].Id];
+        System.assertNotEquals('Informational', lineItems[0].Status);
+        System.assertEquals(0, crcs.size());
+        System.assertEquals(null, updatedClaims[0].ARC_AutoAdjudicationReview__c);
+    }
+
+    @IsTest
+    static void testAAClaimNoNTEMatch() {
+        // An unrecognized NTE note must leave line items untouched and insert no CRCs
+        List<Claim> claimsForAA = [SELECT Id, ARC_CCToCompare__c, ARC_NTE837IBNoteSegment__c, ARC_Duplicate__c, Status, ARC_DOSFrom__c, ARC_DOSTo__c, PolicyNumber.ARC_isActive__c, PolicyNumber.ARC_EffectiveDate__c, PolicyNumber.ARC_ExpirationDate__c,
+        (SELECT Id, Name, Status, ARC_Claim__c FROM Claim_Coverage_Payment_Details__r) FROM Claim];
+        claimsForAA[0].ARC_NTE837IBNoteSegment__c = 'UNKNOWN NOTE';
+        update claimsForAA;
+
+        List<Id> claimIds = new List<Id>{ claimsForAA[0].Id };
+        String originalStatus = claimsForAA[0].Claim_Coverage_Payment_Details__r[0].Status;
+
+        Test.startTest();
+        ARC_ClaimAutoAdjudication.autoAdjudicateClaim(claimIds);
+        Test.stopTest();
+
+        List<Claim> updatedClaims = [SELECT Id, ARC_AutoAdjudicationReview__c FROM Claim WHERE Id IN :claimIds];
+        List<ClaimCoveragePaymentDetail> lineItems = [SELECT Id, Status FROM ClaimCoveragePaymentDetail WHERE ARC_Claim__c =: claimIds[0]];
+        List<ARC_ClaimReasonCode__c> crcs = [SELECT Id FROM ARC_ClaimReasonCode__c WHERE ARC_ClaimCoveragePaymentDetail__c =: lineItems[0].Id];
+        System.assertEquals(originalStatus, lineItems[0].Status);
+        System.assertEquals(null, updatedClaims[0].ARC_AutoAdjudicationReview__c);
+        System.assertEquals(0, crcs.size());
     }
 }

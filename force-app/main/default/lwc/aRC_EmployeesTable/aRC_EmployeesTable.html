@@ -1,0 +1,148 @@
+<template>
+    <div class="employees-page">
+        <div class="header-container">
+            <div class="header-text">
+                <h1 class="title">Employees</h1>
+                <p class="subtitle">Manage your employee roster and benefit enrollment</p>
+            </div>
+
+            <div class="header-actions">
+                <div class={actionsTriggerClass}>
+                    <button class="actions-btn" type="button" aria-haspopup="true" aria-expanded={isActionsOpen} onclick={toggleActions}>
+                        <lightning-icon icon-name="utility:rows" size="x-small" class="actions-icon"></lightning-icon>
+                        <span class="actions-label">Actions</span>
+                    </button>
+
+                    <template if:true={isActionsOpen}>
+                        <div class="slds-dropdown slds-dropdown_right actions-dropdown" role="menu">
+                            <ul class="slds-dropdown__list" role="presentation">
+                                <li class="slds-dropdown__item" role="presentation">
+                                    <template if:true={isEmployerAdmin}>
+                                        <a role="menuitem" tabindex="0" data-action="addEmployee" onclick={openAddPrimaryCensusModal}>
+                                            <div class="menu-title">Add Employee</div>
+                                            <div class="menu-subtitle">Enroll a single employee.</div>
+                                        </a>
+                                    </template>
+                                    <template if:true={isEmployerAdmin}>
+                                        <a role="menuitem" tabindex="0" data-action="addEmployeeCsv" onclick={handleActionClick}>
+                                            <div class="menu-title">Add Employee(s) via CSV</div>
+                                            <div class="menu-subtitle">Upload a CSV file to add multiple employees.</div>
+                                        </a>
+                                    </template>
+                                    <a role="menuitem" tabindex="0" data-action="DownloadCensus" onclick={handleDownloadCensus}>
+                                        <div class="menu-title">Download Census</div>
+                                        <div class="menu-subtitle">Export the latest employee census.</div>
+                                    </a>
+                                    <template if:true={canSendEnrollmentToAll}>
+                                        <a role="menuitem" tabindex="0" data-action="sendEnrollmentToAllEmployees" onclick={handleActionClick}>
+                                            <div class="menu-title">Send Enrollment to All Employees</div>
+                                            <div class="menu-subtitle">Send Enrollment Link to All the Employees.</div>
+                                        </a>
+                                    </template>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <c-a-r-c_-employees-tabset active-value="tab1" ontabchange={handleTabChange}>
+            <c-a-r-c_-employees-tab label="Membership Overview" value="tab1">
+
+                <div class="table-container">
+                    <template if:true={isLoading}>
+                        <div class="spinner-container">
+                            <lightning-spinner alternative-text="Loading employees" size="medium"></lightning-spinner>
+                        </div>
+                    </template>
+                    <template if:false={isLoading}>
+                        <div class="filter-row" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <div class="filter-item" style="flex: 1;">
+                                <lightning-input 
+                                    type="search" 
+                                    label="Search employees" 
+                                    placeholder="Search employees..."
+                                    variant="label-hidden" 
+                                    onchange={handleSearch}>
+                                </lightning-input>
+                            </div>
+
+                            <div class="slds-m-around_small filter-container">
+                                <lightning-button-menu label="Filter by Status" icon-name="utility:filterList">
+                                    <template for:each={statusOptionsWithChecked} for:item="status">
+                                        <div key={status.value} class="slds-p-around_x-small">
+                                            <lightning-input type="checkbox"
+                                                label={status.label}
+                                                checked={status.checked}
+                                                value={status.value}
+                                                onchange={handleCheckboxChange}>
+                                            </lightning-input>
+                                        </div>
+                                    </template>
+                                </lightning-button-menu>
+                            </div>
+
+                            <div class="total" style="margin-left:auto;">
+                                <span>Total Employees:</span> {filteredEmployees.length}
+                            </div>
+                        </div>
+
+                        <template if:true={paginatedEmployees.length}>
+                            <div class="datatable-scroll">
+                                <lightning-datatable key-field="rowKey" data={paginatedEmployees} columns={columns}
+                                    onrowaction={handleRowAction} hide-checkbox-column>
+                                </lightning-datatable>
+                            </div>
+                        </template>
+
+                        <template if:true={noRecords}>
+                            <div class="slds-text-align_center slds-p-around_medium">
+                                No employees found.
+                            </div>
+                        </template>
+
+                        <template if:true={error}>
+                            <div class="slds-text-color_error slds-p-around_small">
+                                Error loading data
+                            </div>
+                        </template>
+
+                        <div class="footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                            <div class="results-count">
+                                Showing {showingFrom} to {showingTo} of {filteredEmployees.length} results
+                            </div>
+
+                            <div class="pagination">
+                                <button class="pagination-btn" onclick={handlePrevious} disabled={isPreviousDisabled}>Previous</button>
+                                <span class="page-number">Page {currentPage} of {totalPages}</span>
+                                <button class="pagination-btn" onclick={handleNext} disabled={isNextDisabled}>Next</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+            </c-a-r-c_-employees-tab>
+            <c-a-r-c_-employees-tab label="Qualifying Life Events" value="tab2">
+                <c-case-events data-id="caseEvents"></c-case-events>
+            </c-a-r-c_-employees-tab>
+        </c-a-r-c_-employees-tabset>
+
+        <c-a-r-c_-add-primary-census-member-portal if:true={isAddPrimaryCensusOpen} title="Add Primary Census Member"
+            onclose={closeAddPrimaryCensusModal}>
+        </c-a-r-c_-add-primary-census-member-portal>
+
+        <template if:true={showCSVUploadModal}>
+            <c-a-r-c_-census-member-uploader-community
+                onclose={handleCSVUploadClose}
+                onuploadcomplete={handleUploadComplete}>
+            </c-a-r-c_-census-member-uploader-community>
+        </template>
+
+        <c-a-r-c_-send-enrollment-link-modal
+            flow-api-name="ARC_sendEnrollmentLink_Flow"
+            flow-title="Send Enrollment Link"
+            onclose={handleChildModalClose}>
+        </c-a-r-c_-send-enrollment-link-modal>
+    </div>
+</template>

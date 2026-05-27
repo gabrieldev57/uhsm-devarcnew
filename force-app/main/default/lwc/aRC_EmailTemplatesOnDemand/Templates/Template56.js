@@ -13,13 +13,8 @@ export function Template56(FirstName, imageURLs) {
             </p>
             <ul style="padding-left: 20px; list-style-type: disc;">
                 <li style="list-style-type: disc; margin-bottom: 10px;">
-                    Schedule an appointment with your closest LabCorp or Quest Diagnostics.
+                    Schedule an appointment with your closest LabCorp.
                     <ul style="padding-left: 20px; list-style-type: circle;">
-                        <li style="list-style-type: circle; margin-bottom: 10px;">Quest Diagnostics Locations:
-                            <ul style="padding-left: 20px; list-style-type: square;">
-                                <li style="list-style-type: square; margin-bottom: 10px;"><a href="https://www.questdiagnostics.com/locations/search" target="_blank" style="color: #0056b3; text-decoration: none;">Find a PSC Location</a></li>
-                            </ul>
-                        </li>
                         <li style="list-style-type: circle; margin-bottom: 10px;">LabCorp Locations:
                             <ul style="padding-left: 20px; list-style-type: square;">
                                 <li style="list-style-type: square; margin-bottom: 10px;"><a href="https://www.labcorp.com/labs-and-appointments" target="_blank" style="color: #0056b3; text-decoration: none;">Labs Near You: No Appointment Needed for Testing | Labcorp</a></li>
@@ -28,6 +23,7 @@ export function Template56(FirstName, imageURLs) {
                     </ul>
                 </li>
                 <li style="list-style-type: disc; margin-bottom: 10px;">Remember to take the form with you to your appointment!</li>
+                <li style="list-style-type: disc; margin-bottom: 10px;"><b>Do not</b> use your WeShare ID for billing. Please ensure that LabCorp bills to the account listed on the lab order.</li>
                 <li style="list-style-type: disc; margin-bottom: 10px;">After your appointment, your test results will be sent directly from the lab for physician review.</li>
                 <li style="list-style-type: disc; margin-bottom: 10px;">Results can take between 2 - 4 business days.</li>
                 <li style="list-style-type: disc; margin-bottom: 10px;">A member of our team will call you to share the final determination.</li>

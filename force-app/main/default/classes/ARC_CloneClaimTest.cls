@@ -13,7 +13,7 @@ public with sharing class ARC_CloneClaimTest {
         clm.ARC_ReasonCode__c = code.Id;
         System.debug(code);
 
-        InsurancePolicy pol = ARC_TestUtility.createTestPolicies(1)[0];
+        InsurancePolicy pol = ARC_TestUtility.createTestPolicies(1, 'ARC_IndividualAndFamily')[0];
         
         InsurancePolicyParticipant ipp = ARC_TestUtility.createTestPolicyParticipant(1)[0];
         ipp.InsurancePolicyId = pol.Id;

@@ -1,0 +1,70 @@
+/* PaymentMethod Styles */
+
+:host {
+    display: block;
+    border-radius: 0.25rem;
+}
+.bank-account-form, .credit-card-form{
+    background-color: #EFF6FF;
+    border: none;
+}
+
+.billing-contact-section {
+    background-color: #F9FAFB;
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+/* Account Holder Section - gray container with header inside */
+.account-holder-section {
+    margin-top: 1rem;
+    background-color: #F3F4F6;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.account-holder-header {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #181818;
+    margin-bottom: 0.75rem;
+}
+
+/* Radio group box styling - white box with border inside the gray section */
+.radio-group-box {
+    background-color: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 4px;
+    padding: 0.875rem 1rem;
+}
+
+/* Ensure radio buttons display horizontally */
+.slds-form-element__control {
+    display: flex;
+    align-items: center;
+}
+
+.slds-radio {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Radio button styling */
+.slds-radio .slds-radio_faux {
+    margin-right: 0.25rem;
+}
+
+.slds-radio .slds-form-element__label {
+    padding-left: 0;
+}
+.credit-card-notice {
+    background-color: #bb0202;
+}
+.credit-card-notice .notice-text{
+    color: white;
+}
+.credit-card-notice .icon{
+    --slds-g-color-neutral-base-30: white;
+    --slds-c-icon-color-foreground: white;
+    --slds-c-icon-color-foreground-default: white;
+}

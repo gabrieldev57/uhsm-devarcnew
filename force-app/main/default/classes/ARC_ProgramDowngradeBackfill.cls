@@ -68,7 +68,7 @@ global class ARC_ProgramDowngradeBackfill implements Database.Batchable<sObject>
                 } else if (agg.RecordTypeId == individualAggRT) {
                     String key = getAggregatorsToInsertPerPolicyKey(policyPD.Id, agg);
                     aggregatorsToUpsertPerPolicyMap.put(key, agg);
-                    if (agg.Name == 'Individual Max AMCS') {
+                    if (agg.Name == 'Individual AMCS') {
                         if (!indAMCSPerPolicyYearMap.containsKey(policyPD.Id + '-' + agg.ARC_Year__c)) {
                             indAMCSPerPolicyYearMap.put(policyPD.Id + '-' + agg.ARC_Year__c, new List<ARC_Aggregator__c>());
                         }
@@ -186,7 +186,7 @@ global class ARC_ProgramDowngradeBackfill implements Database.Batchable<sObject>
                 newAggregator = aggregatorsToUpsertPerPolicyMap.get(key);
             }
             partAggToAggregatorMap.put(partAgg, newAggregator);
-            if (newAggregator.Name == 'Individual Max AMCS') {
+            if (newAggregator.Name == 'Individual AMCS') {
                 if (!indAMCSPerPolicyYearMap.containsKey(renewedPolicyId + '-' + newAggregator.ARC_Year__c)) {
                     indAMCSPerPolicyYearMap.put(renewedPolicyId + '-' + newAggregator.ARC_Year__c, new List<ARC_Aggregator__c>());
                 }

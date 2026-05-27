@@ -1,0 +1,3 @@
+vlocity_ins-input[data-input="memberData"] > *:first-child {
+    padding: 0 !important;
+}

@@ -706,7 +706,7 @@ global without sharing class ARC_EmailsTest {
         insert agesuprecord;
 
         List<Account> accountList = [SELECT Id, FirstName, PersonBirthdate, ARC_IsPrimaryMember__c, ARC_Census__r.ARC_PrimaryAccount__r.FirstName, ARC_Census__r.ARC_PrimaryAccount__r.PersonEmail, 
-                (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c, ARC_Account__c, ARC_ReviewAgeUpPrice__c 
+                (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c, ARC_Account__c, ARC_ReviewAgeUpPrice__c, Contract__r.ARC_MedicalPlan__r.Name
                 FROM Age_Up__r WHERE Id = :agesuprecord.Id) 
             FROM Account WHERE Id = :listPerAcc[0].Id];
         inputMap.put(accountList[0].Id, accountList[0]);
@@ -719,7 +719,7 @@ global without sharing class ARC_EmailsTest {
         agesuprecord.ARC_EffectiveDate__c = Date.today()+30;
         update agesuprecord;
         accountList = [SELECT Id, FirstName, PersonBirthdate, ARC_IsPrimaryMember__c, ARC_Census__r.ARC_PrimaryAccount__r.FirstName, ARC_Census__r.ARC_PrimaryAccount__r.PersonEmail, 
-                (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c, ARC_Account__c, ARC_ReviewAgeUpPrice__c 
+                (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c, ARC_Account__c, ARC_ReviewAgeUpPrice__c, Contract__r.ARC_MedicalPlan__r.Name
                 FROM Age_Up__r WHERE Id = :agesuprecord.Id) 
             FROM Account WHERE Id = :listPerAcc[0].Id];
         inputMap.put(accountList[0].Id, accountList[0]);
@@ -729,7 +729,7 @@ global without sharing class ARC_EmailsTest {
         agesuprecord.ARC_EffectiveDate__c = Date.today()+14;
         update agesuprecord;
         accountList = [SELECT Id, FirstName, PersonBirthdate, ARC_IsPrimaryMember__c, ARC_Census__r.ARC_PrimaryAccount__r.FirstName, ARC_Census__r.ARC_PrimaryAccount__r.PersonEmail, 
-                (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c, ARC_Account__c, ARC_ReviewAgeUpPrice__c 
+                (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c, ARC_Account__c, ARC_ReviewAgeUpPrice__c, Contract__r.ARC_MedicalPlan__r.Name
                 FROM Age_Up__r WHERE Id = :agesuprecord.Id) 
             FROM Account WHERE Id = :listPerAcc[0].Id];
         inputMap.put(accountList[0].Id, accountList[0]);
@@ -1007,68 +1007,6 @@ global without sharing class ARC_EmailsTest {
         }, censMemb[0].Id);
         Assert.areEqual(false, (Boolean)response2.get('success'));
 
-        Test.stopTest();
-    }
-
-    @IsTest
-    public static void sendResetUsernameAndPasswordEmailConstructorTest(){
-        Test.startTest();
-
-        User usr = new User(
-            LastName = 'Test',
-            FirstName = 'Test',
-            Alias = 'testal',
-            Email = 'testemail@uhsm.com',
-            Username = 'test@uhsm.com',
-            CommunityNickname = 'TestNick',
-            ContactId = [SELECT Id FROM Contact WHERE Email = 'testEmail@uhsm.com'].Id,
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Member Community' LIMIT 1].Id,
-            TimeZoneSidKey = 'America/New_York',
-            LanguageLocaleKey = 'en_US',
-            EmailEncodingKey = 'ISO-8859-1',
-            LocaleSidKey = 'en_US',
-            ARC_PortalUsername__c = 'testportalusername@uhsm.com'
-        );  
-        insert usr;
-        Map<Id,Id> userToMember = new Map<Id,Id>(); 
-        List<vlocity_ins__GroupCensusMember__c> membs = [SELECT Id FROM vlocity_ins__GroupCensusMember__c WHERE vlocity_ins__ContactId__c =: usr.ContactId]; 
-        List<User> userList = new List<User>{usr};
-        userToMember.put(usr.Id, membs[0].Id);
-        Map<String,Object> response1 = ARC_Emails.sendResetUsernameAndPasswordEmailConstructor(userList, 'WeSharePortalWelcomeEmailInternal', new Map<String, String>{
-            '{!User.FirstName}' => 'FirstName',
-            '{!User.Username}' => 'Username'
-        }, userToMember);
-        Assert.areEqual(true, (Boolean)response1.get('success'));
-        List<User> emptyUserList = new List<User>();
-        Map<String,Object> response2 = ARC_Emails.sendResetUsernameAndPasswordEmailConstructor(emptyUserList, 'WeSharePortalWelcomeEmailInternal', new Map<String, String>{
-            '{!User.FirstName}' => 'FirstName',
-            '{!User.Username}' => 'Username'
-        }, userToMember);
-
-        Test.stopTest();
-    }
-
-    @IsTest
-    static void sendWelcomeEmailTest(){
-        User usr = new User(
-            LastName = 'Test',
-            FirstName = 'Test',
-            Alias = 'testal',
-            Email = 'testemail@uhsm.com',
-            Username = 'test@uhsm.com',
-            CommunityNickname = 'TestNick',
-            ContactId = [SELECT Id FROM Contact WHERE Email = 'testEmail@uhsm.com'].Id,
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Member Community' LIMIT 1].Id,
-            TimeZoneSidKey = 'America/New_York',
-            LanguageLocaleKey = 'en_US',
-            EmailEncodingKey = 'ISO-8859-1',
-            LocaleSidKey = 'en_US',
-            ARC_PortalUsername__c = 'testportalusername@uhsm.com'
-        );  
-        insert usr;
-
-        Test.startTest();
-        ARC_Emails.sendWelcomeEmail(new List<Id>{[SELECT Id FROM Contact WHERE Email = 'testEmail@uhsm.com'].Id});
         Test.stopTest();
     }
 

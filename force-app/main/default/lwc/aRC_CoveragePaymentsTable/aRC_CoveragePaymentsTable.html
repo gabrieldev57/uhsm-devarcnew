@@ -36,8 +36,9 @@
                     <div class="item-container"><h1>Maximum Type</h1></div>
                     <div class="item-container"><h1>Billed</h1></div>
                     <div class="item-container"><h1>MCR Allowed</h1></div>
+                    <div class="item-container"><h1>MCR Adjusted</h1></div>
+                    <div class="item-container"><h1>MCR PR</h1></div>
                     <div class="item-container"><h1>MCR Paid</h1></div>
-                    <div class="item-container"><h1>MCR MBR Liability</h1></div>
                     <div class="item-container"><h1>Allowed</h1></div>
                     <div class="item-container"><h1>Adjusted</h1></div>
                     <div class="item-container"><h1>AMCS</h1></div>
@@ -94,15 +95,16 @@
                     <div class="item-container"><h1>{cov.maxType}</h1></div>
                     <div class="item-container"><lightning-formatted-number value={cov.billed} format-style="decimal" minimum-significant-digits={cov.billedSize}></lightning-formatted-number></div>
                     <div class="item-container"><lightning-formatted-number value={cov.mcrAllowed} format-style="decimal" minimum-significant-digits={cov.mcrAllowedSize}></lightning-formatted-number></div>
-                    <div class="item-container"><lightning-formatted-number value={cov.mcrPaid} format-style="decimal" minimum-significant-digits={cov.mcrPaidSize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.mcrAdjusted} format-style="decimal" minimum-significant-digits={cov.mcrAdjustedSize}></lightning-formatted-number></div>
                     <div class="item-container"><lightning-formatted-number value={cov.mcrMbrLiability} format-style="decimal" minimum-significant-digits={cov.mcrMbrLiabilitySize}></lightning-formatted-number></div>
+                    <div class="item-container"><lightning-formatted-number value={cov.mcrPaid} format-style="decimal" minimum-significant-digits={cov.mcrPaidSize}></lightning-formatted-number></div>
                     <div class="item-container"><lightning-formatted-number value={cov.allowed} format-style="decimal" minimum-significant-digits={cov.allowedSize}></lightning-formatted-number></div>
                     <div class="item-container"><lightning-formatted-number value={cov.adjusted} format-style="decimal" minimum-significant-digits={cov.adjustedSize}></lightning-formatted-number></div>
                     <div class="item-container"><lightning-formatted-number value={cov.deductible} format-style="decimal" minimum-significant-digits={cov.deductibleSize}></lightning-formatted-number></div>
                     <div class="item-container"><lightning-formatted-number value={cov.tobacco} format-style="decimal" minimum-significant-digits={cov.tobaccoSize}></lightning-formatted-number></div>
                     <div class="item-container"><lightning-formatted-number value={cov.mbrLiability} format-style="decimal" minimum-significant-digits={cov.mbrLiabilitySize}></lightning-formatted-number></div>
                     <div class="item-container"><lightning-formatted-number value={cov.netPaid} format-style="decimal" minimum-significant-digits={cov.netPaidSize}></lightning-formatted-number></div>
-                    <div class="container2" style="grid-column: 1/26;" if:true={cov.hasCode}>
+                    <div class="container2" style="grid-column: 1/28;" if:true={cov.hasCode}>
                         <div><h1>{cov.reasonCodes}</h1></div>
                     </div>
                 </div>
@@ -129,8 +131,9 @@
                     <div class="item-container"></div> <!-- Maximum Type -->
                     <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={billedTotal} format-style="decimal" minimum-significant-digits={billedTotalSize}></lightning-formatted-number></h1></div>
                     <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mcrAllowedTotal} format-style="decimal" minimum-significant-digits={mcrAllowedTotalSize}></lightning-formatted-number></h1></div>
-                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mcrPaidTotal} format-style="decimal" minimum-significant-digits={mcrPaidTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mcrAdjustedTotal} format-style="decimal" minimum-significant-digits={mcrAdjustedTotalSize}></lightning-formatted-number></h1></div>
                     <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mcrMbrLiabilityTotal} format-style="decimal" minimum-significant-digits={mcrMbrLiabilityTotalSize}></lightning-formatted-number></h1></div>
+                    <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={mcrPaidTotal} format-style="decimal" minimum-significant-digits={mcrPaidTotalSize}></lightning-formatted-number></h1></div>                   
                     <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={allowedTotal} format-style="decimal" minimum-significant-digits={allowedTotalSize}></lightning-formatted-number></h1></div>
                     <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={adjustedTotal} format-style="decimal" minimum-significant-digits={adjustedTotalSize}></lightning-formatted-number></h1></div>
                     <div class="item-container"><h1 class="numericValue"><lightning-formatted-number value={deductibleTotal} format-style="decimal" minimum-significant-digits={deductibleTotalSize}></lightning-formatted-number></h1></div>
@@ -227,7 +230,7 @@
                             <div class="item-container" if:true={cov.editValues.mbrLiability}><lightning-input class="editing-mode" value={cov.mbrLiability} data-value="mbrLiability" data-item={cov.Id} onchange={handleChangeValue} onkeypress={handleSaveValues}></lightning-input></div>
                             <div class="item-container" if:false={cov.editValues.mbrLiability}><lightning-formatted-number class="numericValue" ondblclick={handleEditValue} data-value="mbrLiability" data-item={cov.Id} value={cov.mbrLiability} format-style="decimal" minimum-significant-digits={cov.mbrLiabilitySize}></lightning-formatted-number></div>
                             <div class="item-container"><lightning-formatted-number class="numericValue" value={cov.netPaid} format-style="decimal" minimum-significant-digits={cov.netPaidSize}></lightning-formatted-number></div>
-                        <div class="container2" style="grid-column: 1/26;" if:true={cov.hasCode}>
+                        <div class="container2" style="grid-column: 1/28;" if:true={cov.hasCode}>
                             <div><h1>{cov.reasonCodes}</h1></div>
                         </div>
                     </div>
@@ -589,6 +592,7 @@
                                         <lightning-input-field style="padding:10px" field-name="ARC_Pre_Existing_Condition__c"></lightning-input-field>
                                         <lightning-input-field style="padding:10px" field-name="ARC_Tobacco__c"></lightning-input-field>
                                         <lightning-input-field style="padding:10px" field-name="Medicare_Allowed__c" readonly></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="Medicare_Adjusted__c" readonly></lightning-input-field>
                                         <lightning-input-field style="padding:10px" field-name="Medicare_Member_Liability__c" readonly></lightning-input-field>
                                         <lightning-input-field style="padding:10px" field-name="Medicare_Paid__c" readonly></lightning-input-field>
                                     </div>
@@ -625,6 +629,7 @@
                                         <lightning-input-field style="padding:10px" field-name="ARC_Pre_Existing_Condition__c"></lightning-input-field>
                                         <lightning-input-field style="padding:10px" field-name="ARC_Tobacco__c"></lightning-input-field>
                                         <lightning-input-field style="padding:10px" field-name="Medicare_Allowed__c" readonly></lightning-input-field>
+                                        <lightning-input-field style="padding:10px" field-name="Medicare_Adjusted__c" readonly></lightning-input-field>
                                         <lightning-input-field style="padding:10px" field-name="Medicare_Member_Liability__c" readonly></lightning-input-field>
                                         <lightning-input-field style="padding:10px" field-name="Medicare_Paid__c" readonly></lightning-input-field>
                                     </div>

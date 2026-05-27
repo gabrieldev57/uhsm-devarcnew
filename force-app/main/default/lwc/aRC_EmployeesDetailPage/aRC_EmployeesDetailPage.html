@@ -1,0 +1,173 @@
+<template>
+
+    <div class="detail-wrapper">
+        <div class="navigation-and-actions">
+            <div class="left-side">
+                <button onclick={navigateToEmployees}>
+                    <span>&lt;</span> Back to Employees
+                </button>
+
+            </div>
+            <div class="right-side">
+                <div class="dropdown">
+                    <button class="button" onclick={toggleDropdown}>
+                        <lightning-icon icon-name="utility:rows" size="xx-small" class="actions-icon"></lightning-icon>
+                        Actions
+                    </button>
+                    <div class={dropdownMenuClass}>
+                        <template lwc:if={canEdit}>
+                            <div class="dropdown-item" onclick={handleActionClick} data-action="qualifying-life">
+                                <div class="item-title">Add Qualifying Life Event</div>
+                                <div class="item-description">Report qualifying life events that may affect benefit
+                                    eligibility.</div>
+                            </div>
+                        </template>
+                        <!-- <div class="dropdown-item" onclick={handleActionClick} data-action="brochure">
+                            <div class="item-title">Download Program Brochure</div>
+                            <div class="item-description">Download the Program Brochure.</div>
+                        </div>
+                        <div class="dropdown-item" onclick={handleActionClick} data-action="guide">
+                            <div class="item-title">Download Program Guide</div>
+                            <div class="item-description">Download the Program Guide.</div>
+                        </div> -->
+                        <div class="dropdown-item" onclick={handleActionClick} data-action="enrollment">
+                            <div class="item-title">Enrollment Details</div>
+                            <div class="item-description">Download complete enrollment information including employee
+                                and dependent details.</div>
+                        </div>
+                        <template lwc:if={canEdit}>
+                            <div class="dropdown-item" onclick={handleActionClick} data-action="terminate">
+                                <div class="item-title">Terminate Benefits</div>
+                                <div class="item-description">Terminate employee benefits. This action requires account
+                                    manager approval.</div>
+                            </div>
+                        </template>
+                        <template lwc:if={canEdit}>
+                            <template lwc:if={canSendEnrollmentLink}>
+                                <div class="dropdown-item" onclick={handleActionClick} data-action="enrollment-link">
+                                    <div class="item-title">Send Enrollment Link</div>
+                                    <div class="item-description">Send Enrollment Link To Employee.</div>
+                                </div>
+                            </template>
+                        </template>
+                        <!-- <div class="dropdown-item" onclick={handleActionClick} data-action="enrollment-link">
+                            <div class="item-title">Send Enrollment Link</div>
+                            <div class="item-description">Send Enrollment Link To Employee.</div>
+                        </div>  -->
+                        <template lwc:if={canEdit}>
+                            <div class="dropdown-item" onclick={handleActionClick} data-action="leave-absence">
+                                <div class="item-title">Leave of Absence</div>
+                                <div class="item-description">Submit a Leave of Absence for this employee.</div>
+                            </div>
+                        </template>
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="header">
+            <div class="title">
+                <h2>{accountName}</h2>
+                <span class="badge active" lwc:if={accountIsActive}>Active</span>
+                <span class="badge" lwc:else>Inactive</span>
+            </div>
+            <h4>{accountRole}</h4>
+
+        </div>
+
+        <c-a-r-c_-employees-tabset active-value="tab1" ontabchange={handleTabChange}>
+            <c-a-r-c_-employees-tab label="Employee Details" value="tab1">
+                <c-a-r-c_-employees-detail record-id={recordId} can-edit={canEdit}
+                    contact-id={accountContactId}></c-a-r-c_-employees-detail>
+
+                <template lwc:if={showQLEFlag}>
+                    <div class="qle-wrapper">
+                        <div class="qle-card-header">
+                            <!-- <lightning-icon icon-name="utility:warning" size="xx-small" class="slds-m-right_x-small"></lightning-icon> -->
+                            Qualifying Life Events In Progress
+                        </div>
+                        <template for:each={activeQLEs} for:item="qle">
+                            <div key={qle.Id} class="qle-banner__item slds-m-bottom_x-small">
+                                <div class="slds-grid slds-gutters_small">
+                                    <div class="slds-col slds-size_1-of-3">
+                                        <p class="slds-text-title slds-m-bottom_xx-small">Case Number</p>
+                                        <p class="slds-text-body_regular">{qle.CaseNumber}</p>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-3">
+                                        <p class="slds-text-title slds-m-bottom_xx-small">Status</p>
+                                        <lightning-badge label={qle.Status} class="status-badge"></lightning-badge>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-3">
+                                        <p class="slds-text-title slds-m-bottom_xx-small">Event Type</p>
+                                        <p class="slds-text-body_regular">{qle.QLEType}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+
+                <c-a-r-c_-employee-program record-id={recordId}
+                    contact-id={accountContactId}></c-a-r-c_-employee-program>
+                <c-a-r-c_-employees-dependants record-id={recordId} can-edit={canEdit}
+                    contact-id={accountContactId}></c-a-r-c_-employees-dependants>
+                <c-a-r-c_-policy-l-o-a record-id={recordId} can-edit={canEdit}></c-a-r-c_-policy-l-o-a>
+            </c-a-r-c_-employees-tab>
+            <c-a-r-c_-employees-tab label="Policy History" value="tab2">
+                <c-a-r-c_-policy-history record-id={recordId}></c-a-r-c_-policy-history>
+            </c-a-r-c_-employees-tab>
+        </c-a-r-c_-employees-tabset>
+    </div>
+
+    <!-- Flow modal child LWC -->
+
+    <c-a-r-c_-send-enrollment-link-modal flow-api-name="ARC_sendEnrollmentLink_Flow" flow-title="Send Enrollment Link"
+        flow-input-variables={flowInputs} onclose={handleModalClose}>
+    </c-a-r-c_-send-enrollment-link-modal>
+
+
+
+
+
+
+
+    <!--QLE Modal =-->
+    <template if:true={showQLEModal}>
+        <c-a-r-c_-q-l-e-modal flow-api-name="ARC_AddQLEModal" flow-title="Add Qualifying Life Event"
+            flow-input-variables={qleFlowInputVariables} onclose={handleQLEClose}>
+        </c-a-r-c_-q-l-e-modal>
+    </template>
+
+    <!-- LOA Modal-->
+    <template if:true={showLOAModal}>
+        <c-a-r-c_-submit-l-o-a flow-api-name="ARC_Leave_Of_Absence" flow-title="Leave of Absence"
+            flow-input-variables={loaFlowInputVariables} onclose={handleLOAClose}>
+        </c-a-r-c_-submit-l-o-a>
+    </template>
+
+    <template if:true={isTerminateFlowOpen}>
+        <section role="dialog" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning-button-icon class="slds-modal__close" icon-name="utility:close" variant=""
+                        alternative-text="Close" onclick={handleCloseModal}>
+                    </lightning-button-icon>
+
+                    <h2 class="slds-text-heading_medium">Terminate Benefits</h2>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-flow flow-api-name="ARC_SG_Termination_Benefits"
+                        flow-input-variables={terminateFlowInputs} onstatuschange={handleTerminateFlowStatus}>
+                    </lightning-flow>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+
+</template>

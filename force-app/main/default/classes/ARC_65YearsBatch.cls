@@ -19,7 +19,7 @@ global class ARC_65YearsBatch implements Database.Batchable<sObject>,Schedulable
  
     global void execute(Database.BatchableContext BC, List<vlocity_ins__GroupCensusMember__c> members){
         Id serviceCaseRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName().get('Service').getRecordTypeId();
-        Id offboardingQueueId = [SELECT Id FROM Group WHERE DeveloperName = 'Offboarding' AND Type = 'Queue' LIMIT 1].Id;
+        Id retentionQueueId = [SELECT Id FROM Group WHERE DeveloperName = 'Retention_Manager' AND Type = 'Queue' LIMIT 1].Id;
         
         Map<Id,Case> memberCase = new Map<Id,Case>();
         Date today = Date.today();
@@ -51,7 +51,7 @@ global class ARC_65YearsBatch implements Database.Batchable<sObject>,Schedulable
             Id primaryMemberId = member.vlocity_ins__RelatedCensusMemberId__c != null ? 
                                 member.vlocity_ins__RelatedCensusMemberId__c : member.Id;
             
-            if((daysUntilBirthday == 90 || daysUntilBirthday == 60 || daysUntilBirthday == 30)) {
+            if((daysUntilBirthday == 180 || daysUntilBirthday == 90 || daysUntilBirthday == 60 || daysUntilBirthday == 30)) {
                 if(!existingCases.containsKey(primaryMemberId)) {
                     Case newCase = new Case(
                         RecordTypeId = serviceCaseRecordTypeId,
@@ -60,7 +60,7 @@ global class ARC_65YearsBatch implements Database.Batchable<sObject>,Schedulable
                         Subject = 'Age Out 65 Approaching',
                         Description = 'Age Out Approaching',
                         Status = 'New',
-                        OwnerId = offboardingQueueId,
+                        OwnerId = retentionQueueId,
                         ARC_CensusMember__c = primaryMemberId,
                         ARC_Type__c = 'Member',
                         Origin = 'System'
@@ -71,7 +71,7 @@ global class ARC_65YearsBatch implements Database.Batchable<sObject>,Schedulable
         }
         insert memberCase.values();
         for(Case c : existingCases.values()) {
-            c.OwnerId = offboardingQueueId;
+            c.OwnerId = retentionQueueId;
         }
         for (vlocity_ins__GroupCensusMember__c member : members) {
             Date birthdate = member.vlocity_ins__Birthdate__c;
@@ -80,7 +80,7 @@ global class ARC_65YearsBatch implements Database.Batchable<sObject>,Schedulable
             Integer daysUntilBirthday = today.daysBetween(nextBirthday);
             Id primaryMemberId = member.vlocity_ins__RelatedCensusMemberId__c != null ? 
                                 member.vlocity_ins__RelatedCensusMemberId__c : member.Id;
-            if((daysUntilBirthday == 90 || daysUntilBirthday == 60 || daysUntilBirthday == 30)) {
+            if((daysUntilBirthday == 180 || daysUntilBirthday == 90 || daysUntilBirthday == 60 || daysUntilBirthday == 30)) {
                 if(existingCases.containsKey(primaryMemberId)) {
                     memberCase.put(primaryMemberId, existingCases.get(primaryMemberId));
                 }
@@ -97,7 +97,7 @@ global class ARC_65YearsBatch implements Database.Batchable<sObject>,Schedulable
             Id primaryMemberId = member.vlocity_ins__RelatedCensusMemberId__c != null ? 
                                 member.vlocity_ins__RelatedCensusMemberId__c : member.Id;
             
-            if((daysUntilBirthday == 90 || daysUntilBirthday == 60 || daysUntilBirthday == 30) &&
+            if((daysUntilBirthday == 180 || daysUntilBirthday == 90 || daysUntilBirthday == 60 || daysUntilBirthday == 30) &&
                 member.vlocity_ins__ContactId__r.Email != null &&
                 member.ARC_PhysicalAddressState__c != null) {
 

@@ -2537,6 +2537,13 @@ div.via-nds .census-save-button button span{
     overflow: hidden;
 }
 
+/* Add Newborn Modal DatePicker */
+
+[data-omni-key='STEP_MedicalQuestions']  .nds-modal_custom .nds-modal__content.nds-p-around_medium {
+  overflow: auto !important;
+  max-height: 600px !important;
+}
+
 /* Edit blocks Buttons */
 .via-nds .nds-modal_custom .nds-modal .nds-modal__container .nds-modal__footer .nds-button_neutral{
     padding-left: 0px !important;

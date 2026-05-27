@@ -1,0 +1,45 @@
+.badge {
+    padding: 0.8px 9.6px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
+    background-color: rgb(108 113 127); /* default gray */
+    color: white;
+}
+
+/* Active Status */
+.badge.active {
+    background-color: #22c55e; /* green */
+    color: white;
+}
+
+/* Pending Statuses (Awaiting Activation, Signature, Approval) */
+.badge.pending {
+    background-color: #fbbf24; /* yellow/orange */
+    color: white;
+}
+
+/* Inactive Status */
+.badge.inactive {
+    background-color: #ef4444; /* red */
+    color: white;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+}
+
+.pagination-btn {
+    margin: 0 8px;
+    padding: 6.4px 12.8px;
+    border: none;
+    background-color: white;
+    cursor: pointer;
+    color: black;
+    font-size: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius:4px;
+}

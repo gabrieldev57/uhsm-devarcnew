@@ -1,0 +1,28 @@
+/* TPA Modal Styles */
+
+.slds-modal__container {
+    max-width: 600px;
+    width: 100%;
+}
+
+.slds-modal__header {
+    background-color: #0176d3;
+    color: white;
+    border-radius: 4px;
+}
+
+.slds-modal__title {
+    color: white;
+    font-weight: 600;
+}
+
+.slds-modal__content {
+    overflow: visible;
+}
+
+.slds-modal__footer {
+    background-color: #f3f3f3;
+}
+.slds-modal__close{
+    border-radius:4px;
+}

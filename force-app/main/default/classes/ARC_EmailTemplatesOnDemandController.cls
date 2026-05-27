@@ -21,7 +21,6 @@ global without sharing class ARC_EmailTemplatesOnDemandController implements vlo
     * @MethodName         :   getTemplateInformation
     * @Description        :   Received the person account id or a census member id an return the information to related to that member. (Contracts, Plans, Chargent orders) and the image used in the LWC. 
     ********************************************************************/
-
 	public static void getTemplateInformation(Map < String, Object > inputMap, Map < String, Object > outMap) {
 		Id recordId = (Id) inputMap.get('recordId');
 		vlocity_ins__GroupCensusMember__c member = new vlocity_ins__GroupCensusMember__c();
@@ -159,15 +158,19 @@ global without sharing class ARC_EmailTemplatesOnDemandController implements vlo
 		}
 
 		//Calculate Projected Paid Through Date
-		Date oldestMemberBirthDate = primaryMember?.Is_Oldest_Member__c == true ? primaryMember.vlocity_ins__Birthdate__c : spouseMember != null && spouseMember.vlocity_ins__Birthdate__c != null ? spouseMember.vlocity_ins__Birthdate__c : null;
+		Date oldestMemberBirthDate = primaryMember.vlocity_ins__Birthdate__c;
+		if(spouseMember != null && spouseMember.vlocity_ins__Birthdate__c != null && spouseMember.vlocity_ins__Birthdate__c < primaryMember.vlocity_ins__Birthdate__c) {
+			oldestMemberBirthDate = spouseMember.vlocity_ins__Birthdate__c;
+		}
 		if(Test.isRunningTest())oldestMemberBirthDate =primaryMember.vlocity_ins__Birthdate__c;
 		Boolean already65 = false;
-		if((primaryMember != null && primaryMember?.Is_Oldest_Member__c == true && primaryMember.ARC_Age__c != null && primaryMember.ARC_Age__c  >= 65) || (spouseMember != null && spouseMember.Is_Oldest_Member__c == true && spouseMember.ARC_Age__c!= null && spouseMember.ARC_Age__c  >= 65)) {
+		if((primaryMember != null && primaryMember.ARC_Age__c != null && primaryMember.ARC_Age__c  >= 65) || (spouseMember != null && spouseMember.ARC_Age__c!= null && spouseMember.ARC_Age__c  >= 65)) {
 			already65=true;
 		}
 
 		Date nextBirthday;
 		Date today = Date.today();
+		System.debug('oldestMemberBirthDate-->'+oldestMemberBirthDate);
 		if(oldestMemberBirthDate != null){
 			if ((today.month() != oldestMemberBirthDate.month()) && (oldestMemberBirthDate.month() == 1)) {
 				nextBirthday = Date.newInstance(
@@ -186,7 +189,9 @@ global without sharing class ARC_EmailTemplatesOnDemandController implements vlo
 		}
 		Date paidThroughDate = cont?.ARC_PaidThroughDate__c;
 		Date projectedPaidThroughDate;
+		System.debug('paidThroughDate-->'+paidThroughDate);
 		if(paidThroughDate == null){
+			System.debug('Entering null paidThroughDate-->');
 			paidThroughDate = cont.ARC_EffectiveDate__c.addMonths(1);
 			paidThroughDate = paidThroughDate.addDays(-1); 
 		}
@@ -194,6 +199,8 @@ global without sharing class ARC_EmailTemplatesOnDemandController implements vlo
 			projectedPaidThroughDate = paidThroughDate;
 		}
 		else{
+			System.debug('nextBirthday-->'+nextBirthday);
+			System.debug('paidThroughDate-->'+paidThroughDate);
 			projectedPaidThroughDate = ARC_PersonAccount360view.lastDateOfMonth(nextBirthday);
 			if(paidThroughDate.day()==14){
 				projectedPaidThroughDate = Date.newInstance(nextBirthday.year(),nextBirthday.month(),14);
@@ -204,7 +211,7 @@ global without sharing class ARC_EmailTemplatesOnDemandController implements vlo
 		}
 
 		List<Ages_Up__c> ageup = [
-		SELECT Id,Name,ARC_EffectiveDate__c,ARC_ManualDelay__c,ARC_PriceBeforeAgeUp__c,ARC_PriceAfterAgeUp__c,ARC_Applied__c,Contract__c,Draft_Date__c,vlocity_Ins_CensusMemberId__c,AgesUp_Census_Member_Name__c,New_Medical_Price__c,Medical_Price_With_out_HD__c,New_Price__c,Total_Price_With_Out_HD__c,Healthy_Discount__c,Healthy_Discount__r.Is_Active__c,Healthy_Discount__r.Is_HD_Expire__c,Healthy_Discount__r.Calculate_expiry_date__c,AgesUp_Birth_Date__c ,New_Total_Price_with_HD__c, ARC_Account__r.FirstName, ARC_Account__r.ARC_IsPrimaryMember__c, ARC_Account__r.PersonBirthdate 
+		SELECT Id,Name,ARC_EffectiveDate__c,ARC_ManualDelay__c,ARC_PriceBeforeAgeUp__c,ARC_PriceAfterAgeUp__c,ARC_Applied__c,Contract__c,Draft_Date__c,vlocity_Ins_CensusMemberId__c,AgesUp_Census_Member_Name__c,New_Medical_Price__c,Medical_Price_With_out_HD__c,New_Price__c,Total_Price_With_Out_HD__c,Healthy_Discount__c,Healthy_Discount__r.Is_Active__c,Healthy_Discount__r.Is_HD_Expire__c,Healthy_Discount__r.Calculate_expiry_date__c,AgesUp_Birth_Date__c ,New_Total_Price_with_HD__c, ARC_Account__r.FirstName, ARC_Account__r.ARC_IsPrimaryMember__c, ARC_Account__r.PersonBirthdate, Contract__r.ARC_MedicalPlan__r.Name 
 		FROM Ages_Up__c
 		WHERE Contract__c IN : contractIds];
 

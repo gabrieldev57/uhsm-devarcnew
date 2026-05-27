@@ -1,0 +1,26 @@
+:host {
+    display: block;
+}
+
+.header {
+    font-weight: bold;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.form-row-container {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-row-item {
+    flex: 1 1 45%;
+}
+
+.edited-row {
+    background-color: #f3f6fb;
+    font-style: italic;
+    color: #e66f00; /* naranja Salesforce-like */
+    font-weight: 600;
+}

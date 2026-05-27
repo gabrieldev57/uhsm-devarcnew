@@ -21,17 +21,22 @@ private class ARC_CreateMissingAggregatorsTest {
         insert accounts;
 
         List<Contract> contract = ARC_TestUtility.createContractsAA(2);
+        contract[0].AccountId = accounts[0].Id;
+        contract[1].AccountId = accounts[0].Id;
         insert contract;
 
         contract[0].Status = 'Terminated';
         contract[0].ARC_ContractReason__c = 'Program Upgrade';
         contract[0].ARC_EffectiveDate__c = Date.valueOf('2021-11-12');
         contract[0].ARC_Inactive_Date__c = Date.valueOf('2022-11-12');
+        contract[0].ActivatedDate = Date.valueOf('2021-11-12');
+        
         contract[1].Status = 'Terminated';
         contract[1].ARC_ContractReason__c = 'Remove Member';
         contract[1].ARC_EffectiveDate__c = Date.valueOf('2022-11-12');
         contract[1].ARC_Inactive_Date__c = Date.valueOf('2022-12-12');
         contract[1].vlocity_ins__ExpiredContractId__c = contract[0].Id;
+        contract[1].ActivatedDate = Date.valueOf('2022-11-12');
         update contract;
 
         List<Product2> prodList = new List<Product2>();
@@ -39,12 +44,15 @@ private class ARC_CreateMissingAggregatorsTest {
         prod1.Name = 'WeShare 6k ';
         prod1.ProductCode = 'PROG_UHSM_WeShare6k';
         prod1.vlocity_ins__Type__c = 'Medical';
+
         Product2 prod2 = new Product2();
         prod2.Name = 'WeShare 12k ';
         prod2.ProductCode = 'PROG_UHSM_WeShare12k';
         prod2.vlocity_ins__Type__c = 'Medical';
+
         prodList.add(prod1);
         prodList.add(prod2);
+
         insert prodList;
 
         List<InsurancePolicy> policies = new List<InsurancePolicy>();
@@ -54,6 +62,7 @@ private class ARC_CreateMissingAggregatorsTest {
             policy.ProductId = prodList[i].Id;
             policy.ARC_Contract__c = contract[i].Id;
             policy.NameInsuredId = accounts[0].Id;
+            
             policies.add(policy);
         }
         insert policies;
@@ -78,14 +87,23 @@ private class ARC_CreateMissingAggregatorsTest {
         ipp1.Role = 'Primary';
         ipp1.PrimaryParticipantContactId = accountListContactIds[0].PersonContactId;
         ipp1.InsurancePolicyId = policies[0].Id;
+        ipp1.ARC_StartDate__c = Date.valueOf('2021-11-12');
+        ipp1.ARC_EndDate__c = Date.valueOf('2022-11-12');
+
         InsurancePolicyParticipant ipp2 = new InsurancePolicyParticipant();
         ipp2.Role = 'Spouse';
         ipp2.PrimaryParticipantContactId = accountListContactIds[1].PersonContactId;
         ipp2.InsurancePolicyId = policies[0].Id;
+        ipp2.ARC_StartDate__c = Date.valueOf('2021-11-12');
+        ipp2.ARC_EndDate__c = Date.valueOf('2022-11-12');
+
         InsurancePolicyParticipant ipp3 = new InsurancePolicyParticipant();
         ipp3.Role = 'Primary';
         ipp3.PrimaryParticipantContactId = accountListContactIds[0].PersonContactId;
         ipp3.InsurancePolicyId = policies[1].Id;
+        ipp3.ARC_StartDate__c = Date.valueOf('2021-11-12'); 
+        ipp3.ARC_EndDate__c = Date.valueOf('2022-12-12'); 
+
         policyParticipants.add(ipp1);
         policyParticipants.add(ipp2);
         policyParticipants.add(ipp3);
@@ -114,18 +132,32 @@ private class ARC_CreateMissingAggregatorsTest {
         individualAgg.ARC_Member__c = accounts[0].Id;
         individualAgg.ARC_CreatedIn__c = policies[0].Id;
 
+        
+        ARC_Aggregator__c individualAgg2 = new ARC_Aggregator__c();
+        individualAgg2.Name = 'Maternity';
+        individualAgg2.ARC_Code__c = 'MAT__c';
+        individualAgg2.ARC_Type__c = 'Currency';
+        individualAgg2.RecordTypeId = individualAggRT;
+        individualAgg2.ARC_LimitValue__c = 15000;
+        individualAgg2.ARC_Year__c = '2022';
+        individualAgg2.ARC_Member__c = accounts[0].Id;
+        individualAgg2.ARC_CreatedIn__c = policies[1].Id;
+        
+
         aggregators.add(oneTimeAgg);
         aggregators.add(individualAgg);
+        aggregators.add(individualAgg2);
         insert aggregators;
 
-        // Insert Participant Aggregators
+       
         List<ARC_ParticipantAggregator__c> partAggList = new List<ARC_ParticipantAggregator__c>();
         ARC_ParticipantAggregator__c partAgg1 = new ARC_ParticipantAggregator__c();
         partAgg1.Name = 'Mammograms';
         partAgg1.ARC_Policy__c = policies[0].Id;
         partAgg1.ARC_PolicyParticipant__c = policyParticipants[0].Id;
         partAgg1.ARC_ConsumedValue__c = 0;
-        partAgg1.ARC_Aggregator__c = aggregators[0].Id;
+        partAgg1.ARC_Aggregator__c = aggregators[0].Id; 
+
 
         ARC_ParticipantAggregator__c partAgg2 = new ARC_ParticipantAggregator__c();
         partAgg2.Name = 'Maternity';
@@ -134,49 +166,57 @@ private class ARC_CreateMissingAggregatorsTest {
         partAgg2.ARC_ConsumedValue__c = 0;
         partAgg2.ARC_Aggregator__c = aggregators[1].Id;
 
+        ARC_ParticipantAggregator__c partAgg3 = new ARC_ParticipantAggregator__c();
+        partAgg3.Name = 'Maternity';
+        partAgg3.ARC_Policy__c = policies[1].Id;
+        partAgg3.ARC_PolicyParticipant__c = policyParticipants[2].Id; 
+        partAgg3.ARC_ConsumedValue__c = 0;
+        partAgg3.ARC_Aggregator__c = aggregators[2].Id;
+        
         partAggList.add(partAgg1);
         partAggList.add(partAgg2);
+        partAggList.add(partAgg3);
         insert partAggList;
     }
 
     @isTest
     static void ARC_CreateMissingAggregatorsTrueTest() {
         Test.startTest();
-        ARC_CreateMissingAggregators batch = new ARC_CreateMissingAggregators(null, true);
+        ARC_CreateMissingAggregators batch = new ARC_CreateMissingAggregators(null, true, false);
         Database.executeBatch(batch);
         Test.stopTest();
 
         List<ARC_Aggregator__c> aggregators = [SELECT Id FROM ARC_Aggregator__c];
         List<ARC_ParticipantAggregator__c> participantAggregators = [SELECT Id FROM ARC_ParticipantAggregator__c];
 
-        Assert.areEqual(52, aggregators.size(), 'Aggregators were not correctly created'); 
-        Assert.areEqual(66, participantAggregators.size(), 'Participant Aggregators were not correctly created');
+        Assert.areEqual(53, aggregators.size(), 'Aggregators were not correctly created'); 
+        Assert.areEqual(75, participantAggregators.size(), 'Participant Aggregators were not correctly created');
     }
 
     @isTest
     static void ARC_CreateMissingAggregatorsFalseTest() {
         Test.startTest();
-        ARC_CreateMissingAggregators batch = new ARC_CreateMissingAggregators(null, false);
+        ARC_CreateMissingAggregators batch = new ARC_CreateMissingAggregators(null, false, false);
         Database.executeBatch(batch);
         Test.stopTest();
 
         List<ARC_Aggregator__c> aggregators = [SELECT Id FROM ARC_Aggregator__c];
         List<ARC_ParticipantAggregator__c> participantAggregators = [SELECT Id FROM ARC_ParticipantAggregator__c];
 
-        Assert.areEqual(2, aggregators.size(), 'Aggregators were not correctly created');
-        Assert.areEqual(2, participantAggregators.size(), 'Participant Aggregators were not correctly created');
+        Assert.areEqual(3, aggregators.size(), 'Aggregators were not correctly created');
+        Assert.areEqual(3, participantAggregators.size(), 'Participant Aggregators were not correctly created');
     }
 
     @isTest
     static void testSchedulableExecution() {
         Test.startTest();
-        ARC_CreateMissingAggregators scheduleJob = new ARC_CreateMissingAggregators(null, true);
+        ARC_CreateMissingAggregators scheduleJob = new ARC_CreateMissingAggregators(null, true, false);
         scheduleJob.execute(null);
         Test.stopTest();
 
         List<ARC_Aggregator__c> aggregators = [SELECT Id FROM ARC_Aggregator__c];
         List<ARC_ParticipantAggregator__c> participantAggregators = [SELECT Id FROM ARC_ParticipantAggregator__c];
-        Assert.areEqual(52, aggregators.size(), 'Aggregators were not correctly created'); 
-        Assert.areEqual(66, participantAggregators.size(), 'Participant Aggregators were not correctly created');
+        Assert.areEqual(53, aggregators.size(), 'Aggregators were not correctly created'); 
+        Assert.areEqual(75, participantAggregators.size(), 'Participant Aggregators were not correctly created');
     }
 }

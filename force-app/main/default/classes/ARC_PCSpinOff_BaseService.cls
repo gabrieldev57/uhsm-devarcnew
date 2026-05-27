@@ -24,9 +24,6 @@ global without sharing class ARC_PCSpinOff_BaseService implements vlocity_ins.Vl
         else if (methodName == 'updateEnvelopeContractData') {
             updateEnvelopeContractData(inputMap, outputMap);
         }
-        else if (methodName == 'censusPlanSelectionChanges') {
-            censusPlanSelectionChanges(inputMap, outputMap, options);
-        }
         return true;       
     }
 
@@ -92,10 +89,7 @@ global without sharing class ARC_PCSpinOff_BaseService implements vlocity_ins.Vl
     public static Map<String, Object> TRANSFORM_RemoveMemberContractCalculatePrice(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
          Map<String,Object> result = ARC_SpinOff_Utilities.TRANSFORM_RemoveMemberContractCalculatePrice(inputData, outputMap, options);
             outputMap.put('transformUserInputsRetainedPriceData', result.get('transformUserInputsRetainedPriceData'));
-            // outputMap.put('childsLostAncillaryBoolean', result.get('childsLostAncillaryBoolean'));
-            // if(result.get('childsLostAncillaryData') != null) {
-            //     outputMap.put('childsLostAncillaryData', result.get('childsLostAncillaryData'));
-            // }
+          
         return outputMap;
     }
 
@@ -123,14 +117,7 @@ global without sharing class ARC_PCSpinOff_BaseService implements vlocity_ins.Vl
     public static Map<String, Object> readMedicalQuestions(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
         Map<String,Object> result = ARC_SpinOff_Utilities.readMedicalQuestions(inputData, outputMap, options);
         if(result.get('STEP_MedicalQuestions') != null) outputMap.put('STEP_MedicalQuestions', result.get('STEP_MedicalQuestions'));
-        // if(result.get('CensusMember') != null) {
-        //Code in PC changes overwritted censusMember, did not find why it was that, so as it was causing issues I commented it.
-        //     Map<String, Object> censusComponent = (Map<String, Object>) inputData.get('census_component');
-        //     List<Object> censusDataList = (List<Object>) censusComponent.get('census_members'); // Store the value in an auxiliary variable
-        //     censusDataList[1] = result.get('CensusMember'); // Overwrite the value in the censusMembers list
-        //     censusComponent.put('census_members', censusDataList); // Overwrite the value in the census_component map
-        //     outputMap.put('census_component', censusComponent);
-        // } 
+        
         return outputMap;
     }
  
@@ -139,17 +126,6 @@ global without sharing class ARC_PCSpinOff_BaseService implements vlocity_ins.Vl
      * @param inputData: Map containing the program change data
      * @throws AuraHandledException: If there's an error during processing
      */
-    /*
-        "soReasons": {
-      "ancillaryChange": false,
-      "removeMember": false,
-      "addMember": false,
-      "agingOut": false,
-      "programDowngrade": true,
-      "programUpgrade": false,
-      "spinOff": true
-    },
-    */
     public static Map<String, Object> RA_PCSpinOffDML(Map<String, Object> inputData, Map<String,Object> outputMap) {       
         Map<String, Object> response = new Map<String, Object>();
         Map<String, Object> soReasons = (Map<String, Object>)((Map<String, Object>) inputData.get('soChanges')).get('soReasons');
@@ -157,8 +133,6 @@ global without sharing class ARC_PCSpinOff_BaseService implements vlocity_ins.Vl
             ARC_PCSOManager handler = new ARC_PCSOManager(soReasons, inputData);
             handler.executeAll();
             
-            // Add the new contract ID to the output map so It can be used by the DocuSign Service
-            //outputMap.put('newContractId', handler.newContractId);
             response.put('success', true);
             outputMap.put('success', true);
         } catch (Exception e) {
@@ -217,7 +191,6 @@ global without sharing class ARC_PCSpinOff_BaseService implements vlocity_ins.Vl
                 spinOffContract.ARC_Signer_Email__c = (String)envelopeContractData.get('signerEmail');
                 spinOffContract.ARC_Signer_Name__c = (String)envelopeContractData.get('signerName');
                 spinOffContract.vlocity_ins__LastDocuSignEnvelopeId__c = (String)envelopeContractData.get('envelopeId');
-                //spinOffContract.vlocity_ins__LastDocuSignEnvelopeStatus__c = (String)envelopeContractData.get('vlocity_ins__LastDocuSignEnvelopeStatus__c');
                 update spinOffContract;
                 response.put('spinOffContractUpdated', spinOffContract);
                 System.debug('spinOffContract: ' + spinOffContract); 

@@ -145,6 +145,13 @@ public with sharing class ARC_FlattenInputJSON {
                             }
                         }
                     }
+                    Map<String, Object> AllREF = (Map<String, Object>)Loop2010AA.get('AllREF');
+                    if (AllREF != null) {
+                        Map<String, Object> REF_BillingProviderTaxIdentification = (Map<String, Object>)AllREF.get('REF_BillingProviderTaxIdentification');
+                        if (REF_BillingProviderTaxIdentification != null) {
+                            objBillingProvider.put('BillingProviderTaxIdentification.TaxNumber', (String)REF_BillingProviderTaxIdentification.get('MemberGrouporPolicyNumber_02'));
+                        }
+                    }
 
                     List<Object> PER_BillingProviderContactInformation = (List<Object>)Loop2010AA.get('PER_BillingProviderContactInformation');
                     if (PER_BillingProviderContactInformation != null) {
@@ -1843,6 +1850,10 @@ public with sharing class ARC_FlattenInputJSON {
                             // CAS - Claim Adjustment Segments (calculate member liability and allowed amount)
                             Decimal totalMemberLiability = 0;
                             Decimal totalContractualAdjustment = 0;
+                            Decimal medicareCoinsurance = 0;  // New field for Medicare Coinsurance
+                            Decimal totalAllAdjustments = 0;  // Track sum of all adjustments for Medicare Allowed
+                            Decimal co45Adjustment = 0;  // Track CO45 adjustment specifically
+                            Decimal totalNonPRAdjustments = 0;  // Track sum of all non-PR adjustments for Medicare_Adjusted__c
                             List<Map<String, Object>> adjustmentsList = new List<Map<String, Object>>();
                             
                             List<Object> CAS_LineAdj = (List<Object>)loopMap2430.get('CAS_LineAdjustment');
@@ -1906,8 +1917,22 @@ public with sharing class ARC_FlattenInputJSON {
                                                 } else if ('CO'.equals(groupCode)) {
                                                     // CO = Contractual Obligation
                                                     totalContractualAdjustment += amount;
+                                                    // Track Medicare Coinsurance separately (CO adjustments)
+                                                    medicareCoinsurance += amount;
+
+                                                    // Track CO45 specifically for MCR ALLOWED AMT calculation
+                                                    if ('45'.equals(reasonCode)) {
+                                                        co45Adjustment += amount;
+                                                    }
                                                 }
-                                                // OA (Other Adjustments) and other codes are tracked but not summed here
+
+                                                // Track non-PR adjustments for Medicare_Adjusted__c
+                                                if (!'PR'.equals(groupCode)) {
+                                                    totalNonPRAdjustments += amount;
+                                                }
+
+                                                // Sum all adjustments regardless of group code for Medicare Allowed calculation
+                                                totalAllAdjustments += amount;
                                                 
                                             } catch (Exception e) {
                                                 System.debug('Error parsing adjustment amount: ' + e.getMessage());
@@ -1921,8 +1946,11 @@ public with sharing class ARC_FlattenInputJSON {
                             lineAdjudication.put('Adjustments', adjustmentsList);
                             lineAdjudication.put('MemberLiability', String.valueOf(totalMemberLiability));
                             lineAdjudication.put('ContractualAdjustment', String.valueOf(totalContractualAdjustment));
-                            
-                            // Calculate Medicare Allowed Amount
+                            lineAdjudication.put('MedicareCoinsurance', String.valueOf(medicareCoinsurance));  // Store Medicare Coinsurance
+                            lineAdjudication.put('CO45Adjustment', String.valueOf(co45Adjustment));  // Store CO45 adjustment
+                            lineAdjudication.put('MedicareAdjusted', String.valueOf(totalNonPRAdjustments));  // Store sum of non-PR adjustments
+
+                            // Parse Medicare Paid Amount (still needed for other calculations)
                             Decimal medicarePaid = 0;
                             try {
                                 String paidAmountStr = (String)lineAdjudication.get('LinePaidAmount');
@@ -1932,8 +1960,9 @@ public with sharing class ARC_FlattenInputJSON {
                             } catch (Exception e) {
                                 System.debug('Error parsing Medicare paid amount: ' + e.getMessage());
                             }
-                            
-                            Decimal medicareAllowed = medicarePaid + totalMemberLiability;
+
+                            // Medicare Allowed = Sum of ALL adjustments (PR, CO, OA, etc.)
+                            Decimal medicareAllowed = totalAllAdjustments;
                             lineAdjudication.put('MedicareAllowed', String.valueOf(medicareAllowed));
                             
                             // DTP - Check or Remittance Date

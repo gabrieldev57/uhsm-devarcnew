@@ -1,0 +1,41 @@
+.main-container {
+    border: 1px solid gainsboro;
+    border-radius: 0px 0px 4px 4px;
+    padding: 1rem;
+    border-top: none;
+}
+.title-container {
+    display: flex;
+    justify-content: space-between;
+    background-color: rgb(243, 243, 243);
+    padding: 1rem;
+    border: 1px solid rgb(201, 201, 201);
+    border-radius: 4px 4px 0px 0px;
+}
+
+.title {
+    font-weight: bold;
+    font-size: medium;
+}
+
+.columns-container {
+    display: flex;
+}
+
+.primary-container {
+    width: 100%;
+}
+
+.secondary-container {
+    width: 100%;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.buttons-container lightning-button:first-of-type {
+    margin-right: 0.5rem;
+}

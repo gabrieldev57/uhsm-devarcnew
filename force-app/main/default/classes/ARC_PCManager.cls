@@ -13,6 +13,11 @@ public with sharing class ARC_PCManager {
 
     // Variables to store records for different operations
     public Map<String, Object> pcReasons;  // Stores the reasons for program changes
+    public Map<String, Object> pcChanges;
+    public Map<String, Object> sTEP_GuardiansInfo;
+    public Map<String, Object> step_PaymentChangeFee;
+    public Map<String, Object> selectedContractInfo;
+
     public Map<String,Object> inputMap;    // Stores the input data
     public List<String> ActionsSelected = new List<String>();  // Tracks selected actions
     
@@ -32,11 +37,16 @@ public with sharing class ARC_PCManager {
     public Map<String, ARC_HipaaAuthorization__c> fakeIdToHipaaAuth = new Map<String, ARC_HipaaAuthorization__c>();
     public List<Contract> contractsToInsert = new List<Contract>();
     public List<vlocity_ins__ContractLineItem__c> contractLineItemsToInsert = new List<vlocity_ins__ContractLineItem__c>();
+    public List<ARC_ContractParticipant__c> contractParticipantsToInsert = new List<ARC_ContractParticipant__c>();
+    public Map<String,List<vlocity_ins__ContractLineItem__c>> CMIdToCLI = new Map<String,List<vlocity_ins__ContractLineItem__c>>();
+
+    public List<Ages_Up__c> agesUpToInsert = new List<Ages_Up__c>();
+
     public Map<Integer,vlocity_ins__ContractLineItem__c> indexToParentCLI = new Map<Integer,vlocity_ins__ContractLineItem__c>();
     public Map<Integer,List<vlocity_ins__ContractLineItem__c>> indexToChildCLI = new Map<Integer,List<vlocity_ins__ContractLineItem__c>>();
     public Map<Integer,List<String>> indexToCLIGCM = new Map<Integer,List<String>>();
-    public List<ARC_ContractParticipant__c> contractParticipantsToInsert = new List<ARC_ContractParticipant__c>();
     public List<ChargentOrders__ChargentOrder__c> chargentOrdersChangeFee = new List<ChargentOrders__ChargentOrder__c>();
+    public List<ARC_FeeItem__c> chargeFeeItems = new List<ARC_FeeItem__c>();
     public List<ChargentOrders__ChargentOrder__c> chargentOrdersRecurringOrder = new List<ChargentOrders__ChargentOrder__c>(); 
     public List<Case> casesUWToInsert = new List<Case>();
     public List<ARC_MedicalConditions__c> medicalConditionsToUpsert = new List<ARC_MedicalConditions__c>();
@@ -47,10 +57,10 @@ public with sharing class ARC_PCManager {
     public List<vlocity_ins__GroupCensusMember__c> physicianGCMToUpdate = new List<vlocity_ins__GroupCensusMember__c>();
     public Map<String, Map<String,Object>> physicianNewMemberDataToUpdate = new Map<String, Map<String,Object>>();
     public List<Case> casesPCToInsert = new List<Case>(); 
-    public Map<String,List<vlocity_ins__ContractLineItem__c>> CMIdToCLI = new Map<String,List<vlocity_ins__ContractLineItem__c>>();
     public Map<String, ARC_ContractParticipant__c> personAccIdOrFakeIdToContractPart = new Map<String, ARC_ContractParticipant__c>();
     public Map<String, Case> FakeIdToCasePc = new Map<String, Case>();
     public List<ARC_PromotionDiscount__c> promotionDiscountToInsert = new List<ARC_PromotionDiscount__c>();
+    public List<InsurancePolicyParticipant> policyParticipantToUpdate = new List<InsurancePolicyParticipant>();
     public List<Contract> contractsToUpdate = new List<Contract>();
     public Id newContractId;
     public List<Task> tasksToInsert = new List<Task>();
@@ -59,6 +69,7 @@ public with sharing class ARC_PCManager {
     public Date paymentStartDate;
     public Account legacyAccountToUpdate;
     public Map<String,Object> amendmentInfoMap = new Map<String,Object>();
+    public Map<String,Object> contactOrFakeIdToBeneficiaries = new Map<String,Object>();
     
     // Maps to maintain relationships between records
     public Map<Id, Account> censusMemberToAccount = new Map<Id, Account>();
@@ -67,13 +78,21 @@ public with sharing class ARC_PCManager {
     // Map to store all inserted records by their type
     public Map<String, Map<Id, SObject>> allInsertedRecords = new Map<String, Map<Id, SObject>>();
 
+    // Ancillary discount related variables (Critical Care + Accidental Injury bundle)
+    public Map<String, Map<String, Integer>> memberIdToCriticalCareBundle = new Map<String, Map<String, Integer>>();
+    public Map<String, Map<String, Id>> memberIdToBundleGcmpIds = new Map<String, Map<String, Id>>();
+
     /**
      * @Description: Constructor that initializes the manager with program change reasons and input data
      * @param pcReasons: Map containing reasons for program changes
      * @param inputMap: Map containing input data for processing
      */
     public ARC_PCManager(Map<String, Object> pcReasons, Map<String,Object> inputMap) {
+        this.pcChanges = inputMap.containsKey('pcChanges') && (Map<String, Object>)inputMap.get('pcChanges') != null ? (Map<String, Object>)inputMap.get('pcChanges') : null;
         this.pcReasons = pcReasons;
+        this.sTEP_GuardiansInfo = inputMap.containsKey('STEP_GuardiansInfo') && inputMap.get('STEP_GuardiansInfo') != null ? (Map<String, Object>)inputMap.get('STEP_GuardiansInfo') : null;
+        this.step_PaymentChangeFee = inputMap.containsKey('Step_PaymentChangeFee') && inputMap.get('Step_PaymentChangeFee') != null ? (Map<String, Object>)inputMap.get('Step_PaymentChangeFee') : null;
+        this.selectedContractInfo = inputMap.containsKey('SelectedContractInfo') && inputMap.get('SelectedContractInfo') != null ? (Map<String, Object>)inputMap.get('SelectedContractInfo') : null;
         this.inputMap = inputMap;
     }   
 

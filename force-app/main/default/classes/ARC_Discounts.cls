@@ -47,7 +47,7 @@ public without sharing class ARC_Discounts {
         for (Id contractId : discountsByContractId.keySet()) {
             for(Id discountId : discountsByContractId.get(contractId).keySet()){
                 ARC_PromotionDiscount__c discount = discountsByContractId.get(contractId).get(discountId);
-                if(discount.ARC_Status__c == 'Terminated'){
+                if(discount.ARC_Status__c == 'Terminated' || discount.ARC_Status__c == 'Voided'){
                     continue;
                 }
                 Map<Id, ARC_PromotionDiscount__c> discountsWithCurrentDiscount = new Map<Id, ARC_PromotionDiscount__c>();
@@ -269,7 +269,9 @@ public without sharing class ARC_Discounts {
                 ARC_Status__c,
                 ARC_PromoCode__r.ARC_ApplyOver__c,
                 ARC_Contract__c,
-                ARC_Contract__r.ARC_AppFeeOrder__r.ChargentOrders__Charge_Amount__c
+                ARC_Contract__r.ARC_AppFeeOrder__r.ChargentOrders__Charge_Amount__c,
+                ARC_SMART__r.vlocity_ins__ContractLineId__c,
+                ARC_AIDD__r.vlocity_ins__ContractLineId__c
             FROM ARC_PromotionDiscount__c 
             WHERE ARC_Contract__c IN :contractIds AND ARC_Status__c = 'Activated'
             ORDER BY CreatedDate ASC
@@ -291,7 +293,9 @@ public without sharing class ARC_Discounts {
                 ARC_Status__c ,
                 ARC_Contract__c,
                 ARC_PromoCode__r.ARC_ApplyOver__c,
-                ARC_Contract__r.ARC_AppFeeOrder__r.ChargentOrders__Charge_Amount__c
+                ARC_Contract__r.ARC_AppFeeOrder__r.ChargentOrders__Charge_Amount__c,
+                ARC_SMART__r.vlocity_ins__ContractLineId__c,
+                ARC_AIDD__r.vlocity_ins__ContractLineId__c
             FROM ARC_PromotionDiscount__c 
             WHERE Id IN :discountIds
             ORDER BY CreatedDate ASC
@@ -314,7 +318,9 @@ public without sharing class ARC_Discounts {
                 ARC_Status__c,
                 ARC_PromoCode__r.ARC_ApplyOver__c,
                 ARC_Contract__c,
-                ARC_Contract__r.ARC_AppFeeOrder__r.ChargentOrders__Charge_Amount__c
+                ARC_Contract__r.ARC_AppFeeOrder__r.ChargentOrders__Charge_Amount__c,
+                ARC_SMART__r.vlocity_ins__ContractLineId__c,
+                ARC_AIDD__r.vlocity_ins__ContractLineId__c
             FROM ARC_PromotionDiscount__c 
             WHERE ARC_Contract__c IN :contractIds
             ORDER BY CreatedDate ASC
@@ -324,9 +330,12 @@ public without sharing class ARC_Discounts {
     public static boolean isDiscountApplicable(ARC_PromotionDiscount__c discount, vlocity_ins__ContractLineItem__c plan){
         String applyOver = discount.ARC_ApplyOver__c != null ? discount.ARC_ApplyOver__c : discount.ARC_PromoCode__r.ARC_ApplyOver__c;
         Boolean isAmount = discount.ARC_DiscountedAmount__c != null || discount.ARC_PromoCode__r.ARC_DiscountedAmount__c != null;
+        Id smartCli = discount.ARC_SMART__c != null ? discount.ARC_SMART__r.vlocity_ins__ContractLineId__c : null;
+        Id aiddCli = discount.ARC_AIDD__c != null ? discount.ARC_AIDD__r.vlocity_ins__ContractLineId__c : null;
         Boolean isDiscountApplicable = (applyOver == 'Medical' && plan.vlocity_ins__ProductType__c == 'Medical') ||
                                         (applyOver == 'Total Price' && isAmount && plan.vlocity_ins__ProductType__c == 'Medical') ||
-                                        (applyOver == 'Total Price' && !isAmount);
+                                        (applyOver == 'Total Price' && !isAmount) || 
+                                        (applyOver == 'Ancillary' && plan.vlocity_ins__ProductType__c == 'Ancillary' && (smartCli == plan.Id || aiddCli == plan.Id));
         return isDiscountApplicable;
     }
 
@@ -522,7 +531,16 @@ public without sharing class ARC_Discounts {
 
     public static void applyAppFeeDiscounts(Set<Id> contractIds, List<ARC_PromotionDiscount__c> discounts) {
         //This query is necessary to get the price with discount calculated
-        List<ARC_PromotionDiscount__c> discountsPriceUpdated = [SELECT Id, ARC_Contract__r.ARC_AppFeeOrder__c, ARC_ApplyOver__c, ARC_PromoCode__r.ARC_ApplyOver__c,ARC_PriceWithDiscount__c, ARC_Status__c   FROM ARC_PromotionDiscount__c WHERE Id IN: discounts];
+        List<ARC_PromotionDiscount__c> discountsPriceUpdated = [
+            SELECT Id, 
+            ARC_Contract__r.ARC_AppFeeOrder__c, 
+            ARC_ApplyOver__c, 
+            ARC_PromoCode__r.ARC_ApplyOver__c,
+            ARC_PriceWithDiscount__c, ARC_Status__c,
+            ARC_SMART__r.vlocity_ins__ContractLineId__c,
+            ARC_AIDD__r.vlocity_ins__ContractLineId__c
+            FROM ARC_PromotionDiscount__c 
+            WHERE Id IN: discounts];
         List<ChargentOrders__ChargentOrder__c> appFeeOrders = getAppFeeOrders(contractIds);
         List<ChargentOrders__ChargentOrder__c> appFeeOrdersToUpdate = new List<ChargentOrders__ChargentOrder__c>();
 
@@ -559,16 +577,24 @@ public without sharing class ARC_Discounts {
         List<ARC_ContractParticipant__c> participantsByContractId = getContractParticipants(contractIds, false);
         Map<Decimal,Id> renewalDiscountCodeMap = getAndMapRenewalDiscountCodes();
 
-        Id renewalDiscountPromotionRTId =[SELECT Id FROM RecordType WHERE DeveloperName = 'Renewal_Discount' AND SobjectType = 'ARC_PromotionDiscount__c'][0].Id;
+        Id renewalDiscountPromotionRTId = [SELECT Id FROM RecordType WHERE DeveloperName = 'Renewal_Discount' AND SobjectType = 'ARC_PromotionDiscount__c'][0].Id;
 
         // Map to catch oldest participant from current contract
         Map<Id, Date> oldestSinceDateByContract = new Map<Id, Date>();
         for (ARC_ContractParticipant__c participant : participantsByContractId) {
-            if (participant.ARC_PersonAccount__r != null && participant.ARC_PersonAccount__r.ARC_ContinuousMembershipStartDate__c != null) {
+            if (
+                participant.ARC_PersonAccount__r != null 
+                && participant.ARC_PersonAccount__r.ARC_ContinuousMembershipStartDate__c != null 
+                && participant.ARC_Contract__r.ARC_MedicalPlan__r != null 
+                && !participant.ARC_Contract__r.ARC_MedicalPlan__r?.Name.contains('Legacy')
+                && !participant.ARC_Contract__r.ARC_MedicalPlan__r?.Name.contains('Premier')
+            ) {
                 Date sinceDate = participant.ARC_PersonAccount__r.ARC_ContinuousMembershipStartDate__c;
                 
-                if (!oldestSinceDateByContract.containsKey(participant.ARC_Contract__c) || 
-                    oldestSinceDateByContract.get(participant.ARC_Contract__c) > sinceDate) {
+                if (
+                    !oldestSinceDateByContract.containsKey(participant.ARC_Contract__c)  
+                    || oldestSinceDateByContract.get(participant.ARC_Contract__c) > sinceDate
+                ) {
                     oldestSinceDateByContract.put(participant.ARC_Contract__c, sinceDate);
                 }
             }
@@ -599,7 +625,7 @@ public without sharing class ARC_Discounts {
     ********************************************************************/
     public static void cloneTemporaryDiscounts(Set<Id> contractIds){
 
-        Map<Id,Contract> newContracts = new Map<Id,Contract> ([SELECT Id, vlocity_ins__ExpiredContractId__c, ARC_ContractReason__c FROM Contract WHERE Id IN :contractIds]);
+        Map<Id,Contract> newContracts = new Map<Id,Contract> ([SELECT Id, vlocity_ins__ExpiredContractId__c, ARC_ContractReason__c, vlocity_ins__EnrollmentCensusId__c, vlocity_ins__ExpiredContractId__r.vlocity_ins__EnrollmentCensusId__c FROM Contract WHERE Id IN :contractIds]);
         Set<Id> expiredContractIds = new Set<Id>();
         Map<Id,Id> oldNewContractIds = new Map<Id,Id>();
 
@@ -608,12 +634,28 @@ public without sharing class ARC_Discounts {
             oldNewContractIds.put(contract.vlocity_ins__ExpiredContractId__c, contract.Id);
         }    
 
-        List<ARC_PromotionDiscount__c> temporaryDiscountsToClone = [SELECT Id, Name, ARC_StartDate__c, ARC_Description__c, ARC_EndDate__c,ARC_Status__c, ARC_PromoCode__c, RecordTypeId, ARC_Contract__c, 
-                                                            RecordType.DeveloperName,ARC_ApplyOver__c, ARC_DiscountedAmount__c, ARC_DiscountRate__c, ARC_NumberOfTimesCanBeUsed__c, ARC_TimesUsed__c 
-                                                            FROM ARC_PromotionDiscount__c  
-                                                            WHERE (ARC_Status__c = 'Activated' OR ARC_Status__c = 'Pending' OR ARC_Status__c = 'Awaiting Activation')
-                                                            AND RecordType.DeveloperName = 'Temporary_Discount'
-                                                            AND ARC_Contract__c IN :expiredContractIds];
+        List<ARC_PromotionDiscount__c> temporaryDiscountsToClone = [
+            SELECT Id, 
+                   Name, 
+                   ARC_StartDate__c, 
+                   ARC_Description__c, 
+                   ARC_EndDate__c,
+                   ARC_Status__c, 
+                   ARC_PromoCode__c, 
+                   RecordTypeId, 
+                   ARC_Contract__c, 
+                   RecordType.DeveloperName,
+                   ARC_ApplyOver__c, 
+                   ARC_DiscountedAmount__c, 
+                   ARC_DiscountRate__c, 
+                   ARC_NumberOfTimesCanBeUsed__c, 
+                   ARC_TimesUsed__c,
+                   ARC_SMART__r.vlocity_ins__ContractLineId__c,
+                   ARC_AIDD__r.vlocity_ins__ContractLineId__c
+            FROM ARC_PromotionDiscount__c  
+            WHERE (ARC_Status__c = 'Activated' OR ARC_Status__c = 'Pending' OR ARC_Status__c = 'Awaiting Activation')
+            AND RecordType.DeveloperName = 'Temporary_Discount'
+            AND ARC_Contract__c IN :expiredContractIds];
 
         if (temporaryDiscountsToClone.isEmpty()) return;
  
@@ -622,25 +664,26 @@ public without sharing class ARC_Discounts {
         // Clone ARC_PromotionDiscount__c, map old with new
         for (ARC_PromotionDiscount__c discount : temporaryDiscountsToClone){
             Id newContractId = oldNewContractIds.get(discount.ARC_Contract__c);
-
-            if (!newContracts.get(newContractId).ARC_ContractReason__c.contains('Spin Off')){
+            //Exclude Spin Off Contracts 
+            if (newContracts.get(newContractId).vlocity_ins__ExpiredContractId__r?.vlocity_ins__EnrollmentCensusId__c ==
+            newContracts.get(newContractId).vlocity_ins__EnrollmentCensusId__c) {
                 ARC_PromotionDiscount__c clonedDiscount = new ARC_PromotionDiscount__c(
-                        Name = discount.Name,
-                        ARC_StartDate__c = discount.ARC_StartDate__c,
-                        ARC_Description__c = discount.ARC_Description__c,
-                        ARC_EndDate__c = discount.ARC_EndDate__c,
-                        ARC_Status__c = discount.ARC_Status__c, 
-                        ARC_PromoCode__c = discount.ARC_PromoCode__c,
-                        RecordTypeId = discount.RecordTypeId,
-                        ARC_Contract__c = newContractId,
-                        ARC_ApplyOver__c = discount.ARC_ApplyOver__c,
-                        ARC_DiscountedAmount__c = discount.ARC_DiscountedAmount__c,
-                        ARC_DiscountRate__c = discount.ARC_DiscountRate__c,
-                        ARC_NumberOfTimesCanBeUsed__c = discount.ARC_NumberOfTimesCanBeUsed__c,
-                        ARC_TimesUsed__c = discount.ARC_TimesUsed__c,
-                        ARC_Discount__c = discount.Id
-                    );
-                    oldNewDiscounts.put(discount.Id, clonedDiscount);
+                    Name = discount.Name,
+                    ARC_StartDate__c = discount.ARC_StartDate__c,
+                    ARC_Description__c = discount.ARC_Description__c,
+                    ARC_EndDate__c = discount.ARC_EndDate__c,
+                    ARC_Status__c = discount.ARC_Status__c, 
+                    ARC_PromoCode__c = discount.ARC_PromoCode__c,
+                    RecordTypeId = discount.RecordTypeId,
+                    ARC_Contract__c = newContractId,
+                    ARC_ApplyOver__c = discount.ARC_ApplyOver__c,
+                    ARC_DiscountedAmount__c = discount.ARC_DiscountedAmount__c,
+                    ARC_DiscountRate__c = discount.ARC_DiscountRate__c,
+                    ARC_NumberOfTimesCanBeUsed__c = discount.ARC_NumberOfTimesCanBeUsed__c,
+                    ARC_TimesUsed__c = discount.ARC_TimesUsed__c,
+                    ARC_Discount__c = discount.Id
+                );
+                oldNewDiscounts.put(discount.Id, clonedDiscount);
             }     
         }
 
@@ -661,23 +704,47 @@ public without sharing class ARC_Discounts {
         Set<Id> exisitingAccountIds = new Set<Id>();
 
         // Check if new Contract has Healthy Discounts 
-        List<ARC_PromotionDiscount__c> newContractHasHdList = [SELECT Id, ARC_Discount__c FROM ARC_PromotionDiscount__c WHERE ARC_Contract__c IN :contractIds AND (ARC_Status__c = 'Activated' OR ARC_Status__c = 'Awaiting Activation')];
+        List<ARC_PromotionDiscount__c> newContractHasHdList = [
+            SELECT Id, 
+                   ARC_Discount__c,
+                   ARC_SMART__r.vlocity_ins__ContractLineId__c,
+                   ARC_AIDD__r.vlocity_ins__ContractLineId__c
+            FROM ARC_PromotionDiscount__c 
+            WHERE ARC_Contract__c IN :contractIds 
+            AND (ARC_Status__c = 'Activated' OR ARC_Status__c = 'Awaiting Activation')];
         Set<Id> newContractHasHd = new Set<Id>();
 
         for (Contract contract : newContracts.values()) {
             //Exclude WeShareAcces
-            if(contract.ARC_MedicalPlan__c != null && !contract.ARC_MedicalPlan__r.Name.contains('Access')){
+            if(contract.ARC_MedicalPlan__c != null && !contract.ARC_MedicalPlan__r.Name.contains('Access') && !contract.ARC_MedicalPlan__r.Name.contains('Legacy')){
                 expiredContractIds.add(contract.vlocity_ins__ExpiredContractId__c);
                 oldNewContractIds.put(contract.vlocity_ins__ExpiredContractId__c, contract.Id);
             }
         }    
 
-        List<ARC_PromotionDiscount__c> discountsToClone = [SELECT Id, Name, ARC_StartDate__c, ARC_Description__c, ARC_EndDate__c,ARC_Status__c, ARC_PromoCode__c, RecordTypeId, ARC_Contract__c, 
-                                                            RecordType.DeveloperName,ARC_ApplyOver__c, ARC_DiscountedAmount__c, ARC_DiscountRate__c, ARC_NumberOfTimesCanBeUsed__c, ARC_TimesUsed__c, ARC_Discount__c 
-                                                            FROM ARC_PromotionDiscount__c  
-                                                            WHERE (ARC_Status__c = 'Activated' OR ARC_Status__c = 'Pending' OR ARC_Status__c = 'Awaiting Activation')
-                                                            AND RecordType.DeveloperName = 'Healthy_Discount'
-                                                            AND ARC_Contract__c IN :expiredContractIds];
+        List<ARC_PromotionDiscount__c> discountsToClone = [
+            SELECT Id, 
+                   Name, 
+                   ARC_StartDate__c, 
+                   ARC_Description__c, 
+                   ARC_EndDate__c,
+                   ARC_Status__c, 
+                   ARC_PromoCode__c, 
+                   RecordTypeId, 
+                   ARC_Contract__c, 
+                   RecordType.DeveloperName,
+                   ARC_ApplyOver__c, 
+                   ARC_DiscountedAmount__c, 
+                   ARC_DiscountRate__c, 
+                   ARC_NumberOfTimesCanBeUsed__c, 
+                   ARC_TimesUsed__c, 
+                   ARC_Discount__c,
+                   ARC_SMART__r.vlocity_ins__ContractLineId__c,
+                   ARC_AIDD__r.vlocity_ins__ContractLineId__c
+            FROM ARC_PromotionDiscount__c  
+            WHERE (ARC_Status__c = 'Activated' OR ARC_Status__c = 'Pending' OR ARC_Status__c = 'Awaiting Activation')
+            AND RecordType.DeveloperName = 'Healthy_Discount'
+            AND ARC_Contract__c IN :expiredContractIds];
 
         // If new Contract has Healthy Discounts and is in discountsToClone List, we will remove it from discountsToClone to avoid duplicate clone
         if (!newContractHasHdList.isEmpty()) {
@@ -835,10 +902,10 @@ public without sharing class ARC_Discounts {
 
     // Helper method to retrieve contract participants with filtering on Dependent Relationship != Child if removeChild = true
     public static List<ARC_ContractParticipant__c> getContractParticipants(Set<Id> contractId, Boolean removeChild) {
-        String query = 'SELECT Id, Name, ARC_PersonAccount__c, ARC_PersonAccount__r.Name, ARC_PersonAccount__r.ARC_ContinuousMembershipStartDate__c, ARC_PersonAccount__r.ARC_DependentRelationship__c, ARC_Contract__c FROM ARC_ContractParticipant__c WHERE ARC_Contract__c IN :contractId';
+        String query = 'SELECT Id, Name, ARC_PersonAccount__c, ARC_PersonAccount__r.Name, ARC_PersonAccount__r.ARC_ContinuousMembershipStartDate__c, ARC_PersonAccount__r.ARC_DependentRelationship__c, ARC_Contract__c, ARC_Contract__r.ARC_MedicalPlan__r.Name FROM ARC_ContractParticipant__c WHERE ARC_Contract__c IN :contractId';
         
         if (removeChild) {
-            query += ' AND ARC_PersonAccount__r.ARC_DependentRelationship__c != \'Child\'';
+            query += ' AND ARC_PersonAccount__r.ARC_DependentRelationship__c != \'Child\' AND ARC_PersonAccount__r.ARC_DependentRelationship__c != \'Temporary Newborn\'';
         }
 
         return Database.query(query);

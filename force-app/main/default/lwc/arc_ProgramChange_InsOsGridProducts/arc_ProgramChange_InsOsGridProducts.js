@@ -15,11 +15,13 @@ export default class arc_ProgramChange_InsOsGridProducts extends insOsGridProduc
 
     set products(value) {
         if (value) {
-            this._products = value.map(group => {
+        this._products = value.map(group => {
                 return {
                     ...group,
                     showHealthyDiscountColumn:
-                        this.programType === 'Medical' &&  group.groupName !== 'Access' && group.groupName !== 'Legacy'
+                        this.programType === 'Medical' &&
+                        group.groupName !== 'Access' && 
+                        group.groupName !== 'Legacy'
                 };
             });
         }
@@ -50,7 +52,7 @@ export default class arc_ProgramChange_InsOsGridProducts extends insOsGridProduc
         });
     }
 
-    handleDataFromChild(event) {
+    handleDataFromChild(event) {        
         this.products.forEach(group => {
             if (group.groupName == event.detail.groupName) {
                 this.sendGeneralAttributesToParent(event.detail.groupName, event.detail.attributes);
@@ -79,14 +81,25 @@ export default class arc_ProgramChange_InsOsGridProducts extends insOsGridProduc
 
     renderedCallback() {
         this.products.forEach(group => {
-            const className = '.' + group.groupName;
-            if (this.template.querySelector(className)) {
-                this.template.querySelector(className).innerHTML = group.description;
+            const containers = this.template.querySelectorAll('div[class]');
+            const container = Array.from(containers).find(elem => 
+                elem.getAttribute('class') === group.groupName
+            );
+            if (container && group.description) {
+                container.innerHTML = group.description;
             }
+
+            // const className = '.' + group.groupName;
+            // if (this.template.querySelector(className)) {
+            //     this.template.querySelector(className).innerHTML = group.description;
+            // }
         });
     }
 
     removeHiddenAttributes(products, hiddenAttributes) {
+        if (!hiddenAttributes?.length) {
+            return products;
+        }
         const hiddenAttributesMap = [];
         hiddenAttributes.forEach(attribute => {
             hiddenAttributesMap.push({ section: attribute.split(':')[0], label: attribute.split(':')[1] });

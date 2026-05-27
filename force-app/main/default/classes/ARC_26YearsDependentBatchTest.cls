@@ -130,7 +130,7 @@ private class ARC_26YearsDependentBatchTest {
         ];
         
         Id serviceCaseRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName().get('Service').getRecordTypeId();
-        Id outboundQueueId = [SELECT Id FROM Group WHERE Name = 'Outbound' AND Type = 'Queue' LIMIT 1].Id;
+        Id outboundQueueId = [SELECT Id FROM Group WHERE DeveloperName = 'Outbound' AND Type = 'Queue' LIMIT 1].Id;
         
         Case existingCase = new Case(
             RecordTypeId = serviceCaseRecordTypeId,

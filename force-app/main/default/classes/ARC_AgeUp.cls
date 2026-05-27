@@ -6,7 +6,7 @@ public with sharing class ARC_AgeUp implements Database.Batchable<sObject>, Data
 
     public static void applyAgeUp(List<Ages_Up__c> ageUps){        
         // Recalculate prices
-        ageUps = [SELECT Id, Name, ARC_EffectiveDate__c, ARC_ManualDelay__c, Contract__r.ARC_EffectiveDate__c, Contract__c, ARC_Account__c  FROM Ages_Up__c WHERE Id IN :ageUps];
+        ageUps = [SELECT Id, Name, ARC_EffectiveDate__c, ARC_ManualDelay__c, Contract__r.ARC_EffectiveDate__c, Contract__c, ARC_Account__c, ARC_BypassContractEffectiveCheck__c  FROM Ages_Up__c WHERE Id IN :ageUps];
         ARC_AgeUp ageUpBatch = new ARC_AgeUp();
         ageUpBatch.applyOnPlans = true;
         ageUpBatch.ageUpsToCalculate.addAll(ageUps);
@@ -14,10 +14,11 @@ public with sharing class ARC_AgeUp implements Database.Batchable<sObject>, Data
     }
 
     public static void calculateAgeUp(Set<Id> contractIds){
-        List<Ages_Up__c> ageUps = [SELECT Id, Name, ARC_EffectiveDate__c, ARC_ManualDelay__c, Contract__r.ARC_EffectiveDate__c, Contract__c, ARC_Account__c  FROM Ages_Up__c WHERE Contract__c IN :contractIds];
+        List<Ages_Up__c> ageUps = [SELECT Id, Name, ARC_EffectiveDate__c, ARC_ManualDelay__c, Contract__r.ARC_EffectiveDate__c, Contract__c, ARC_Account__c, ARC_BypassContractEffectiveCheck__c  FROM Ages_Up__c WHERE Contract__c IN :contractIds];
         if (ageUps.isEmpty()) {
             return;
         }
+        system.debug(ageUps);
         ARC_AgeUp ageUpBatch = new ARC_AgeUp();
         ageUpBatch.applyOnPlans = false;
         ageUpBatch.ageUpsToCalculate.addAll(ageUps);
@@ -32,16 +33,18 @@ public with sharing class ARC_AgeUp implements Database.Batchable<sObject>, Data
         //Run for accounts without Age Up
         if(this.ageUpsToCalculate.isEmpty()){
             //Get Existing Ageups
-            List<Ages_Up__c> existingsAgeUps = [SELECT ARC_Account__c, Contract__c FROM Ages_Up__c WHERE ARC_Applied__c = false AND (ARC_ManualDelay__c != null OR (ARC_ManualDelay__c = null AND ARC_EffectiveDate__c = NEXT_N_DAYS:60))];
+            List<Ages_Up__c> existingsAgeUps = [SELECT ARC_Account__c, Contract__c, ARC_BypassContractEffectiveCheck__c FROM Ages_Up__c WHERE ARC_Applied__c = false AND (ARC_ManualDelay__c != null OR (ARC_ManualDelay__c = null AND ARC_EffectiveDate__c = NEXT_N_DAYS:60))];
     
             Set<Id> existingsAgeUpsAccountsIds = new Set<Id>();
     
             for (Ages_Up__c ageUp : existingsAgeUps) {
+                system.debug(ageUp.ARC_Account__c);
                 existingsAgeUpsAccountsIds.add(ageUp.ARC_Account__c);
             }
-            return Database.getQueryLocator([SELECT Id, FirstName, PersonBirthdate, ARC_IsPrimaryMember__c, ARC_Census__r.ARC_PrimaryAccount__r.FirstName, ARC_Census__r.ARC_PrimaryAccount__r.PersonEmail, (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c, ARC_Account__c, ARC_ReviewAgeUpPrice__c FROM Age_Up__r WHERE ARC_Applied__c = false AND Contract__r.Status = 'Activated') 
+            return Database.getQueryLocator([SELECT Id, FirstName, PersonBirthdate, ARC_IsPrimaryMember__c, ARC_Census__r.ARC_PrimaryAccount__r.FirstName, ARC_Census__r.ARC_PrimaryAccount__r.PersonEmail, (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c,Contract__r.ARC_MedicalPlan__r.Name, ARC_Account__c, ARC_ReviewAgeUpPrice__c, ARC_BypassContractEffectiveCheck__c FROM Age_Up__r WHERE ARC_Applied__c = false AND (Contract__r.Status = 'Activated' OR ARC_BypassContractEffectiveCheck__c = true)) 
                                             FROM Account 
-                                            WHERE (Census_Member__r.ARC_Age__c IN :agePreviousGaps AND Census_Member__r.Age_In_Sixty_Days__c IN :ageGaps AND Census_Member__r.Is_Oldest_Member__c = true) OR Id IN :existingsAgeUpsAccountsIds]);
+                                            WHERE RecordType.DeveloperName = 'ARC_IFPPersonAccount'
+                                            AND ((Census_Member__r.ARC_Age__c IN :agePreviousGaps AND Census_Member__r.Age_In_Sixty_Days__c IN :ageGaps AND Census_Member__r.Is_Oldest_Member__c = true) OR Id IN :existingsAgeUpsAccountsIds)]);
         }//Run for existing Age ups that needs to be recalculated
         else{
             Set<Id> accountIds = new Set<Id>();
@@ -50,7 +53,7 @@ public with sharing class ARC_AgeUp implements Database.Batchable<sObject>, Data
             }
             return Database.getQueryLocator([
                 SELECT Id, FirstName, PersonBirthdate, ARC_IsPrimaryMember__c, ARC_Census__r.ARC_PrimaryAccount__r.FirstName, ARC_Census__r.ARC_PrimaryAccount__r.PersonEmail, 
-                    (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c, ARC_Account__c, ARC_ReviewAgeUpPrice__c 
+                    (SELECT Id, ARC_PriceBeforeAgeUp__c, ARC_PriceAfterAgeUp__c, ARC_EffectiveDate__c, ARC_ManualDelay__c,Contract__c, Name, Contract__r.ARC_EffectiveDate__c, Contract__r.ARC_MedicalPlan__r.Name ,ARC_Account__c, ARC_ReviewAgeUpPrice__c, ARC_BypassContractEffectiveCheck__c 
                     FROM Age_Up__r WHERE Id IN :this.ageUpsToCalculate) 
                 FROM Account WHERE Id IN :accountIds]);
         }
@@ -65,6 +68,8 @@ public with sharing class ARC_AgeUp implements Database.Batchable<sObject>, Data
             Set<Id> accountIds = new Set<Id>();
             Map<String,Account> sendAgeUpEmailList = new Map<String,Account>();
             for(Account account : accounts) {
+                system.debug(account.id);
+                system.debug(account.Age_Up__r.size());
                 if(account.Age_Up__r.size() == 0) {
                     accountIds.add(account.Id);
                 } else if (account.Age_Up__r.size() == 1) {
@@ -159,6 +164,7 @@ public with sharing class ARC_AgeUp implements Database.Batchable<sObject>, Data
         List<String> ageBrackets = System.Label.ARC_AgeBracket.trim().split(',');
         List<Integer> ageBracketList = new List<Integer>();
         for(String age:ageBrackets) ageBracketList.add(Integer.valueOf(age));
+        System.debug('ageBracketList ' + ageBracketList);
         return ageBracketList;
     }
 
@@ -168,6 +174,7 @@ public with sharing class ARC_AgeUp implements Database.Batchable<sObject>, Data
         for (Integer age : ageGaps) {
             agePreviousGaps.add(age - 1);
         }
+        System.debug('agePreviousGaps ' + agePreviousGaps);
         return agePreviousGaps;
     }
 
@@ -194,7 +201,8 @@ public with sharing class ARC_AgeUp implements Database.Batchable<sObject>, Data
                         vlocity_ins__GroupCensusMemberId__r.vlocity_ins__CensusId__r.ARC_CountChildren__c,
                         vlocity_ins__GroupCensusMemberId__r.vlocity_ins__CensusId__r.ARC_CountSuscribers__c,
                         vlocity_ins__GroupCensusMemberId__r.vlocity_ins__CensusId__r.ARC_PrimaryAccount__r.Census_Member__r.ARC_Age__c,
-                        vlocity_ins__GroupCensusMemberId__r.vlocity_ins__CensusId__r.ARC_PrimaryAccount__r.Census_Member__r.Age_In_Sixty_Days__c
+                        vlocity_ins__GroupCensusMemberId__r.vlocity_ins__CensusId__r.ARC_PrimaryAccount__r.Census_Member__r.Age_In_Sixty_Days__c,
+                        vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId
                     FROM vlocity_ins__Group_Census_Member_Plan__r
                 )
             FROM vlocity_ins__ContractLineItem__c 

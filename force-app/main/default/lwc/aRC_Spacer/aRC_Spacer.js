@@ -1,31 +1,35 @@
 import { LightningElement, api, track} from 'lwc';
-import { loadStyle } from 'lightning/platformResourceLoader';
 
-import TopbarResources from '@salesforce/resourceUrl/ARC_TopbarResources';
+export default class ARC_Spacer extends LightningElement {
+    @api size;
+    @api sizeM;
+    @api sizeS;
 
-
-export default class SimpleSpacer extends LightningElement {
-    @api size = "";
-    @api sizeM = "";
-    @api sizeS = "";
-    @api direction;
-
-    @track negativeSpacer = false
-    @track spacerSize;
-    
-    connectedCallback(){
-        loadStyle(this, TopbarResources + '/spacer.css')
+    resize(el){
+        let space = 0;
+        if(el.offsetWidth >= 1024){
+            space = this.size || 0;
+        }else if(el.offsetWidth >= 768){
+            space = this.sizeM || this.size || 0;
+        }else{
+            space = this.sizeS || this.sizeM || this.size || 0;
+        }
+        el.style.marginTop = "unset";
+        el.style.padding = "unset";
+        // if(space.includes("calc")) {
+        //     space += ";";
+        //     space = space.replace(");", " - var(--component-vertical-spacing))");
+        // }
+        // else space = `calc(${space} - var(--component-vertical-spacing))`;
+        if(space.startsWith("-") || space.includes("*-") || space.includes("* -")) el.style.marginTop = space;
+        else el.style.paddingTop = space;
     }
 
     renderedCallback(){
-        this.refs.spacer.style.setProperty('--spacer-size', this.size);
-        this.refs.spacer.style.setProperty('--spacer-size-m', this.sizeM !== "" ? this.sizeM : this.size);
-        this.refs.spacer.style.setProperty('--spacer-size-s', this.sizeS !== "" ? this.sizeS : this.size);
-
-        // Detect if the spacer is negative
-        const computedStyle = window.getComputedStyle(this.refs.spacer);
-        this.spacerSize = computedStyle.getPropertyValue('--spacer-size');
-        if(parseInt(this.spacerSize) < 0) this.negativeSpacer = true
-        else this.negativeSpacer = false
+        let div = this.template.querySelector('.arc-lwc-spacer');
+        if(this.sizeM !== undefined || this.sizeS !== undefined) {
+            window.addEventListener('resize', ()=> this.resize(div));
+        }
+        this.resize(div);
     }
 }

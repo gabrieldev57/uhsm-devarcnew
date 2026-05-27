@@ -1,4 +1,5 @@
 import { FlexCardMixin } from "vlocity_ins/flexCardMixin";
+    import { CurrentPageReference } from 'lightning/navigation';
     import {interpolateWithRegex, interpolateKeyValue, loadCssFromStaticResource } from "vlocity_ins/flexCardUtility";
     
           import { LightningElement, api, track, wire } from "lwc";
@@ -10,6 +11,11 @@ import { FlexCardMixin } from "vlocity_ins/flexCardMixin";
           import styleDef from "./styleDefinition";
               
           export default class cfInsAccountQuoteList extends FlexCardMixin(LightningElement){
+              currentPageReference;        
+              @wire(CurrentPageReference)
+              setCurrentPageReference(currentPageReference) {
+                this.currentPageReference = currentPageReference;
+              }
               @api debug;
               @api recordId;
               @api objectApiName;
@@ -22,6 +28,7 @@ import { FlexCardMixin } from "vlocity_ins/flexCardMixin";
               
               connectedCallback() {
                 super.connectedCallback();
+                this.setThemeClass(data);
                 this.setStyleDefinition(styleDef);
                 data.Session = {} //reinitialize on reload
                 
@@ -30,10 +37,10 @@ import { FlexCardMixin } from "vlocity_ins/flexCardMixin";
                 this.setDefinition(data);
  this.registerEvents();
                 this.setAttribute(
-                  "class",
-                  "card-a7UVA00000133Lp2AI"
+                  "class", (this.getAttribute("class") ? this.getAttribute("class") : "") +
+                  " card-a7Ucf0000007mzDEAQ"
                 );
-                this.loadCustomStylesheetAttachement("00PVA000002dvGb2AI");
+                this.loadCustomStylesheetAttachement("00Pcf000007cc5AEAQ");
                 
                 
               }

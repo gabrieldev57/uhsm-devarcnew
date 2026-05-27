@@ -1,0 +1,72 @@
+<template>
+    <article class="slds-card slds-card_boundary">
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        <span class="slds-text-heading_small slds-truncate">Selected Plans</span>
+                    </h2>
+                </div>
+                <div class="slds-no-flex">
+                    <span class="slds-text-color_weak">{planCount} plans</span>
+                </div>
+            </header>
+        </div>
+
+        <div class="slds-card__body slds-card__body_inner selPlans-DivTabs">
+            <div class="selPlans-tab slds-grid slds-border_bottom slds-p-bottom_x-small slds-text-title_caps slds-text-color_weak">
+                <div class="slds-col slds-size_4-of-12">Plan</div>
+                <div class="slds-col slds-size_5-of-12">Active Members</div>
+                <div class="slds-col slds-size_3-of-12">Total / Mo</div>
+            </div>
+
+            <template lwc:if={hasPlans}>
+                
+                <template for:each={plans} for:item="plan">
+                    <div key={plan.planId} class="selPlans-Plan slds-grid slds-border_bottom slds-p-vertical_small slds-grid_vertical-align-center">
+                        
+                        <div class="slds-col slds-size_4-of-12">
+                            <div class="slds-text-heading_small"><strong>{plan.planName}</strong></div>
+                            <div class="slds-text-color_weak slds-text-body_small">{plan.programType}</div>
+                            
+                            <a href="javascript:void(0);" class="program-details-container">
+                                <div class="program-details-box">
+                                    <lightning-icon icon-name="utility:add" size="xx-small" class="mini-plus-icon"></lightning-icon>
+                                </div>
+                                <span class="program-details-text">Program Details</span>
+                            </a>
+                        </div>
+
+                        <div class="slds-col slds-size_5-of-12 slds-text-body_medium" style="white-space: pre-line;">
+                            {plan.activeMembers}
+                        </div>
+
+                        <div class="slds-col slds-size_3-of-12">
+                            <div class="slds-text-heading_small"><strong>${plan.unitPrice}</strong></div>
+                            <div class="slds-text-color_weak slds-text-body_small">per month</div>
+                        </div>
+                        
+                    </div>
+                </template>
+
+                <div class="selPlans-totalRow slds-grid slds-p-top_medium slds-grid_vertical-align-center total-row">
+                    <div class="slds-col slds-size_9-of-12">
+                        <div class="slds-text-color_weak slds-text-body_small">Total monthly</div>
+                    </div>
+                    <div class="slds-col slds-size_3-of-12">
+                        <div class="slds-text-heading_medium slds-p-top_xxx-small"><strong>${totalMonthly}</strong> 
+                            <span class="slds-text-color_weak slds-text-body_small slds-p-left_xxx-small">/mo</span>
+                        </div>
+                    </div>
+                </div>
+
+            </template>
+
+            <template lwc:else>
+                <div class="slds-p-around_large slds-text-align_center slds-text-color_weak">
+                    No plans found for this member
+                </div>
+            </template>
+        </div>
+    </article>
+</template>

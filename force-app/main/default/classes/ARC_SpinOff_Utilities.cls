@@ -1,9 +1,38 @@
-public without sharing class ARC_SpinOff_Utilities {
+global without sharing class ARC_SpinOff_Utilities implements vlocity_ins.VlocityOpenInterface{
+
+    global Boolean invokeMethod(String methodName, Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        switch on methodName {
+            when 'censusPlanSelectionChanges'                    { censusPlanSelectionChanges(inputMap, outputMap, options); }
+            when 'readMedicalQuestions'                          { readMedicalQuestions(inputMap, outputMap, options); }
+            when 'includeProductCodeToUserInputs'                { includeProductCodeToUserInputs(inputMap, outputMap, options); }
+            when 'TRANSFORM_CensusMemberToUserInputs'            { TRANSFORM_CensusMemberToUserInputs(inputMap, outputMap, options); }
+            when 'TRANSFORM_ChooseProductSelectionData'          { TRANSFORM_ChooseProductSelectionData(inputMap, outputMap, options); }
+            when 'includeGuardianAsHipaa'                        { includeGuardianAsHipaa(inputMap, outputMap, options); }
+            when 'getMemberBeneficiaries'                        { getMemberBeneficiaries(inputMap, outputMap, options); }
+            when else                                            { throw new AuraHandledException('Unknown method: ' + methodName); }
+        }
+        return true;
+    }
     
     ////Main methods/////////////////////
     /////////////////////////////////////////////
 
     private static integer daysToAdd = 60;
+
+    private static Integer dependentCount = 0;
+    // private static Boolean medicareInfoChanged = false;
+    private static List<Object> spinOffMemberList = new List<Object>();
+    private static List<Map<String,Object>> signerList = new List<Map<String,Object>>();
+    private static List<Object> newProductList = new List<Object>();
+    private static List<String> templatesIdList = new List<String>();
+    private static Map<String,Object> docuSignDataMap = new Map<String,Object>();
+    private static Map<String,Object> docuSignOutputMap = new Map<String,Object>();
+    private static Map<String,Object> docuSignOptionsMap = new Map<String,Object>();
+    private static Map<String,Object> signerInfoMap = new Map<String,Object>();
+    private static Map<String,Object> primaryMember = new Map<String,Object>();
+    private static Map<String,Object> spouseMember = new Map<String,Object>();
+    private static List<Object> dependents = new List<Object>();
+    private static Map<String,Object> legalGuardian = new Map<String,Object>();
 
     /**
      * Transform the census members to user inputs
@@ -25,6 +54,13 @@ public without sharing class ARC_SpinOff_Utilities {
         Map<String, Object> aRC_DatePicker = (Map<String, Object>)STEP_AccountSelection.get('aRC_DatePicker');
         Date effectiveDate = Date.valueOf((String)aRC_DatePicker.get('DATE_SubscriberEffectiveDate'));
 
+        List<Object> oldProducts = (List<Object>)inputMap.get('oldProducts');
+        String medicalCode = '';
+
+        if (oldProducts != null) {
+            Map<String, Object> medical = (Map<String, Object>)oldProducts[0];
+            medicalCode = (String)medical.get('ProductCode');
+        }
 
         // Determine if we have multiple families (more than 2 groups)
         Boolean hasMultipleFamilies = census_members.size() > 2;
@@ -37,7 +73,7 @@ public without sharing class ARC_SpinOff_Utilities {
             Integer familyCount = 0;
             for (Object census_member : census_members) {
                 List<Object> census_member_family = (List<Object>) census_member;
-                List<Map<String, Object>> userInputsForFamily = getCensusMembersToUserInputs(census_member_family, effectiveDate);
+                List<Map<String, Object>> userInputsForFamily = getCensusMembersToUserInputs(census_member_family, effectiveDate, medicalCode);
                 
                 userInputsForFamily = setPrimaryDOBForGroup(userInputsForFamily, memberIdToDOBMap);
                 outputMap.put('userInputsFamily' + familyCount, userInputsForFamily);
@@ -55,8 +91,8 @@ public without sharing class ARC_SpinOff_Utilities {
 
 
             // Get the user inputs for the spinned off and retained members and place in the output map
-            user_input_list = getCensusMembersToUserInputs(census_members_spinned_off, effectiveDate);
-            user_input_list_retained = getCensusMembersToUserInputs(census_members_retained, effectiveDate);
+            user_input_list = getCensusMembersToUserInputs(census_members_spinned_off, effectiveDate, medicalCode);
+            user_input_list_retained = getCensusMembersToUserInputs(census_members_retained, effectiveDate, medicalCode);
 
             // Set the primary DOB in all members
             user_input_list = setPrimaryDOBForGroup(user_input_list, memberIdToDOBMap);
@@ -161,7 +197,7 @@ public without sharing class ARC_SpinOff_Utilities {
     public static void censusPlanSelectionChanges(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {   
         Boolean IsPCSpinOff = inputMap.get('IsPCSpinOff') instanceof Boolean ? (Boolean)inputMap.get('IsPCSpinOff') : false;
 
-        String selectedReasons;
+        String selectedReasons = '';
         String keepSameProducts;
         Boolean multipleSOChangeProgram = false;
         Boolean singleSOChangeProgram = false;
@@ -295,17 +331,17 @@ public without sharing class ARC_SpinOff_Utilities {
         // Check if there are multiple Primary. case when I delete the member that is to be Spinned Off and change the relationship of the other member to be the new Primary.
         List<Map<String, Object>> primaryMember = new List<Map<String, Object>>();
 
-            if (censusMembersList != null) {
-                for (Object obj : censusMembersList) {
-                    Map<String, Object> member = (Map<String, Object>)obj;
-                
-                    if ('Primary'.equals(member.get('ARC_Relationship__c')) &&
-                        !(Boolean)member.get('IsRemoveMember')) {
-                        primaryMember.add(member);
-                        break; // solo uno esperado
-                    }
+        if (censusMembersList != null) {
+            for (Object obj : censusMembersList) {
+                Map<String, Object> member = (Map<String, Object>)obj;
+            
+                if ('Primary'.equals(member.get('ARC_Relationship__c')) &&
+                    !(Boolean)member.get('IsRemoveMember')) {
+                    primaryMember.add(member);
+                    break; // solo uno esperado
                 }
             }
+        }
 
         // If are members with the field (addMember || removeMember) == true add the reason
         for (Object censusmember : censusMembersList) { 
@@ -445,7 +481,47 @@ public without sharing class ARC_SpinOff_Utilities {
             String programSummaryFeeText = 'One Time Change Fee (' + soFeeReasonsString + '): ' + (Decimal)soReasonsOutput.get('feeAmount');
             soReasonsOutput.put('programSummaryFeeText', programSummaryFeeText);
         }
+        // Check if Beneficiary step should be displayed
+        Map<String, Object> selectedContractInfo = inputMap.containsKey('SelectedContractInfo') ? (Map<String, Object>)inputMap.get('SelectedContractInfo') : new Map<String, Object>();
+        System.debug('Selected Contract Info: ' + selectedContractInfo);
+        Boolean isAddMember = soReasons.containsKey('addMember') ? (Boolean)soReasons.get('addMember') : false;
+        System.debug('Is Add Member: ' + isAddMember);
+        Boolean canAddBeneficiary = false;
+        Boolean isPlanChange = false;
+        String selectedContractPlanName = selectedContractInfo.containsKey('TXT_MedicalPlan') && selectedContractInfo.get('TXT_MedicalPlan') != null ? (String)selectedContractInfo.get('TXT_MedicalPlan') : '';
+        List<Object> userInputs = (List<Object>)inputMap.get('userInputs');
+        Boolean hasAdults = userInputs != null ? hasAdults(userInputs) : true;
+        Boolean hasAdultNewMembers = userInputs != null ? hasAdultNewMembers(userInputs) : true;
 
+        if (IsPCSpinOff) {
+            isPlanChange = selectedReasons.contains('Change to Programs');
+        } else {
+            isPlanChange = singleSOChangeProgram;
+        }
+
+        System.debug('Update Type: ' + isPlanChange);
+        System.debug('Old Contract Plan Name: ' + oldMedicalName);
+        System.debug('Selected Contract Plan Name: ' + selectedMedicalName);
+        System.debug('Has Adults: ' + hasAdults);
+        System.debug('Is Add Member: ' + isAddMember);
+        System.debug('Has New Adult Members: ' + hasAdultNewMembers);
+        canAddBeneficiary = 
+            (
+                !isPlanChange 
+                && oldMedicalName.contains('Premier') 
+                && hasAdults
+                && isAddMember 
+                && hasAdultNewMembers
+            ) || (
+                (
+                    !oldMedicalName.contains('Premier') 
+                    || (hasAdults && isAddMember && hasAdultNewMembers)
+                )
+                && selectedMedicalName != null 
+                && selectedMedicalName.contains('Premier')
+            );
+
+        soReasonsOutput.put('canAddBeneficiary', canAddBeneficiary);
         soReasonsOutput.put('soReasons', soReasons);
         soReasonsOutput.put('soReasonsString', soReasonsString);
         outputMap.put('soChanges', soReasonsOutput);
@@ -505,11 +581,92 @@ public without sharing class ARC_SpinOff_Utilities {
 
             outputMap.put('STEP_HIPAAAuthorizationForm', hipaaBlock);
             System.debug('outputMap: ' + outputMap);
-            //outputMap.put('showHIPAAEditBlockGuardian', true);
 
         } else {
             System.debug('No guardian data found in inputMap');
-            //outputMap.put('showHIPAAEditBlockGuardian', false);
+        }
+    }
+
+    /**************************************************************************
+    * @MethodName         :   getMemberBeneficiaries
+    * @Description        :   method to get the beneficiaries for each census member
+    ***************************************************************************/
+    public static void getMemberBeneficiaries (Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        String contractId = (String)inputMap.get('ContractIdSelected');
+
+        // Get the censusMemberList from the census_component node
+        List<Object> censusMemberList = (List<Object>)((Map<String,Object>)inputMap.get('census_component')).get('census_members');
+
+        Boolean premierSelected = inputMap.get('premierSelected') instanceof Boolean ? (Boolean)inputMap.get('premierSelected') : false;
+
+        List<ARC_CoverageParticipant__c> coverageParticipantList = [
+            SELECT Id, ARC_PrimaryBeneficiaryName__c, ARC_PrimaryBeneficiaryBirthdate__c, ARC_PrimaryBeneficiaryPhone__c, ARC_PrimaryBeneficiaryRelationship__c, ARC_PrimaryBeneficiaryOther__c, ARC_SecondaryBeneficiaryName__c, ARC_SecondaryBeneficiaryBirthdate__c, ARC_SecondaryBeneficiaryPhone__c, ARC_SecondaryBeneficiaryRelationship__c, ARC_SecondaryBeneficiaryOther__c, ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId
+            FROM ARC_CoverageParticipant__c
+            WHERE ARC_Policy__r.ARC_Contract__c = :contractId AND ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.vlocity_ins__Type__c = 'Medical'];
+
+        Map<String, ARC_CoverageParticipant__c> memberToCoveragePartMap = new Map<String, ARC_CoverageParticipant__c>();
+        if (coverageParticipantList != null && !coverageParticipantList.isEmpty()) {
+            for (ARC_CoverageParticipant__c covPart : coverageParticipantList) {
+                String memberId = covPart.ARC_PolicyParticipant__r?.PrimaryParticipantContact?.AccountId;
+                if (memberId != null && !memberToCoveragePartMap.containsKey(memberId)) memberToCoveragePartMap.put(memberId, covPart);
+            }
+        }
+        
+        if (censusMemberList != null && !censusMemberList.isEmpty()) {
+            List<Object> finalMemberList = new List<Object>();
+            
+            for (Integer i = 0; i < censusMemberList.size(); i++) {
+                Boolean removeMemberFamily = i == 0;
+                Object familiesObj = censusMemberList[i];
+                List<Object> familiesList = (List<Object>)familiesObj;
+                List<Object> tempFamily = new List<Object>();
+
+                for (Object member : familiesList) {
+                    Map<String,Object> memberMap = (Map<String,Object>)member;
+                    String memberAccountId = (String)memberMap.get('PersonAccountId');
+                    List<Object> memberBeneficiariesList = new List<Object>();
+
+                    if (
+                        (removeMemberFamily || (premierSelected && !removeMemberFamily)) && 
+                        memberToCoveragePartMap.get(memberAccountId) != null
+                    ) {
+                        ARC_CoverageParticipant__c memberCovPart = memberToCoveragePartMap.get(memberAccountId);
+
+                        if (memberCovPart.ARC_PrimaryBeneficiaryName__c != null && memberCovPart.ARC_PrimaryBeneficiaryName__c != '') {
+                            Map<String,Object> primaryBenefMap = new Map<String,Object>{
+                                'Id' => String.valueOf(memberCovPart.Id + '-primary'),
+                                'Label' => 'Primary Beneficiary',
+                                'BeneficiaryName' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryName__c),
+                                'BeneficiaryBirthdate' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryBirthdate__c),
+                                'BeneficiaryPhone' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryPhone__c),
+                                'BeneficiaryRelationship' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryRelationship__c),
+                                'BeneficiaryOtherRelationship' => String.valueOf(memberCovPart.ARC_PrimaryBeneficiaryOther__c),
+                                'isOtherRelationship' => memberCovPart.ARC_PrimaryBeneficiaryRelationship__c == 'Other' ? true : false
+                            };
+                            memberBeneficiariesList.add(primaryBenefMap);
+                        }
+                        if (memberCovPart.ARC_SecondaryBeneficiaryName__c != null && memberCovPart.ARC_SecondaryBeneficiaryName__c != '') {
+                            Map<String,Object> secondaryBenefMap = new Map<String,Object>{
+                                'Id' => String.valueOf(memberCovPart.Id + '-secondary'),
+                                'Label' => 'Secondary Beneficiary',
+                                'BeneficiaryName' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryName__c),
+                                'BeneficiaryBirthdate' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryBirthdate__c),
+                                'BeneficiaryPhone' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryPhone__c),
+                                'BeneficiaryRelationship' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryRelationship__c),
+                                'BeneficiaryOtherRelationship' => String.valueOf(memberCovPart.ARC_SecondaryBeneficiaryOther__c),
+                                'isOtherRelationship' => memberCovPart.ARC_SecondaryBeneficiaryRelationship__c == 'Other' ? true : false
+                            };
+                            memberBeneficiariesList.add(secondaryBenefMap);
+                        }
+                    }
+                    memberMap.put('beneficiaries', memberBeneficiariesList);
+                    tempFamily.add(memberMap);
+                }
+                finalMemberList.add(tempFamily);
+            }
+            outputMap.put('census_component', new Map<String,Object>{
+                'census_members' => finalMemberList
+            });
         }
     }
 
@@ -520,26 +677,35 @@ public without sharing class ARC_SpinOff_Utilities {
      * @param {Map<String,Object>} options - The options map.
      * @returns {Map<String,Object>} - The output map.
     */
-    public static Map<String,Object> TRANSFORM_RemoveMemberContractCalculatePrice(Map<String, Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+    public static Map<String,Object> TRANSFORM_RemoveMemberContractCalculatePrice(Map<String, Object> inputMap, Map<String, Object> outputMap, Map<String, Object> options) {
 
         List<Object> userInputs;
         List<Object> oldProducts;
-        List<Map<String,Object>> products_list = new List<Map<String,Object>>();
-        List<Map<String,Object>> products_list_to_review = new List<Map<String,Object>>();
+        List<Map<String,Object>> products_list = new List<Map<String, Object>>();
+        List<Map<String,Object>> products_list_to_review = new List<Map<String, Object>>();
 
-        if (inputMap.get('userInputsOriginal') instanceof List<Object>){
+        if (inputMap.get('userInputsOriginal') instanceof List<Object>) {
             userInputs = (List<Object>)inputMap.get('userInputsOriginal');
         }
 
-        if (inputMap.get('oldProducts') instanceof List<Object>){
+        if (inputMap.get('oldProducts') instanceof List<Object>) {
             oldProducts = (List<Object>)inputMap.get('oldProducts');
         }
+
+        Boolean originalPremierSelected = (Boolean)inputMap.get('originalPremierSelected');
         
         if (oldProducts != null) {
 
             for (Object product_object : oldProducts) {
-                Map<String,Object> product = (Map<String,Object>)product_object;
-                Map<String, Object> product_map = new Map<String, Object>{'selectedProduct' => new Map<String,Object>{'Id' => (String)product.get('productId'), 'Name' => (String)product.get('Name')}, 'userInputs' => new List<Map<String,Object>>()};
+                Map<String, Object> product = (Map<String, Object>)product_object;
+                Map<String, Object> product_map = new Map<String, Object>{
+                    'selectedProduct' => new Map<String, Object>{
+                        'Id' => (String)product.get('productId'), 
+                        'Name' => (String)product.get('Name')
+                    }, 
+                    'userInputs' => new List<Map<String, Object>>()
+                };
+                System.debug('product_map: ' + (String)((Map<String, Object>)product_map.get('selectedProduct')).get('Name'));
                 
                 Integer countPrimary = 0;
                 Integer countSpouse = 0;
@@ -548,67 +714,74 @@ public without sharing class ARC_SpinOff_Utilities {
                 Boolean hasOnlyChilds = false;
                 
                 for (Object user_input_object : userInputs) {
-                    Map<String,Object> user_input = new Map<String,Object>((Map<String,Object>)user_input_object);
+                    Map<String, Object> user_input = new Map<String, Object>((Map<String, Object>)user_input_object);
                     for (Object census_member_object : (List<Object>)product.get('census_members')) {
-                        Map<String,Object> census_member = (Map<String,Object>)census_member_object;
+                        Map<String, Object> census_member = (Map<String, Object>)census_member_object;
                         if ((String)user_input.get('Id') == (String)census_member.get('Id')) {
-                            if((String)user_input.get('RF_Census.CM_Relationship') == 'Primary'){
-                                countPrimary ++;
-                            } else if ((String)user_input.get('RF_Census.CM_Relationship') == 'Spouse'){
-                                countSpouse ++;
-                            } else if((String)user_input.get('RF_Census.CM_Relationship') == 'Child'){
-                                countChilds ++;
+                            if ((String)user_input.get('RF_Census.CM_Relationship') == 'Primary') {
+                                countPrimary++;
+                            } else if ((String)user_input.get('RF_Census.CM_Relationship') == 'Spouse') {
+                                countSpouse++;
+                            } else if ((String)user_input.get('RF_Census.CM_Relationship') == 'Child') {
+                                countChilds++;
                             }
 
-                            if((Integer)user_input.get('RF_Census.CM_Age')>oldestAge){
+                            if ((Integer)user_input.get('RF_Census.CM_Age') > oldestAge) {
                                 oldestAge = (Integer)user_input.get('RF_Census.CM_Age');
                             }
 
-                            ((List<Map<String,Object>>)product_map.get('userInputs')).add(user_input);
+                            Boolean isAncillary = (String)product.get('Type__c') == 'Ancillary';
+                            if (originalPremierSelected && isAncillary) {
+                                user_input.put('RF_Census.CM_IsPrimary', true);
+                                user_input.put('RF_Census.CRF_PrimaryMemberAge', user_input.get('RF_Census.CM_Age'));
+                            }
+                            
+                            System.debug('user_input: ' + (String)user_input.get('RF_Census.CM_FirstName'));
+
+                            ((List<Map<String, Object>>)product_map.get('userInputs')).add(user_input);
+                        }
+                    }
+                }
+                System.debug('product_map.userInputs.size: ' + ((List<Object>)product_map.get('userInputs')).size());
+
+                hasOnlyChilds = (countChilds > 0 && countPrimary == 0 && countSpouse == 0);
+
+                if ((String)product.get('Type__c') == 'Ancillary' && hasOnlyChilds == false) {
+                    
+                    for (Object census_Member_object : (List<Map<String, Object>>)product_map.get('userInputs')) {                         
+                        Map<String, Object> census_Member_instance = (Map<String, Object>)census_Member_object;
+
+                        // Set Old member age to product
+                        census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge', oldestAge);
+
+                        // If no primary, set spouse as primary to product
+                        if (countPrimary == 0 && (String)census_Member_instance.get('RF_Census.CM_Relationship') == 'Spouse') {
+                            census_Member_instance.put('RF_Census.CM_IsPrimary', true);
+                        }
+
+                        // Set Coverages for Anillaries
+                        if ((countPrimary == 1 && countSpouse == 0 && countChilds == 0) || (countPrimary == 0 && countSpouse == 1 && countChilds == 0)) {
+                            census_Member_instance.put('RF_Census.CRF_Coverage', 'Primary');
+                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD', 'Primary');
+                        } else if (countPrimary == 1 && countSpouse == 1 && countChilds == 0) { 
+                            census_Member_instance.put('RF_Census.CRF_Coverage', 'Primary + Spouse');
+                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD', 'Primary + Spouse');
+                        } else if ((countPrimary == 1 && countSpouse == 0 && countChilds > 0) || (countPrimary == 0 && countSpouse == 1 && countChilds > 0)) {
+                            census_Member_instance.put('RF_Census.CRF_Coverage', 'Primary + Child');
+                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD', 'Primary + Children');
+                        } else {
+                            census_Member_instance.put('RF_Census.CRF_Coverage', 'Family');
+                            census_Member_instance.put('RF_Census.CRF_CoverageAIDD', 'Family');
                         }
                     }
                 }
 
-                hasOnlyChilds = (countChilds > 0 && countPrimary == 0 && countSpouse == 0);
-
-                if((String)product.get('Type__c') == 'Ancillary' && hasOnlyChilds == false ){
-                    
-                        for(Object census_Member_object : (List<Map<String,Object>>)product_map.get('userInputs')){                         
-                            Map<String,Object> census_Member_instance = (Map<String,Object>)census_Member_object;
-
-                            // Set Old member age to product
-                            census_Member_instance.put('RF_Census.CRF_PrimaryMemberAge',oldestAge);
-
-                            // If no primary, set spouse as primary to product
-                            if(countPrimary == 0 && (String)census_Member_instance.get('RF_Census.CM_Relationship') == 'Spouse'){
-                                census_Member_instance.put('RF_Census.CM_IsPrimary',true);
-                            }
-
-                            // Set Coverages for Anillaries
-                            if((countPrimary == 1 && countSpouse == 0 && countChilds == 0) || (countPrimary == 0 && countSpouse == 1 && countChilds == 0)){
-                                census_Member_instance.put('RF_Census.CRF_Coverage','Primary');
-                                census_Member_instance.put('RF_Census.CRF_CoverageAIDD','Primary');
-                            } else if(countPrimary == 1 && countSpouse == 1 && countChilds == 0){ 
-                                census_Member_instance.put('RF_Census.CRF_Coverage','Primary + Spouse');
-                                census_Member_instance.put('RF_Census.CRF_CoverageAIDD','Primary + Spouse');
-                            } else if((countPrimary == 1 && countSpouse == 0 && countChilds > 0) || (countPrimary == 0 && countSpouse == 1 && countChilds > 0)){
-                                census_Member_instance.put('RF_Census.CRF_Coverage','Primary + Child');
-                                census_Member_instance.put('RF_Census.CRF_CoverageAIDD','Primary + Children');
-                            } else {
-                                census_Member_instance.put('RF_Census.CRF_Coverage','Family');
-                                census_Member_instance.put('RF_Census.CRF_CoverageAIDD','Family');
-                            }
-
-                        }
-
-                }
-
                 // If product not have userinput, not add to any list
-                if (((List<Map<String,Object>>)product_map.get('userInputs')).isEmpty()) {
+                if (((List<Map<String, Object>>)product_map.get('userInputs')).isEmpty()) {
                     continue;
                 }
 
-                if(hasOnlyChilds){
+                if (hasOnlyChilds && !originalPremierSelected) {
                     products_list_to_review.add(product_map);
                 } else {
                     products_list.add(product_map);
@@ -617,7 +790,7 @@ public without sharing class ARC_SpinOff_Utilities {
 
             List<Map<String, Object>> products_lost = new List<Map<String, Object>>();
 
-            // If we have a product only with childs, we check if that product is in products_list and add the childs, if we don't find nothig, childs will lose ancillaries
+            // If we have a product only with childs, we check if that product is in products_list and add the childs, if we don't find anything, childs will lose ancillaries
             if (!products_list_to_review.isEmpty()) {
                 for (Map<String, Object> reviewProduct : products_list_to_review) {
 
@@ -635,10 +808,10 @@ public without sharing class ARC_SpinOff_Utilities {
                             
                             mainUserInputs.addAll(reviewUserInputs);
 
-                            for(Map<String, Object> ui : mainUserInputs){
-                                Map<String, Object> ui_instance = (Map<String,Object>)ui;
-                                ui_instance.put('RF_Census.CRF_Coverage','Primary + Child');
-                                ui_instance.put('RF_Census.CRF_CoverageAIDD','Primary + Children');       
+                            for (Map<String, Object> ui : mainUserInputs) {
+                                Map<String, Object> ui_instance = (Map<String, Object>)ui;
+                                ui_instance.put('RF_Census.CRF_Coverage', 'Primary + Child');
+                                ui_instance.put('RF_Census.CRF_CoverageAIDD', 'Primary + Children');       
                             }
 
                             break;
@@ -664,9 +837,10 @@ public without sharing class ARC_SpinOff_Utilities {
         List<Object> oldProducts;
         List<Object> userInputs;
         Boolean isPcSpinOff = inputMap.containsKey('IsPCSpinOff') ? (Boolean)inputMap.get('IsPCSpinOff') : false;
-
+        Boolean premierSelected = inputMap.get('premierSelected') instanceof Boolean ? (Boolean)inputMap.get('premierSelected') : false;
+        
         Boolean haveAncillaryChange = inputMap.get('haveAncillaryChange') instanceof Boolean ? (Boolean)inputMap.get('haveAncillaryChange') : false;
-
+        
         if (inputMap.get('selectedProducts') instanceof List<Object>) {
             selectedProducts = (List<Object>)inputMap.get('selectedProducts');
         } 
@@ -678,7 +852,9 @@ public without sharing class ARC_SpinOff_Utilities {
         if (inputMap.get('userInputs') instanceof List<Object>){
             userInputs = (List<Object>)inputMap.get('userInputs');
         }
-
+        
+        Map<String,Integer> ageMembersMap = getOldestAgeMap(userInputs);
+        Integer oldestMemberAge = (Integer)ageMembersMap.get('oldestAge');
         Set<String> inactiveCensusId = new Set<String>();
         Map<String,String> inactiveToactiveCensusIdMap = new Map<String,String>();
         system.debug(isPcSpinOff);
@@ -786,7 +962,7 @@ public without sharing class ARC_SpinOff_Utilities {
                         String productType = (String)product.get('Type__c');
                         String productSubType = (String)product.get('SubType__c');
                         
-                        if (member_relationship == 'Primary' || member_relationship == 'Spouse') {
+                        if (premierSelected || member_relationship == 'Primary' || member_relationship == 'Spouse') {
                             if (productSubType == 'SMART'){
                                 ((List<Map<String,Object>>)smart_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => false});
                             }
@@ -867,7 +1043,17 @@ public without sharing class ARC_SpinOff_Utilities {
                                     ((Map<String,Object>)spouse_information.get('aidd')).put('productId', product.get('productId'));
                                     ((Map<String,Object>)spouse_information.get('aidd')).put('name', product.get('Name'));
                                 }
-                            } else if(member_relationship == 'Child') {
+                            } else if (premierSelected && member_relationship == 'Child'){
+                                if (productSubType == 'SMART'){
+                                    ((List<Map<String,Object>>)smart_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => true});
+                                    smart_product.put('name', (String)product.get('Name'));
+                                    smart_product.put('value', (String)product.get('productId'));
+                                } else if (productSubType == 'AIDD'){
+                                    ((List<Map<String,Object>>)aidd_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => true});
+                                    aidd_product.put('name', (String)product.get('Name'));
+                                    aidd_product.put('value', (String)product.get('productId'));
+                                }
+                            } else if (!premierSelected && member_relationship == 'Child') {
 
                                 if (productSubType == 'SMART' || productSubType == 'AIDD'){
                                     if (
@@ -950,7 +1136,7 @@ public without sharing class ARC_SpinOff_Utilities {
                             }
 
                         } else if (member_has_product == false) {
-                            if (member_relationship == 'Primary' || member_relationship == 'Spouse') {
+                            if (premierSelected || member_relationship == 'Primary' || member_relationship == 'Spouse') {
 
                                 
                                 if (productSubType == 'SMART'){
@@ -960,16 +1146,16 @@ public without sharing class ARC_SpinOff_Utilities {
                                     ((List<Map<String,Object>>)aidd_product.get('options')).add(new Map<String,Object>{'label' => product.get('Name'), 'value' => product.get('productId'), 'selected' => false});
 
                                 }
-                            } else if(member_relationship == 'Child'){
+                            } else if (!premierSelected && member_relationship == 'Child'){
                                 if(((List<Map<String,Object>>)selected_parent.get('options')).isEmpty()){
                                 
-                                        selected_parent.put('value', null);
-                                        ancillary_product_list.add('None');
+                                    selected_parent.put('value', null);
+                                    ancillary_product_list.add('None');
 
-                                        ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Primary Program', 'value' => primary_information.get('memberId'), 'selected' => false});
-                                        if((String)spouse_information.get('memberId') != null){
-                                            ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Spouse Program', 'value' => spouse_information.get('memberId'), 'selected' => false});
-                                        }
+                                    ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Primary Program', 'value' => primary_information.get('memberId'), 'selected' => false});
+                                    if((String)spouse_information.get('memberId') != null){
+                                        ((List<Map<String,Object>>)selected_parent.get('options')).add(new Map<String,Object>{'label' => 'Spouse Program', 'value' => spouse_information.get('memberId'), 'selected' => false});
+                                    }
                                 }
                             }
                         }
@@ -1028,7 +1214,7 @@ public without sharing class ARC_SpinOff_Utilities {
                     shareSMART.put('value', false);
                     shareAIDD.put('value', false);
 
-                    if (member_relationship == 'Primary' || member_relationship == 'Spouse') {
+                    if (premierSelected || member_relationship == 'Primary' || member_relationship == 'Spouse') {
                         System.debug(smart_product);
                         System.debug(aidd_product);
 
@@ -1050,7 +1236,7 @@ public without sharing class ARC_SpinOff_Utilities {
                             ((List<Map<String,Object>>)aidd_product.get('options')).add(1, new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => false});
                         }
 
-                    } else if (member_relationship == 'Child') {
+                    } else if (!premierSelected && member_relationship == 'Child') {
                         System.debug(selected_parent);
                         selected_parent.put('options', new List<Map<String,Object>>{
                             new Map<String,Object>{'value' => null, 'label' => '-', 'selected' => true},
@@ -1064,7 +1250,7 @@ public without sharing class ARC_SpinOff_Utilities {
                         System.debug(selected_parent);
                     }
                 } else if(oldProducts != null) {
-                    if (member_relationship == 'Primary' || member_relationship == 'Spouse') {
+                    if (premierSelected || member_relationship == 'Primary' || member_relationship == 'Spouse') {
                         if ((Boolean)user_input.get('IsNewMember') == true || (Boolean)user_input.get('IsAddExistingMember') == true) {
                             if ((String)smart_product.get('value') == null) {
                                 if (((List<Map<String,Object>>)smart_product.get('options')).isEmpty() == true) {
@@ -1127,7 +1313,7 @@ public without sharing class ARC_SpinOff_Utilities {
 
                         }
 
-                    } else if (member_relationship == 'Child') {
+                    } else if (!premierSelected && member_relationship == 'Child') {
                         if ((Boolean)user_input.get('IsNewMember') == true  || (Boolean)user_input.get('IsAddExistingMember') == true) {
                             if ((String)selected_parent.get('value') == null) {
                                 system.debug('selected_parent IN ' + selected_parent);
@@ -1137,13 +1323,9 @@ public without sharing class ARC_SpinOff_Utilities {
                             }
                         } else if ((Boolean)user_input.get('IsNewMember') == false) {
                             if ((String)selected_parent.get('value') == null) {
-                                //if (removeParent == true) {
                                     ((List<Map<String,Object>>)selected_parent.get('options')).add(0, new Map<String,Object>{'label' => '-', 'value' => null, 'selected' => true});
                                     ((List<Map<String,Object>>)selected_parent.get('options')).add(1, new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => false});
-                                // } else if (removeParent == false) {
-                                //     ((List<Map<String,Object>>)selected_parent.get('options')).add(0, new Map<String,Object>{'label' => 'None', 'value' => 'None', 'selected' => true});
-                                //     selected_parent.put('value', 'None');
-                                // }
+                                
                             }
                         }
                     }
@@ -1204,6 +1386,14 @@ public without sharing class ARC_SpinOff_Utilities {
                 for (Object product_object : selectedProducts) {
                     Map<String,Object> product = (Map<String,Object>)product_object;
                     Map<String, Object> product_map = new Map<String, Object>{'selectedProduct' => new Map<String,Object>{'Id' => (String)product.get('productId')}, 'userInputs' => userInputs};
+                    for (Object user_input_object : (List<Object>)product_map.get('userInputs')) {
+                        Map<String,Object> user_input = (Map<String,Object>)user_input_object;
+                        if (premierSelected) {
+                            user_input.put('RF_Census.CRF_PrimaryMemberAge', (Integer)user_input.get('RF_Census.CM_Age'));
+                        } else {
+                            user_input.put('RF_Census.CRF_PrimaryMemberAge', oldestMemberAge);
+                        }
+                    }
                     products_list.add(product_map);
                 }
                 outputMap.put('LWC_ChooseProductSelectionOutput', products_list);
@@ -1212,6 +1402,14 @@ public without sharing class ARC_SpinOff_Utilities {
                 for (Object product_object : oldProducts) {
                     Map<String,Object> product = (Map<String,Object>)product_object;
                     Map<String, Object> product_map = new Map<String, Object>{'selectedProduct' => new Map<String,Object>{'Id' => (String)product.get('productId')}, 'userInputs' => userInputs};
+                    for (Object user_input_object : (List<Object>)product_map.get('userInputs')) {
+                        Map<String,Object> user_input = (Map<String,Object>)user_input_object;
+                        if (premierSelected) {
+                            user_input.put('RF_Census.CRF_PrimaryMemberAge', (Integer)user_input.get('RF_Census.CM_Age'));
+                        } else {
+                            user_input.put('RF_Census.CRF_PrimaryMemberAge', oldestMemberAge);
+                        }
+                    }
                     products_list.add(product_map);
                 }
                 
@@ -1240,7 +1438,12 @@ public without sharing class ARC_SpinOff_Utilities {
             censusMembers =  (List<Object>)censusComponent.get('census_members');
         } else if (!isPcSpinOff){
             List<Object> censusDataList = (List<Object>)censusComponent.get('census_members'); // Store the value in an auxiliary variable
-            censusMembers = (List<Object>) censusDataList[1];
+            // Verify if it has more than 1 index
+            if (censusDataList.size() == 1) {
+                censusMembers = (List<Object>) censusDataList[0];
+            } else if (censusDataList.size() == 2) {
+                censusMembers = (List<Object>) censusDataList[1];
+            }
         }
 
         system.debug('censusMembers 1 '+ censusMembers);
@@ -1544,7 +1747,46 @@ public without sharing class ARC_SpinOff_Utilities {
         return outputMap;
     }
 
+    /*******************************************************************
+    * @MethodName         :   includeProductCodeToUserInputs
+    * @Description        :   Adds RF_Census.CM_ProductCode node to UserInputs
+    ********************************************************************/
+    public static Map<String, Object> includeProductCodeToUserInputs(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        String selectedPlanCode = '';
+        Boolean planSelected = (Boolean)inputMap.get('planSelected');
 
+        if (planSelected) {
+            List<Object> selectedProducts = (List<Object>)inputMap.get('selectedProducts');
+            for (Object selectedProductObj : selectedProducts) {
+                Map<String, Object> product = (Map<String, Object>)selectedProductObj;
+                if ((String)product.get('Type__c') == 'Medical') {
+                    selectedPlanCode = (String)product.get('ProductCode');
+                    break;
+                }
+            }
+        } else {
+            List<Object> oldProducts = (List<Object>)inputMap.get('oldProducts');
+            for (Object oldProductObj : oldProducts) {
+                Map<String, Object> product = (Map<String, Object>)oldProductObj;
+                if ((String)product.get('Type__c') == 'Medical') {
+                    selectedPlanCode = (String)product.get('ProductCode');
+                    break;
+                }
+            }
+        }
+
+        // Add RF_Census.CM_ProductCode node to UserInputs
+        List<Object> userInputs = inputMap.containsKey('userInputs') ? (List<Object>)inputMap.get('userInputs') : new List<Object>();
+        if (userInputs != null && !userInputs.isEmpty()) {
+            for (Object ui : userInputs) {
+                Map<String,Object> uiMap = (Map<String,Object>)ui;
+                uiMap.put('RF_Census.CM_ProductCode', selectedPlanCode);
+            }
+            outputMap.put('userInputs', userInputs);
+        }
+
+        return outputMap;
+    }
 
 
     /////////////////////////////////////////////
@@ -1638,43 +1880,7 @@ public without sharing class ARC_SpinOff_Utilities {
         return census_members;
     }
 
-    /**
-     * 
-     *********************************************************************************CHECK BEFORE REMOVE THIS METHOD*********************************************************************************
-     * 
-     * Get the member id to relationship map from the input map
-     * @param {Map<String,Object>} inputMap - The input map.
-     * @returns {Map<String,String>} - The member id to relationship map.
-     */
-    // private static Map<String,String> getMemberIdToSpinnedOffMap(Map<String,Object> inputMap){
-    //     ////Create a map of members spinned off id to relationship
-    //     Map<String,String> memberIdToRelationshipMap = new Map<String,String>();
-    //     try {
-    //         Object stepAccountSelectionObj = inputMap.get('STEP_AccountSelection');
-    //         if (stepAccountSelectionObj != null) {
-    //             Map<String,Object> stepAccountSelection = (Map<String,Object>)stepAccountSelectionObj;
-    //             Object lwcSpinOffCensusMembersTableObj = stepAccountSelection.get('LWC_SpinOffCensusMembersTable');
-    //             if (lwcSpinOffCensusMembersTableObj != null) {
-    //                 List<Object> lwcSpinOffCensusMembersTable = (List<Object>)lwcSpinOffCensusMembersTableObj;                    
-    //                 for (Object memberToSpin : lwcSpinOffCensusMembersTable) {
-    //                     Map<String,Object> memberToSpinMap = (Map<String,Object>)memberToSpin;
-    //                     if(memberToSpinMap.get('TXT_GroupCensusMemberId') != null){
-    //                         String memberId = (String)memberToSpinMap.get('TXT_GroupCensusMemberId');
-    //                         Object assignToFamilyObj = memberToSpinMap.get('NUM_assignToFamily');
-    //                         String spinnedOff = 'false';
-    //                         if (assignToFamilyObj instanceof Integer && (Integer)assignToFamilyObj != 1) {
-    //                             spinnedOff = 'true';
-    //                         }
-    //                         memberIdToRelationshipMap.put(memberId, spinnedOff);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     } catch (Exception e) {
-    //         System.debug(LoggingLevel.ERROR, 'Error processing members to spin off: ' + e.getMessage());
-    //     }
-    //     return memberIdToRelationshipMap;
-    // }
+    
 
     /**
      * Get the member id to DOB map from the census members list
@@ -1703,7 +1909,7 @@ public without sharing class ARC_SpinOff_Utilities {
      * @param {List<Object>} census_members - The census members.
      * @returns {List<Map<String, Object>>} - The user inputs.
      */
-    private static List<Map<String, Object>> getCensusMembersToUserInputs(List<Object> census_members, Date effectiveDate) {
+    private static List<Map<String, Object>> getCensusMembersToUserInputs(List<Object> census_members, Date effectiveDate, String productCode) {
         List<Map<String, Object>> user_input_list = new List<Map<String, Object>>();
         Boolean hasPrimary = false;
         Boolean hasSpouse = false;
@@ -1733,7 +1939,6 @@ public without sharing class ARC_SpinOff_Utilities {
                     oldestAge = age;
                 }
                 user_input.put('RF_Census.CM_Age', age);
-                //user_input.put('RF_Census.CRF_PrimaryMemberDOB', primaryDOB);
                 user_input.put('RF_Census.CM_State', census_member.get('ARC_PhysicalAddressState__c'));
                 user_input.put('RF_Census.CM_IsPrimary', (String)census_member.get('ARC_Relationship__c') == 'Primary' ? true : false);
                 user_input.put('RF_Census.CM_Relationship', census_member.get('ARC_Relationship__c'));
@@ -1741,6 +1946,7 @@ public without sharing class ARC_SpinOff_Utilities {
                 user_input.put('RF_Census.CM_Pregnant', (census_member.get('ARC_isPregnant__c') instanceof Boolean && (Boolean)census_member.get('ARC_isPregnant__c') == true) ? true : false);
                 user_input.put('RF_Census.CM_FirstName', census_member.get('vlocity_ins__FirstName__c'));
                 user_input.put('RF_Census.CM_LastName', census_member.get('vlocity_ins__LastName__c'));
+                user_input.put('RF_Census.CM_ProductCode', productCode);
                 user_input.put('IsRemoveMember', census_member.get('IsRemoveMember'));
                 user_input.put('IsNewMember', census_member.get('IsNewMember'));
                 user_input.put('IsAddExistingMember', (census_member.get('IsNewMember') instanceof Boolean && (Boolean)census_member.get('IsNewMember') == false) && (census_member.get('IsInactiveMember') instanceof Boolean && (Boolean)census_member.get('IsInactiveMember') == true) ? true : false);
@@ -2147,7 +2353,7 @@ public without sharing class ARC_SpinOff_Utilities {
      * @returns {List<Map<String, Object>>} - The hipaa recipients.
      */
     public static void getHipaaRecipients(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
-        List<Object> census_members = (List<Object>)inputMap.get('census_members');
+        // List<Object> census_members = (List<Object>)inputMap.get('census_members');
         Map<String, Object> STEP_HIPAAAuthorizationForm;
         System.debug('STEP_HIPAAAuthorizationForm: ' + inputMap.get('STEP_HIPAAAuthorizationForm'));
         if (inputMap.get('STEP_HIPAAAuthorizationForm') != null && inputMap.get('STEP_HIPAAAuthorizationForm') != '') {
@@ -2174,9 +2380,11 @@ public without sharing class ARC_SpinOff_Utilities {
                         String email = (String)internalHipaa.get('TXT_EmailAddress');
                         String recipientLabel = fullname + ' - ' + email;
                         String recipientRelationship = (String)internalHipaa.get('TXT_Relationship');
+                        String recipientPhone = (String)internalHipaa.get('TXT_Telephone');
                         recipient.put('label', recipientLabel);
                         recipient.put('value', email);
-                        recipient.put('fullName', fullname);
+                        recipient.put('Name', fullname);
+                        recipient.put('phone', recipientPhone);
                         hipaaRecipients.add(recipient);
                         // Selected by default if Primary
                         if (recipientRelationship == 'Primary' || internalHipaaList.size() == 1) {
@@ -2190,16 +2398,17 @@ public without sharing class ARC_SpinOff_Utilities {
             }
             // Add new external hipaas
             if ((String)STEP_HIPAAAuthorizationForm.get('RAD_AuthorizeOthers') == 'Yes') {
-                Map<String, Object> externalHipaa = (Map<String, Object>)STEP_HIPAAAuthorizationForm.get('BCK_addOtherPerson');
+                Map<String, Object> externalHipaa = (Map<String, Object>)STEP_HIPAAAuthorizationForm.get('NewHipaa');
                 if (externalHipaa != null) {
                     Map<String, Object> recipient = new Map<String, Object>();
                     String fullname = (String)externalHipaa.get('TXT_NewFirstName') + ' ' + (String)externalHipaa.get('TXT_NewLastName');
                     String email = (String)externalHipaa.get('TXT_NewEmail');
                     String recipientLabel = fullname + ' - ' + email;
+                    String recipientPhone = (String)externalHipaa.get('TXT_NewTelephone');
                     recipient.put('label', recipientLabel);
                     recipient.put('value', email);
-                    recipient.put('TXT_FullName', fullname);
-                    
+                    recipient.put('Name', fullname);
+                    recipient.put('phone', recipientPhone);                    
                     hipaaRecipients.add(recipient);
                 }
             }
@@ -2208,234 +2417,410 @@ public without sharing class ARC_SpinOff_Utilities {
     }
 
     /**
-     * Get the DocuSign related data 
-     * @param {List<Object>} census_members - The census members.
-     * @returns {Map<String, Object>} - DocuSign data.
+     * Indicate if the plan selected for spinned off family is a Premier
+     * @param selectedProducts: Map containing the selected products
+     * @param oldProducts: Map containing the old products
+     * @param planSelected: Boolean that indicates if a product was selected or the old product is needed
+     * @return Map<String, Object>: Boolean node
      */
-    public static void getDocuSignData(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
-        List<Object> census_members = (List<Object>)inputMap.get('census_members');
-        System.debug('census_members: ' + census_members);
-        // Number of dependents
-        Integer numberDependents = 0;
-        for (Object census_member : census_members) {
-            Map<String, Object> member = (Map<String, Object>)census_member;
-            if ((Boolean)member.get('IsRemoveMember') == false && (String)member.get('ARC_Relationship__c') == 'Child') {
-                numberDependents++;
+    public static Map<String, Object> includePremierSelected(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        String medicalCode = '';
+        String oldMedicalCode = '';
+        Boolean planSelected = (Boolean)inputMap.get('planSelected');
+        
+        List<Object> oldProducts = (List<Object>)inputMap.get('oldProducts');
+        for (Object oldProductObj : oldProducts) {
+            Map<String, Object> product = (Map<String, Object>)oldProductObj;
+            if ((String)product.get('Type__c') == 'Medical') {
+                oldMedicalCode = (String)product.get('ProductCode');
+                break;
             }
         }
-        System.debug('numberDependents: ' + numberDependents);
-        String signerEmail = (String)inputMap.get('signerEmail');
-        System.debug('signerEmail: ' + signerEmail);
-        String primaryState = (String)inputMap.get('primaryState');
-        System.debug('primaryState: ' + primaryState);
 
-        // Is Legacy
-        Boolean isLegacy = false;
-        Object selectedProducts_obj = inputMap.get('selectedProducts');
-        if (selectedProducts_obj != null && selectedProducts_obj != '') {
-            List<Object> selectedProducts = (List<Object>)selectedProducts_obj;
-            for (Object selectedProduct_obj : selectedProducts) {
-                Map<String, Object> selectedProduct = (Map<String, Object>)selectedProduct_obj;
-                if ((String)selectedProduct.get('Type__c') == 'Medical' && (String)selectedProduct.get('Name') == 'WeShare Legacy') {
-                    isLegacy = true;
+        if (planSelected) {
+            List<Object> selectedProducts = (List<Object>)inputMap.get('selectedProducts');
+            for (Object selectedProductObj : selectedProducts) {
+                Map<String, Object> product = (Map<String, Object>)selectedProductObj;
+                if ((String)product.get('Type__c') == 'Medical') {
+                    medicalCode = (String)product.get('ProductCode');
+                    break;
+                }
+            }
+        } else {
+            medicalCode = oldMedicalCode;
+        }
+
+        outputMap.put('premierSelected', medicalCode.contains('Premier'));
+        outputMap.put('originalPremierSelected', oldMedicalCode.contains('Premier'));
+
+        return outputMap;
+    }
+
+    public static Boolean hasAdultNewMembers(List<Object> userInputs) {
+        Boolean result = false;
+        for (Object userInputObj : userInputs) {
+            Map<String, Object> userInput = (Map<String, Object>)userInputObj;
+            Boolean isNewMember = (Boolean)userInput.get('IsNewMember');
+            Boolean isAdult = (Integer)userInput.get('RF_Census.CM_Age') >= 18;
+            result = isNewMember && isAdult;
+            if (result) break;
+        }
+        return result;
+    }
+
+    public static Boolean hasAdults(List<Object> userInputs) {
+        Boolean result = false;
+        for (Object userInputObj : userInputs) {
+            Map<String, Object> userInput = (Map<String, Object>)userInputObj;
+            Boolean isAdult = (Integer)userInput.get('RF_Census.CM_Age') >= 18;
+            result = isAdult;
+            if (result) break;
+        }
+        return result;
+    }
+
+    /**
+     * Method to remove the Ancillaries that are not related to the Medical Product
+     * @param selectedProducts: Map containing the selected products
+     * @return Map<String, Object>: Map selectedProducts
+     */
+    public static Map<String, Object> removeSelectedAncillaries(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        List<Object> selectedProducts = (List<Object>)inputMap.get('selectedProducts');
+
+        Map<String, Object> medicalProduct;
+        String medicalCode;
+
+        Boolean hasInvalidAncillary = false;
+
+        for (Object productObject : selectedProducts) {
+            Map<String, Object> product = (Map<String, Object>)productObject;
+
+            if ((String)product.get('Type__c') == 'Medical') {
+                medicalProduct = product;
+                medicalCode = (String)product.get('ProductCode');
+            }
+        }
+
+        Boolean isPremier = medicalCode != null && medicalCode.contains('Premier');
+
+        for (Object productObject : selectedProducts) {
+            Map<String, Object> product = (Map<String, Object>)productObject;
+
+            if ((String)product.get('Type__c') != 'Medical') {
+                String ancillaryCode = (String)product.get('ProductCode');
+
+                Boolean isPremierAncillary =
+                    ancillaryCode != null &&
+                    (ancillaryCode.contains('CriticalCare') ||
+                    ancillaryCode.contains('AccidentalInjury'));
+
+                if (
+                    (isPremier && !isPremierAncillary) ||
+                    (!isPremier && isPremierAncillary)
+                ) {
+                    hasInvalidAncillary = true;
                     break;
                 }
             }
         }
-        // Query template
-        String templateNameStr = '';
-        if (isLegacy) {
-            if (primaryState == 'CA') {
-                templateNameStr = 'WeShare Legacy Membership Application CA';
-            }
-            else {
-                templateNameStr = 'WeShare Legacy Membership Application';
-            }
+
+        List<Object> newSelectedProducts = new List<Object>();
+
+        if (hasInvalidAncillary && medicalProduct != null) {
+            newSelectedProducts.add(medicalProduct);
         } else {
-            String queryStr = 'SELECT ARC_Template_Name__c, ARC_DRTransform__c ';
-            queryStr += 'FROM ARC_DocuSignTemplates__c';
-            queryStr += ' WHERE ARC_Contract_Reasons__c LIKE \'%Spin Off%\'';
-            queryStr += ' AND ARC_Min_Dependents__c <= ' + numberDependents;
-            queryStr += ' AND ARC_Max_Dependents__c >= ' + numberDependents;
-            if (primaryState == 'CA') {
-                queryStr += ' AND ARC_State__c =  \'CA\'';
-            }
-            queryStr += ' ORDER BY ARC_Template_Name__c ASC LIMIT 1';
-            ARC_DocuSignTemplates__c templateSettings = Database.query(queryStr);
-            templateNameStr = templateSettings.ARC_Template_Name__c;
+            newSelectedProducts = selectedProducts;
         }
-        System.debug('templateNameStr: ' + templateNameStr);
-        vlocity_ins__VlocityDocuSignTemplate__c template = [
-            SELECT Id, Name, vlocity_ins__templateidentifier__c
-            FROM vlocity_ins__VlocityDocuSignTemplate__c
-            WHERE name = :templateNameStr
-            ORDER BY LastModifiedDate DESC LIMIT 1
-        ];
-        System.debug('template: ' + template);
-        Map<String, Object> DocuSignTemplateId = new Map<String, Object>();
-        DocuSignTemplateId.put('Id', template.Id);
-        DocuSignTemplateId.put('Name', template.Name);
-        DocuSignTemplateId.put('TemplateId', template.vlocity_ins__templateidentifier__c);
-        outputMap.put('DocuSignTemplateId', DocuSignTemplateId);
-        // Signers....
-        List<Object> recipients = new List<Object>();
-        Integer dependentCount = 1;
-        for (Object census_member_obj : census_members) {
-            Map<String, Object> census_member = (Map<String, Object>)census_member_obj;
-            String name = (String)census_member.get('vlocity_ins__FirstName__c') + ' ' + (String)census_member.get('vlocity_ins__LastName__c');
-            String relationship = (String)census_member.get('ARC_Relationship__c');
-            if ((Integer)census_member.get('ARC_Age__c') < 18 || (relationship != 'Primary' && !(Boolean)census_member.get('IsNewMember'))) continue;
-            String templateRole;
-            if (relationship == 'Primary' || relationship == 'Spouse') {
-                templateRole = relationship == 'Primary' ? 'Primary' : 'Spouse';
-            } else if (relationship == 'Child') {
-                templateRole = 'Dependent' + dependentCount;
-                dependentCount++;
-            }
-            Map<String, Object> recipient = new Map<String, Object>();
-            recipient.put('templateRole', templateRole);
-            recipient.put('signerEmail', signerEmail);
-            recipient.put('signerName', name);
-            recipients.add(recipient);
-        }
-        if (recipients.size() == 0) {
-            String templateRole = 'Primary';
-            Map<String, Object> guardianStep = (Map<String, Object>)inputMap.get('STEP_GuardiansInformation');
-            String guardianName = (String)guardianStep.get('TXT_GuardianFirstName') + ' ' + (String)guardianStep.get('TXT_GuardianLastName');
-            Map<String, Object> recipient = new Map<String, Object>();
-            recipient.put('templateRole', templateRole);
-            recipient.put('signerEmail', signerEmail);
-            recipient.put('signerName', guardianName);
-            recipients.add(recipient);
-        }
-        System.debug('SignerList: ' + recipients);
-        outputMap.put('SignerList', recipients);
-        // Info....
-        // Transform DATA
-        // GET Input DATA
-        Map<String,Object> inputMapDSTrans = new Map<String,Object>();
 
-        Map<String, Object> MembersInfo = new Map<String, Object>();
-        List<Object> dependentMembers = new List<Object>();
-        for (Object census_member_obj : census_members) {
-            Map<String, Object> census_member = (Map<String, Object>)census_member_obj;
-            String relationship = (String)census_member.get('ARC_Relationship__c');
-            System.debug('Relationship: ' + relationship);
+        outputMap.put('selectedProducts', newSelectedProducts);
 
-            if((Boolean)census_member.get('IsRemoveMember') == true) continue;
-
-            if (relationship == 'Primary') {
-                Map<String, Object> primaryMember = new Map<String, Object>();
-                Object isPregnant_obj = census_member.get('ARC_isPregnant__c');
-                primaryMember.put('Pregnant',isPregnant_obj != null && isPregnant_obj != '' ? (Boolean)isPregnant_obj : false);
-                Object Smoker_obj = census_member.get('ARC_Smoker__c');
-                primaryMember.put('Smoker', Smoker_obj != null && Smoker_obj != '' ? (Boolean)Smoker_obj : false);
-                primaryMember.put('MI', (String)census_member.get('ARC_MiddleInitial__c'));
-                primaryMember.put('Phone', (String)census_member.get('ARC_Phone__c'));
-                primaryMember.put('City', (String)census_member.get('ARC_PhysicalAddressCity__c'));
-                primaryMember.put('State', (String)census_member.get('ARC_PhysicalAddressState__c'));
-                primaryMember.put('Address', (String)census_member.get('ARC_PhysicalAddressStreet__c'));
-                primaryMember.put('ZipCode', (String)census_member.get('ARC_PhysicalAddressZipCode__c'));
-                primaryMember.put('Weight', (String)census_member.get('ARC_Weight__c'));
-                primaryMember.put('DayOfBirth', (Date.valueOf((String)census_member.get('vlocity_ins__Birthdate__c'))).day());
-                primaryMember.put('Height', (String)census_member.get('ARC_HeightFeet__c') + '\'' + (String)census_member.get('ARC_HeightInches__c'));
-                primaryMember.put('Id', (String)census_member.get('Id'));
-                //primaryMember.put('IsInactiveMember', (Boolean)census_member.get('IsInactiveMember'));
-                primaryMember.put('IsNewMember', (Boolean)census_member.get('IsNewMember'));
-                primaryMember.put('IsRemoveMember', (Boolean)census_member.get('IsRemoveMember'));
-                primaryMember.put('MonthOfBirth', (Date.valueOf((String)census_member.get('vlocity_ins__Birthdate__c'))).month());
-                primaryMember.put('YearOfBirth', (Date.valueOf((String)census_member.get('vlocity_ins__Birthdate__c'))).year());
-                primaryMember.put('DOB', (String)census_member.get('vlocity_ins__Birthdate__c'));
-                primaryMember.put('Email', (String)census_member.get('vlocity_ins__Email__c'));
-                primaryMember.put('FirstName', (String)census_member.get('vlocity_ins__FirstName__c'));
-                primaryMember.put('LastName', (String)census_member.get('vlocity_ins__LastName__c'));
-                primaryMember.put('Gender', (String)census_member.get('vlocity_ins__Gender__c'));
-                primaryMember.put('SocialSecurity', (String)census_member.get('vlocity_ins__SocialSecurityNumber__c'));
-                MembersInfo.put('primaryMember', primaryMember);
-            } else if (relationship == 'Spouse') {
-                Map<String, Object> spouseMember = new Map<String, Object>();
-                Object isPregnant_obj = census_member.get('ARC_isPregnant__c');
-                spouseMember.put('Pregnant', isPregnant_obj != null && isPregnant_obj != '' ? (Boolean)isPregnant_obj : false);
-                Object Smoker_obj = census_member.get('ARC_Smoker__c');
-                spouseMember.put('Smoker', Smoker_obj != null && Smoker_obj != '' ? (Boolean)Smoker_obj : false);
-                spouseMember.put('MI', (String)census_member.get('ARC_MiddleInitial__c'));
-                spouseMember.put('Weight', (String)census_member.get('ARC_Weight__c'));
-                spouseMember.put('Height', (String)census_member.get('ARC_HeightFeet__c') + '\'' + (String)census_member.get('ARC_HeightInches__c'));
-                spouseMember.put('Id', (String)census_member.get('Id'));
-                //spouseMember.put('IsInactiveMember', (Boolean)census_member.get('IsInactiveMember'));
-                spouseMember.put('IsNewMember', (Boolean)census_member.get('IsNewMember'));
-                spouseMember.put('IsRemoveMember', (Boolean)census_member.get('IsRemoveMember'));
-                spouseMember.put('DOB', (String)census_member.get('vlocity_ins__Birthdate__c'));
-                spouseMember.put('Email', (String)census_member.get('vlocity_ins__Email__c'));
-                spouseMember.put('FirstName', (String)census_member.get('vlocity_ins__FirstName__c'));
-                spouseMember.put('LastName', (String)census_member.get('vlocity_ins__LastName__c'));
-                spouseMember.put('Gender', (String)census_member.get('vlocity_ins__Gender__c'));
-                spouseMember.put('SocialSecurity', (String)census_member.get('vlocity_ins__SocialSecurityNumber__c'));
-                MembersInfo.put('spouseMember', spouseMember);
-            } else if (relationship == 'Child') {
-                Map<String, Object> dependentMember = new Map<String, Object>();
-                Object isPregnant_obj = census_member.get('ARC_isPregnant__c');
-                dependentMember.put('Pregnant', isPregnant_obj != null && isPregnant_obj != '' ? (Boolean)isPregnant_obj : false);
-                Object Smoker_obj = census_member.get('ARC_Smoker__c');
-                dependentMember.put('Smoker', Smoker_obj != null && Smoker_obj != '' ? (Boolean)Smoker_obj : false);
-                dependentMember.put('MI', (String)census_member.get('ARC_MiddleInitial__c'));
-                dependentMember.put('Weight', (String)census_member.get('ARC_Weight__c'));
-                dependentMember.put('Height', (String)census_member.get('ARC_HeightFeet__c') + '\'' + (String)census_member.get('ARC_HeightInches__c'));
-                dependentMember.put('Id', (String)census_member.get('Id'));
-                //dependentMember.put('IsInactiveMember', (Boolean)census_member.get('IsInactiveMember'));
-                dependentMember.put('IsNewMember', (Boolean)census_member.get('IsNewMember'));
-                dependentMember.put('IsRemoveMember', (Boolean)census_member.get('IsRemoveMember'));
-                dependentMember.put('DOB', (String)census_member.get('vlocity_ins__Birthdate__c'));
-                dependentMember.put('Email', (String)census_member.get('vlocity_ins__Email__c'));
-                dependentMember.put('FirstName', (String)census_member.get('vlocity_ins__FirstName__c'));
-                dependentMember.put('LastName', (String)census_member.get('vlocity_ins__LastName__c'));
-                dependentMember.put('Gender', (String)census_member.get('vlocity_ins__Gender__c'));
-                dependentMember.put('SocialSecurity', (String)census_member.get('vlocity_ins__SocialSecurityNumber__c'));
-                dependentMembers.add(dependentMember);
-            }
-        }
-        if (!dependentMembers.isEmpty()) {
-            MembersInfo.put('dependentMembers', dependentMembers);
-        }
-        System.debug('MembersInfo: ' + MembersInfo);
-
-        // Adapt Payment Step in DocuSign Map to PC DocuSign class so information is correctly populated in DS
-        Map<String, Object> DocuSignMap = (Map<String, Object>)inputMap.get('DocuSign');
-        Map<String,Object> pcChangesMap = (Map<String, Object>)DocuSignMap.get('pcChanges');
-
-        ((Map<String, Object>)((Map<String, Object>)DocuSignMap.get('Step_PaymentChangeFee')).get('BLK_ChargeFee')).put('RAD_KeepRecurringMethodOfPayment', 'No');
-        (((Map<String, Object>)DocuSignMap.get('Step_PaymentChangeFee'))).put('RAD_ChargeAppFeeDefTrue', 'Yes');
-        pcChangesMap.put('feeApplicable', true);
-
-        System.debug('Updated DocuSign Map: ' + DocuSignMap);
-        System.debug('pc changes map : ' + pcChangesMap);
-
-
-        inputMapDSTrans.put('MembersInfo', MembersInfo);
-        inputMapDSTrans.put('DocuSign', DocuSignMap);
-        inputMapDSTrans.put('EffectiveDate', (String)inputMap.get('effectiveDate'));
-        inputMapDSTrans.put('pcChanges', pcChangesMap);
-        inputMapDSTrans.put('allMembersInfo', census_members);
-        inputMapDSTrans.put('primaryState', primaryState);
-        Map<String, Object> newMedicalProduct = new Map<String, Object>();
-        List<Object> productList = (List<Object>)DocuSignMap.get('NewProductList');
-        for (Object product_obj : productList) {
-            Map<String, Object> product = (Map<String, Object>)product_obj;
-            Map<String, Object> selectedProduct = (Map<String, Object>)product.get('selectedProduct');
-            if (selectedProduct.get('Type__c') == 'Medical') {
-                newMedicalProduct.put('selectedProduct', selectedProduct);
-                break;
-            }
-        }
-        if (newMedicalProduct.containsKey('selectedProduct')) {
-            inputMapDSTrans.put('newMedicalProduct', newMedicalProduct);
-        }
-        inputMapDSTrans.put('UpdateType', 'Change to Programs');
-        Map<String,Object> outputMapDSTrans = new Map<String,Object>();
-
-        ARC_ProgramChange_DocuSign.DocuSignDataTransform(inputMapDSTrans, outputMapDSTrans, new Map<String,Object>());
-        outputMap.put('RAresponse', outputMapDSTrans);
+        return outputMap;
     }
 
 
+    /************************************************************************
+    * @MethodName         :   getDocuSignData
+    * @Description        :   Get all the required data to send the DocuSign
+    ************************************************************************/
+    public static void getDocuSignData(Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
+        // Get signer info from JSON
+        if (inputMap.containsKey('STEP_SignTheDocument') && inputMap.get('STEP_SignTheDocument') != null) {
+            if (((Map<String,Object>)inputMap.get('STEP_SignTheDocument')).get('Recipient-Block') != null) {
+                signerInfoMap = (Map<String,Object>)((Map<String,Object>)inputMap.get('STEP_SignTheDocument')).get('Recipient-Block');
+            }
+        }
+        System.debug('Signer Info Map: ' + signerInfoMap);
+
+        // Get spin off family member list
+        Map<String, Object> censusComponent = inputMap.containsKey('census_component') ? (Map<String, Object>) inputMap.get('census_component') : new Map<String, Object>();
+        List<Object> censusMemberList = censusComponent.containsKey('census_members') ? (List<Object>) censusComponent.get('census_members') : new List<Object>();
+        List<Object> spinOffCensusMemberList = new List<Object>();
+        // Verify if it has 1 or 2 indexes
+        if (!censusMemberList.isEmpty()) {
+            if (censusMemberList[0] instanceof Map<String, Object>) {
+                spinOffCensusMemberList = censusMemberList;
+            } else if (censusMemberList[0] instanceof List<Object> && censusMemberList.size() == 2) {
+                spinOffCensusMemberList = (List<Object>)censusMemberList[1];
+            }
+        }
+        System.debug('Spin Off Member List: ' + spinOffCensusMemberList);
+        System.debug('Spin Off Member List Size: ' + spinOffCensusMemberList.size());
+        for (Object soMember : spinOffCensusMemberList) {
+            Map<String,Object> soMemberMap = transformMemberMapKeys((Map<String,Object>)soMember);
+            String memberRelationship = (String)soMemberMap.get('Relationship');
+            if ((Boolean)soMemberMap.get('IsRemoveMember')) continue;
+            if (memberRelationship == 'Primary') primaryMember = soMemberMap;
+            if (memberRelationship == 'Spouse') spouseMember = soMemberMap;
+            if (memberRelationship == 'Child') dependents.add(soMemberMap);
+            dependentCount = memberRelationship == 'Primary' || memberRelationship == 'Spouse' ? dependentCount : dependentCount + 1;
+            spinOffMemberList.add(soMemberMap);
+        }
+        Map<String,Object> memberInfo = new Map<String,Object>();
+        memberInfo.put('primaryMember', primaryMember);
+        memberInfo.put('spouseMember', !spouseMember.isEmpty() ? spouseMember : null);
+        memberInfo.put('dependentMembers', !dependents.isEmpty() ? dependents : null);
+
+        // Get medical program complete map
+        newProductList = (List<Object>)inputMap.get('NewProductList');
+        Map<String,Object> medicalProgramMap = new Map<String,Object>();
+        for (Object product : newProductList) {
+            Map<String,Object> productMap = (Map<String,Object>)((Map<String,Object>)product).get('selectedProduct');
+            if ((String)productMap.get('Type__c') == 'Medical') medicalProgramMap = (Map<String,Object>)product;
+        }
+
+
+        //Build DocuSign map
+        Map<String,Object> soChangesMap = (Map<String,Object>)inputMap.get('soChanges');
+        soChangesMap.put('pcReasonsString', soChangesMap.get('soReasonsString'));
+        soChangesMap.put('feeApplicable', true);
+        soChangesMap.put('pcReasons', soChangesMap.get('soReasons'));
+        soChangesMap.put('createNewContract', true);
+
+        Map<String,Object> docuSignMap = new Map<String,Object>();
+        docuSignMap.put('Hipaa', inputMap.get('FinalHipaaRecipients'));
+        docuSignMap.put('Medicare', inputMap.get('STEP_MedicareCoverage'));
+        docuSignMap.put('NewProductList', inputMap.get('NewProductList'));
+        docuSignMap.put('OldProductList', inputMap.get('OldProductList'));
+        docuSignMap.put('PlanSummary', inputMap.get('PlansSummary'));
+        docuSignMap.put('STEP_MedicalQuestions', inputMap.get('STEP_MedicalQuestions'));
+        docuSignMap.put('STEP_SignTheDocument', inputMap.get('STEP_SignTheDocument'));
+        docuSignMap.put('Step_PaymentChangeFee', inputMap.get('STEP_ChargentPayment'));
+        docuSignMap.put('pcChanges', soChangesMap);
+        docuSignMap.put('userId', String.valueOf(inputMap.get('userId')));
+        docuSignMap.put('guardianInfo', inputMap.get('STEP_GuardiansInformation'));
+
+        ((Map<String, Object>)((Map<String, Object>)docuSignMap.get('Step_PaymentChangeFee')).get('BLK_ChargeFee')).put('RAD_KeepRecurringMethodOfPayment', 'No');
+        (((Map<String, Object>)docuSignMap.get('Step_PaymentChangeFee'))).put('RAD_ChargeAppFeeDefTrue', 'Yes');
+
+        // Build map to pass to mapping method
+        docuSignDataMap.put('MembersInfo', memberInfo);
+        docuSignDataMap.put('allMembersInfo', spinOffMemberList);
+        docuSignDataMap.put('MembersList', spinOffCensusMemberList);
+        docuSignDataMap.put('primaryState', (String)primaryMember.get('State'));
+        docuSignDataMap.put('EffectiveDate', (String)inputMap.get('EffectiveDate'));
+        docuSignDataMap.put('UpdateType', 'Change to Programs');
+        docuSignDataMap.put('newMedicalProduct', medicalProgramMap);
+        docuSignDataMap.put('DocuSign', docuSignMap);
+
+        // BUILD THE SIGNER LIST
+        getSignerList();
+
+        // GET ALL THE REQUIRED TEMPLATES
+        getDocuSignTemplateIds();
+
+        // MAP ALL THE PROGRAM CHANGE INFORMATION
+        ARC_ProgramChange_DocuSign.DocuSignDataTransform(docuSignDataMap, docuSignOutputMap, docuSignOptionsMap);
+
+        System.debug('OUTPUT MAP: ' + docuSignOutputMap);
+        System.debug('SIGNER LIST: ' + signerList);
+        System.debug('TEMPLATES IDS LIST: ' + templatesIdList);
+        Map<String,Object> envelopeMap = new Map<String,Object>{
+            'signerList' => signerList,
+            'templateIdList' => templatesIdList,
+            'tabs' => docuSignOutputMap.get('tabs')
+        };
+        outputMap.put('EnvelopeInformation', envelopeMap);
+        System.debug('Output Map in getDocuSignData method: ' + outputMap);
+
+    }
+
+    /*******************************************************************
+    * @MethodName         :   getSignerList
+    * @Description        :   method to get the signer list
+    ********************************************************************/
+    public static void getSignerList() {
+        System.debug('Getting signer list...');
+
+        // First build selected signer map
+        Integer recipientCount = 0;
+        Map<String,Object> selectedSignerMap = new Map<String,Object>();
+        selectedSignerMap.put('recipientId', '1');
+        selectedSignerMap.put('name', (String)signerInfoMap.get('Name'));
+        selectedSignerMap.put('email', (String)signerInfoMap.get('value'));
+        selectedSignerMap.put('deliveryMethod', 'Email');
+        selectedSignerMap.put('roleName', 'Primary');
+        signerList.add(selectedSignerMap);
+        recipientCount++;
+
+        Integer signerDependentCount = 0;
+        for (Object member : spinOffMemberList) {
+            Map<String,Object> memberMap = (Map<String,Object>)member;
+            Integer memberAge = Integer.valueOf(memberMap.get('Age')); System.debug('Member Age: ' + memberAge);
+            String memberRelationship = (String)memberMap.get('Relationship'); System.debug('Relationship: ' + memberRelationship);
+            // Add +18 members to signer list
+            if (memberAge >= 18 && memberRelationship != 'Primary') {
+                if (memberRelationship == 'Child') signerDependentCount++;
+                recipientCount++;
+                Map<String,Object> signerMap = new Map<String,Object>{
+                    'recipientId' => String.valueOf(recipientCount),
+                    'roleName' => memberRelationship == 'Spouse' ? memberRelationship : 'Dependent' + String.valueOf(signerDependentCount),
+                    'name' => memberMap.containsKey('fullName') ? (String)memberMap.get('fullName') : (String)memberMap.get('FirstName') + ' ' + (String)memberMap.get('LastName'),
+                    'email' => (String)memberMap.get('Email'),
+                    'deliveryMethod' => 'Email'
+                };
+                signerList.add(signerMap);
+            }
+        }
+        System.debug('Signer List Size: ' + signerList.size());
+        for (Map<String,Object> signer : signerList) {
+            System.debug('Signer List: ' + signer);
+        }  
+    }
+
+
+    /**************************************************************************
+    * @MethodName         :   getDocuSignTemplateIds
+    * @Description        :   method to get the templates than need to be used
+    ***************************************************************************/
+    private static void  getDocuSignTemplateIds() {
+        System.debug('Getting DocuSign templates...');
+
+        Integer primaryAge = (Integer)primaryMember.get('Age'); System.debug('Primary Age: ' + primaryAge);
+        Boolean isChildFamily = primaryAge < 18 ? true : false; System.debug('isChildFamily: ' + isChildFamily);
+        Integer dependents = dependentCount; System.debug('Dependents: ' + dependents);
+        String primaryState = (String)primaryMember.get('State'); System.debug('Primary State: ' + primaryState);
+        String medicalPlanName = '';
+
+        for (Object product : newProductList) {
+            Map<String,Object> productMap = (Map<String,Object>)((Map<String,Object>)product).get('selectedProduct');
+            if ((String)productMap.get('Type__c') == 'Medical') medicalPlanName = (String)productMap.get('Name');
+        }
+        System.debug('Medical Plan Name: ' + medicalPlanName); 
+        String programType = medicalPlanName.contains('Legacy') ? 'Senior' : medicalPlanName.contains('Premier') ? 'Premier' : medicalPlanName.contains('Access') ? 'Essential' : 'Enhanced';
+        System.debug('Program Type: ' + programType);
+        Boolean isLegacy = medicalPlanName.contains('Legacy') ? true : false;
+
+        // Section order map
+        Map<String,Integer> orderMap = new Map<String,Integer> {
+            'Application' => 1,
+            'Program' => 2,
+            'Beneficiaries' => 3,
+            'Payment' => 4, 
+            'State' => 5
+        };
+
+        List<String> clausesList = new List<String>();
+        for (String section : orderMap.keySet()) {
+            String sectionStr = '(ARC_Section__c = ' + '\'' + section +'\' ';
+            if (section == 'Application') {
+                sectionStr += 'AND ARC_BusinessSegment__c = \'IndividualAndFamily\' AND ARC_MinDependents__c <= ' + dependents + ' AND ARC_MaxDependents__c >= ' + dependents + ' AND ARC_ChildOnly__c = ' + isChildFamily + ' AND ARC_IsLegacy__c = ' + isLegacy;
+            } else if (section == 'Program' || section == 'Beneficiaries') {
+                sectionStr += 'AND ARC_ProgramType__c = \'' + programType + '\'';
+            } else if (section == 'State') {
+                sectionStr += 'AND ARC_BusinessSegment__c = \'IndividualAndFamily\' AND ARC_State__c = \'' + primaryState + '\'';
+            }
+            sectionStr += ') \n';
+            clausesList.add(sectionStr);
+        }
+
+        // Query
+        String queryStr = 'SELECT Id, ARC_TemplateName__c, ARC_Section__c FROM ARC_DocuSignCompositeTemplates__c '; // Base query string
+        if (clausesList != null && !clausesList.isEmpty()) {
+            String allClausesStr = String.join(clausesList, ' OR ');
+            queryStr += 'WHERE ' + allClausesStr;
+        }
+        System.debug('Query String: ' + queryStr);
+
+        List<ARC_DocuSignCompositeTemplates__c> compTemplates = Database.query(queryStr);
+        List<String> templatesList = new List<String>();
+        Map<Integer,String> orderToTemplateNameMap = new Map<Integer,String>();
+        for (ARC_DocuSignCompositeTemplates__c compTemplate : compTemplates) {
+            String templateName = compTemplate.ARC_TemplateName__c;
+            orderToTemplateNameMap.put(orderMap.get(compTemplate.ARC_Section__c), templateName);
+            templatesList.add(templateName);
+        }
+        List<vlocity_ins__VlocityDocuSignTemplate__c> templates = [
+            SELECT Id, Name, vlocity_ins__templateidentifier__c
+            FROM vlocity_ins__VlocityDocuSignTemplate__c
+            WHERE Name IN :templatesList
+        ];
+
+        // Order the vlocity templates in the correct seciton order
+        Map<String,String> tempNameToTempId = new Map<String,String>();
+        for (vlocity_ins__VlocityDocuSignTemplate__c temp : templates) {
+            String tempName = temp.Name;
+            tempNameToTempId.put(tempName, temp.vlocity_ins__templateidentifier__c);
+        }
+        for (Integer i = 1 ; i <= orderMap.values().size() ; i++) {
+            String tempNameToAdd = orderToTemplateNameMap.get(i);
+            System.debug('Template ' + i + ': ' + tempNameToAdd);
+            if (tempNameToAdd != null) templatesIdList.add(tempNameToTempId.get(tempNameToAdd));
+        }
+        System.debug('Final template ID list: ' + templatesIdList);
+    }
+
+
+    /**
+     * @Description: Auxiliar method to transform member map keys
+     * @param memberMap: All the member information map received from JSON
+     */
+
+    private static Map<String,Object> transformMemberMapKeys(Map<String,Object> memberMap) {
+        String height = String.valueOf(memberMap.get('ARC_HeightFeet__c')) + '\'' + String.valueOf(memberMap.get('ARC_HeightInches__c')) + '\"';
+        String memberSSN = (String)memberMap.get('vlocity_ins__SocialSecurityNumber__c');
+        Map<String,Object> transformedMemberMap = new Map<String,Object> {
+            'Id' => (String)memberMap.get('Id'),
+            'FirstName' => (String)memberMap.get('vlocity_ins__FirstName__c'),
+            'MI' => (String)memberMap.get('ARC_MiddleInitial__c'),
+            'LastName' => (String)memberMap.get('vlocity_ins__LastName__c'),
+            'DOB' => (String)memberMap.get('vlocity_ins__Birthdate__c'),
+            'Age' => Integer.valueOf(memberMap.get('ARC_Age__c')),
+            'Gender' => (String)memberMap.get('vlocity_ins__Gender__c'),
+            'Phone' => (String)memberMap.get('ARC_Phone__c'),
+            'Email' => (String)memberMap.get('vlocity_ins__Email__c'),
+            'SocialSecurity' => memberSSN != null ? 'XXX-XX-' + memberSSN.right(4) : '',
+            'SSN' => memberSSN ?? '',
+            'Height' => height,
+            'Weight' => String.valueOf(memberMap.get('ARC_Weight__c')),
+            'Pregnant' => memberMap.get('ARC_isPregnant__c') != null && memberMap.get('ARC_isPregnant__c') != '' ? (Boolean)memberMap.get('ARC_isPregnant__c') : false,
+            'Smoker' => memberMap.get('ARC_Smoker__c') != null && memberMap.get('ARC_Smoker__c') != '' ? (Boolean)memberMap.get('ARC_Smoker__c') : false,
+            'Address' => (String)memberMap.get('ARC_PhysicalAddressStreet__c'),
+            'City' => (String)memberMap.get('ARC_PhysicalAddressCity__c'),
+            'State' => (String)memberMap.get('ARC_PhysicalAddressState__c'),
+            'ZipCode' => (String)memberMap.get('ARC_PhysicalAddressZipCode__c'),
+            'Relationship' => (String)memberMap.get('ARC_Relationship__c'),
+            'IsRemoveMember' => (Boolean)memberMap.get('IsRemoveMember'),
+            'IsNewMember' => (Boolean)memberMap.get('IsNewMember')
+        };
+
+        return transformedMemberMap;
+    }
+
+    private static Map<String,Integer> getOldestAgeMap(List<Object> userInputs){
+        Map<String,Integer> ageMap = new Map<String,Integer>();
+        Integer oldestAge = 0;
+        for (Object user_input_object : userInputs) {
+            Map<String,Object> user_input = (Map<String,Object>)user_input_object;
+            if (user_input.containsKey('RF_Census.CM_Age') && user_input.get('RF_Census.CM_Age')!= null) {
+                if((Integer)user_input.get('RF_Census.CM_Age')>oldestAge){
+                    oldestAge = (Integer)user_input.get('RF_Census.CM_Age');
+                }
+                if(user_input.containsKey('RF_Census.CM_Relationship') && ((String)user_input.get('RF_Census.CM_Relationship') == 'Primary' || (String)user_input.get('RF_Census.CM_Relationship') == 'Spouse')){
+                    ageMap.put((String)user_input.get('RF_Census.CM_Relationship'),(Integer)user_input.get('RF_Census.CM_Age'));
+                }
+            }
+        }
+        ageMap.put('oldestAge',oldestAge);
+        return ageMap;
+    }
 }

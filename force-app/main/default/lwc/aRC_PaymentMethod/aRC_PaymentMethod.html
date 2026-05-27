@@ -1,0 +1,382 @@
+<template>
+    <div class="payment-method-container">
+        <!-- Payment Method Selection -->
+        <div class="slds-m-bottom_medium">
+            <c-a-r-c_-radio-group
+                label="Payment Method"
+                name="paymentMethod"
+                options={paymentMethodOptions}
+                value={selectedMethod}
+                required
+                disabled={readOnly}
+                onchange={handleMethodChange}>
+            </c-a-r-c_-radio-group>
+        </div>
+
+        <!-- Bank Account Form -->
+        <template lwc:if={isBankAccount}>
+            <div class="bank-account-form slds-box slds-box_x-small slds-theme_shade slds-m-top_small">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">
+                    Bank Account Information
+                </h3>
+
+                <div class="slds-grid slds-wrap slds-gutters_small">
+                    <!-- Financial Institution Name -->
+                    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                        <lightning-input
+                            type="text"
+                            label="Financial Institution Name"
+                            data-field="financialInstitutionName"
+                            value={bankData.financialInstitutionName}
+                            placeholder="Enter bank name"
+                            required
+                            read-only={readOnly}
+                            onchange={handleBankFieldChange}>
+                        </lightning-input>
+                    </div>
+
+                    <!-- Routing Number -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="text"
+                            label="Bank Routing Number"
+                            data-field="routingNumber"
+                            value={bankData.routingNumber}
+                            placeholder="9 digits"
+                            pattern={routingNumberPattern}
+                            message-when-pattern-mismatch="Enter a valid 9-digit routing number"
+                            required
+                            read-only={readOnly}
+                            maxlength="9"
+                            onchange={handleBankFieldChange}>
+                        </lightning-input>
+                    </div>
+
+                    <!-- Account Number -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="text"
+                            label="Bank Account Number"
+                            data-field="accountNumber"
+                            value={bankData.accountNumber}
+                            required
+                            read-only={readOnly}
+                            onchange={handleBankFieldChange}>
+                        </lightning-input>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Credit Card Form -->
+        <template lwc:if={isCreditCard}>
+            <c-a-r-c_-credit-card-form
+                read-only={readOnly}
+                record-id={recordId}
+                card-data={cardDataForChild}
+                hide-cardholder-info
+                onchange={handleCreditCardChange}
+                ontokenizedcard={handleTokenizedCard}>
+            </c-a-r-c_-credit-card-form>
+        </template>
+
+        <!-- Account Holder Contact Section (Shared between Bank and Card) -->
+        <div class="account-holder-section slds-m-top_medium slds-box slds-box_x-small slds-theme_shade">
+            <h3 class="account-holder-header">Account Holder Contact</h3>
+                    <div class="radio-group-box">
+                        <!-- First Radio: Is Account Holder same as Primary Business Contact -->
+                        <c-a-r-c_-radio-group
+                            label="Is the Account Holder the same as the Primary Business Contact?"
+                            name="bankSameAsPrimary"
+                            options={yesNoOptions}
+                            value={bankSameAsPrimaryValue}
+                            required
+                            disabled={readOnly}
+                            hide-box
+                            onchange={handleBankSameAsPrimaryChange}>
+                        </c-a-r-c_-radio-group>
+
+                        <!-- Second Radio: Use Existing Contact (only shown if first radio is No) -->
+                        <template lwc:if={showBankUseExistingContactRadio}>
+                            <c-a-r-c_-radio-group
+                                label="Use Existing Contact as Account Holder?"
+                                name="useExistingContact"
+                                options={yesNoOptions}
+                                value={useExistingContactValue}
+                                required
+                                disabled={readOnly}
+                                hide-box
+                                container-class="slds-m-top_medium"
+                                onchange={handleUseExistingContactChange}>
+                            </c-a-r-c_-radio-group>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Contact Lookup (when using existing) -->
+                <template lwc:if={showContactLookup}>
+                    <div class="slds-m-bottom_small">
+                        <c-a-r-c_-generic-lookup
+                            label="Select Contact"
+                            placeholder="Search contacts..."
+                            object-type="Contact"
+                            icon-name="standard:contact"
+                            opportunity-id={recordId}
+                            data-field="accountHolder"
+                            required
+                            disabled={readOnly}
+                            onselect={handleContactSelect}
+                            onclear={handleContactClear}>
+                        </c-a-r-c_-generic-lookup>
+                    </div>
+                </template>
+
+                <!-- Account Holder Fields (shown when not same as primary - either existing or manual) -->
+                <template lwc:if={showAccountHolderFields}>
+                    <div class="slds-section slds-m-top_medium">
+                        
+                        
+                        <div class="slds-grid slds-wrap slds-gutters_small slds-m-top_small">
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                <lightning-input
+                                    type="text"
+                                    label="Account Holder First Name"
+                                    data-field="firstName"
+                                    value={accountHolderData.firstName}
+                                    required
+                                    read-only={readOnly}
+                                    onchange={handleAccountHolderFieldChange}>
+                                </lightning-input>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                <lightning-input
+                                    type="text"
+                                    label="Account Holder Last Name"
+                                    data-field="lastName"
+                                    value={accountHolderData.lastName}
+                                    required
+                                    read-only={readOnly}
+                                    onchange={handleAccountHolderFieldChange}>
+                                </lightning-input>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                <lightning-input
+                                    type="email"
+                                    label="Account Holder Email"
+                                    data-field="email"
+                                    value={accountHolderData.email}
+                                    required
+                                    read-only={readOnly}
+                                    onchange={handleAccountHolderFieldChange}>
+                                </lightning-input>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                <lightning-combobox
+                                    label="Portal Access"
+                                    data-field="portalAccess"
+                                    value={accountHolderData.portalAccess}
+                                    placeholder="Select Portal Access"
+                                    options={portalAccessOptions}
+                                    required
+                                    disabled={readOnly}
+                                    onchange={handleAccountHolderFieldChange}>
+                                </lightning-combobox>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                <lightning-input
+                                    type="text"
+                                    label="Account Holder Street"
+                                    data-field="street"
+                                    value={accountHolderData.street}
+                                    required
+                                    read-only={readOnly}
+                                    onchange={handleAccountHolderFieldChange}>
+                                </lightning-input>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                <lightning-input
+                                    type="text"
+                                    label="City"
+                                    data-field="city"
+                                    value={accountHolderData.city}
+                                    required
+                                    read-only={readOnly}
+                                    onchange={handleAccountHolderFieldChange}>
+                                </lightning-input>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                <lightning-combobox
+                                    label="State"
+                                    data-field="state"
+                                    value={accountHolderData.state}
+                                    placeholder="Select State"
+                                    options={stateOptions}
+                                    required
+                                    disabled={readOnly}
+                                    onchange={handleAccountHolderFieldChange}>
+                                </lightning-combobox>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                <lightning-input
+                                    type="text"
+                                    label="Zip Code"
+                                    data-field="zip"
+                                    value={accountHolderData.zip}
+                                    required
+                                    maxlength="10"
+                                    pattern="[0-9]{5}(-[0-9]{4})?"
+                                    message-when-pattern-mismatch="Please enter a valid ZIP code (e.g., 12345 or 12345-6789)"
+                                    read-only={readOnly}
+                                    onchange={handleAccountHolderFieldChange}>
+                                </lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        <slot></slot>
+
+        <!-- Billing Contact Section -->
+        <div class="billing-contact-section slds-m-top_medium">
+            <h3 class="slds-text-heading_small slds-m-bottom_small">
+                Billing Contact
+            </h3>
+
+            <!-- Billing Contact Radio Groups Box -->
+            <div class="radio-group-box">
+                <!-- First Radio: Is billing contact same as account holder -->
+                <c-a-r-c_-radio-group
+                    label="Is the billing contact the same as account holder?"
+                    name="billingSameAsHolder"
+                    options={yesNoOptions}
+                    value={billingSameAsHolderValue}
+                    required
+                    disabled={readOnly}
+                    hide-box
+                    onchange={handleBillingSameAsHolderChange}>
+                </c-a-r-c_-radio-group>
+
+                <!-- Second Radio: Use Existing Contact as Billing Contact (only shown if first radio is No) -->
+                <template lwc:if={showBillingUseExistingRadio}>
+                    <c-a-r-c_-radio-group
+                        label="Use Existing Contact as Billing Contact?"
+                        name="billingUseExisting"
+                        options={yesNoOptions}
+                        value={billingUseExistingValue}
+                        required
+                        disabled={readOnly}
+                        hide-box
+                        container-class="slds-m-top_medium"
+                        onchange={handleBillingUseExistingChange}>
+                    </c-a-r-c_-radio-group>
+                </template>
+            </div>
+
+            <!-- Contact Lookup (when using existing billing contact) -->
+            <template lwc:if={showBillingContactLookup}>
+                <div class="slds-m-bottom_small">
+                    <c-a-r-c_-generic-lookup
+                        label="Select Billing Contact"
+                        placeholder="Search contacts..."
+                        object-type="Contact"
+                        icon-name="standard:contact"
+                        opportunity-id={recordId}
+                        data-field="billingContact"
+                        required
+                        disabled={readOnly}
+                        onselect={handleBillingContactSelect}
+                        onclear={handleBillingContactClear}>
+                    </c-a-r-c_-generic-lookup>
+                </div>
+            </template>
+
+            <!-- Billing Contact Fields (shown when not same as holder - either existing or manual) -->
+            <template lwc:if={showBillingContactFields}>
+                <div class="slds-grid slds-wrap slds-gutters_small slds-m-top_small">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="text"
+                            label="First Name"
+                            data-field="firstName"
+                            value={billingContactData.firstName}
+                            required
+                            read-only={readOnly}
+                            onchange={handleBillingFieldChange}>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="text"
+                            label="Last Name"
+                            data-field="lastName"
+                            value={billingContactData.lastName}
+                            required
+                            read-only={readOnly}
+                            onchange={handleBillingFieldChange}>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="text"
+                            label="Title"
+                            data-field="title"
+                            value={billingContactData.title}
+                            required
+                            read-only={readOnly}
+                            onchange={handleBillingFieldChange}>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="email"
+                            label="Email"
+                            data-field="email"
+                            value={billingContactData.email}
+                            required
+                            read-only={readOnly}
+                            onchange={handleBillingFieldChange}>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-combobox
+                            label="Portal Access"
+                            data-field="portalAccess"
+                            value={billingContactData.portalAccess}
+                            placeholder="Select Portal Access"
+                            options={portalAccessOptions}
+                            required
+                            disabled={readOnly}
+                            onchange={handleBillingFieldChange}>
+                        </lightning-combobox>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="tel"
+                            label="Phone Number"
+                            data-field="phone"
+                            value={billingContactData.phone}
+                            placeholder="(555) 123-4567"
+                            required
+                            read-only={readOnly}
+                            onchange={handleBillingFieldChange}
+                            onfocus={handleBillingPhoneFocus}
+                            onblur={handleBillingPhoneBlur}
+                            onkeydown={handleBillingPhoneKeyDown}>
+                        </lightning-input>
+                    </div>
+                </div>
+            </template>
+        </div>
+</template>

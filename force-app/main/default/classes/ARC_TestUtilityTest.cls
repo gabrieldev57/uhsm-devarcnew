@@ -52,7 +52,7 @@ public with sharing class ARC_TestUtilityTest {
     @isTest
     public static void testCreateTestPolicies(){
         Test.startTest();
-        List<InsurancePolicy>  expected = ARC_TestUtility.createTestPolicies(1);
+        List<InsurancePolicy>  expected = ARC_TestUtility.createTestPolicies(1, 'ARC_IndividualAndFamily');
         Test.stopTest();
         System.AssertEquals(true,expected.size() > 0 );
     }

@@ -12,10 +12,10 @@ public with sharing class ARC_BackfillPolicyParticipantBatch implements Database
 
     public Database.QueryLocator start(Database.BatchableContext bc){
         String query = 'SELECT ARC_EffectiveDate__c, ARC_ExpirationDate__c, ' + 
-                            '(SELECT PrimaryParticipantContact.Birthdate, EffectiveDate, ExpirationDate ' + 
+                            '(SELECT PrimaryParticipantContact.Birthdate, ARC_StartDate__c, ARC_EndDate__c ' + 
                             'FROM InsurancePolicyParticipants) ' + 
                        'FROM InsurancePolicy ' +
-                       'WHERE ARC_Contract__r.Status = \'Activated\'';
+                       'WHERE ARC_Contract__r.Status != \'Draft\'';
 
         if (!InsurancePolicyIdsToQuery.isEmpty()) {
             String idList = '(\'' + String.join(InsurancePolicyIdsToQuery, '\',\'') + '\')';
@@ -36,15 +36,12 @@ public with sharing class ARC_BackfillPolicyParticipantBatch implements Database
             for (InsurancePolicyParticipant tmpIpp : tmpIp.InsurancePolicyParticipants) {
                 Date ippContactBirthdate = Date.valueOf(tmpIpp.PrimaryParticipantContact.Birthdate);
                 
-                // Update the Effective Date in the Insurance Policy Participant record
                 if (ippContactBirthdate > ipEffectiveDate) {
-                    tmpIpp.EffectiveDate = ippContactBirthdate;
+                    tmpIpp.ARC_StartDate__c = ippContactBirthdate;
                 } else {
-                    tmpIpp.EffectiveDate = ipEffectiveDate;
+                    tmpIpp.ARC_StartDate__c = ipEffectiveDate;
                 }
-                
-                // Update the Expiration Date in the Insurance Policy Participant record
-                tmpIpp.ExpirationDate = ipExpirationDate;
+                tmpIpp.ARC_EndDate__c = ipExpirationDate;
                 
                 ippToUpdate.add(tmpIpp);
             } 

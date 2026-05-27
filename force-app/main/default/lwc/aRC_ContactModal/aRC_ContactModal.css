@@ -1,0 +1,34 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ARC Contact Modal - Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Modal Container */
+.slds-modal__container {
+    max-width: 500px;
+    width: 100%;
+}
+
+/* Modal Header */
+.slds-modal__header {
+    background-color: #0176d3;
+    color: white;
+    border-radius:4px;
+}
+.slds-modal__close{
+    border-radius:4px;
+}
+
+.slds-modal__title {
+    color: white;
+    font-weight: 600;
+}
+
+/* Modal Content */
+.slds-modal__content {
+    overflow: visible;
+}
+
+/* Modal Footer */
+.slds-modal__footer {
+    background-color: #f3f3f3;
+}

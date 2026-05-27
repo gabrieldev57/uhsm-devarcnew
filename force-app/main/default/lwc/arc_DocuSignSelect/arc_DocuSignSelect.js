@@ -4,7 +4,7 @@ import { OmniscriptBaseMixin } from 'vlocity_ins/omniscriptBaseMixin';
 export default class  extends OmniscriptBaseMixin(LightningElement) {
     recipient = '';
     role = ''; 
-    email = '';
+    email = ''; 
 
     @api hipaas;
     
@@ -48,7 +48,7 @@ export default class  extends OmniscriptBaseMixin(LightningElement) {
                 "label": splitLabel[0],
                 "value": this.recipient,
                 "role": this.role,
-                "email": this.email,
+                "email": this.email
             };
 
             // console.log('map', map);
@@ -56,6 +56,7 @@ export default class  extends OmniscriptBaseMixin(LightningElement) {
             this.omniUpdateDataJson(map);
         }
         
+        // console.log(this.hipaas)
 
     }
 
@@ -75,17 +76,15 @@ export default class  extends OmniscriptBaseMixin(LightningElement) {
         let role = this.hipaas.find(opt => opt.label == label).role;
         // console.log('role TEEST'+' '+ this.hipaas.find(opt => opt.label == label).role);
         let email = this.hipaas.find(opt => opt.label == label).email;
-        // console.log('email TEEST'+' '+ this.hipaas.find(opt => opt.label == label).email);
-
+        // console.log('role TEEST'+' '+ this.hipaas.find(opt => opt.label == label).email);
         let map = {
             "label": splitLabel[0],
             "value": value,
             "role": role,
-            "email": email,
+            "email": email
         };
 
-
-        console.log('map TEEST'+' '+ map);
+        // console.log('map TEEST'+' '+ map);
 
 
         this.setRecipients(map)
@@ -110,7 +109,7 @@ export default class  extends OmniscriptBaseMixin(LightningElement) {
             let recipientsJson = JSON.parse(JSON.stringify(this.recipients));
             recipientsJson.forEach(recipient => {
                 if(recipient.templateRole == "Primary"){ recipient.signerName = map.label;}
-                recipient.signerEmail = map.email;
+                recipient.signerEmail = map.email
             });
             this.recipients = recipientsJson 
             JSON.parse(JSON.stringify(this.omniJsonData)).Recipients = this.recipients;

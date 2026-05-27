@@ -1,0 +1,89 @@
+.step-wrapper {
+    display: flex;
+/*    align-items: flex-start; */
+    min-height: 3.5rem; 
+}
+
+.visual-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 1rem;
+    width: 24px; 
+
+    align-self: stretch;
+}
+
+.bubble {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    flex-shrink: 0;
+
+    background-color: white;
+}
+
+.bubble.completed {
+    background-color: #4b6cc1;
+    border: none;
+}
+
+.bubble.pending {
+    background-color: #ffffff;
+    border: 2px solid #dddbda;
+}
+
+.inner-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #dddbda;
+    border-radius: 50%;
+}
+
+.vertical-line {
+    flex-grow: 1;
+ /* width: 1px; 
+    border-left: 1px dashed #dddbda; 
+    margin-top: 4px;
+    margin-bottom: 4px; */
+
+    width: 0px;
+    border-left: 3px dashed #dddbda;
+    margin-top: -2px; 
+    margin-bottom: -2px;
+}
+
+.last-step .vertical-line {
+    display: none;
+}
+
+.text-column {
+    flex-grow: 1;
+    padding-top: 2px;
+    font-weight: 500;
+}
+
+.completed-text { color: #080707; }
+.pending-text { color: #706e6b; }
+
+
+.badge-column { padding-top: 0px; }
+
+.slds-badge {
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 0.25rem 0.5rem;
+    border: none;
+}
+.slds-theme_success {
+    background-color: #cdefc4;
+    color: #1a5c24;
+}
+.slds-badge_lightest {
+    background-color: #dddbda;
+    color: #706e6b
+}

@@ -1,0 +1,30 @@
+<template>
+    <div class={containerClasses} style={containerStyle}>
+        <fieldset class="slds-form-element">
+            <legend class="slds-form-element__legend slds-form-element__label">
+                {label}
+                <template lwc:if={required}>
+                    <abbr class="slds-required" title="required">*</abbr>
+                </template>
+            </legend>
+            <div class="slds-form-element__control radio-control">
+                <template for:each={optionsWithChecked} for:item="option">
+                    <span key={option.id} class={option.spanClass}>
+                        <input 
+                            type="radio" 
+                            id={option.id} 
+                            name={name} 
+                            value={option.value} 
+                            checked={option.isChecked}
+                            disabled={disabled}
+                            onchange={handleChange}>
+                        <label class="slds-radio__label" for={option.id}>
+                            <span class="slds-radio_faux"></span>
+                            <span class="slds-form-element__label">{option.label}</span>
+                        </label>
+                    </span>
+                </template>
+            </div>
+        </fieldset>
+    </div>
+</template>

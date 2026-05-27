@@ -17,7 +17,13 @@
      * @param inputMap: Map containing the input data
      */
     public ARC_NBManager(Map<String,Object> nbReasons, Map<String,Object> inputMap) {
+        this.nbChanges = inputMap.containsKey('nbChanges') && (Map<String, Object>)inputMap.get('nbChanges') != null ? (Map<String, Object>)inputMap.get('nbChanges') : null;
         this.nbReasons = nbReasons;
+        this.eligibleContract = inputMap.containsKey('EligibleContract') && (inputMap.get('EligibleContract') != null) ? (Map<String,Object>)inputMap.get('EligibleContract') : new Map<String,Object>();
+        this.effectiveDate = inputMap.containsKey('EffectiveDate') && (inputMap.get('EffectiveDate') != null) ? Date.valueOf((String)inputMap.get('EffectiveDate')) : null;
+        this.oldestNewbornBirthdate = inputMap.containsKey('OldestNewbornBirthdate') && (inputMap.get('OldestNewbornBirthdate') != null) ? Date.valueOf((String)inputMap.get('OldestNewbornBirthdate')) : null;
+        this.youngestNewbornBirthdate = inputMap.containsKey('YoungestNewbornBirthdate') && (inputMap.get('YoungestNewbornBirthdate') != null) ? Date.valueOf((String)inputMap.get('YoungestNewbornBirthdate')) : null;
+        this.step_PaymentChangeFee = inputMap.containsKey('Step_PaymentChangeFee') && (inputMap.get('Step_PaymentChangeFee') != null) ? (Map<String,Object>)inputMap.get('Step_PaymentChangeFee') : new Map<String,Object>();
         this.inputMap = inputMap;
     } 
 
@@ -25,37 +31,25 @@
 
     // Input and Control Variables
     public Map<String, Object> nbReasons;  // Stores the reasons for newborn changes
+    public Map<String, Object> nbChanges;  // Stores the changes for newborn
+    public Map<String, Object> eligibleContract;  // Stores the changes for newborn
+    public Date effectiveDate;  // Stores the changes for newborn
+    public Date oldestNewbornBirthdate; // Stores the oldest newborn birthdate
+    public Date youngestNewbornBirthdate; // Stores the youngest newborn birthdate
+    public Map<String, Object> step_PaymentChangeFee;  // Stores the changes for newborn
     public Map<String,Object> inputMap;    // Stores the input data
-    public List<String> ActionsSelected = new List<String>();  // Tracks selected actions
-    public Set<String> actionsToPerform = new Set<String>();
     public Boolean isPermanentNewborn = false;
     public Boolean allContractsTerminated = false; // Flag to check if all contracts are terminated
-    public Boolean isUnderwritingCase = false;
+     public List<String> ActionsSelected = new List<String>();  // Tracks selected actions
     
     // Object Lists for DML Operations
-    public List<Account> accountsToUpsert = new List<Account>();
-    public List<Contact> contactsToUpsert = new List<Contact>();
-    public List<vlocity_ins__GroupCensus__c> groupCensusToUpsert = new List<vlocity_ins__GroupCensus__c>();
-    public List<vlocity_ins__GroupCensusMember__c> groupCensusMembersToUpsert = new List<vlocity_ins__GroupCensusMember__c>();
     public Map<String, Contract> contractsToUpsert = new Map<String, Contract>();
-    public List<vlocity_ins__ContractLineItem__c> contractLineItemsToUpsert = new List<vlocity_ins__ContractLineItem__c>();
-    public List<vlocity_ins__GroupCensusMemberPlan__c> groupCensusMemberPlansToUpsert = new List<vlocity_ins__GroupCensusMemberPlan__c>();
-    public List<ARC_ContractParticipant__c> contractParticipantsToUpsert = new List<ARC_ContractParticipant__c>();
-    public List<Case> casesToUpsert = new List<Case>();
     public List<Case> casesUWToInsert = new List<Case>();
-    // public List<ARC_UnderwritingCaseMember__c> underwritingCaseMembersToUpsert = new List<ARC_UnderwritingCaseMember__c>();
     public Map<String, ARC_UnderwritingCaseMember__c> censusMemberIdOrFakeIdToUWCM = new Map<String, ARC_UnderwritingCaseMember__c>();
-    public List<ARC_MedicalConditions__c> medicalConditionsToUpsert = new List<ARC_MedicalConditions__c>();
-    public List<vlocity_ins__ConsumerDrug__c> consumerDrugsToUpsert = new List<vlocity_ins__ConsumerDrug__c>();
-    public List<ARC_HipaaAuthorization__c> hipaaAuthorizationsToUpsert = new List<ARC_HipaaAuthorization__c>();
-    //public List<ChargentOrders__ChargentOrder__c> chargentOrdersToUpsert = new List<ChargentOrders__ChargentOrder__c>();
     public Map<String, ChargentOrders__ChargentOrder__c> chargentOrdersToInsert = new Map<String, ChargentOrders__ChargentOrder__c>();
-    public List<ARC_PromotionDiscount__c> promotionDiscountsToUpsert = new List<ARC_PromotionDiscount__c>();
+    public List<ARC_FeeItem__c> feeItemsToInsert = new List<ARC_FeeItem__c>();
 
     // Data Mapping and Processing Variables
-    public List<Map<String,Object>> censusMembersInNBContract = new List<Map<String,Object>>();
-    public List<Map<String,Object>> censusMembersInNewBornContract = new List<Map<String,Object>>();
-    public List<Map<String,Object>> censusMembersRemoveContract = new List<Map<String,Object>>();
     public List<Map<String, String>> newBornMembersIds = new List<Map<String, String>>();
     public List<Map<String,Object>> censusMembersMap = new List<Map<String,Object>>(); // List of Map of Newborns
     public List<Map<String,Object>> allMembersToContPart = new List<Map<String,Object>>(); // List of Map Of ALL MEMBERS to Contract Participant
@@ -64,6 +58,8 @@
     public Map<Id, Map<String, Object>> primaryValuesCnt = new Map<Id, Map<String, Object>>();
     public Map<String, String> cntIdtoCensusId = new Map<String, String>();
     public String censusIdActiveCnt = null;
+    public String cnsIdSpinOff = null;
+    public String lastCensusId = null;
     public Map<String, Account> accountFakeIdToInsertNB = new Map<String, Account>(); // Map of fake Id to actual record
 
     public Map<String, Map<String, vlocity_ins__GroupCensusMemberPlan__c>> contractIdToGCMP = new Map<String, Map<String, vlocity_ins__GroupCensusMemberPlan__c>>();
@@ -85,18 +81,27 @@
     public Map<String,List<vlocity_ins__ContractLineItem__c>> CMIdToCLI = new Map<String,List<vlocity_ins__ContractLineItem__c>>();
     public Map<String, ARC_ContractParticipant__c> fakeIdToContractPart = new Map<String, ARC_ContractParticipant__c>();
 
+    public List<ARC_PromotionDiscount__c> promotionDiscountToInsert = new List<ARC_PromotionDiscount__c>();
+    public List<Case> casesFeeWaivedToInsert = new List<Case>(); 
+
+    public Map<String, Object> contactIdToBeneficiaries = new Map<String, Object>();
+
     public List<Date> newbornsDOB = new List<Date>();
 
     // Medical Conditions Related Variables
     public Map<String, List<ARC_MedicalConditions__c>> mapMedicalConditionsToInsert = new Map<String, List<ARC_MedicalConditions__c>>();
-    public List<ARC_MedicalConditions__c> medicalConditionsToUpsertList = new List<ARC_MedicalConditions__c>(); 
 
     // Consumer Drug Related Variables
     public Map<String, List<vlocity_ins__ConsumerDrug__c>> mapConsumerDrugsToInsert = new Map<String, List<vlocity_ins__ConsumerDrug__c>>(); 
-    public List<vlocity_ins__ConsumerDrug__c> consumerDrugsToUpsertList = new List<vlocity_ins__ConsumerDrug__c>();
     
     // Physican Data on Medical Questions Related Variables
     public Map<String, Map<String,Object>> mapPhysicianDataToUpdate = new Map<String, Map<String,Object>>();
+
+    // Ancillary discount (Critical Care Bundle) related variables
+    // Key: memberId => { 'SMART' => ProductId, 'AIDD' => ProductId }
+    public Map<String, Map<String, String>> memberIdToCriticalCareBundle = new Map<String, Map<String, String>>();
+    // Key: memberId => { 'SMART' => GCMPId, 'AIDD' => GCMPId }
+    public Map<String, Map<String, Id>> memberIdToBundleGcmpIds = new Map<String, Map<String, Id>>();
 
     /**
      * @Description: Main execution method that coordinates the entire single NewBorn process
@@ -109,6 +114,7 @@
             // Mapping 
             ARC_NBMapper mapper = new ARC_NBMapper();
             mapper.mapSingleNewBornData(this);
+            System.debug('### executeSingleNewBorn');
         }
         catch(Exception e){
             try {
@@ -124,7 +130,8 @@
         try{    
             // DML       
             ARC_NBDML dml = new ARC_NBDML();
-            dml.manageDML(this);             
+            dml.manageDML(this);            
+            System.debug('### manageDML');
         }
         catch(Exception e){
             try{

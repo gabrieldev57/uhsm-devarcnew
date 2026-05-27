@@ -5,7 +5,7 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
         List<sObject> upsertListClaimCode = new List<sObject>();
         List<sObject> upsertListClaimCode2 = new List<sObject>();
 
-        // GET ALL DATA NEEDED FOR THE MAPPING!
+        // GET ALL DATA NEEDED FOR THE MAPPING
         Set<String> generalCodes = new Set<String>();
         Set<String> provNPIIds = new Set<String>();
         Set<String> memberIds = new Set<String>();
@@ -98,7 +98,9 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
 
                     for (Object itm : lineItems) {
                         Map<String, Object> item = (Map<String, Object>) itm;
-                        generalCodes.add((String) item.get('CompositeMedicalProcedureIdentifier.ProcedureCode_02'));
+                        String procedureCode = (String) item.get('CompositeMedicalProcedureIdentifier.ProcedureCode_02');
+                        if (!String.isBlank(procedureCode)) generalCodes.add(procedureCode);
+                        if (!String.isBlank(procedureCode) && procedureCode.length() > 5) generalCodes.add(procedureCode.substring(0, 5));
                     }
 
                     generalCodes.add((String) clmInformation.get('HealthCareCodeInformation_01.IndustryCode_02'));
@@ -253,7 +255,7 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
         // QUERY RECORDS AND CREATE MAPS TO RELATE DATA LATER
         Id rarcRT = Schema.SObjectType.vlocity_ins__Vlocitycode__c.getRecordTypeInfosByName().get('RARC').getRecordTypeId();
 
-        List<vlocity_ins__VlocityCode__c> codes = [SELECT Name, Id FROM vlocity_ins__VlocityCode__c WHERE Name IN :generalCodes AND RecordTypeId != :rarcRT LIMIT 1000];
+        List<vlocity_ins__VlocityCode__c> codes = [SELECT Name, Id, ARC_PriceOverride__c, ARC_IsSleepCode__c FROM vlocity_ins__VlocityCode__c WHERE Name IN :generalCodes AND RecordTypeId != :rarcRT LIMIT 1000];
         List<Account> billing_providers = [SELECT Name, Id, ARC_NationalProviderId__c FROM Account WHERE ARC_NationalProviderId__c IN :provNPIIds LIMIT 1000];
         List<Account> attending_providers = [
             SELECT Id, ARC_NationalProviderIdentifier__pc
@@ -275,13 +277,13 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
         ];
         List<RecordType> claimCodesRT = [SELECT Id, Name, DeveloperName FROM RecordType WHERE SobjectType = 'ARC_Institutional_Claim_Code__c' LIMIT 20];
 
-        String query_string = 'SELECT vlocity_ins__GroupCensusMemberId__r.Id, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__FirstName__c, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__LastName__c, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__Birthdate__c, vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressStreet__c,vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressState__c,vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressCity__c, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__CensusId__c, vlocity_ins__GroupCensusMemberId__r.Member_ID__c, vlocity_ins__GroupCensusMemberId__r.e123_member_id_from_policy__c,vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.Account.Current_Member_Id__c, vlocity_ins__GroupCensusMemberId__r.e123_member_id__c,vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c,vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c,vlocity_ins__GroupCensusMemberId__r.vlocity_ins__RelatedCensusMemberId__c,vlocity_ins__GroupCensusMemberId__r.vlocity_ins__RelatedCensusMemberId__r.vlocity_ins__ContactId__c,vlocity_ins__GroupCensusMemberId__r.CreatedDate ';
-        query_string += 'FROM vlocity_ins__GroupCensusMemberPlan__c ';
-        query_string += 'WHERE (vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c = \'Medical\') AND ';
-
-        // // build conditions for DOS and contract Dates:
-        // String datesCondition = 'vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.ARC_EffectiveDate__c <= [DOS] AND vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.ARC_Inactive_Date__c <= [DOS] OR ';
-        // datesCondition += 
+        String query_string = 
+            'SELECT InsurancePolicyId, PrimaryParticipantContact.Account.Census_Member__c, PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__FirstName__c, PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__LastName__c, ' +
+                'PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__Birthdate__c, PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressStreet__c, PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressState__c, PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressCity__c, ' +
+                'PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__CensusId__c, PrimaryParticipantContact.Account.Census_Member__r.Member_ID__c, PrimaryParticipantContact.Account.Census_Member__r.e123_member_id_from_policy__c, PrimaryParticipantContact.Account.Current_Member_Id__c, PrimaryParticipantContact.Account.Census_Member__r.e123_member_id__c, ' +
+                'PrimaryParticipantContactId, PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__RelatedCensusMemberId__c, PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__RelatedCensusMemberId__r.vlocity_ins__ContactId__c, PrimaryParticipantContact.Account.Census_Member__r.CreatedDate ' +
+            'FROM InsurancePolicyParticipant ' +
+            'WHERE ';
 
         List<String> member_conditions = new List<String>();
 
@@ -305,19 +307,20 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
                     List<String> or_fullname_conditions = new List<String>();
 
                     //Unsanitized
-                    and_fullname_conditions1.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__FirstName__c LIKE \'%' + values[0] + '%\'');
-                    and_fullname_conditions1.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__LastName__c LIKE \'%' + values[1] + '%\'');
+                    // need to sanitize ' to avoid breaking the query.
+                    and_fullname_conditions1.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__FirstName__c LIKE \'%' + values[0] + '%\'');
+                    and_fullname_conditions1.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__LastName__c LIKE \'%' + String.escapeSingleQuotes(values[1]) + '%\'');
 
                     //Sanitized, without ' and -
-                    and_fullname_conditions2.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__FirstName__c LIKE \'%' + values[0].replace('\'', '').replace('-', '') + '%\'');
-                    and_fullname_conditions2.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__LastName__c LIKE \'%' + values[1].replace('\'', '').replace('-', '') + '%\'');
+                    and_fullname_conditions2.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__FirstName__c LIKE \'%' + values[0].replace('\'', '').replace('-', '') + '%\'');
+                    and_fullname_conditions2.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__LastName__c LIKE \'%' + values[1].replace('\'', '').replace('-', '') + '%\'');
 
-                    and_fullname_conditions3.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__FirstName__c LIKE \'%' + values[0].replace('\'', '').replace('-', '').substringBefore(' ') + '%\'');
-                    and_fullname_conditions3.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__LastName__c LIKE \'%' + values[1].replace('\'', '').replace('-', '') + '%\'');
+                    and_fullname_conditions3.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__FirstName__c LIKE \'%' + values[0].replace('\'', '').replace('-', '').substringBefore(' ') + '%\'');
+                    and_fullname_conditions3.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__LastName__c LIKE \'%' + values[1].replace('\'', '').replace('-', '') + '%\'');
 
-                    conditions_firstname.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__FirstName__c LIKE \'%' + values[0] + '%\'');
-                    conditions_firstname.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__FirstName__c LIKE \'%' + values[0].replace('\'', '').replace('-', '') + '%\'');
-                    conditions_firstname.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__FirstName__c LIKE \'%' + values[0].replace('\'', '').replace('-', '').substringBefore(' ') + '%\'');
+                    conditions_firstname.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__FirstName__c LIKE \'%' + values[0] + '%\'');
+                    conditions_firstname.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__FirstName__c LIKE \'%' + values[0].replace('\'', '').replace('-', '') + '%\'');
+                    conditions_firstname.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__FirstName__c LIKE \'%' + values[0].replace('\'', '').replace('-', '').substringBefore(' ') + '%\'');
 
                     or_fullname_conditions.add('(' + String.join(and_fullname_conditions1, ' AND ') + ')');
                     or_fullname_conditions.add('(' + String.join(and_fullname_conditions2, ' AND ') + ')');
@@ -327,15 +330,15 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
                 }
 
                 if (values[2] != null) {
-                    conditions_fullname_birthdate.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__Birthdate__c = ' + values[2]);
+                    conditions_fullname_birthdate.add('PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__Birthdate__c = ' + values[2]);
                 }
 
                 // Build conditions for member ID
                 if (values[6] != null) {
-                    or_conditions_member_id.add('vlocity_ins__GroupCensusMemberId__r.Member_ID__c LIKE \'' + values[6] + '\'');
-                    or_conditions_member_id.add('vlocity_ins__GroupCensusMemberId__r.e123_member_id_from_policy__c LIKE \'' + values[6] + '\'');
-                    or_conditions_member_id.add('vlocity_ins__GroupCensusMemberId__r.e123_member_id__c LIKE \'' + values[6] + '\'');
-                    or_conditions_member_id.add('vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.Account.Current_Member_Id__c LIKE \'' + values[6] + '\'');
+                    or_conditions_member_id.add('PrimaryParticipantContact.Account.Census_Member__r.Member_ID__c LIKE \'' + values[6] + '\'');
+                    or_conditions_member_id.add('PrimaryParticipantContact.Account.Census_Member__r.e123_member_id_from_policy__c LIKE \'' + values[6] + '\'');
+                    or_conditions_member_id.add('PrimaryParticipantContact.Account.Census_Member__r.e123_member_id__c LIKE \'' + values[6] + '\'');
+                    or_conditions_member_id.add('PrimaryParticipantContact.Account.Current_Member_Id__c LIKE \'' + values[6] + '\'');
                 }
 
                 // Build conditions for optional fields
@@ -345,13 +348,13 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
                     }
 
                     if (values[3] != null) {
-                        or_conditions_optional_fields.add('vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressStreet__c LIKE \'%' + String.escapeSingleQuotes(values[3]) + '%\'');
+                        or_conditions_optional_fields.add('PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressStreet__c LIKE \'%' + String.escapeSingleQuotes(values[3]) + '%\'');
                     }
                     if (values[4] != null) {
-                        or_conditions_optional_fields.add('vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressCity__c LIKE \'%' + String.escapeSingleQuotes(values[4]) + '%\'');
+                        or_conditions_optional_fields.add('PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressCity__c LIKE \'%' + String.escapeSingleQuotes(values[4]) + '%\'');
                     }
                     if (values[5] != null) {
-                        or_conditions_optional_fields.add('vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressState__c = \'' + values[5] + '\'');
+                        or_conditions_optional_fields.add('PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressState__c = \'' + values[5] + '\'');
                     }
                 }
 
@@ -401,24 +404,28 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
 			
             System.debug(LoggingLevel.ERROR, 'Full Query: ' + query_string);
             
-            List<vlocity_ins__GroupCensusMemberPlan__c> members = Database.query(query_string);
+            List<InsurancePolicyParticipant> policyParticipants = Database.query(query_string);
 
-            System.debug( '>>>> Members size >>>> ' + members.size());
+            System.debug( '>>>> PolicyParticipants size >>>> ' + policyParticipants.size());
             provRecordTypes.addAll(lineItemRecordTypes);
             Id rtBilling = null;
             Id rtRendering = null;
             Id rtLineProf = null;
             Id rtLineInst = null;
-            Set<Id> member_contract_ids = new Set<Id>();
+            Set<Id> member_policy_ids = new Set<Id>();
             Set<Id> memberCensus2 = new Set<Id>();
             Map<String, Id> codeName_codeId = new Map<String, Id>();
+            Map<String, Double> sleepCodeName_price = new Map<String, Double>();
             Map<String, Account> billing_provider_NPI_to_account = new Map<String, Account>();
             Map<String, Account> attending_provider_NPI_to_account = new Map<String, Account>();
             Map<Id, String> clmId_rtName = new Map<Id, String>();
-            Map<String, List<String>> memberkey_to_contractids = new Map<String, List<String>>();
+            Map<String, List<String>> memberkey_to_policyids = new Map<String, List<String>>();
 
-            for (vlocity_ins__VlocityCode__c code : codes)
+            for (vlocity_ins__VlocityCode__c code : codes) {
                 codeName_codeId.put(code.Name, code.Id);
+                if (code.ARC_IsSleepCode__c)
+                    sleepCodeName_price.put(code.Name, code.ARC_PriceOverride__c);
+            }
 
             for (Account a : billing_providers)
                 billing_provider_NPI_to_account.put(a.ARC_NationalProviderId__c, a);
@@ -426,8 +433,8 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
             for (Account a : attending_providers)
                 attending_provider_NPI_to_account.put(a.ARC_NationalProviderIdentifier__pc, a);
 
-            for (vlocity_ins__GroupCensusMemberPlan__c memberPlan : members) {
-                member_contract_ids.add(memberPlan.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c);
+            for (InsurancePolicyParticipant policyParticipant : policyParticipants) {
+                member_policy_ids.add(policyParticipant.InsurancePolicyId);
 
                 // 0: FirstName, 1: LastName, 2: Birthdate, 3: Street, 4: City, 5: State, 6: memberId1, 7: memberId2, 8: memberId3, 9: memberId4
                 // 10: GroupCensusMemberId, 11: ContactId, 12: RelatedCensusMemberId, 13: RelatedCensusMember-ContactId
@@ -435,34 +442,34 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
                 String memberKey = '';
 
                 // 0: FirstName, 
-                memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__FirstName__c != null
-                    ? memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__FirstName__c + '|'
+                memberKey += policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__FirstName__c != null
+                    ? policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__FirstName__c + '|'
                     : 'NO_VALUE|';
                 // 1: LastName, 
-                memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__LastName__c != null
-                    ? memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__LastName__c + '|'
+                memberKey += policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__LastName__c != null
+                    ? policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__LastName__c + '|'
                     : 'NO_VALUE|';
                 //2: Birthdate
-                memberKey += String.valueOf(memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__Birthdate__c) != null
-                    ? String.valueOf(memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__Birthdate__c) + '|'
+                memberKey += String.valueOf(policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__Birthdate__c) != null
+                    ? String.valueOf(policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__Birthdate__c) + '|'
                     : 'NO_VALUE|';
                 //3: Street, 
-                memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressStreet__c != null
-                    ? memberPlan.vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressStreet__c + '|'
+                memberKey += policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressStreet__c != null
+                    ? policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressStreet__c + '|'
                     : 'NO_VALUE|';
                 // 4: City,
-                memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressCity__c != null
-                    ? memberPlan.vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressCity__c + '|'
+                memberKey += policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressCity__c != null
+                    ? policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressCity__c + '|'
                     : 'NO_VALUE|';
                 // 5: State, 
-                    memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressState__c != null
-                    ? memberPlan.vlocity_ins__GroupCensusMemberId__r.ARC_PhysicalAddressState__c + '|'
+                    memberKey += policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressState__c != null
+                    ? policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.ARC_PhysicalAddressState__c + '|'
                     : 'NO_VALUE|';
 
-                String memberId1 = memberPlan.vlocity_ins__GroupCensusMemberId__r.Member_ID__c;
-                String memberId2 = memberPlan.vlocity_ins__GroupCensusMemberId__r.e123_member_id_from_policy__c;
-                String memberId3 = memberPlan.vlocity_ins__GroupCensusMemberId__r.e123_member_id__c;
-                String memberId4 = memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r?.Account?.Current_Member_Id__c;
+                String memberId1 = policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.Member_ID__c;
+                String memberId2 = policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.e123_member_id_from_policy__c;
+                String memberId3 = policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.e123_member_id__c;
+                String memberId4 = policyParticipant.PrimaryParticipantContact.Account.Current_Member_Id__c;
 
                 List<String> member_id_list = new List<String>{ memberId1, memberId2, memberId3, memberId4 };
                 //6: memberId1, 7: memberId2, 8: memberId3, 9: memberId
@@ -474,33 +481,35 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
                         memberKey += 'NO_VALUE|';
                 }
                 // 10: GroupCensusMemberId, 
-                memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.Id != null ? String.valueOf(memberPlan.vlocity_ins__GroupCensusMemberId__r.Id) + '|' : 'NO_VALUE|';
+                memberKey += policyParticipant.PrimaryParticipantContact.Account.Census_Member__c != null
+                    ? String.valueOf(policyParticipant.PrimaryParticipantContact.Account.Census_Member__c) + '|' 
+                    : 'NO_VALUE|';
                 //11: ContactId, 
-                memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c != null
-                    ? String.valueOf(memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__c) + '|'
+                memberKey += policyParticipant.PrimaryParticipantContactId != null
+                    ? String.valueOf(policyParticipant.PrimaryParticipantContactId) + '|'
                     : 'NO_VALUE|';
                 //12: RelatedCensusMemberId,     
-                memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__RelatedCensusMemberId__c != null
-                    ? String.valueOf(memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__RelatedCensusMemberId__c) + '|'
+                memberKey += policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__RelatedCensusMemberId__c != null
+                    ? String.valueOf(policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__RelatedCensusMemberId__c) + '|'
                     : 'NO_VALUE|';
                 //13: RelatedCensusMember-ContactId
-                memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__RelatedCensusMemberId__r.vlocity_ins__ContactId__c != null
-                    ? String.valueOf(memberPlan.vlocity_ins__GroupCensusMemberId__r.vlocity_ins__RelatedCensusMemberId__r.vlocity_ins__ContactId__c) + '|'
+                memberKey += policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__RelatedCensusMemberId__r.vlocity_ins__ContactId__c != null
+                    ? String.valueOf(policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.vlocity_ins__RelatedCensusMemberId__r.vlocity_ins__ContactId__c) + '|'
                     : 'NO_VALUE|';
                     
                 // 14: GroupCensusMember-CreatedDate
-                memberKey += memberPlan.vlocity_ins__GroupCensusMemberId__r.CreatedDate != null
-                    ? String.valueOf(memberPlan.vlocity_ins__GroupCensusMemberId__r.CreatedDate)
+                memberKey += policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.CreatedDate != null
+                    ? String.valueOf(policyParticipant.PrimaryParticipantContact.Account.Census_Member__r.CreatedDate)
                     : 'NO_VALUE';
 
-                if (memberkey_to_contractids.containsKey(memberKey) == false) {
-                    memberkey_to_contractids.put(memberKey, new List<String>());
+                if (memberkey_to_policyids.containsKey(memberKey) == false) {
+                    memberkey_to_policyids.put(memberKey, new List<String>());
                 }
 
-                ((List<String>) memberkey_to_contractids.get(memberKey)).add(memberPlan.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c);
+                ((List<String>) memberkey_to_policyids.get(memberKey)).add(policyParticipant.InsurancePolicyId);
             }
 
-            System.debug('>>KEYS<<: ' + memberkey_to_contractids.keySet());
+            System.debug('>>KEYS<<: ' + memberkey_to_policyids.keySet());
 
             for (RecordType rtId : provRecordTypes) {
                 if (rtId.sObjectType == 'Account' && rtId.DeveloperName == 'Provider')
@@ -513,7 +522,7 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
                     rtLineInst = rtId.Id;
             }
 
-            System.debug('Contract Ids: ' + member_contract_ids);
+            System.debug('Policy Ids: ' + member_policy_ids);
 
             List<InsurancePolicy> policies = [
                 SELECT
@@ -523,9 +532,10 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
                     ARC_ExpirationDate__c,
                     ARC_Contract__r.Status,
                     ARC_Contract__r.ARC_ContractReason__c,
-                    ARC_Contract__r.vlocity_ins__EnrollmentCensusId__c,
                     ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.ARC_VIP__c,
                     ARC_isActive__c,
+                    RecordTypeId,
+                    Status,
                     (
                         SELECT
                             PrimaryParticipantContactId,
@@ -534,11 +544,17 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
                             PrimaryParticipantContact.LastName,
                             PrimaryParticipantContact.Name,
                             Role,
-                            PrimaryParticipantContact.ARC_CensusMember__c
+                            PrimaryParticipantContact.Account.Census_Member__c,
+                            (
+                                SELECT ARC_PolicyCoverage__c
+                                FROM Coverage_Participants__r
+                                WHERE ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.vlocity_ins__Type__c = 'Medical'
+                                    AND ARC_PolicyCoverage__r.ARC_ParentProduct__c = null
+                            )
                         FROM InsurancePolicyParticipants
                     )
                 FROM InsurancePolicy
-                WHERE ARC_Contract__c IN :member_contract_ids
+                WHERE Id IN :member_policy_ids
                 ORDER BY ARC_EffectiveDate__c DESC
                 LIMIT 1000
             ];
@@ -547,10 +563,10 @@ public with sharing class ARC_PopulateClaimWithEDIHandler {
 
             System.debug('Policies found: ' + policies.size());
             for (InsurancePolicy policy : policies) {
-                for (String key : memberkey_to_contractids.keySet()) {
-                    List<String> member_contractids_list = memberkey_to_contractids.get(key);
+                for (String key : memberkey_to_policyids.keySet()) {
+                    List<String> member_policyids_list = memberkey_to_policyids.get(key);
 
-                    if (member_contractids_list.contains(policy.ARC_Contract__c)) {
+                    if (member_policyids_list.contains(policy.Id)) {
                         if (memberkey_to_policyList.containsKey(key) == false) {
                             memberkey_to_policyList.put(key, new List<InsurancePolicy>());
                         }
@@ -1252,7 +1268,7 @@ System.debug('mappingWorking2.size: ' + mappingWorking2.size());
                         // POPULATE GROUP CENSUS MEMBER INFORMATION ON CLAIM
 
                         Integer highestScore = -1;
-                        List<InsurancePolicy> bestPolicies;
+                        List<InsurancePolicy> bestPolicies = new List<InsurancePolicy>();
                         String[] bestKeyValues;
                         String bestKey;
 
@@ -1332,8 +1348,8 @@ System.debug('mappingWorking2.size: ' + mappingWorking2.size());
                         }
 
                         if (bestKey != null) {
-                            clm.ARC_PatientCensusMember__c = bestKeyValues[10] != 'NO_VALUE' ? bestKeyValues[10] : null;
-                            clm.ARC_MemberContact__c = bestKeyValues[11] != 'NO_VALUE' ? bestKeyValues[11] : null;
+                            //clm.ARC_PatientCensusMember__c = bestKeyValues[10] != 'NO_VALUE' ? bestKeyValues[10] : null;
+                            //clm.ARC_MemberContact__c = bestKeyValues[11] != 'NO_VALUE' ? bestKeyValues[11] : null;
                             clm.ARC_PrimaryMemberCM__c = bestKeyValues[12] != 'NO_VALUE' ? bestKeyValues[12] : null;
                             clm.ARC_Primary_Member__c = bestKeyValues[13] != 'NO_VALUE' ? bestKeyValues[13] : null;
                             patient_policies_list = bestPolicies;
@@ -1349,8 +1365,8 @@ System.debug('mappingWorking2.size: ' + mappingWorking2.size());
                                 values = values_name_and_member;
                             }
                             patient_policies_list = values;
-                            clm.ARC_PatientCensusMember__c = keys[10] != 'NO_VALUE' ? keys[10] : null;
-                            clm.ARC_MemberContact__c = keys[11] != 'NO_VALUE' ? keys[11] : null;
+                            //clm.ARC_PatientCensusMember__c = keys[10] != 'NO_VALUE' ? keys[10] : null;
+                            //clm.ARC_MemberContact__c = keys[11] != 'NO_VALUE' ? keys[11] : null;
                             clm.ARC_PrimaryMemberCM__c = keys[12] != 'NO_VALUE' ? keys[12] : null;
                             clm.ARC_Primary_Member__c = keys[13] != 'NO_VALUE' ? keys[13] : null;
                         }
@@ -1358,10 +1374,10 @@ System.debug('mappingWorking2.size: ' + mappingWorking2.size());
 
                         // PATIENT NOT FOUND, SEARCH SUBSCRIBER
 
-                        if (patient_policies_list.isEmpty() && !subscriberInformation.isEmpty() && !subscriberInformation.isEmpty()) {
-                            // reset scores
+                        if (patient_policies_list.isEmpty() && !subscriberInformation.isEmpty()) {
+                            // Reset scores
                             highestScore = -1;
-                            bestPolicies = null;
+                            bestPolicies = new List<InsurancePolicy>();
                             bestKeyValues = null;
                             bestKey = null;
                             selected_contact = '';
@@ -1387,8 +1403,6 @@ System.debug('mappingWorking2.size: ' + mappingWorking2.size());
     
                             Integer matches_name_birthdate_primary = 0;
                             Integer matches_firstname_memberid_primary = 0;
-                            //List<String> keys_primary;
-    
 
                             List<String> keys_primary_name_and_dob;
                             List<String> keys_primary_name_and_member;
@@ -1480,43 +1494,65 @@ System.debug('mappingWorking2.size: ' + mappingWorking2.size());
                         }
 
                         Boolean found_valid_policy = false;
-                        Boolean found_active_contract = false;
+                        Boolean found_active_policy = false;
 
                         // POPULATE POLICY NUMBER, PARTICIPANTS AND CENSUS MEMBER
                         System.debug('-----POPULATE POLICY NUMBER, PARTICIPANTS AND CENSUS MEMBER-----');
+                        Id smallGroupPolicyRTId = Schema.SObjectType.InsurancePolicy.getRecordTypeInfosByName().get('Small Group').getRecordTypeId();
                         for (InsurancePolicy policy : patient_policies_list) {
                             System.debug('POLICY ID: ' + policy.Id);
                             Boolean date_of_service_is_valid =
-                                dosFrom >= policy.ARC_EffectiveDate__c && ((policy.ARC_ExpirationDate__c == null && policy.ARC_isActive__c) || policy.ARC_ExpirationDate__c >= dosTo);
+                                dosFrom >= policy.ARC_EffectiveDate__c && 
+                                (
+                                    (policy.ARC_ExpirationDate__c == null && policy.ARC_isActive__c) || 
+                                    policy.ARC_ExpirationDate__c >= dosTo
+                                );
                             
                             System.debug('dosFrom------------------> ' + dosFrom);
                             System.debug('dosFrom------------------> ' + dosTo);
                             System.debug('policy Effective Date----> ' + policy.ARC_EffectiveDate__c);
                             System.debug('policy Expiration date---> ' + policy.ARC_ExpirationDate__c);
                             System.debug('is Valid: ' + date_of_service_is_valid);
-                            if (policy.ARC_Contract__c != null && policy.ARC_Contract__r.Status != 'Terminated' && policy.ARC_Contract__r.Status != 'Voided')
-                                found_active_contract = true;
+                            found_active_policy = policy.ARC_isActive__c;
                             if (date_of_service_is_valid) {
                                 found_valid_policy = true; // Mark valid policy found
                                 clm.PolicyNumberId = policy.Id;
-                                clm.ARC_VIP__c = policy.ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.ARC_VIP__c;
+                                Boolean isVip = policy.ARC_Contract__r?.vlocity_ins__EnrollmentCensusId__r?.ARC_VIP__c;
+                                clm.ARC_VIP__c = (isVip != null && isVip);
                                 System.debug('*claim populated with policy*');
                                 for (InsurancePolicyParticipant participant : policy.InsurancePolicyParticipants) {
+                                    if (participant.PrimaryParticipantContact == null) continue;
                                     String participant_firstname_sanitized = participant.PrimaryParticipantContact.FirstName.replace('\'', '').replace('-', '');
                                     String participant_lastname_sanitized = participant.PrimaryParticipantContact.LastName.replace('\'', '').replace('-', '');
 
-                                    Boolean firstname_lastname_match =
+                                    Boolean firstname_lastname_match_contains =
                                         participant_firstname_sanitized.containsIgnoreCase(jsoninput_firstname_sanitized) &&
                                         participant_lastname_sanitized.containsIgnoreCase(jsoninput_lastname_sanitized);
-                                    if (birthdate == participant.PrimaryParticipantContact.Birthdate || firstname_lastname_match) {
+                                    Boolean firstname_lastname_match =
+                                        participant_firstname_sanitized.toLowerCase() == jsoninput_firstname_sanitized.toLowerCase() &&
+                                        participant_lastname_sanitized.toLowerCase() == jsoninput_lastname_sanitized.toLowerCase();
+                                    Boolean birthdate_match = birthdate == participant.PrimaryParticipantContact.Birthdate;
+
+                                    if (firstname_lastname_match && birthdate_match) {
                                         clm.ARC_MemberContact__c = participant.PrimaryParticipantContactId;
                                         clm.ARC_ParticipantPolicyParticipant__c = participant.Id;
-                                        clm.ARC_PatientCensusMember__c = participant.PrimaryParticipantContact.ARC_CensusMember__c;
+                                        clm.ARC_PatientCensusMember__c = participant.PrimaryParticipantContact.Account.Census_Member__c;
+                                        if (!participant.Coverage_Participants__r.isEmpty())
+                                            clm.ARC_PatientMedicalPolicyCoverage__c = participant.Coverage_Participants__r[0].ARC_PolicyCoverage__c;
+                                    } else if (
+                                        clm.ARC_MemberContact__c == null && 
+                                        (birthdate_match || firstname_lastname_match_contains)
+                                    ) {
+                                        clm.ARC_MemberContact__c = participant.PrimaryParticipantContactId;
+                                        clm.ARC_ParticipantPolicyParticipant__c = participant.Id;
+                                        clm.ARC_PatientCensusMember__c = participant.PrimaryParticipantContact.Account.Census_Member__c;
+                                        if (!participant.Coverage_Participants__r.isEmpty())
+                                            clm.ARC_PatientMedicalPolicyCoverage__c = participant.Coverage_Participants__r[0].ARC_PolicyCoverage__c;
                                     }
 
                                     if (participant.Role == 'Primary') {
                                         clm.ARC_Primary_Member__c = participant.PrimaryParticipantContactId;
-                                        clm.ARC_PrimaryMemberCM__c = participant.PrimaryParticipantContact.ARC_CensusMember__c;
+                                        clm.ARC_PrimaryMemberCM__c = participant.PrimaryParticipantContact.Account.Census_Member__c;
                                     }
                                 }
 
@@ -1526,28 +1562,45 @@ System.debug('mappingWorking2.size: ' + mappingWorking2.size());
 
                         if (
                             (found_valid_policy == false) &&
-                            (patient_policies_list.isEmpty() == false &&
-                            found_active_contract == false) || // Check if all policies are terminated or voided, then take the last to assign the patient and member contact.
-                            (patient_policies_list.size() == 1 &&
-                            patient_policies_list[0].ARC_Contract__r?.ARC_ContractReason__c == 'Add Newborn') // Check if Add Newborn
+                            (
+                                (patient_policies_list.isEmpty() == false && found_active_policy == false) || // Check if all policies are terminated or voided, then take the last to assign the patient and member contact.
+                                (patient_policies_list.size() == 1 && patient_policies_list[0].ARC_Contract__r?.ARC_ContractReason__c == 'Add Newborn') // Check if Add Newborn
+                            )
                         ) {
                             InsurancePolicy most_recent_policy = patient_policies_list[0]; // Most recent policy
                             for (InsurancePolicyParticipant participant : most_recent_policy.InsurancePolicyParticipants) {
+                                if (participant.PrimaryParticipantContact == null) continue;
                                 String participant_firstname_sanitized = participant.PrimaryParticipantContact.FirstName.replace('\'', '').replace('-', '');
                                 String participant_lastname_sanitized = participant.PrimaryParticipantContact.LastName.replace('\'', '').replace('-', '');
 
-                                Boolean firstname_lastname_match =
+                                Boolean firstname_lastname_match_contains =
                                     participant_firstname_sanitized.containsIgnoreCase(jsoninput_firstname_sanitized) &&
                                     participant_lastname_sanitized.containsIgnoreCase(jsoninput_lastname_sanitized);
-                                if (birthdate == participant.PrimaryParticipantContact.Birthdate || firstname_lastname_match) {
+                                Boolean firstname_lastname_match =
+                                    participant_firstname_sanitized.toLowerCase() == jsoninput_firstname_sanitized.toLowerCase() &&
+                                    participant_lastname_sanitized.toLowerCase() == jsoninput_lastname_sanitized.toLowerCase();
+                                Boolean birthdate_match = birthdate == participant.PrimaryParticipantContact.Birthdate;
+
+                                if (birthdate_match && firstname_lastname_match) {
                                     clm.ARC_MemberContact__c = participant.PrimaryParticipantContactId;
                                     clm.ARC_ParticipantPolicyParticipant__c = participant.Id;
-                                    clm.ARC_PatientCensusMember__c = participant.PrimaryParticipantContact.ARC_CensusMember__c;
+                                    clm.ARC_PatientCensusMember__c = participant.PrimaryParticipantContact.Account.Census_Member__c;
+                                    if (!participant.Coverage_Participants__r.isEmpty())
+                                        clm.ARC_PatientMedicalPolicyCoverage__c = participant.Coverage_Participants__r[0].ARC_PolicyCoverage__c;
+                                } else if (
+                                    clm.ARC_MemberContact__c == null &&
+                                    (birthdate_match || firstname_lastname_match_contains)
+                                ) {
+                                    clm.ARC_MemberContact__c = participant.PrimaryParticipantContactId;
+                                    clm.ARC_ParticipantPolicyParticipant__c = participant.Id;
+                                    clm.ARC_PatientCensusMember__c = participant.PrimaryParticipantContact.Account.Census_Member__c;
+                                    if (!participant.Coverage_Participants__r.isEmpty())
+                                        clm.ARC_PatientMedicalPolicyCoverage__c = participant.Coverage_Participants__r[0].ARC_PolicyCoverage__c;
                                 }
 
                                 if (participant.Role == 'Primary') {
                                     clm.ARC_Primary_Member__c = participant.PrimaryParticipantContactId;
-                                    clm.ARC_PrimaryMemberCM__c = participant.PrimaryParticipantContact.ARC_CensusMember__c;
+                                    clm.ARC_PrimaryMemberCM__c = participant.PrimaryParticipantContact.Account.Census_Member__c;
                                 }
                             }
                         }
@@ -1573,11 +1626,22 @@ System.debug('mappingWorking2.size: ' + mappingWorking2.size());
                             Map<String, Object> item = (Map<String, Object>) itm;
                             ClaimCoveragePaymentDetail lineItem = new ClaimCoveragePaymentDetail();
 
+                            String procedureCode = (String) item.get('CompositeMedicalProcedureIdentifier.ProcedureCode_02');
+                            procedureCode = !String.isBlank(procedureCode) && procedureCode.length() > 5
+                                ? procedureCode.substring(0, 5)
+                                : procedureCode;
                             lineItem.Name = (String) item.get('ServiceLineNumber.AssignedNumber_01');
-                            lineItem.ARC_ProcedureCode__c = codeName_codeId.get((String) item.get('CompositeMedicalProcedureIdentifier.ProcedureCode_02'));
-                            lineItem.ARC_Allowed__c = item.get('LinePricing_RepricingInformation.RepricedAllowedAmount_02') != null
+                            lineItem.ARC_ProcedureCode__c = codeName_codeId.get(procedureCode);
+
+                            String taxId = (String) billingProvider.get('BillingProviderTaxIdentification.TaxNumber');
+                            Boolean isSleepProvider = (taxId != null) && ARC_SleepSMBTIN__mdt.getInstance('TIN_' + taxId.replace('-', '')) != null;
+                            if (procedureCode != null && isSleepProvider && sleepCodeName_price.containsKey(procedureCode)) {
+                                lineItem.ARC_Allowed__c = sleepCodeName_price.get(procedureCode);
+                            } else {
+                                lineItem.ARC_Allowed__c = item.get('LinePricing_RepricingInformation.RepricedAllowedAmount_02') != null
                                 ? Double.valueOf(item.get('LinePricing_RepricingInformation.RepricedAllowedAmount_02'))
                                 : null;
+                            }
                             lineItem.ARC_Claim__c = clm.Id;
                             lineItem.ClaimCoverageId = claimId_CovId.get(clm.Id);
                             lineItem.Status = 'New';
@@ -1715,7 +1779,7 @@ System.debug('mappingWorking2.size: ' + mappingWorking2.size());
                         // CLAIM AUXILIARY FIELDS
                         clm.ARC_CCToCompare__c = String.join(cCToCompare, ';');
                         ci.ARC_Status__c = 'Success';
-                        if (clm.ARC_NTE837IBNoteSegment__c.contains('#HG6')) {
+                        if (String.isNotBlank(clm.ARC_NTE837IBNoteSegment__c) && clm.ARC_NTE837IBNoteSegment__c.contains('#HG6')) {
                             clm.Name = clm.Name + ' QWICKPAY';
                             clm.ARC_QwikPay__c = true;
                         }

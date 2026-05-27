@@ -51,13 +51,13 @@
     width: 450px;
 }
     
-.dropdown {
+.reasonsWrapper {
     position: relative;
     display: inline-block;
 }
   
 .dropdown-content {
-    display: none;
+    /* display: none; */
     position: absolute;
     background-color: #f1f1f1;
     width: 450px;
@@ -77,7 +77,7 @@
     cursor: pointer;
 }
   
-.dropdown a:hover {background-color: #ddd;}
+.reasonsWrapper a:hover {background-color: #ddd;}
 
 .show {
     display: block;

@@ -1,0 +1,206 @@
+<template>
+  <div class="pageWrap">
+      <template if:true={loading}>
+      <div class="pageOverlay">
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+      </div>
+    </template>
+    <div class="pageHeader">
+      <div class="crumbRow">
+        <span class="crumb">Group Classes</span>
+        <span class="crumbSep">/</span>
+        <span class="crumb">Contribution Configuration</span>
+      </div>
+
+      <div class="titleRow">
+        <div class="titleLeft">
+          <h1 class="pageTitle">Employer Contribution Configuration</h1>
+        </div>
+
+        <div class="actions">
+          <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+
+          <template if:true={showContinueTop}>
+            <lightning-button
+              class="slds-m-left_small"
+              variant="brand"
+              label="Continue"
+              onclick={handleContinue}
+              disabled={disableContinue}>
+            </lightning-button>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <div class="bodyCard">
+      <template if:true={isStep1}>
+        <div class="sectionHeader">
+          <h2 class="slds-text-heading_small">Define Group Class Segmentation</h2>
+          <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+            Select how you want to segment your employees into different groups for contribution purposes.
+            Group classes will be automatically generated based on your selection.
+          </p>
+        </div>
+
+        <template if:true={hasNoCensus}>
+          <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
+            <span class="slds-assistive-text">error</span>
+            <h2>
+              No Census was found for this Opportunity/Account. Please create or link a Census before creating Group Classes.
+            </h2>
+          </div>
+        </template>
+
+        <div class="options">
+          <div class={cardClassFTPT} data-value="FT_PT" onclick={handleCardClick}>
+            <div class="cardInner">
+              <lightning-input type="radio" name="segMode" data-value="FT_PT" checked={isFTPT} onchange={handleRadioChange} class="radioFix"></lightning-input>
+              <div>
+                <div class="cardTitle">Full Time / Part Time</div>
+                <div class="cardDesc">Creates 2 Group Classes: Full Time and Part Time.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class={cardClassExempt} data-value="EXEMPT" onclick={handleCardClick}>
+            <div class="cardInner">
+              <lightning-input type="radio" name="segMode" data-value="EXEMPT" checked={isExempt} onchange={handleRadioChange} class="radioFix"></lightning-input>
+              <div>
+                <div class="cardTitle">Exempt / Non-Exempt</div>
+                <div class="cardDesc">Creates 2 Group Classes: Exempt and Non-Exempt.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class={cardClassCombined} data-value="COMBINED" onclick={handleCardClick}>
+            <div class="cardInner">
+              <lightning-input type="radio" name="segMode" data-value="COMBINED" checked={isCombined} onchange={handleRadioChange} class="radioFix"></lightning-input>
+              <div>
+                <div class="cardTitle">Full Time &amp; Exempt Combined</div>
+                <div class="cardDesc">
+                  Creates 4 Group Classes: Full Time Exempt, Full Time Non-Exempt, Part Time Exempt, and Part Time Non-Exempt.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class={cardClassNone} data-value="NONE" onclick={handleCardClick}>
+            <div class="cardInner">
+              <lightning-input type="radio" name="segMode" data-value="NONE" checked={isNone} onchange={handleRadioChange} class="radioFix"></lightning-input>
+              <div>
+                <div class="cardTitle">None (General Group)</div>
+                <div class="cardDesc">Creates 1 Group Class: General.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template if:true={isStep2}>
+        <div class="sectionHeader">
+          <h2 class="slds-text-heading_small">Group Classes That Will Be Created</h2>
+          <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+            Based on your selection, the following group classes will be created. You can configure contributions for each group in the next step.
+          </p>
+        </div>
+
+        <template if:true={hasInvalidEmployees}>
+          <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
+            <span class="slds-assistive-text">error</span>
+            <h2>
+              Some employees do not meet the criteria to be assigned to a Group Class. Please review and complete the required employee fields before creating Group Classes
+              <span class="slds-m-left_x-small">({unknownCount} employee(s) affected)</span>
+            </h2>
+          </div>
+        </template>
+
+        <div class="list">
+        <template for:each={expectedRows} for:item="r">
+          <div key={r.key} class="listRow">
+            <div class="rowLeft">
+              <lightning-icon icon-name="utility:groups" size="x-small" class="rowIcon"></lightning-icon>
+              <span class="rowLabel">{r.label}</span>
+              <span class="rowMeta">({r.memberCount} members)</span>
+            </div>
+          </div>
+        </template>
+</div>
+
+
+        <div class="footerActions split">
+          <div></div>
+          <div>
+            <lightning-button variant="neutral" label="Back" onclick={goStep1}></lightning-button>
+            <lightning-button
+              class="slds-m-left_small"
+              variant="brand"
+              label="Confirm & Create Group Classes"
+              onclick={handleConfirmAndValidate}
+              disabled={disableConfirmAndCreate}>
+            </lightning-button>
+          </div>
+        </div>
+      </template>
+
+      <template if:true={isStep3}>
+        <template if:true={hasEmptyClasses}>
+          <div class="warningBox" role="alert">
+            <div class="warnTop">
+              <lightning-icon icon-name="utility:warning" size="small" class="warnIcon"></lightning-icon>
+              <div>
+                <div class="warnTitle">Some Group Classes Have No Members</div>
+                <div class="warnText">
+                  We could not find any members that match the following Group Classes:
+                  <span class="warnMissing">{emptyLabelsText}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="warnChoices">
+              <div class={includeAllClass} data-value="INCLUDE_EMPTY" onclick={handleIncludeEmptyClick}>
+                <div class="cardInner">
+                  <lightning-input type="radio" name="includeEmpty" data-value="INCLUDE_EMPTY" checked={includeAll} onchange={handleIncludeEmptyChange} class="radioFix"></lightning-input>
+                  <div>
+                    <div class="cardTitle">Create all Group Classes (including those without members)</div>
+                    <div class="cardDesc">All group classes will be created, even if they currently have no matching members.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class={excludeEmptyClass} data-value="EXCLUDE_EMPTY" onclick={handleIncludeEmptyClick}>
+                <div class="cardInner">
+                  <lightning-input type="radio" name="includeEmpty" data-value="EXCLUDE_EMPTY" checked={excludeEmpty} onchange={handleIncludeEmptyChange} class="radioFix"></lightning-input>
+                  <div>
+                    <div class="cardTitle">Do not create Group Classes with no members</div>
+                    <div class="cardDesc">Only group classes with at least one matching member will be created.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="createdHeader">Group Classes that will be created:</div>
+
+            <div class="list compact">
+              <template for:each={rowsToCreateInWarning} for:item="r">
+                <div key={r.key} class="listRow compactRow">
+                  <div class="rowLeft">
+                    <lightning-icon icon-name="utility:check" size="x-small" class="rowIcon success"></lightning-icon>
+                    <span class="rowLabel">{r.label}</span>
+                    <span class="rowMeta">({r.memberCount} members)</span>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <div class="footerActions split">
+          <lightning-button variant="neutral" label="Back" onclick={goStep2}></lightning-button>
+          <lightning-button variant="brand" label="Create Group Classes" onclick={handleCreate}></lightning-button>
+        </div>
+      </template>
+
+    </div>
+  </div>
+</template>

@@ -23,7 +23,7 @@ global class ARC_ClaimLineItemReassignmentBatch
         }   
         return Database.getQueryLocator([
             SELECT Id, ARC_Deductible__c, ARC_Coinsurance__c, ARC_ProcedureCodeName__c,
-                   ARC_Claim__r.Id, ARC_Claim__r.PolicyNumberId, ARC_Claim__r.ARC_DOSFrom__c
+                   ARC_Claim__r.Id, ARC_Claim__r.PolicyNumberId, ARC_Claim__r.ARC_DOSFrom__c, ARC_Claim__r.ARC_MemberContact__c
             FROM ClaimCoveragePaymentDetail
             WHERE ARC_Claim__r.PolicyNumberId != NULL
               AND ARC_Claim__r.ARC_DOSFrom__c != NULL
@@ -31,6 +31,7 @@ global class ARC_ClaimLineItemReassignmentBatch
               AND ARC_Deductible__c > 0
               AND ARC_Claim__r.PolicyNumberId IN :scopedPolicies
               AND ARC_Claim__r.ARC_MemberContact__r.AccountId IN :scopedAccounts
+              AND Status = 'Paid'
         ]);
     }
 
@@ -50,14 +51,14 @@ global class ARC_ClaimLineItemReassignmentBatch
 
         List<ARC_ParticipantAggregator__c> participantAggs = [
             SELECT Id, ARC_Aggregator__r.ARC_Code__c, ARC_Aggregator__r.ARC_Year__c,
-                   ARC_ConsumedValue__c, ARC_Policy__c
+                   ARC_ConsumedValue__c, ARC_Policy__c, ARC_PolicyParticipant__r.PrimaryParticipantContactId
             FROM ARC_ParticipantAggregator__c
             WHERE ARC_Policy__c IN :policyIds
               AND ARC_Aggregator__r.ARC_Year__c IN :years
               AND ARC_Aggregator__r.ARC_Code__c IN ('AMCS__c','SHAMCS__c')
         ];
         for (ARC_ParticipantAggregator__c pa : participantAggs) {
-            String key = pa.ARC_Policy__c + '-' + pa.ARC_Aggregator__r.ARC_Code__c + '-' + pa.ARC_Aggregator__r.ARC_Year__c;
+            String key = pa.ARC_Policy__c + '-' + pa.ARC_PolicyParticipant__r.PrimaryParticipantContactId + '-' + pa.ARC_Aggregator__r.ARC_Code__c + '-' + pa.ARC_Aggregator__r.ARC_Year__c;
             participantAggsMap.put(key, pa);
         }
 
@@ -67,10 +68,11 @@ global class ARC_ClaimLineItemReassignmentBatch
 
             String yearStr = String.valueOf(smb.ARC_Claim__r.ARC_DOSFrom__c.year());
             String policyId = smb.ARC_Claim__r.PolicyNumberId;
+            String memberContact = smb.ARC_Claim__r.ARC_MemberContact__c;
 
             // Keys for participant aggregators
-            String amcsKey = policyId + '-AMCS__c-' + yearStr;
-            String shamcsKey = policyId + '-SHAMCS__c-' + yearStr;
+            String amcsKey = policyId + '-' + memberContact + '-AMCS__c-' + yearStr;
+            String shamcsKey = policyId + '-' + memberContact + '-SHAMCS__c-' + yearStr;
 
             ARC_ParticipantAggregator__c amcs = participantAggsMap.get(amcsKey);
             ARC_ParticipantAggregator__c shamcs = participantAggsMap.get(shamcsKey);
@@ -91,25 +93,23 @@ global class ARC_ClaimLineItemReassignmentBatch
 
                 amcs.ARC_ConsumedValue__c -= x;
                 shamcs.ARC_ConsumedValue__c += x;
-                partAggToUpdate.add(amcs);
-                partAggToUpdate.add(shamcs);
             }
         }
 
         if (updateRecords) {
             update smbToUpdate;
-            update partAggToUpdate;
+            update participantAggsMap.values();
         }
     }
 
     global void finish(Database.BatchableContext bc) {
-        String body = 'Report Mode: ' + updateRecords + '\n\n--- Updates ---\n' +
-                      String.join(reportLines, '\n') +
-                      '\n\n--- Errors ---\n' +
-                      String.join(errorLines, '\n');
+        String body = 'Update Mode: ' + updateRecords + '\n\n--- Updates ---('+ reportLines.size() +')\n' +
+                      String.join(reportLines, '\n\n') +
+                      '\n\n--- Errors ---('+ errorLines.size() +')\n' +
+                      String.join(errorLines, '\n\n');
 
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-        email.setToAddresses(new String[] { 'ignacio.ferreiro@arcsona.com' });
+        email.setToAddresses(new String[] { 'ignacio.ferreiro@arcsona.com', 'agustin.garay@arcsona.com' });
         email.setSubject('SMB Item Reassignment Batch Report');
         email.setPlainTextBody(body);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });

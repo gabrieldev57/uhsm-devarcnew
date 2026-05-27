@@ -1,0 +1,158 @@
+<template>
+    <template lwc:if={isOpen}>
+        <!-- Modal Backdrop -->
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Header -->
+                <div class="slds-modal__header">
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Close"
+                        class="slds-modal__close"
+                        onclick={handleCancel}>
+                    </lightning-button-icon>
+                    <h1 class="slds-modal__title slds-hyphenate">{modalTitle}</h1>
+                </div>
+
+                <!-- Body -->
+                <div class="slds-modal__content slds-p-around_medium">
+                    <!-- Option: Search existing contact or create new -->
+                    <div class="slds-m-bottom_medium">
+                        <c-a-r-c_-radio-group
+                            label="Select Option"
+                            name="contactType"
+                            options={contactTypeOptions}
+                            value={contactType}
+                            disabled={isContactTypeDisabled}
+                            required
+                            onchange={handleContactTypeChange}>
+                        </c-a-r-c_-radio-group>
+                    </div>
+
+                    <!-- Contact Lookup (when selecting existing contact) -->
+                    <template lwc:if={showContactLookup}>
+                        <div class="slds-m-bottom_medium">
+                            <c-a-r-c_-generic-lookup
+                                label="Search Contact"
+                                placeholder="Search for an existing contact..."
+                                opportunity-id={opportunityId}
+                                object-type="Contact"
+                                icon-name="standard:contact"
+                                required
+                                onselect={handleContactSelect}>
+                            </c-a-r-c_-generic-lookup>
+                        </div>
+                    </template>
+
+                    <!-- Manual Contact Fields (when creating new or editing) -->
+                    <template lwc:if={showContactFields}>
+                        <!-- Name Fields -->
+                        <div class="slds-grid slds-gutters_small slds-m-bottom_medium">
+                            <div class="slds-col slds-size_5-of-12">
+                                <lightning-input
+                                    type="text"
+                                    label="First Name"
+                                    name="firstName"
+                                    value={ownerData.firstName}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_5-of-12">
+                                <lightning-input
+                                    type="text"
+                                    label="Last Name"
+                                    name="lastName"
+                                    value={ownerData.lastName}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_2-of-12">
+                                <lightning-input
+                                    type="text"
+                                    label="M.I."
+                                    name="middleInitial"
+                                    value={ownerData.middleInitial}
+                                    maxlength="1"
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                            </div>
+                        </div>
+
+                        <!-- Email and Phone Fields -->
+                        <div class="slds-grid slds-gutters_small slds-m-bottom_medium">
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-input
+                                    type="email"
+                                    label="Email"
+                                    name="email"
+                                    value={ownerData.email}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Ownership Fields (always shown) -->
+                    <div class="slds-m-bottom_medium">
+                        <lightning-input
+                            type="number"
+                            label="Ownership %"
+                            name="ownershipPercentage"
+                            value={ownerData.ownershipPercentage}
+                            min="0.1"
+                            max="100"
+                            step="0.01"
+                            required
+                            onchange={handleFieldChange}>
+                        </lightning-input>
+                        <template lwc:if={ownershipErrorMessage}>
+                            <p class="ownership-error">{ownershipErrorMessage}</p>
+                        </template>
+                    </div>
+
+                    <!-- Eligible Radio -->
+                    <div class="slds-m-bottom_medium">
+                        <c-a-r-c_-radio-group
+                            label="Eligible"
+                            name="isEligible"
+                            options={eligibleOptions}
+                            value={eligibleValue}
+                            required
+                            onchange={handleEligibleChange}>
+                        </c-a-r-c_-radio-group>
+                    </div>
+
+                    <!-- Portal Access -->
+                    <div class="slds-m-bottom_medium">
+                        <lightning-combobox
+                            label="Portal Access"
+                            name="portalAccess"
+                            value={ownerData.portalAccess}
+                            options={portalAccessOptions}
+                            required
+                            onchange={handleFieldChange}>
+                        </lightning-combobox>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="slds-modal__footer">
+                    <lightning-button 
+                        label="Cancel" 
+                        onclick={handleCancel}>
+                    </lightning-button>
+                    <lightning-button 
+                        variant="brand" 
+                        label={saveButtonLabel}
+                        class="slds-m-left_x-small"
+                        onclick={handleSave}>
+                    </lightning-button>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

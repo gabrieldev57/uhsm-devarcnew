@@ -1,0 +1,102 @@
+<template>
+  <section class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1" aria-modal="true" aria-label={title}>
+    <div class="slds-modal__container">
+      <div class="modal-frame">
+        <template if:true={isSaving}>
+          <div class="modal-only-overlay" aria-live="polite" aria-busy="true">
+            <lightning-spinner size="large" alternative-text="Saving..."></lightning-spinner>
+          </div>
+        </template>
+
+        <header class="slds-modal__header">
+          <button class="slds-button slds-button_icon slds-modal__close" title="Close" onclick={handleClose} disabled={isSaving}>
+            <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+          </button>
+          <h2 class="slds-text-heading_medium">{title}</h2>
+        </header>
+
+        <div class="slds-modal__content slds-p-around_medium">
+          <div class="slds-form slds-form_stacked">
+            <div class="slds-grid slds-wrap slds-gutters">
+              <!-- First Name -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input label="First Name" name="firstName" required onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Last Name -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input label="Last Name" name="lastName" required onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Date of Birth -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input type="date" label="Date of Birth" name="dob" required onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Employment Type -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-combobox label="Employment Type" name="employmentType" required options={employmentTypeOptions} onchange={handleChange} placeholder="--None--"></lightning-combobox>
+              </div>
+              <!-- Division -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-combobox label="Division" name="division" required options={divisionOptions} onchange={handleChange} placeholder="--None--"></lightning-combobox>
+              </div>
+              <!-- Job Class -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-combobox label="Job Class" name="jobClass" required options={jobClassOptions} onchange={handleChange} placeholder="--None--"></lightning-combobox>
+              </div>
+              <!-- SSN -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input label="SSN" name="ssn" required inputmode="numeric" maxlength="9" placeholder="9 digits" onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Email -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input type="email" label="Email" name="email" required onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Phone -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input type="tel" label="Phone" name="phone" required maxlength="14" inputmode="numeric" onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Gender -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-combobox label="Gender" name="gender" required options={genderOptions} onchange={handleChange} placeholder="--None--"></lightning-combobox>
+              </div>
+              <!-- Street -->
+              <div class="slds-col slds-size_1-of-1">
+                <lightning-input label="Street" name="street" required onchange={handleChange}></lightning-input>
+              </div>
+              <!-- City -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                <lightning-input label="City" name="city" required onchange={handleChange}></lightning-input>
+              </div>
+              <!-- State -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                <lightning-input label="State" name="state" maxlength="2" required onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Zip Code -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                <lightning-input label="Zip Code" name="zipCode" required maxlength="9" inputmode="numeric" onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Job Title -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input label="Job Title" name="jobTitle" required onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Hire Date -->
+              <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input type="date" label="Hire Date" name="hireDate" required onchange={handleChange}></lightning-input>
+              </div>
+              <!-- Effective Date -->
+              <!-- <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input type="date" label="Effective Date" name="effectiveDate" value={effectiveDate} min={effectiveDateMin} max={effectiveDateMax} required onchange={handleEffectiveDateChange}></lightning-input>
+              </div> -->
+            </div>
+          </div>
+        </div>
+
+        <footer class="slds-modal__footer">
+          <lightning-button variant="neutral" label="Close" onclick={handleClose} disabled={isSaving}></lightning-button>
+          <lightning-button variant="brand" label="Submit" type="button" onclick={handleSubmit} disabled={isSaving} class="submit-btn"></lightning-button>
+        </footer>
+      </div>
+    </div>
+  </section>
+
+  <div class="slds-backdrop slds-backdrop_open" onclick={handleBackdrop}></div>
+</template>

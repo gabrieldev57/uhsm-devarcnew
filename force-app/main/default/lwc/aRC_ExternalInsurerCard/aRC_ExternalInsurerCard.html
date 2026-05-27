@@ -1,20 +1,49 @@
 <template>
-    <div if:true={renderComponent} class="container">
-        <button onclick={addPrimaryInsurance}>Add Primary Insurance</button>
-        <template if:true={showModal}>
-            <c-a-r-c_-external-insurer-members-options onclose={handleModalClose} onsave={handleModalSave}>
+    <div if:true={renderComponent} class="insurer-container">
 
-            </c-a-r-c_-external-insurer-members-options>
-        </template>
-    </div>
+
+<!-- 
+        <div class="nds-m-bottom_medium slds-m-right_x-small">
+            <div style="display: flex;
+                    justify-content: flex-end;
+                    margin: 6px;">
+                <lightning-button-icon icon-name="utility:refresh" variant="border-filled" title="Refresh"
+                    onclick={refreshComponent} class="btnHeader mgbt-10"></lightning-button-icon>
+            </div>
+        </div> -->
+
+        <!-- <div if:true={formButton} class="nds-m-bottom_medium slds-m-right_x-small">
+            <div style="display: flex;
+                    justify-content: flex-end;
+                    margin: 6px;">
+                <lightning-button variant="neutral" label="Add Primary Insurance" title="Add Primary Insurance"
+                    onclick={toggleForm} class="slds-m-right_x-small">
+                </lightning-button>
+                <lightning-button-icon icon-name="utility:refresh" variant="border-filled" title="Refresh"
+                    onclick={refreshComponent} class="btnHeader mgbt-10"></lightning-button-icon>
+            </div>
+            <template if:true={showForm}>
+                <div class="insurer-container">
+                    <c-person-account-external-insurance-english type="PersonAccount" subtype="ExternalInsurance"
+                        language="English" prefill={prefill} layout="newport" onomnifinish={handleOmniFinish}>
+                    </c-person-account-external-insurance-english>
+                </div>
+            </template>
+        </div> -->
+
         <div class="insurer-container" for:each={insurersList} for:item="insurer" key={insurer.InsurerName}>
             <div class="header"><a data-id={insurer.Id} onclick={navigateToRecordPage}>{insurer.InsurerName}</a>
                 <div class="header-fields-container">
-                    <span>Source:&nbsp;</span><p>{insurer.Source}</p>
-                    <span>Policy Number:&nbsp;</span><p>{insurer.PolicyNumber}</p>
-                    <span>Insurer Phone:&nbsp;</span><p>{insurer.Phone}</p>
-                    <span>Effective Date:&nbsp;</span><p>{insurer.EffectiveDate}</p>
-                    <span>Expiration Date:&nbsp;</span><p>{insurer.ExpirationDate}</p>
+                    <span>Source:&nbsp;</span>
+                    <p>{insurer.Source}</p>
+                    <span>Policy Number:&nbsp;</span>
+                    <p>{insurer.PolicyNumber}</p>
+                    <span>Insurer Phone:&nbsp;</span>
+                    <p>{insurer.Phone}</p>
+                    <span>Effective Date:&nbsp;</span>
+                    <p>{insurer.EffectiveDate}</p>
+                    <span>Expiration Date:&nbsp;</span>
+                    <p>{insurer.ExpirationDate}</p>
                 </div>
             </div>
             <div class="main-content">

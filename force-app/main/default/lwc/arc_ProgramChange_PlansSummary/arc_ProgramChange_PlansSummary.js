@@ -6,17 +6,50 @@ export default class arc_ProgramChange_PlansSummary extends OmniscriptBaseMixin(
     @api reasonList;
     @api feeApplicable;
     @api programSummaryFeeText;
-    @api feeAmount;
+    _feeAmount;
+    _feeAmountPending;
+    @api programSummaryFeeTextPending;
     @api effDate;
     @api individualProducts;
     @api monthlyPrice;
+
+    @api
+    get feeAmount() {
+        return this.formatFee(this._feeAmount);
+    }
+    set feeAmount(value) {
+        this._feeAmount = value;
+    }
+
+    @api
+    get feeAmountPending() {
+        return this.formatFee(this._feeAmountPending);
+    }
+    set feeAmountPending(value) {
+        this._feeAmountPending = value;
+    }
+
+    formatFee(fee) {
+        if (fee == null || fee === '') return '';
+        if(fee.toString().includes('$')) return fee;
+        let feeStr = fee.toString().trim();
+        feeStr = feeStr.replace(/^\$/, '');
+        feeStr = feeStr.replace(/\$/g, '');
+        feeStr = feeStr.replace(/,/g, '');
+        let num = parseFloat(feeStr);
+        if (isNaN(num)) return fee;
+        return `$${num.toFixed(2)}`;
+    }
     
     connectedCallback(){
+        console.log('programSummaryFeeTextPending' + this.programSummaryFeeTextPending);
+
+        // ...existing code...
 
         this.reasonList = this.reasonList.split(";");
 
         const orderKeys = ["Medical", "SMART", "AIDD"];
-        
+
         this.individualProducts = this.individualProducts.sort((a, b) => {
             const getKey = (prod) => {
                 if (prod.Type === "Medical") {

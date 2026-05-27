@@ -320,6 +320,7 @@ public with sharing class ARC_MultiSpinOff_BaseServiceTest {
                 'feeAmount' => 50,
                 'feeApplicable' => true,
                 'programSummaryFeeText' => 'One Time Change Fee (Add Member): 50',
+                'canAddBeneficiary' => false,
                 'soReasons' => new Map<String, Object>{
                     'spinOff' => true,
                     'programUpgrade' => false,

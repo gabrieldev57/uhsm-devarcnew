@@ -18,7 +18,7 @@ public without sharing class ARC_NBMapper {
      */
     public void mapSingleNewBornData(ARC_NBManager manager) {
         this.manager = manager;
-        
+        System.debug('### this.manager: ' + this.manager);
         manager.isPermanentNewborn = manager.inputMap.containsKey('STEP_PermanentNewborn') && ((Map<String,Object>)manager.inputMap.get('STEP_PermanentNewborn') != null) && ((Map<String,Object>)manager.inputMap.get('STEP_PermanentNewborn')).containsKey('FRML_PermanentNewborn') && (Boolean)((Map<String,Object>)manager.inputMap.get('STEP_PermanentNewborn')).get('FRML_PermanentNewborn');
 
         actionsToExecute.add('mapAccounts');
@@ -30,15 +30,14 @@ public without sharing class ARC_NBMapper {
             actionsToExecute.add('mapContract');
             actionsToExecute.add('mapContractLineItem');
             actionsToExecute.add('mapContractParticipants');
-            //actionsToExecute.add('mapGuardian');
-            //actionsToExecute.add('mapCensus');
             actionsToExecute.add('mapChargentOrders');
-            actionsToExecute.add('insertHipaaAuthorization');
             actionsToExecute.add('mapMedicalQuestions');
+            actionsToExecute.add('mapBeneficiaries');
             actionsToExecute.add('mapCases');
             actionsToExecute.add('mapCaseMember');
-            actionsToExecute.add('insertPromotionDiscount');
-            actionsToExecute.add('insertCaseForFeeSkipped');
+            actionsToExecute.add('mapPromotionDiscount');
+            actionsToExecute.add('mapAncillaryDiscount');
+            actionsToExecute.add('mapCaseForFeeSkipped');
         }
         
         System.debug('actions to execute: ' + actionsToExecute);
@@ -79,11 +78,11 @@ public without sharing class ARC_NBMapper {
                     when 'mapChargentOrders' {
                         mapChargentOrders();
                     }
-                    when 'mapMedicalQuestions'{
+                    when 'mapMedicalQuestions' {
                         mapMedicalQuestions();
                     }
-                    when 'insertHipaaAuthorization' {
-                        mapHipaaAuthorization();
+                    when 'mapBeneficiaries' {
+                        mapMemberBeneficiaries();
                     }
                     when 'mapCases' {
                         mapCases(); 
@@ -91,11 +90,14 @@ public without sharing class ARC_NBMapper {
                     when 'mapCaseMember' {
                         mapCaseMember();
                     }
-                    when 'insertPromotionDiscount' {
-                        insertPromotionDiscount();
+                    when 'mapPromotionDiscount' {
+                        mapPromotionDiscount();
                     }
-                    when 'insertCaseForFeeSkipped' {
-                        insertCaseForFeeSkipped();
+                    when 'mapAncillaryDiscount' {
+                        mapCriticalCarePromotionDiscount();
+                    }
+                    when 'mapCaseForFeeSkipped' {
+                        mapCaseForFeeSkipped();
                     }
                 }
             } catch (Exception e) {
@@ -123,8 +125,22 @@ public without sharing class ARC_NBMapper {
                 newAccount.vlocity_ins__MiddleName__pc = member.containsKey('ARC_MiddleInitial__c') ? (String)member.get('ARC_MiddleInitial__c') : null;
                 newAccount.PersonGender = member.containsKey('vlocity_ins__Gender__c') ? (String)member.get('vlocity_ins__Gender__c') : null;
                 newAccount.vlocity_ins__SocialSecurityNumber__pc = member.containsKey('vlocity_ins__SocialSecurityNumber__c') ? (String)member.get('vlocity_ins__SocialSecurityNumber__c') : null;
-                newAccount.ARC_Height__c = String.valueOf((Integer)member.get('ARC_HeightFeet__c')) + '\'' + String.valueOf((Integer)member.get('ARC_HeightInches__c'));
-                newAccount.ARC_Weight__c = member.containsKey('ARC_Weight__c') ? String.valueOf((Integer)member.get('ARC_Weight__c')) : null;
+                String height = null;
+                Object feetObj = member.containsKey('ARC_HeightFeet__c') ? member.get('ARC_HeightFeet__c') : null;
+                Object inchesObj = member.containsKey('ARC_HeightInches__c') ? member.get('ARC_HeightInches__c') : null;
+                String feetStr = null;
+                String inchesStr = null;
+                try { if (feetObj != null && String.valueOf(feetObj).trim() != '') feetStr = String.valueOf(Integer.valueOf(String.valueOf(feetObj))); } catch (Exception e) { }
+                try { if (inchesObj != null && String.valueOf(inchesObj).trim() != '') inchesStr = String.valueOf(Integer.valueOf(String.valueOf(inchesObj))); } catch (Exception e) { }
+                if (feetStr != null) {
+                    height = feetStr + '\'';
+                }
+                if (inchesStr != null) {
+                    if (height != null) height += inchesStr;
+                    else height = '\'' + inchesStr;
+                }
+                newAccount.ARC_Height__c = height;
+                newAccount.ARC_Weight__c = member.containsKey('ARC_Weight__c') && member.get('ARC_Weight__c') != null && String.valueOf(member.get('ARC_Weight__c')).trim() != '' ? String.valueOf(Integer.valueOf(String.valueOf(member.get('ARC_Weight__c')))) : null;
                 
                 manager.accountFakeIdToInsertNB.put((String)member.get('Id') , newAccount);
             }
@@ -166,9 +182,9 @@ public without sharing class ARC_NBMapper {
                     newGCM.ARC_MiddleInitial__c = member.containsKey('ARC_MiddleInitial__c') ? (String)member.get('ARC_MiddleInitial__c') : null;
                     newGCM.vlocity_ins__Gender__c = member.containsKey('vlocity_ins__Gender__c') ? (String)member.get('vlocity_ins__Gender__c') : null;
                     newGCM.vlocity_ins__SocialSecurityNumber__c = member.containsKey('vlocity_ins__SocialSecurityNumber__c') ? (String)member.get('vlocity_ins__SocialSecurityNumber__c') : null;
-                    newGCM.ARC_HeightFeet__c = member.containsKey('ARC_HeightFeet__c') ? String.valueOf((Integer)member.get('ARC_HeightFeet__c')) : null;
-                    newGCM.ARC_HeightInches__c = member.containsKey('ARC_HeightInches__c') ? String.valueOf((Integer)member.get('ARC_HeightInches__c')) : null;
-                    newGCM.ARC_Weight__c = member.containsKey('ARC_Weight__c') ? String.valueOf((Integer)member.get('ARC_Weight__c')) : null;
+                    newGCM.ARC_HeightFeet__c = member.containsKey('ARC_HeightFeet__c') ? member.get('ARC_HeightFeet__c') != null && member.get('ARC_HeightFeet__c') != '' ? String.valueOf(Integer.valueOf(member.get('ARC_HeightFeet__c'))) : null : null ;
+                    newGCM.ARC_HeightInches__c = member.containsKey('ARC_HeightInches__c') ? member.get('ARC_HeightInches__c') != null && member.get('ARC_HeightInches__c') != '' ? String.valueOf(Integer.valueOf(member.get('ARC_HeightInches__c'))) : null : null ;
+                    newGCM.ARC_Weight__c = member.containsKey('ARC_Weight__c') ? member.get('ARC_Weight__c') != null && member.get('ARC_Weight__c') != '' ? String.valueOf(Integer.valueOf(member.get('ARC_Weight__c'))) : null : null;
 
                     newGCM.ARC_PhysicalAddressCity__c = member.containsKey('ARC_PhysicalAddressCity__c') ? (String)member.get('ARC_PhysicalAddressCity__c') : null;
                     newGCM.ARC_PhysicalAddressState__c = member.containsKey('ARC_PhysicalAddressState__c') ? (String)member.get('ARC_PhysicalAddressState__c') : null;
@@ -192,7 +208,7 @@ public without sharing class ARC_NBMapper {
     private void mapGCMPlan() {
         try {
             if (!manager.listContractsTNB.isEmpty()) {
-                Map<String, vlocity_ins__GroupCensusMember__c> censusActiveToGCM = (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.censusIdActiveCnt);
+                Map<String, vlocity_ins__GroupCensusMember__c> censusActiveToGCM = (Map<String, vlocity_ins__GroupCensusMember__c>)manager.censusGroupToGCM.get(manager.lastCensusId);
                 for (Contract cnt : manager.listContractsTNB) {
                     for (String fakeId : censusActiveToGCM.keySet()) {
                         vlocity_ins__GroupCensusMemberPlan__c gcmPlan = new vlocity_ins__GroupCensusMemberPlan__c();
@@ -219,8 +235,8 @@ public without sharing class ARC_NBMapper {
     private void mapPolicyParticipant() {
         try {
             if (!manager.listContractsTNB.isEmpty()) {
-                Date firstDate = Date.valueOf((String)manager.inputMap.get('OldestNewbornBirthdate'));
-                Date lastDate = Date.valueOf((String)manager.inputMap.get('YoungestNewbornBirthdate')) + 30; 
+                Date firstDate = manager.oldestNewbornBirthdate;
+                Date lastDate = manager.youngestNewbornBirthdate + 30;
 
                 for (Contract cnt : manager.listContractsTNB) {
                     for (String fakeId : manager.accountFakeIdToInsertNB.keySet()) {
@@ -235,7 +251,9 @@ public without sharing class ARC_NBMapper {
                         newPolPart.WP_Immunizations__c = ((Account)manager.accountFakeIdToInsertNB.get(fakeId)).PersonBirthdate;
                         newPolPart.WP_Normal__c = ((Account)manager.accountFakeIdToInsertNB.get(fakeId)).PersonBirthdate;
                         newPolPart.WP_Pre_Ex__c = ((Account)manager.accountFakeIdToInsertNB.get(fakeId)).PersonBirthdate;
-
+                        if(((Account)manager.accountFakeIdToInsertNB.get(fakeId)).ARC_DependentRelationship__c == 'Temporary Newborn'){
+                            newPolPart.RelationshipToInsured = 'Temporary Newborn';
+                        }
                         if (cnt.Status == 'Terminated') {
                             if (cnt.ARC_Inactive_Date__c < lastDate) {
                                 newPolPart.ARC_EndDate__c = cnt.ARC_Inactive_Date__c;
@@ -285,7 +303,7 @@ public without sharing class ARC_NBMapper {
                             (manager.contractIdToPolPart.get(IdlastCnt)).get(fakeId).ARC_EndDate__c = newDate.addDays(-1);
 
                             (manager.accountFakeIdToInsertNB.get(fakeId)).IsActive = true;
-                            ((manager.censusGroupToGCM.get(manager.censusIdActiveCnt)).get(fakeId)).ARC_ActiveMember__c = true;
+                            ((manager.censusGroupToGCM.get(manager.lastCensusId)).get(fakeId)).ARC_ActiveMember__c = true;
                         }
                     }
                 } 
@@ -302,13 +320,11 @@ public without sharing class ARC_NBMapper {
     private void mapContract() {
         try {
             Contract newContract = new Contract();
-            // Get Reasons and eligible contract info
-            Map<String, Object> nbChanges = (Map<String, Object>)manager.inputMap.get('nbChanges');
-            Map<String, Object> eligibleContract = (Map<String, Object>)manager.inputMap.get('EligibleContract');     
-            Map<String, Object> contractInfo = (Map<String, Object>)eligibleContract.get('ContractInfo');
+            // Get Reasons and eligible contract info     
+            Map<String, Object> contractInfo = (Map<String, Object>)manager.eligibleContract.get('ContractInfo');
 
-            if(nbChanges != null) { //nbReasonsString is carry over the reasons if the contract is 'Awaiting', if is not 'Awaiting' only have the reason 'Add Newborn'
-                String reasons = (String)nbChanges.get('nbReasonsString');
+            if(manager.nbChanges != null) { //nbReasonsString is carry over the reasons if the contract is 'Awaiting', if is not 'Awaiting' only have the reason 'Add Newborn'
+                String reasons = (String)manager.nbChanges.get('nbReasonsString');
                 if (reasons != null && reasons.contains('Ancillary Change')) {
                     reasons = reasons.replace('Ancillary Change', 'Add Ancillary Product');
                 }
@@ -320,7 +336,19 @@ public without sharing class ARC_NBMapper {
                 newContract.vlocity_ins__EnrollmentCensusId__c = (Id)contractInfo.get('CensusId');                 
                 newContract.AccountId = (String)contractInfo.get('GroupAccountId');
                 newContract.Account_Name_Text__c = (String)contractInfo.get('GroupAccountName');
-                newContract.ARC_Selling_Agent__c = (String)contractInfo.get('Selling_Agent');
+
+                //ASSIGN PREVIOUS SELLING AGENT OR INACTIVE SALES AGENT
+                Id oldAgentId = contractInfo.get('Selling_Agent')!= null? (Id)contractInfo.get('Selling_Agent'):null;
+                if(oldAgentId != null){
+                    List<User> agentUsers = [SELECT Id, Name FROM User WHERE (Id =:oldAgentId OR Name = 'Inactive Sales Agent') AND IsActive = true];
+                    Id integrationUserId;
+                    Boolean oldAgentIdActive = false;
+                    for(User agent: agentUsers){
+                        if(agent.Id == oldAgentId) oldAgentIdActive = true;
+                        else integrationUserId = agent.Id;
+                    }
+                    newContract.ARC_Selling_Agent__c = oldAgentIdActive == true? oldAgentId : integrationUserId;
+                }
 
                 if (((String)contractInfo.get('Status')).contains('Awaiting')) {
                     if (contractInfo.containsKey('SubReasons') && (String)contractInfo.get('SubReasons') != null) {
@@ -367,8 +395,7 @@ public without sharing class ARC_NBMapper {
                 Integer index = 0;
                 
                 // Get account ID
-                Map<String, Object> eligibleContract = (Map<String, Object>)manager.inputMap.get('EligibleContract');     
-                Map<String, Object> contractInfo = (Map<String, Object>)eligibleContract.get('ContractInfo');
+                Map<String, Object> contractInfo = (Map<String, Object>)manager.eligibleContract.get('ContractInfo');
                 String accountId = (String)contractInfo.get('GroupAccountId'); 
 
                 // Get the contract effective date
@@ -544,11 +571,26 @@ public without sharing class ARC_NBMapper {
                 newContractParticipant.ARC_Address__StateCode__s = member.containsKey('ARC_PhysicalAddressState__c') ? (String)member.get('ARC_PhysicalAddressState__c') : null;
                 newContractParticipant.ARC_Address__Street__s = member.containsKey('ARC_PhysicalAddressStreet__c') ? (String)member.get('ARC_PhysicalAddressStreet__c') : null;
                 newContractParticipant.ARC_Address__PostalCode__s = member.containsKey('ARC_PhysicalAddressZipCode__c') ? (String)member.get('ARC_PhysicalAddressZipCode__c') : null;
-                
-                newContractParticipant.ARC_Weight__c =  member.containsKey('ARC_Weight__c') != null ? String.valueOf(member.get('ARC_Weight__c')) : null;
-                if(String.valueOf(member.get('ARC_HeightFeet__c')) != null && String.valueOf(member.get('ARC_HeightInches__c')) != null) {
-                    newContractParticipant.ARC_Height__c = String.valueOf(member.get('ARC_HeightFeet__c')) + '\'' + String.valueOf(member.get('ARC_HeightInches__c'));
+                String height = null;
+                Object feetObj = member.containsKey('ARC_HeightFeet__c') ? member.get('ARC_HeightFeet__c') : null;
+                Object inchesObj = member.containsKey('ARC_HeightInches__c') ? member.get('ARC_HeightInches__c') : null;
+                String feetStr = null;
+                String inchesStr = null;
+                try { if (feetObj != null && String.valueOf(feetObj).trim() != '') feetStr = String.valueOf(Integer.valueOf(String.valueOf(feetObj))); } catch (Exception e) { }
+                try { if (inchesObj != null && String.valueOf(inchesObj).trim() != '') inchesStr = String.valueOf(Integer.valueOf(String.valueOf(inchesObj))); } catch (Exception e) { }
+                if (feetStr != null) {
+                    height = feetStr + '\'';
                 }
+                if (inchesStr != null) {
+                    if (height != null) height += inchesStr;
+                    else height = '\'' + inchesStr;
+                }
+                newContractParticipant.ARC_Height__c = height;
+                newContractParticipant.ARC_Weight__c = member.containsKey('ARC_Weight__c') && member.get('ARC_Weight__c') != null && String.valueOf(member.get('ARC_Weight__c')).trim() != '' ? String.valueOf(Integer.valueOf(String.valueOf(member.get('ARC_Weight__c')))) : null;
+
+                // if(String.valueOf(member.get('ARC_HeightFeet__c')) != null && String.valueOf(member.get('ARC_HeightInches__c')) != null) {
+                //     newContractParticipant.ARC_Height__c = String.valueOf(member.get('ARC_HeightFeet__c')) + '\'' + String.valueOf(member.get('ARC_HeightInches__c'));
+                // }
                 
                 manager.fakeIdToContractPart.put((String)member.get('Id'), newContractParticipant);
             }
@@ -562,9 +604,8 @@ public without sharing class ARC_NBMapper {
      * @Description: Maps case information for newborns
      */
     private void mapCases() {
-        try {
-            Map<String, Object> eligibleContract = (Map<String, Object>)manager.inputMap.get('EligibleContract');     
-            Map<String, Object> contractInfo = (Map<String, Object>)eligibleContract.get('ContractInfo');
+        try {  
+            Map<String, Object> contractInfo = (Map<String, Object>)manager.eligibleContract.get('ContractInfo');
             String contractStatus = (String)contractInfo.get('Status');
             String contractId = (String)contractInfo.get('Id');
 
@@ -579,28 +620,22 @@ public without sharing class ARC_NBMapper {
                 newCase.Type = 'Program Change';
             } 
 
+            String caseType = 'PC Approval'; // Default value
+
             if (contractInfo != null && (contractStatus.contains('Awaiting Signature') || contractStatus.contains('Awaiting Approval'))) {
                 List<Contract> existingContract = [SELECT ARC_Case__c, ARC_Case__r.Case_Type__c FROM Contract WHERE Id = :contractId];
 
                 if (!existingContract.isEmpty() && existingContract[0].ARC_Case__r?.Case_Type__c == 'Underwriting'){
-                    manager.isUnderwritingCase = true;
-                    newCase.ARC_Reason__c = 'Underwriting';
-                    newCase.Case_Type__c = 'Underwriting';
-                    newCase.Description = 'Underwriting';
-                    newCase.Subject = 'Underwriting';
-                } else {
-                    newCase.ARC_Reason__c = 'PC Approval';
-                    newCase.Description = 'PC Approval';
-                    newCase.Subject = 'PC Approval';
-                    newCase.Case_Type__c = 'PC Approval';
+                    
+                    caseType = 'Underwriting';
                 }
                 
-            } else {
-                newCase.ARC_Reason__c = 'PC Approval';
-                newCase.Description = 'PC Approval';
-                newCase.Subject = 'PC Approval';
-                newCase.Case_Type__c = 'PC Approval';
             }
+
+            newCase.ARC_Reason__c = caseType;
+            newCase.Description = caseType;
+            newCase.Subject = caseType;
+            newCase.Case_Type__c = caseType;
 
             manager.casesUWToInsert.add(newCase);    
         } catch (Exception e) {
@@ -614,61 +649,58 @@ public without sharing class ARC_NBMapper {
      * @Description: Maps case member information for newborns
      */
     private void mapCaseMember() {
-        try {
-            if (manager.isUnderwritingCase){
-                Map<String, Object> eligibleContract = (Map<String, Object>)manager.inputMap.get('EligibleContract');     
-                Map<String, Object> contractInfo = (Map<String, Object>)eligibleContract.get('ContractInfo');
-                Id contractId = contractInfo != null ? (String)contractInfo.get('Id') : null;
-                String contractStatus = (String)contractInfo.get('TXT_ContractStatus');
+        try {    
+            Map<String, Object> contractInfo = (Map<String, Object>)manager.eligibleContract.get('ContractInfo');
+            Id contractId = contractInfo != null ? (String)contractInfo.get('Id') : null;
+            String contractStatus = (String)contractInfo.get('TXT_ContractStatus');
 
-                // Copy existing UW case members if applicable
-                if ( contractInfo != null && ((String)contractInfo.get('Status')).contains('Awaiting')) {
-                    List<ARC_UnderwritingCaseMember__c> listUWCMToCopy = [SELECT ARC_ApprovalResolution__c, ARC_Member__c, ARC_PersonAccount__c, ARC_Reason__c, ARC_Score__c, Name, ARC_ReviewedBy__c,  ARC_LastStatusUpdate__c, LastModifiedById, ARC_Description__c FROM ARC_UnderwritingCaseMember__c WHERE ARC_Contract__c =: contractId ];
+            // Copy existing UW case members if applicable
+            if ( contractInfo != null && ((String)contractInfo.get('Status')).contains('Awaiting')) {
+                List<ARC_UnderwritingCaseMember__c> listUWCMToCopy = [SELECT ARC_ApprovalResolution__c, ARC_Member__c, ARC_PersonAccount__c, ARC_Reason__c, ARC_Score__c, Name, ARC_ReviewedBy__c,  ARC_LastStatusUpdate__c, LastModifiedById, ARC_Description__c FROM ARC_UnderwritingCaseMember__c WHERE ARC_Contract__c =: contractId ];
 
-                    List<Object> censusMembers = (List<Object>)manager.inputMap.get('census_members');
-                    for (ARC_UnderwritingCaseMember__c UWCM : listUWCMToCopy) {
-                        for (Object censusMember : censusMembers) {
-                            Map<String,Object> member = (Map<String,Object>)censusMember;
-                            if (member != null && member.containsKey('IsNewMember') && (Boolean)member.get('IsNewMember') == false 
-                                && member.containsKey('PersonAccountId') && (Id)member.get('PersonAccountId') == UWCM.ARC_PersonAccount__c && member.containsKey('IsRemoveMember') && (Boolean)member.get('IsRemoveMember') == false) { 
-                            
-                                try {
-                                    ARC_UnderwritingCaseMember__c newCaseMember = new ARC_UnderwritingCaseMember__c();
-                                    newCasemember.Name = UWCM.Name;
-                                    newCasemember.ARC_Member__c = UWCM.ARC_Member__c;
-                                    newCasemember.ARC_PersonAccount__c = UWCM.ARC_PersonAccount__c;
-                                    newCasemember.ARC_Reason__c = UWCM.ARC_Reason__c;
-                                    newCasemember.ARC_ApprovalResolution__c = 'Pending';
+                List<Object> censusMembers = (List<Object>)manager.inputMap.get('census_members');
+                for (ARC_UnderwritingCaseMember__c UWCM : listUWCMToCopy) {
+                    for (Object censusMember : censusMembers) {
+                        Map<String,Object> member = (Map<String,Object>)censusMember;
+                        if (member != null && member.containsKey('IsNewMember') && (Boolean)member.get('IsNewMember') == false 
+                            && member.containsKey('PersonAccountId') && (Id)member.get('PersonAccountId') == UWCM.ARC_PersonAccount__c && member.containsKey('IsRemoveMember') && (Boolean)member.get('IsRemoveMember') == false) { 
+                        
+                            try {
+                                ARC_UnderwritingCaseMember__c newCaseMember = new ARC_UnderwritingCaseMember__c();
+                                newCasemember.Name = UWCM.Name;
+                                newCasemember.ARC_Member__c = UWCM.ARC_Member__c;
+                                newCasemember.ARC_PersonAccount__c = UWCM.ARC_PersonAccount__c;
+                                newCasemember.ARC_Reason__c = UWCM.ARC_Reason__c;
+                                newCasemember.ARC_ApprovalResolution__c = 'Pending';
 
-                                    // Copy approval details if within 60 days
-                                    if (UWCM.ARC_LastStatusUpdate__c != null && UWCM.ARC_LastStatusUpdate__c.date().daysBetween(Date.today()) <= 60 ) {
-                                        newCasemember.ARC_ApprovalResolution__c =  UWCM.ARC_ApprovalResolution__c;
-                                        newCasemember.ARC_Score__c = UWCM.ARC_Score__c;
-                                        newCasemember.ARC_ReviewedBy__c = UWCM.ARC_ReviewedBy__c;
-                                        newCasemember.ARC_Description__c =  UWCM.ARC_Description__c;
-                                    }
-
-                                    manager.censusMemberIdOrFakeIdToUWCM.put(newCaseMember.ARC_Member__c, newCaseMember);      
-                                } catch (Exception e) {
-                                    System.debug('Exception when trying to clone previous UWM Cases ' + e.getMessage() + ' ' + e.getStackTraceString());
-                                    throw e;
+                                // Copy approval details if within 60 days
+                                if (UWCM.ARC_LastStatusUpdate__c != null && UWCM.ARC_LastStatusUpdate__c.date().daysBetween(Date.today()) <= 60 ) {
+                                    newCasemember.ARC_ApprovalResolution__c =  UWCM.ARC_ApprovalResolution__c;
+                                    newCasemember.ARC_Score__c = UWCM.ARC_Score__c;
+                                    newCasemember.ARC_ReviewedBy__c = UWCM.ARC_ReviewedBy__c;
+                                    newCasemember.ARC_Description__c =  UWCM.ARC_Description__c;
                                 }
+
+                                manager.censusMemberIdOrFakeIdToUWCM.put(newCaseMember.ARC_Member__c, newCaseMember);      
+                            } catch (Exception e) {
+                                System.debug('Exception when trying to clone previous UWM Cases ' + e.getMessage() + ' ' + e.getStackTraceString());
+                                throw e;
                             }
                         }
                     }
                 }
-                
-                // UWCM to Newborns
-                for (Map<String,Object> member : manager.censusMembersMap) { // manager.censusMembersMap only have the newborns
-                    ARC_UnderwritingCaseMember__c newCaseMember;
+            }
+            
+            // UWCM to Newborns
+            for (Map<String,Object> member : manager.censusMembersMap) { // manager.censusMembersMap only have the newborns
+                ARC_UnderwritingCaseMember__c newCaseMember;
 
-                    newCaseMember = new ARC_UnderwritingCaseMember__c();
-                    newCaseMember.ARC_ApprovalResolution__c = 'Approved';
-                    newCaseMember.ARC_Description__c = 'Newborn is automatically approved';
-                    newCasemember.Name = (String)member.get('vlocity_ins__FirstName__c') + ' ' + (String)member.get('vlocity_ins__LastName__c');                
-                    newCaseMember.ARC_Reason__c = 'Add Member';
-                    manager.censusMemberIdOrFakeIdToUWCM.put((String)member.get('Id'), newCaseMember);
-                }
+                newCaseMember = new ARC_UnderwritingCaseMember__c();
+                newCaseMember.ARC_ApprovalResolution__c = 'Approved';
+                newCaseMember.ARC_Description__c = 'Newborn is automatically approved';
+                newCasemember.Name = (String)member.get('vlocity_ins__FirstName__c') + ' ' + (String)member.get('vlocity_ins__LastName__c');                
+                newCaseMember.ARC_Reason__c = 'Add Member';
+                manager.censusMemberIdOrFakeIdToUWCM.put((String)member.get('Id'), newCaseMember);
             }
         } catch (Exception e) {
             System.debug('Error mapping UW Case Member: ' + e.getMessage() + ' ' + e.getStackTraceString());
@@ -681,17 +713,20 @@ public without sharing class ARC_NBMapper {
      */
     private void mapChargentOrders() {
         try {
+            Map<String, Object> Step_PaymentChangeFee = manager.step_PaymentChangeFee;
             Map<String, Object> plansSummary = (Map<String, Object>)manager.inputMap.get('PlansSummary');
             Map<String, Object> blkProductSummary = (Map<String, Object>)plansSummary.get('BLK_ProductSummary');
 
-            Map<String, Object> nbChanges = manager.inputMap.containsKey('nbChanges') ? (Map<String, Object>)manager.inputMap.get('nbChanges') : null;
-            Decimal feeAmount = (nbChanges != null) && nbChanges.containsKey('feeAmount') ? (Decimal)nbChanges.get('feeAmount') : null;
+            Decimal feeAmount = (manager.nbChanges != null) && manager.nbChanges.containsKey('feeAmount') ? (Decimal)manager.nbChanges.get('feeAmount') : null;
+            Decimal newFeeAmount = (manager.nbChanges != null) && manager.nbChanges.containsKey('newFeeAmount') ? (Decimal)manager.nbChanges.get('newFeeAmount') : null;
+            Decimal pendingFeeAmount = (manager.nbChanges != null) && manager.nbChanges.containsKey('pendingFeeAmount') ? (Decimal)manager.nbChanges.get('pendingFeeAmount') : null;
+            Boolean feeApplicable = manager.nbChanges.containsKey('feeApplicable') ? (Boolean)manager.nbChanges.get('feeApplicable') : false;
 
-            Map<String, Object> eligibleContract = (Map<String, Object>)manager.inputMap.get('EligibleContract');     
-            Map<String, Object> contractInfo = (Map<String, Object>)eligibleContract.get('ContractInfo');
+            Map<String, Object> contractInfo = (Map<String, Object>)manager.eligibleContract.get('ContractInfo');
             String groupAccountId = (String)contractInfo.get('GroupAccountId');
-            Map<String, Object> appFeeOrder = contractInfo.containsKey('AppFeeOrder') ? (Map<String, Object>)contractInfo.get('AppFeeOrder') : null;
-            Boolean carryOverAppFee = (appFeeOrder != null) && appFeeOrder.containsKey('CarryOverAppFee') ? (Boolean)appFeeOrder.get('CarryOverAppFee') : false;
+
+            Id appFeeOrderId = contractInfo.containsKey('AppFeeOrderId') && (String)contractInfo.get('AppFeeOrderId') != null && (String)contractInfo.get('AppFeeOrderId') != '' ? (Id)contractInfo.get('AppFeeOrderId') : null;
+            Id recurringMonthlyOrderId = contractInfo.containsKey('RecurringMonthlyOrderId') && (String)contractInfo.get('RecurringMonthlyOrderId') != null && (String)contractInfo.get('RecurringMonthlyOrderId') != '' ? (Id)contractInfo.get('RecurringMonthlyOrderId') : null;
 
             Map<String, Map<String, Object>> chargentOrders = new Map<String, Map<String, Object>>();
             if (manager.inputMap.containsKey('mapChargentOrders')) {
@@ -700,98 +735,213 @@ public without sharing class ARC_NBMapper {
                     chargentOrders.put(key, (Map<String, Object>)rawChargentOrders.get(key));
                 }
             }
-
-            // Carry Over App Fee Order
-            if (carryOverAppFee) { 
-                Id appFeeOrderId = (Id)appFeeOrder.get('Id');
-                Map<String, Object> coAppFee = chargentOrders.get(appFeeOrderId);
-
-                ChargentOrders__ChargentOrder__c newCOAppFee = new ChargentOrders__ChargentOrder__c();
-    
-                newCOAppFee.ChargentOrders__Account__c = groupAccountId;
-                newCOAppFee.ARC_FirstMonthPayed__c = false;
-                newCOAppFee.ChargentOrders__Billing_First_Name__c = (String)coAppFee.get('ChargentOrders__Billing_First_Name__c');
-                newCOAppFee.ChargentOrders__Billing_Last_Name__c = (String)coAppFee.get('ChargentOrders__Billing_Last_Name__c');
-                newCOAppFee.ChargentOrders__Billing_Address__c = (String)coAppFee.get('ChargentOrders__Billing_Address__c');
-                newCOAppFee.ChargentOrders__Billing_City__c = (String)coAppFee.get('ChargentOrders__Billing_City__c');
-                newCOAppFee.ChargentOrders__Billing_State__c = (String)coAppFee.get('ChargentOrders__Billing_State__c');
-                newCOAppFee.ChargentOrders__Billing_Zip_Postal__c = (String)coAppFee.get('ChargentOrders__Billing_Zip_Postal__c');
-                newCOAppFee.ChargentOrders__Tokenization__c = (String)coAppFee.get('ChargentOrders__Tokenization__c');
-
-                if((String)coAppFee.get('ChargentOrders__Payment_Method__c') == 'Credit Card'){
-                    newCOAppFee.ChargentOrders__Card_Number__c = (String)coAppFee.get('ChargentOrders__Card_Number__c');
-                    newCOAppFee.ChargentOrders__Card_Expiration_Month__c = (String)coAppFee.get('ChargentOrders__Card_Expiration_Month__c');
-                    newCOAppFee.ChargentOrders__Card_Expiration_Year__c = (String)coAppFee.get('ChargentOrders__Card_Expiration_Year__c');
-                    newCOAppFee.ChargentOrders__Card_Last_4__c = (String)coAppFee.get('ChargentOrders__Card_Last_4__c');
+            List<Object> nbFeeItemsRaw = manager.inputMap.containsKey('nbFeeItems') ? (List<Object>)manager.inputMap.get('nbFeeItems') : null;
+            List<Map<String,Object>> nbFeeItems = new List<Map<String,Object>>();
+            if (nbFeeItemsRaw != null) {
+                for (Object nbFeeItemObj : nbFeeItemsRaw) {
+                    nbFeeItems.add((Map<String,Object>)nbFeeItemObj);
                 }
-                else if((String)coAppFee.get('ChargentOrders__Payment_Method__c') == 'Bank Account'){
-                    newCOAppFee.ChargentOrders__Bank_Routing_Number__c = (String)coAppFee.get('ChargentOrders__Bank_Routing_Number__c');
-                    newCOAppFee.ChargentOrders__Bank_Account_Number__c = (String)coAppFee.get('ChargentOrders__Bank_Account_Number__c');
-                    newCOAppFee.ChargentOrders__Bank_Name__c = (String)coAppFee.get('ChargentOrders__Bank_Name__c');
-                    newCOAppFee.ChargentOrders__Bank_Account_Type__c = (String)coAppFee.get('ChargentOrders__Bank_Account_Type__c');                   
-                }
-
-                newCOAppFee.ChargentOrders__Card_Month_Indicator__c = (String)coAppFee.get('ChargentOrders__Card_Month_Indicator__c');
-                newCOAppFee.ChargentOrders__Card_Type__c = (String)coAppFee.get('ChargentOrders__Card_Type__c');     
-                newCOAppFee.ChargentOrders__Card_Year_Indicator__c = (String)coAppFee.get('ChargentOrders__Card_Year_Indicator__c');
-                newCOAppFee.ChargentOrders__Charge_Amount__c = feeAmount;
-                newCOAppFee.ChargentOrders__Description__c = 'Change Fee';
-                newCOAppFee.ChargentOrders__Gateway__c = (String)coAppFee.get('ChargentOrders__Gateway__c');
-                newCOAppFee.ChargentOrders__Payment_Frequency__c = 'Once';
-                newCOAppFee.ChargentOrders__Payment_Method__c = (String)coAppFee.get('ChargentOrders__Payment_Method__c');
-                newCOAppFee.ChargentOrders__Payment_Status__c = null;
-                newCOAppFee.ChargentOrders__Subtotal__c = feeAmount;
-                newCOAppFee.ChargentOrders__Manual_Charge__c = (Boolean)coAppFee.get('ChargentOrders__Manual_Charge__c');  
-                
-                manager.chargentOrdersToInsert.put('coAppFee', newCOAppFee);
             }
-            
-            // Recurring
-            Id recurringMonthlyOrderId = contractInfo.containsKey('RecurringMonthlyOrderId') ? (Id)contractInfo.get('RecurringMonthlyOrderId') : null;
-            Map<String, Object> coRecurring = chargentOrders.get(recurringMonthlyOrderId);
+            Map<String,Object> nbFeeItem = manager.inputMap.containsKey('nbFeeItemMap') ? (Map<String,Object>)manager.inputMap.get('nbFeeItemMap') : null;
+            Boolean chargeAppFee = (String)Step_PaymentChangeFee.get('RAD_ChargeAppFeeDefTrue') == 'Yes';
+            Boolean updatePaymentMethod = false;
 
+            // App Fee Order, create new chargent order if it has old change fees, or new fee is applicable
+            if(Step_PaymentChangeFee != null && feeApplicable == true && (chargeAppFee || (nbFeeItems != null && nbFeeItems.size() > 0)) ) {
+                ChargentOrders__ChargentOrder__c newCOAppFee = new ChargentOrders__ChargentOrder__c();
+                if(chargeAppFee && newFeeAmount != null) nbFeeItems.add(nbFeeItem);
+
+                if(Step_PaymentChangeFee.containsKey('BLK_ChargeFee') && Step_PaymentChangeFee.get('BLK_ChargeFee') != null) {
+                    Map<String, Object> BLK_ChargeFee = (Map<String, Object>)Step_PaymentChangeFee.get('BLK_ChargeFee');
+                    Map<String, Object> coAppFee = appFeeOrderId != null ? chargentOrders.get(appFeeOrderId) : chargentOrders.get(recurringMonthlyOrderId);
+
+                    Date futurePaymentDate;
+                    if(coAppFee != null && (Boolean)coAppFee.get('ARC_FirstMonthPayed__c') == false && (Date)coAppFee.get('ChargentOrders__Payment_Start_Date__c') != null && (Date)coAppFee.get('ChargentOrders__Payment_Start_Date__c') > Date.Today()){
+                        futurePaymentDate = (Date)coAppFee.get('ChargentOrders__Payment_Start_Date__c');
+                    }
+
+                    newCOAppFee.ChargentOrders__Account__c = groupAccountId;
+                    newCOAppFee.ARC_FirstMonthPayed__c = false;
+
+                    if (BLK_ChargeFee.containsKey('RAD_KeepRecurringMethodOfPayment') && (String)BLK_ChargeFee.get('RAD_KeepRecurringMethodOfPayment') == 'No') {
+                        Map<String,Object> BLK_PaymentInfo = (Map<String,Object>)BLK_ChargeFee.get('BLK_PaymentInfo');
+                        updatePaymentMethod = true;
+                        //Credit Card
+                        if(BLK_ChargeFee.containsKey('RAD_MethodOfPayment') && (String)BLK_ChargeFee.get('RAD_MethodOfPayment') == 'Credit Card'){
+                            Map<String,Object> BLK_CreditCard = (Map<String,Object>)BLK_PaymentInfo.get('BLK_CreditCard');
+                            newCOAppFee.ChargentOrders__Billing_First_Name__c = BLK_CreditCard.containsKey   ('TXT_FirstNameOnCard') ? (String)BLK_CreditCard.get('TXT_FirstNameOnCard') : null;
+                            newCOAppFee.ChargentOrders__Billing_Last_Name__c = BLK_CreditCard.containsKey('TXT_LastNameOnCard') ? (String)BLK_CreditCard.get('TXT_LastNameOnCard') : null;
+                            newCOAppFee.ChargentOrders__Billing_Address__c = BLK_CreditCard.containsKey('TXT_BillingAddress_Street') ? (String)BLK_CreditCard.get('TXT_BillingAddress_Street') : null;
+                            newCOAppFee.ChargentOrders__Billing_City__c = BLK_CreditCard.containsKey('TXT_BillingAddress_City') ? (String)BLK_CreditCard.get('TXT_BillingAddress_City') : null;
+                            newCOAppFee.ChargentOrders__Billing_State__c = BLK_CreditCard.containsKey('TXT_BillingAddress_State') ? (String)BLK_CreditCard.get('TXT_BillingAddress_State') : null;
+                            newCOAppFee.ChargentOrders__Billing_Zip_Postal__c = BLK_CreditCard.containsKey('TXT_BillingAddress_ZipCode') ? (String)BLK_CreditCard.get('TXT_BillingAddress_ZipCode') : null;
+                            newCOAppFee.ChargentOrders__Card_Number__c = BLK_CreditCard.containsKey('TXT_CardNumber') ? (String)BLK_CreditCard.get('TXT_CardNumber') : null;
+                            newCOAppFee.ChargentOrders__Card_Expiration_Month__c = BLK_CreditCard.containsKey('SLC_ExpirationMonth') ? (String)BLK_CreditCard.get('SLC_ExpirationMonth') : null;
+                            newCOAppFee.ChargentOrders__Card_Month_Indicator__c = BLK_CreditCard.containsKey('SLC_ExpirationMonth') ? (String)BLK_CreditCard.get('SLC_ExpirationMonth') : null;
+                            newCOAppFee.ChargentOrders__Card_Expiration_Year__c = BLK_CreditCard.containsKey('SLC_Year') ? (String)BLK_CreditCard.get('SLC_Year') : null;
+                            newCOAppFee.ChargentOrders__Card_Year_Indicator__c =BLK_CreditCard.containsKey('SLC_Year') ? (String)BLK_CreditCard.get('SLC_Year') : null;
+                            newCOAppFee.ChargentOrders__Card_Last_4__c = BLK_CreditCard.containsKey('TXT_CardNumber') ? ((String)BLK_CreditCard.get('TXT_CardNumber')).right(4) : null;
+                            newCOAppFee.ChargentOrders__Payment_Method__c = 'Credit Card';
+                            newCOAppFee.ChargentOrders__Gateway__c = (String)coAppFee.get('ChargentOrders__Gateway__c');
+                        }                   
+                        //Bank Account
+                        if(BLK_ChargeFee.containsKey('RAD_MethodOfPayment') && (String)BLK_ChargeFee.get('RAD_MethodOfPayment') == 'Bank Account'){
+                            if(BLK_PaymentInfo.containsKey('BLK_BankAccount')){    
+                                Map<String,Object> BLK_BankAccount = (Map<String,Object>)BLK_PaymentInfo.get('BLK_BankAccount');
+                                newCOAppFee.ChargentOrders__Bank_Routing_Number__c = BLK_BankAccount.containsKey('TXT_RoutingNumber') ? (String)BLK_BankAccount.get('TXT_RoutingNumber') : null;
+                                newCOAppFee.ChargentOrders__Bank_Account_Number__c = BLK_BankAccount.containsKey('TXT_AccNumber') ? (String)BLK_BankAccount.get('TXT_AccNumber') : null;
+                                newCOAppFee.ChargentOrders__Bank_Account_Last_4__c = BLK_BankAccount.containsKey('TXT_AccNumber') ? ((String)BLK_BankAccount.get('TXT_AccNumber')).right(4) : null;
+                                newCOAppFee.ChargentOrders__Billing_First_Name__c = BLK_BankAccount.containsKey('TXT_FirstNameOnAccount') ? (String)BLK_BankAccount.get('TXT_FirstNameOnAccount') : null;
+                                newCOAppFee.ChargentOrders__Billing_Last_Name__c = BLK_BankAccount.containsKey('TXT_LastNameOnAccount') ? (String)BLK_BankAccount.get('TXT_LastNameOnAccount') : null;
+                                newCOAppFee.ChargentOrders__Bank_Account_Name__c = newCOAppFee.ChargentOrders__Billing_First_Name__c != null? newCOAppFee.ChargentOrders__Billing_First_Name__c + ' '+ newCOAppFee.ChargentOrders__Billing_Last_Name__c: null;
+                                newCOAppFee.ChargentOrders__Bank_Name__c = BLK_BankAccount.containsKey('TXT_BankName') ? (String)BLK_BankAccount.get('TXT_BankName') : null;
+                                newCOAppFee.ChargentOrders__Bank_Account_Type__c = BLK_BankAccount.containsKey('SLC_AccType') ? (String)BLK_BankAccount.get('SLC_AccType') : null;
+                                newCOAppFee.ChargentOrders__Payment_Method__c = 'Bank Account';
+                                newCOAppFee.ChargentOrders__Gateway__c = (String)coAppFee.get('ChargentOrders__Gateway__c');                         
+                            }
+                        }
+                        newCOAppFee.ChargentOrders__Description__c = 'Change Fee';   
+                        newCOAppFee.ChargentOrders__Payment_Status__c = null;
+                        newCOAppFee.ChargentOrders__Subtotal__c = chargeAppFee ? feeAmount : pendingFeeAmount;
+                        newCOAppFee.ChargentOrders__Charge_Amount__c = chargeAppFee ? feeAmount : pendingFeeAmount;
+                        newCOAppFee.ChargentOrders__Payment_Frequency__c = 'Once';
+                        newCOAppFee.ChargentOrders__Payment_Start_Date__c = futurePaymentDate != null ? futurePaymentDate : null;
+                        newCOAppFee.ChargentOrders__Manual_Charge__c = true; 
+                    }
+                    else if (BLK_ChargeFee.containsKey('RAD_KeepRecurringMethodOfPayment') && (String)BLK_ChargeFee.get('RAD_KeepRecurringMethodOfPayment') == 'Yes') {
+                        newCOAppFee.ChargentOrders__Billing_First_Name__c = (String)coAppFee.get('ChargentOrders__Billing_First_Name__c');
+                        newCOAppFee.ChargentOrders__Billing_Last_Name__c = (String)coAppFee.get('ChargentOrders__Billing_Last_Name__c');
+                        newCOAppFee.ChargentOrders__Billing_Address__c = (String)coAppFee.get('ChargentOrders__Billing_Address__c');
+                        newCOAppFee.ChargentOrders__Billing_City__c = (String)coAppFee.get('ChargentOrders__Billing_City__c');
+                        newCOAppFee.ChargentOrders__Billing_State__c = (String)coAppFee.get('ChargentOrders__Billing_State__c');
+                        newCOAppFee.ChargentOrders__Billing_Zip_Postal__c = (String)coAppFee.get('ChargentOrders__Billing_Zip_Postal__c');
+                        newCOAppFee.ChargentOrders__Tokenization__c = (String)coAppFee.get('ChargentOrders__Tokenization__c');
+
+                        if((String)coAppFee.get('ChargentOrders__Payment_Method__c') == 'Credit Card'){
+                            newCOAppFee.ChargentOrders__Card_Number__c = (String)coAppFee.get('ChargentOrders__Card_Number__c');
+                            newCOAppFee.ChargentOrders__Card_Expiration_Month__c = (String)coAppFee.get('ChargentOrders__Card_Expiration_Month__c');
+                            newCOAppFee.ChargentOrders__Card_Expiration_Year__c = (String)coAppFee.get('ChargentOrders__Card_Expiration_Year__c');
+                            newCOAppFee.ChargentOrders__Card_Last_4__c = (String)coAppFee.get('ChargentOrders__Card_Last_4__c');
+                        }
+                        else if((String)coAppFee.get('ChargentOrders__Payment_Method__c') == 'Bank Account'){
+                            newCOAppFee.ChargentOrders__Bank_Routing_Number__c = (String)coAppFee.get('ChargentOrders__Bank_Routing_Number__c');
+                            newCOAppFee.ChargentOrders__Bank_Account_Number__c = (String)coAppFee.get('ChargentOrders__Bank_Account_Number__c');
+                            newCOAppFee.ChargentOrders__Bank_Name__c = (String)coAppFee.get('ChargentOrders__Bank_Name__c');
+                            newCOAppFee.ChargentOrders__Bank_Account_Type__c = (String)coAppFee.get('ChargentOrders__Bank_Account_Type__c');                   
+                            newCOAppFee.ChargentOrders__Bank_Account_Last_4__c = (String)coAppFee.get('ChargentOrders__Bank_Account_Last_4__c');                   
+                        }
+
+                        newCOAppFee.ChargentOrders__Card_Month_Indicator__c = (String)coAppFee.get('ChargentOrders__Card_Month_Indicator__c');
+                        newCOAppFee.ChargentOrders__Card_Type__c = (String)coAppFee.get('ChargentOrders__Card_Type__c');     
+                        newCOAppFee.ChargentOrders__Card_Year_Indicator__c = (String)coAppFee.get('ChargentOrders__Card_Year_Indicator__c');
+                        newCOAppFee.ChargentOrders__Charge_Amount__c = chargeAppFee ? feeAmount : pendingFeeAmount;
+                        newCOAppFee.ChargentOrders__Description__c = 'Change Fee';
+                        newCOAppFee.ChargentOrders__Gateway__c = (String)coAppFee.get('ChargentOrders__Gateway__c');
+                        newCOAppFee.ChargentOrders__Payment_Frequency__c = 'Once';
+                        newCOAppFee.ChargentOrders__Payment_Method__c = (String)coAppFee.get('ChargentOrders__Payment_Method__c');
+                        newCOAppFee.ChargentOrders__Payment_Status__c = null;
+                        newCOAppFee.ChargentOrders__Subtotal__c = chargeAppFee ? feeAmount : pendingFeeAmount;
+                        newCOAppFee.ChargentOrders__Manual_Charge__c = (Boolean)coAppFee.get('ChargentOrders__Manual_Charge__c');      
+                    }     
+                    manager.chargentOrdersToInsert.put('coAppFee', newCOAppFee);   
+                }
+            } 
+            // Recurring Order
+            Map<String, Object> coRecurring = chargentOrders.get(recurringMonthlyOrderId);
             ChargentOrders__ChargentOrder__c newCORecurring = new ChargentOrders__ChargentOrder__c();
 
+            if(updatePaymentMethod == false){
+                newCORecurring.ChargentOrders__Billing_Address__c = (String)coRecurring.get('ChargentOrders__Billing_Address__c');
+                newCORecurring.ChargentOrders__Billing_City__c = (String)coRecurring.get('ChargentOrders__Billing_City__c');
+                newCORecurring.ChargentOrders__Billing_First_Name__c = (String)coRecurring.get('ChargentOrders__Billing_First_Name__c');
+                newCORecurring.ChargentOrders__Billing_Last_Name__c = (String)coRecurring.get('ChargentOrders__Billing_Last_Name__c');
+                newCORecurring.ChargentOrders__Billing_State__c = (String)coRecurring.get('ChargentOrders__Billing_State__c');
+                newCORecurring.ChargentOrders__Billing_Zip_Postal__c = (String)coRecurring.get('ChargentOrders__Billing_Zip_Postal__c');
+                newCORecurring.ChargentOrders__Card_Expiration_Month__c = (String)coRecurring.get('ChargentOrders__Card_Expiration_Month__c');
+                newCORecurring.ChargentOrders__Card_Expiration_Year__c = (String)coRecurring.get('ChargentOrders__Card_Expiration_Year__c');
+                newCORecurring.ChargentOrders__Card_Last_4__c = (String)coRecurring.get('ChargentOrders__Card_Last_4__c');
+                newCORecurring.ChargentOrders__Card_Month_Indicator__c = (String)coRecurring.get('ChargentOrders__Card_Month_Indicator__c'); 
+                newCORecurring.ChargentOrders__Card_Number__c = (String)coRecurring.get('ChargentOrders__Card_Number__c');
+                newCORecurring.ChargentOrders__Card_Type__c = (String)coRecurring.get('ChargentOrders__Card_Type__c');
+                newCORecurring.ChargentOrders__Card_Year_Indicator__c = (String)coRecurring.get('ChargentOrders__Card_Year_Indicator__c');
+                newCORecurring.ChargentOrders__Tokenization__c = (String)coRecurring.get('ChargentOrders__Tokenization__c');
+                newCORecurring.ChargentOrders__Gateway__c = (String)coRecurring.get('ChargentOrders__Gateway__c');
+                newCORecurring.ChargentOrders__Payment_Method__c = (String)coRecurring.get('ChargentOrders__Payment_Method__c');
+                //Bank Account Fields
+                newCORecurring.ChargentOrders__Bank_Routing_Number__c = (String)coRecurring.get('ChargentOrders__Bank_Routing_Number__c');
+                newCORecurring.ChargentOrders__Bank_Account_Number__c = (String)coRecurring.get('ChargentOrders__Bank_Account_Number__c');
+                newCORecurring.ChargentOrders__Bank_Account_Name__c = (String)coRecurring.get('ChargentOrders__Bank_Account_Name__c');
+                newCORecurring.ChargentOrders__Bank_Name__c = (String)coRecurring.get('ChargentOrders__Bank_Name__c');
+                newCORecurring.ChargentOrders__Bank_Account_Type__c = (String)coRecurring.get('ChargentOrders__Bank_Account_Type__c');
+                newCORecurring.ChargentOrders__Bank_Account_Last_4__c = (String)coRecurring.get('ChargentOrders__Bank_Account_Last_4__c');
+            }
+            else{
+                ChargentOrders__ChargentOrder__c newFee = manager.chargentOrdersToInsert.get('coAppFee'); // to make sure app fee is created before recurring order
+                newCORecurring.ChargentOrders__Billing_Address__c = newFee.ChargentOrders__Billing_Address__c;
+                newCORecurring.ChargentOrders__Billing_City__c = newFee.ChargentOrders__Billing_City__c;
+                newCORecurring.ChargentOrders__Billing_First_Name__c = newFee.ChargentOrders__Billing_First_Name__c;
+                newCORecurring.ChargentOrders__Billing_Last_Name__c = newFee.ChargentOrders__Billing_Last_Name__c;
+                newCORecurring.ChargentOrders__Billing_State__c = newFee.ChargentOrders__Billing_State__c;
+                newCORecurring.ChargentOrders__Billing_Zip_Postal__c = newFee.ChargentOrders__Billing_Zip_Postal__c;
+                newCORecurring.ChargentOrders__Card_Expiration_Month__c = newFee.ChargentOrders__Card_Expiration_Month__c;
+                newCORecurring.ChargentOrders__Card_Expiration_Year__c = newFee.ChargentOrders__Card_Expiration_Year__c;
+                newCORecurring.ChargentOrders__Card_Last_4__c = newFee.ChargentOrders__Card_Last_4__c;
+                newCORecurring.ChargentOrders__Card_Month_Indicator__c = newFee.ChargentOrders__Card_Month_Indicator__c;
+                newCORecurring.ChargentOrders__Card_Number__c = newFee.ChargentOrders__Card_Number__c;
+                newCORecurring.ChargentOrders__Card_Type__c = newFee.ChargentOrders__Card_Type__c;
+                newCORecurring.ChargentOrders__Card_Year_Indicator__c = newFee.ChargentOrders__Card_Year_Indicator__c;
+                newCORecurring.ChargentOrders__Payment_Method__c = newFee.ChargentOrders__Payment_Method__c;
+                newCORecurring.ChargentOrders__Tokenization__c = newFee.ChargentOrders__Tokenization__c;
+                newCORecurring.ChargentOrders__Gateway__c = newFee.ChargentOrders__Gateway__c;
+                //Bank Account Fields
+                newCORecurring.ChargentOrders__Bank_Routing_Number__c = newFee.ChargentOrders__Bank_Routing_Number__c;
+                newCORecurring.ChargentOrders__Bank_Account_Number__c = newFee.ChargentOrders__Bank_Account_Number__c;
+                newCORecurring.ChargentOrders__Bank_Account_Name__c = newFee.ChargentOrders__Bank_Account_Name__c;
+                newCORecurring.ChargentOrders__Bank_Name__c = newFee.ChargentOrders__Bank_Name__c;
+                newCORecurring.ChargentOrders__Bank_Account_Type__c = newFee.ChargentOrders__Bank_Account_Type__c;
+                newCORecurring.ChargentOrders__Bank_Account_Last_4__c = newFee.ChargentOrders__Bank_Account_Last_4__c;
+
+            }
             newCORecurring.ChargentOrders__Account__c = groupAccountId;
             newCORecurring.ARC_FirstMonthPayed__c = (Boolean)coRecurring.get('ARC_FirstMonthPayed__c');
-            newCORecurring.ChargentOrders__Billing_Address__c = (String)coRecurring.get('ChargentOrders__Billing_Address__c');
-            newCORecurring.ChargentOrders__Billing_City__c = (String)coRecurring.get('ChargentOrders__Billing_City__c');
-            newCORecurring.ChargentOrders__Billing_First_Name__c = (String)coRecurring.get('ChargentOrders__Billing_First_Name__c');
-            newCORecurring.ChargentOrders__Billing_Last_Name__c = (String)coRecurring.get('ChargentOrders__Billing_Last_Name__c');
-            newCORecurring.ChargentOrders__Billing_State__c = (String)coRecurring.get('ChargentOrders__Billing_State__c');
-            newCORecurring.ChargentOrders__Billing_Zip_Postal__c = (String)coRecurring.get('ChargentOrders__Billing_Zip_Postal__c');
-            newCORecurring.ChargentOrders__Card_Expiration_Month__c = (String)coRecurring.get('ChargentOrders__Card_Expiration_Month__c');
-            newCORecurring.ChargentOrders__Card_Expiration_Year__c = (String)coRecurring.get('ChargentOrders__Card_Expiration_Year__c');
-            newCORecurring.ChargentOrders__Card_Last_4__c = (String)coRecurring.get('ChargentOrders__Card_Last_4__c');
-            newCORecurring.ChargentOrders__Card_Month_Indicator__c = (String)coRecurring.get('ChargentOrders__Card_Month_Indicator__c'); 
-            newCORecurring.ChargentOrders__Card_Number__c = (String)coRecurring.get('ChargentOrders__Card_Number__c');
-            newCORecurring.ChargentOrders__Card_Type__c = (String)coRecurring.get('ChargentOrders__Card_Type__c');
-            newCORecurring.ChargentOrders__Card_Year_Indicator__c = (String)coRecurring.get('ChargentOrders__Card_Year_Indicator__c');
             newCORecurring.ChargentOrders__Charge_Amount__c = Decimal.valueOf(((String)blkProductSummary.get('TXT_MonthlyPrice')).remove('$').trim());
             newCORecurring.ChargentOrders__Charge_Date__c = (String)coRecurring.get('ChargentOrders__Charge_Date__c');
             newCORecurring.ChargentOrders__Description__c = 'Recurring Monthly Order';
-            newCORecurring.ChargentOrders__Tokenization__c = (String)coRecurring.get('ChargentOrders__Tokenization__c');
-            newCORecurring.ChargentOrders__Gateway__c = (String)coRecurring.get('ChargentOrders__Gateway__c');
             newCORecurring.ChargentOrders__Payment_Frequency__c = 'Monthly';
-            newCORecurring.ChargentOrders__Payment_Method__c = (String)coRecurring.get('ChargentOrders__Payment_Method__c');
             newCORecurring.ChargentOrders__Payment_Start_Date__c = Date.today();
             newCORecurring.ChargentOrders__Payment_Status__c = 'Stopped';
             newCORecurring.ChargentOrders__Subtotal__c = Decimal.valueOf(((String)blkProductSummary.get('TXT_MonthlyPrice')).remove('$').trim());
             newCORecurring.ChargentOrders__Manual_Charge__c  = true;
 
             manager.chargentOrdersToInsert.put('coRecurring', newCORecurring);
+
+            //map Fee Items
+            if(nbFeeItems != null && nbFeeItems.size() > 0){
+                mapFeeItems(nbFeeItems);
+            }
         } catch (Exception e) {
             System.debug('Error mapping Chargent Order: ' + e.getMessage() + ' ' + e.getStackTraceString());
             throw e;
         } 
-    }    
-
+    }   
+    
     /**
-     * @Description: Maps HIPAA authorization information for newborns
+     * @Description: Maps Chargent order information for newborns
      */
-    private void mapHipaaAuthorization() { 
-        // TODO: Implement HIPAA authorization mapping logic for newborns
-        // This method should create HIPAA authorization records for newborns
+    private void mapFeeItems(List<Map<String,Object>> nbFeeItems) {
+        try {
+            for (Map<String,Object> feeItem : nbFeeItems) {
+                ARC_FeeItem__c newFeeItem = new ARC_FeeItem__c();
+
+                newFeeItem.Name = (String)feeItem.get('Name');
+                newFeeItem.ARC_Amount__c = (Decimal)feeItem.get('Amount');
+
+                manager.feeItemsToInsert.add(newFeeItem);
+            }
+        } catch (Exception e) {
+            System.debug('Error mapping Chargent Order Items: ' + e.getMessage() + ' ' + e.getStackTraceString());
+            throw e;
+        }
     }
 
     /**
@@ -1055,19 +1205,211 @@ public without sharing class ARC_NBMapper {
     }
 
     /**
-     * @Description: Inserts promotion discount information for newborns
+     * @Description: Maps a case if the fee was skipped
      */
-    private void insertPromotionDiscount(){
-        // TODO: Implement promotion discount logic for newborns
-        // This method should create promotion discount records for newborns
+    private void mapCaseForFeeSkipped() {
+        try {
+            if (manager.step_PaymentChangeFee != null) {
+                Map<String, Object> paymentFee = (Map<String, Object>)manager.step_PaymentChangeFee;
+
+                Map<String, Object> contractInfo = (Map<String, Object>)manager.eligibleContract.get('ContractInfo');
+
+                if ('No'.equals((String)paymentFee.get('RAD_ChargeAppFeeDefTrue'))) {
+                    Case newCase = new Case();
+        
+                    Id queueId = [SELECT Id FROM Group WHERE DeveloperName = 'ProcessingQueue' LIMIT 1].Id;
+                    Id recordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName().get('Service').getRecordTypeId();
+    
+                    newCase.RecordTypeId = recordTypeId;
+                    newCase.Case_Type__c = 'Program';
+                    newCase.ARC_Reason__c = 'Change Fee Waived';
+                    newCase.ARC_Type__c = 'Member';
+                    newCase.Origin = 'System';
+                    newCase.Subject = 'Program change fee waived';
+                    newCase.ARC_PersonAccount__c = manager.primaryAccountId;
+                    newCase.ARC_CensusMember__c = manager.primaryCensusMember.Id;
+                    newCase.AccountId = (String)contractInfo.get('GroupAccountId');
+
+                    Map<String, Object> caseDetails = (Map<String, Object>)paymentFee.get('BLK_CaseCreationDetails');
+                    if (caseDetails != null) {
+                        newCase.Description = (String)caseDetails.get('TXT_NoChargeChangeFeeReason');
+                    }
+                    
+                    newCase.Status = 'New';
+                    newCase.OwnerId = queueId;
+                    
+                    manager.casesFeeWaivedToInsert.add(newCase);
+                }
+            }
+        } catch (Exception e) {
+            System.debug('Error mapping Case Fee Waived: ' + e.getMessage() + ' ' + e.getStackTraceString());
+            throw e;
+        }        
     }
-   
+    
     /**
-     * @Description: Creates and inserts a case if the fee was skipped for newborns
+     * @Description: Maps promotion discount if apply
      */
-    private void insertCaseForFeeSkipped() {
-        // TODO: Implement case creation logic for fee skipping in newborns
-        // This method should create cases when fees are waived for newborns
+    private void mapPromotionDiscount(){
+        try {
+            if (manager.step_PaymentChangeFee != null) {
+
+                Map<String, Object> blkChargeFee = manager.step_PaymentChangeFee.containsKey('BLK_ChargeFee') && (Map<String, Object>)manager.step_PaymentChangeFee.get('BLK_ChargeFee') != null ? (Map<String, Object>)manager.step_PaymentChangeFee.get('BLK_ChargeFee') : null;
+
+                if(blkChargeFee != null) {
+                    Map<String, Object> promoDiscount = blkChargeFee.containsKey('LWC_PromoDiscountCodeRefactor') && (Map<String, Object>) blkChargeFee.get('LWC_PromoDiscountCodeRefactor') != null ? (Map<String, Object>) blkChargeFee.get('LWC_PromoDiscountCodeRefactor') :  new Map<String, Object>();                
+                    if (!promoDiscount.isEmpty() && promoDiscount != null) { 
+                        
+                        Id recordTypeId = Schema.SObjectType.ARC_PromotionDiscount__c.getRecordTypeInfosByDeveloperName().get('Promotion_Discount').getRecordTypeId();
+    
+                        ARC_PromotionDiscount__c discount = new ARC_PromotionDiscount__c();
+    
+                        discount.Name = promoDiscount.containsKey('PromotionCodeName') ? (String) promoDiscount.get('PromotionCodeName') : null;
+                        discount.ARC_PromoCode__c = promoDiscount.containsKey('PromotionCodeId') ? (Id) promoDiscount.get('PromotionCodeId') : null;
+                        discount.ARC_Contract__c = null;
+                        discount.ARC_AmountToDiscountPerTransaction__c = promoDiscount.containsKey('DiscountAmount') ? Decimal.valueOf((String)promoDiscount.get('DiscountAmount')) : null;
+                        discount.ARC_CorePriceWithoutDiscount__c = promoDiscount.containsKey('MedicalPrice') ? (Decimal)promoDiscount.get('MedicalPrice') : null;
+                        discount.ARC_NumberOfTimesCanBeUsed__c = promoDiscount.containsKey('NumberOfPayments') ? (Integer) promoDiscount.get('NumberOfPayments') : 1;
+                        discount.ARC_ExonerateAppChangeFee__c = promoDiscount.containsKey('DiscountPrice') && Decimal.valueOf((String)promoDiscount.get('DiscountPrice')) == 0 ? true : false ;
+                        discount.ARC_Agent__c = promoDiscount.containsKey('AgentId') ? (Id) promoDiscount.get('AgentId') : null;
+                        discount.RecordTypeId = recordTypeId; 
+                       
+                        manager.promotionDiscountToInsert.add(discount);
+                        System.debug('discount: ' + discount);
+                    } 
+                }
+            } 
+        } catch (Exception e) {
+            System.debug('Error mapping Promotion Discount: ' + e.getMessage() + ' ' + e.getStackTraceString());
+            throw e;
+        }
+    }
+
+    /*******************************************************************
+    * @MethodName         :   mapCriticalCarePromotionDiscount
+    * @Description        :   Detects members in the Permanent Newborn contract that have both
+    *                         PROG_CriticalCare (SMART) and PROG_AccidentalInjury (AIDD)
+    *                         in LWC_ChooseProductSelectionOutput and stores bundle
+    *                         Product IDs for DML resolution.
+    ********************************************************************/
+    private void mapCriticalCarePromotionDiscount() {
+        try {
+            System.debug('Mapping Critical Care / Accidental Injury Promotion Discount (NB)');
+
+            if (!manager.inputMap.containsKey('LWC_ChooseProductSelectionOutput') ||
+                manager.inputMap.get('LWC_ChooseProductSelectionOutput') == null)
+            {
+                return;
+            }
+
+            List<Object> productSelectionOutput = (List<Object>)manager.inputMap.get('LWC_ChooseProductSelectionOutput');
+            if (productSelectionOutput == null || productSelectionOutput.isEmpty()) return;
+
+            // Collect: productCode => productId, productCode => memberIds
+            Map<String, String> productCodeToProductId = new Map<String, String>();
+            Map<String, Set<String>> productCodeToMemberIds = new Map<String, Set<String>>();
+
+            for (Object planObj : productSelectionOutput) {
+                Map<String, Object> plan = (Map<String, Object>)planObj;
+                Map<String, Object> sp = (Map<String, Object>)plan.get('selectedProduct');
+                String productId = (String)sp.get('Id');
+                String productCode = getProductCodeFromPriceCalculation(productId);
+                if (productCode == null) continue;
+                if (productCode != 'PROG_CriticalCare'
+                    && productCode != 'PROG_AccidentalInjury') continue;
+
+                productCodeToProductId.put(productCode, productId);
+
+                List<Object> userInputs = (List<Object>)plan.get('userInputs');
+                if (userInputs == null || userInputs.isEmpty()) continue;
+
+                if (!productCodeToMemberIds.containsKey(productCode)) {
+                    productCodeToMemberIds.put(productCode, new Set<String>());
+                }
+                for (Object inputObj : userInputs) {
+                    Map<String, Object> input = (Map<String, Object>)inputObj;
+                    productCodeToMemberIds.get(productCode).add((String)input.get('Id'));
+                }
+            }
+
+            // Intersection: members with BOTH
+            Set<String> smartMembers = productCodeToMemberIds.containsKey('PROG_CriticalCare') ? productCodeToMemberIds.get('PROG_CriticalCare') : new Set<String>();
+            Set<String> aiddMembers = productCodeToMemberIds.containsKey('PROG_AccidentalInjury') ? productCodeToMemberIds.get('PROG_AccidentalInjury') : new Set<String>();
+
+            String smartProductId = productCodeToProductId.get('PROG_CriticalCare');
+            String aiddProductId  = productCodeToProductId.get('PROG_AccidentalInjury');
+
+            if (smartProductId == null || aiddProductId == null) return;
+
+            for (String memberId : smartMembers) {
+                if (!aiddMembers.contains(memberId)) continue;
+
+                System.debug('NB Bundle OK → member= ' + memberId +
+                            ' SMART productId= ' + smartProductId +
+                            ' AIDD productId='  + aiddProductId);
+
+                manager.memberIdToCriticalCareBundle.put(memberId, new Map<String, String>{
+                    'SMART' => smartProductId,
+                    'AIDD'  => aiddProductId
+                });
+            }
+
+        } catch (Exception e) {
+            System.debug('Error in mapCriticalCarePromotionDiscount (NB): '
+                + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
+            throw e;
+        }
+    }
+
+    /*******************************************************************
+    * @MethodName         :   getProductCodeFromPriceCalculation
+    * @Description        :   Returns ProductCode for a given productId from price_calculation.plans
+    ********************************************************************/
+    private String getProductCodeFromPriceCalculation(String productId) {
+        if (!manager.inputMap.containsKey('price_calculation')) return null;
+        Map<String, Object> priceCalc = (Map<String, Object>)manager.inputMap.get('price_calculation');
+        if (!priceCalc.containsKey('plans')) return null;
+        List<Object> plans = (List<Object>)priceCalc.get('plans');
+        for (Object planObj : plans) {
+            Map<String, Object> plan = (Map<String, Object>)planObj;
+            Map<String, Object> sp = (Map<String, Object>)plan.get('selectedProduct');
+            if ((String)sp.get('Id') == productId) {
+                return (String)sp.get('ProductCode');
+            }
+        }
+        return null;
+    }
+
+    /*******************************************************************
+    * @MethodName         :   mapMemberBeneficiaries  
+    * @Description        :   Method to map the beneficiaries for each census member
+    ********************************************************************/
+    private void mapMemberBeneficiaries() {
+        List<Map<String, Object>> censusMembers = manager.allMembersToContPart;
+        Map<String, Object> memberToBeneficiariesMap = new Map<String, Object>();
+        for (Map<String,Object> cm : censusMembers) {
+            if ((Boolean)cm.get('IsNewMember')) continue;
+            String contactId = (String)cm.get('PersonContactId');
+            System.debug('Contact Id in MAPPER: ' + contactId);
+            if (cm.containsKey('beneficiaries') && cm.get('beneficiaries') != null && ((List<Object>)cm.get('beneficiaries')).size() > 0) {
+                List<Object> beneficiaryList = (List<Object>)cm.get('beneficiaries');
+                System.debug('Beneficiary list size: ' + beneficiaryList.size());
+                Map<String,Object> beneficiaryMapPerMember = new Map<String,Object>();
+                for (Object beneficiary : beneficiaryList) {
+                    Map<String,Object> beneficiaryMap = (Map<String,Object>)beneficiary;
+                    String beneficiaryKey = (String)beneficiaryMap.get('Label') == 'Primary Beneficiary' ? 'primaryBeneficiary' : 'secondaryBeneficiary';
+                    beneficiaryMapPerMember.put(beneficiaryKey , new Map<String,Object>{
+                        'fullname' => (String)beneficiaryMap.get('BeneficiaryName'),
+                        'birthdate' => (String)beneficiaryMap.get('BeneficiaryBirthdate'),
+                        'phone' => (String)beneficiaryMap.get('BeneficiaryPhone'),
+                        'relationship' => (String)beneficiaryMap.get('BeneficiaryRelationship'),
+                        'otherRelationship' => (String)beneficiaryMap.get('BeneficiaryOtherRelationship')
+                    });
+                }
+                if (contactId != null) memberToBeneficiariesMap.put(contactId, beneficiaryMapPerMember);
+            }
+            if (!memberToBeneficiariesMap.isEmpty()) manager.contactIdToBeneficiaries = memberToBeneficiariesMap;
+        }
     }
 
     ///////////////////////
@@ -1118,9 +1460,9 @@ public without sharing class ARC_NBMapper {
      * @Description: Retrieves and processes contracts, policy and contract line items information for newborns
      */
     private void getContractPolAndCLI() {
-        Date firstDate = Date.valueOf((String)manager.inputMap.get('OldestNewbornBirthdate'));
-        Date lastDate = Date.valueOf((String)manager.inputMap.get('YoungestNewbornBirthdate')) + 30; 
-        
+        Date firstDate = manager.oldestNewbornBirthdate;
+        Date lastDate = manager.youngestNewbornBirthdate + 30;
+
         List<String> listIdCnt = new List<String>();
         Object contracts = manager.inputMap.get('ContractsIdforMothers');
 
@@ -1157,23 +1499,28 @@ public without sharing class ARC_NBMapper {
         ];
 
         Integer aux = 0;
-       // Boolean isSpinOffActive = false;
-       // String censusIdSpinOffInactive = null;
-        for (Contract cnt : manager.listContractsTNB) {
-            if (cnt.Status == 'Terminated') aux++;
-           
-            if (cnt.Status == 'Activated') {
-                manager.censusIdActiveCnt = cnt.vlocity_ins__EnrollmentCensusId__c;
-            }
+        String acCnsId = null, tdCnsId = null;
 
-            Id censusId;
+        for (Contract cnt : manager.listContractsTNB) {
             Id relatedCensusMemberId;
             String primaryMemberIdentifier;
 
-            if (cnt.vlocity_ins__EnrollmentCensusId__c != null) {
-                manager.cntIdtoCensusId.put(cnt.Id, cnt.vlocity_ins__EnrollmentCensusId__c);
-                censusId = cnt.vlocity_ins__EnrollmentCensusId__c;
-
+            if (cnt.ARC_ContractReason__c.contains('Spin Off')) {
+                manager.cnsIdSpinOff = cnt.vlocity_ins__EnrollmentCensusId__c != null ? cnt.vlocity_ins__EnrollmentCensusId__c : null;
+            }
+            
+            if (cnt.Status == 'Terminated' || cnt.Status == 'Activated') {
+                if (cnt.Status == 'Terminated') {
+                    aux++;
+                    tdCnsId = cnt.vlocity_ins__EnrollmentCensusId__c != null ? cnt.vlocity_ins__EnrollmentCensusId__c : null;
+                }
+                else {
+                    acCnsId = cnt.vlocity_ins__EnrollmentCensusId__c != null ? cnt.vlocity_ins__EnrollmentCensusId__c : null;
+                }
+                relatedCensusMemberId = cnt.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__c;
+                primaryMemberIdentifier = cnt.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.vlocity_ins__MemberIdentifier__c;
+            }
+            else {
                 if (cnt.ARC_ContractReason__c.contains('Spin Off')) {
                     relatedCensusMemberId = cnt.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.ARC_NewCensusMember__c;
                     primaryMemberIdentifier = cnt.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.Census_Member__r.ARC_NewCensusMember__r.vlocity_ins__MemberIdentifier__c;
@@ -1185,14 +1532,17 @@ public without sharing class ARC_NBMapper {
             }
 
             manager.primaryValuesCnt.put(
-                censusId,
+                cnt.vlocity_ins__EnrollmentCensusId__c, 
                 new Map<String, Object>{
                     'Id' => relatedCensusMemberId,
                     'vlocity_ins__MemberIdentifier__c' => primaryMemberIdentifier
                 }
             );
+            manager.cntIdtoCensusId.put(cnt.Id, cnt.vlocity_ins__EnrollmentCensusId__c);  
         }
         manager.allContractsTerminated = aux == manager.listContractsTNB.size();
+        manager.censusIdActiveCnt = acCnsId != null ? acCnsId : null;
+        manager.lastCensusId = acCnsId != null ? acCnsId : tdCnsId != null ? tdCnsId : null;
     }
 
     /**
@@ -1346,7 +1696,8 @@ public without sharing class ARC_NBMapper {
      * @param creditCardNumber: The credit card number
      * @return String: The bank issuer name
      */
-    private String creditCardType(String creditCardNumber) {
+    @TestVisible
+    private  String creditCardType(String creditCardNumber) {
         if (creditCardNumber.startsWith('2') || creditCardNumber.startsWith('5')) {
             return 'Mastercard';
         } else if (creditCardNumber.startsWith('3')) {

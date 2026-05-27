@@ -1,0 +1,56 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ARC_FormContainer - Main Form Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Container */
+.form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f4f6f9;
+    min-height: 100vh;
+}
+
+/* Header */
+.form-header {
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+}
+
+.header-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* Blue line under header */
+.header-line {
+    height: 3px;
+    background-color: #0176d3;
+}
+
+/* Sections Container */
+.form-sections {
+    background-color: #f4f6f9;
+}
+
+/* Footer */
+.form-footer {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e5e5;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}

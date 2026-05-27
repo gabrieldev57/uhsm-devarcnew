@@ -13,16 +13,14 @@ export function Template57(FirstName, imageURLs) {
 				<p style="margin: 10px 0;">
         <ul>
         <li>Download the attached form, print it out, and add your information to the form.</li>
-        <li>Schedule an appointment with your closest LabCorp or Quest Diagnostics.
-         <ul><li><p>Quest Diagnostics Locations:
-          <ul><li><a href="http://www.questdiagnostics.com/locations" data-inline-card="" data-card-data="">
-        http://www.questdiagnostics.com/locations</a></li></ul></li>
-             <li>LabCorp Locations:
+        <li>Schedule an appointment with your closest LabCorp.
+         <ul><li>LabCorp Locations:
          <ul><li><a href="http://www.labcorp.com/labs-and-appointments" data-inline-card="" data-card-data="">
         http://www.labcorp.com/labs-and-appointments</a></li></ul></li>
          </ul>
         </li>
         <li>Remember to take the form with you to your appointment!</li>
+        <li><b>Do not</b> use your WeShare ID for billing. Please ensure that LabCorp bills to the account listed on the lab order.</li>
         <li>After your appointment, your test results will be sent directly to UHSM so we can continue
          with your application review.</li>
         <li>Results can take between 2 - 4 business days.</li>

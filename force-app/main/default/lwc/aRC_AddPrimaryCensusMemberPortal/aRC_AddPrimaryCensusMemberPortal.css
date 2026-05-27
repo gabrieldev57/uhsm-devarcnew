@@ -1,0 +1,36 @@
+.submit-btn {
+  margin-left: 10px;
+}
+
+.slds-modal {
+  z-index: 10000;
+}
+
+.slds-backdrop {
+  z-index: 9999;
+}
+
+.modal-frame {
+  position: relative;
+  background: #fff;
+  border-radius: 0.25rem;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-frame .slds-modal__content {
+  overflow: auto;
+}
+
+.modal-only-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+}

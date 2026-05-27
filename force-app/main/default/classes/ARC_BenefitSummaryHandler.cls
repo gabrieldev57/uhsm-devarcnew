@@ -107,10 +107,12 @@ public without sharing class ARC_BenefitSummaryHandler {
                                 if (contractLineName != null && contractLineName.containsIgnoreCase('Access')) {
                                     link = baseUrl + 'WeShare_Access_Program_Overview';
                                 } else {
-                                    link = baseUrl + 'WeShare_Program_Overview';
-                                }
-                            } else if (contractLineName != null && contractLineName.containsIgnoreCase('Legacy')) {
+                                    if (contractLineName != null && contractLineName.containsIgnoreCase('Legacy')) {
                                     link = baseUrl + 'WeShare_Legacy_Program_Overview';
+                                    } else {
+                                        link = baseUrl + 'WeShare_Program_Overview';
+                                    }
+                                }
                             } else if (productSubType == 'SMART') {
                                 link = baseUrl + 'WeShare_SMART_Care_Program_Overview';
                             } else if (productSubType == 'AIDD') {
@@ -262,16 +264,22 @@ public without sharing class ARC_BenefitSummaryHandler {
                     String link;
                     String productSubType = plan?.vlocity_ins__ContractLineId__r?.vlocity_ins__ProductSubType__c;
                     String contractLineName = plan?.vlocity_ins__ContractLineId__r?.Name;
-                    String baseUrl = 'https://' + ARC_CommunityController.domainURLCommunity + '/members/resource/1/';
+                    String baseUrl = 'https://' + ARC_CommunityController.domainURLCommunity + '/members/resource/';
                     
                     if (productSubType == 'PPO') {
                         if (contractLineName != null && contractLineName.containsIgnoreCase('Access')) {
                             link = baseUrl + 'WeShare_Access_Program_Overview_Internal';
-                        }  else {
+                        } else if (contractLineName != null && contractLineName.containsIgnoreCase('Legacy')) {
+                            link = baseUrl + 'WeShare_Legacy_Program_Overview_Internal';
+                        } else if (contractLineName != null && contractLineName.containsIgnoreCase('Premier')) {
+                            link = baseUrl + 'WeShare_Premier_Program_Overview_Internal';
+                        } else {
                             link = baseUrl + 'WeShare_Program_Overview_Internal';
                         }
-                    } else if (contractLineName != null && contractLineName.containsIgnoreCase('Legacy')) {
-                            link = baseUrl + 'WeShare_Legacy_Program_Overview_Internal';
+                    } else if (contractLineName != null && contractLineName.containsIgnoreCase('Critical Care')) {
+                        link = baseUrl + 'Brochure_Critical_Care';
+                    } else if (contractLineName != null && contractLineName.containsIgnoreCase('Accidental Injury')) {
+                        link = baseUrl + 'Brochure_Accidental_Injury';
                     } else if (productSubType == 'SMART') {
                         link = baseUrl + 'WeShare_SMART_Care_Program_Overview';
                     } else if (productSubType == 'AIDD') {

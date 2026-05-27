@@ -2925,16 +2925,3 @@ vlocity_ins-omniscript-step[c-individualshopproductsupdatepaenglish_individualsh
 vlocity_ins-omniscript-text-block[data-omni-key="TXT_OldPlansSummary"] p,vlocity_ins-omniscript-text-block[data-omni-key="TXT_PlansSummary"] p{
     font-weight: bold !important;
 }
-
-.add-inactive-member-modal .slds-modal__content{
-    overflow:unset;
-}
-
-
-/* MARK: POC Styles
-*/
-[data-omni-key^="BlockContainer"]{
-    border-radius: 16px;
-    border: 2px solid #D0D0D0;
-    box-shadow: 0px 0px 16px 0px #00000026;
-}

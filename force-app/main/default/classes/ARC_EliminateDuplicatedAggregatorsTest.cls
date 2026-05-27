@@ -158,7 +158,7 @@ private class ARC_EliminateDuplicatedAggregatorsTest {
             for (Integer j = 0; j < 2; j++) {
                 for (Integer k = 0; k < 2; k++) {
                     ARC_Aggregator__c agg = new ARC_Aggregator__c();
-                    agg.Name = 'Individual Max AMCS';
+                    agg.Name = 'Individual AMCS';
                     agg.ARC_Code__c = 'AMCS__c';
                     agg.ARC_Type__c = 'Currency';
                     agg.RecordTypeId = individualAggRT;

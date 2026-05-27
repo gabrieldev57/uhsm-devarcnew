@@ -41,23 +41,7 @@ public with sharing class ARC_SODML {
         // Determine required operations based on action type
         for(String action : actionsToPerform){
             switch on action {
-                when 'ancillaryChange' {
-                    
-                }
-                when 'removeMember' {
-                    
-                }
-                when 'addMember' {                           
-                }
-                when 'agingOut' {
-                    
-                }
-                when 'programDowngrade' {
-                    
-                }
-                when 'programUpgrade' {                 
-                    
-                }
+                
                 when 'spinOff' {     
                     operations.add('insertGroupAccounts');                    
                     operations.add('insertCensusGroups');                    
@@ -182,8 +166,9 @@ public with sharing class ARC_SODML {
                     }
                 }
                 when 'insertGroupCensusMemberPlans' {
-                    try{
+                    try {
                         insertGroupCensusMemberPlans();
+                        processCriticalCarePromotionDiscount(); // ← agregar
                     }
                     catch(Exception e){
                         System.debug('Exception while inserting group census member plans: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
@@ -281,7 +266,8 @@ public with sharing class ARC_SODML {
                     }
                 }
             }
-        }        
+        }
+        completeOmniScriptInstancesForAccountContext();        
     }
 
    /**
@@ -411,41 +397,7 @@ public with sharing class ARC_SODML {
                     }
                 }
                 Database.SaveResult[] updateResults = Database.update(gcmListToUpdateNewMember, true);
-                //This block is for populating the related Census memebr but will be handled by the flow Handler_PC_Contract_Activation
-                /*
-                Set<vlocity_ins__GroupCensusMember__c> gcmToUpdateSet = new Set<vlocity_ins__GroupCensusMember__c>();
-                System.debug('insertCensusMembers 0 2 manager.fictionalMemberIdToGCM: ' + manager.groupCensusToFictionalId.keySet());
-                for(vlocity_ins__GroupCensus__c gC : manager.groupCensusToFictionalId.keySet()){
-                    System.debug('insertCensusMembers 1 gC: ' + gC);
-                    Id primaryMemberId = null;
-                    vlocity_ins__GroupCensusMember__c primaryMember = null;
-                    for(String fictionalId : manager.groupCensusToFictionalId.get(gC)){
-                        System.debug('insertCensusMembers 2 fictionalId: ' + fictionalId);
-                        vlocity_ins__GroupCensusMember__c gcm = manager.fictionalMemberIdToGCMListToUpsert.get(fictionalId);
-                        if(gcm.vlocity_ins__IsPrimaryMember__c == true){
-                            System.debug('insertCensusMembers 3 gcm.Id: ' + gcm.Id);
-                            primaryMemberId = gcm.Id;
-                            primaryMember = gcm;
-                        }
-                    }
-                    for(String fictionalId : manager.groupCensusToFictionalId.get(gC)){
-                        vlocity_ins__GroupCensusMember__c gcmtoUpdate = manager.fictionalMemberIdToGCMListToUpsert.get(fictionalId);                        
-                        if(gcmtoUpdate.vlocity_ins__IsPrimaryMember__c == false){
-                            System.debug('insertCensusMembers 4 gcmtoUpdate.ARC_ActiveMember__c: ' + gcmtoUpdate.ARC_ActiveMember__c);
-                            gcmtoUpdate.vlocity_ins__RelatedCensusMemberId__c = primaryMember.Id;
-                            gcmToUpdateSet.add(gcmtoUpdate);
-                        }                        
-                    }
-                }
-
-                List<vlocity_ins__GroupCensusMember__c> gcmListToUpdate = new List<vlocity_ins__GroupCensusMember__c>();
-                System.debug('insertCensusMembers 7 gcmToUpdateSet: ' + gcmToUpdateSet);
-                gcmListToUpdate.addAll(gcmToUpdateSet);
-                for(vlocity_ins__GroupCensusMember__c gcm : gcmListToUpdate){
-                    System.debug('insertCensusMembers 8 gcm: ' + gcm.vlocity_ins__RelatedCensusMemberId__c);
-                }
-                Database.SaveResult[] updateResults = Database.update(gcmListToUpdate, true);      
-                */
+                
             } catch (Exception e) {
                 System.debug('Exception while upserting Group Census Members: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
                 throw e;
@@ -481,29 +433,22 @@ public with sharing class ARC_SODML {
                 System.debug('Exception while inserting guardian: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
                 throw e;
             }
-        }
-        /*
-        try {
-            if (manager.allInsertedRecords.containsKey('Guardian')) {
-                //Get census Id
-                vlocity_ins__GroupCensus__c updatedCensus = new vlocity_ins__GroupCensus__c();
-                updatedCensus.Id = manager.inputMap.containsKey('CensusId') ? (Id)manager.inputMap.get('CensusId') : null;
-
-                // Get Guardian Id
-                Map<Id, sObject> guardians = manager.allInsertedRecords.get('Guardian');
-                Set<Id> guardiansIds = guardians.KeySet();
-                Id guardianId = new List<Id>(guardiansIds)[0];
+            if(manager.guardiansToInsert[0].Id != null && censusId != null) {
+                try {
+                    vlocity_ins__GroupCensus__c censusToUpdate = new vlocity_ins__GroupCensus__c();
+                    censusToUpdate.Id = censusId;
+                    censusToUpdate.ARC_GuardianAccount__c = manager.guardiansToInsert[0].Id;
+                    censusToUpdate.ARC_IsChildFamily__c = true;
+                    Database.update(censusToUpdate);
+                } catch (Exception e) {
+                    System.debug('Exception while updating census with guardian: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
+                    throw e;
+                }
                 
-                updatedCensus.ARC_GuardianAccount__c = guardianId;
-            
-                update updatedCensus;
             }
         }
-        catch (Exception e) {
-            System.debug('Exception while updating contract: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
-            throw e;
-        }
-        */
+        
+       
     }
 
     /**
@@ -681,21 +626,75 @@ public with sharing class ARC_SODML {
                             newGCMP.vlocity_ins__GroupCensusMemberId__c = censusMemberId;
                             newGCMP.vlocity_ins__ContractLineId__c = manager.indexToParentCLI.get(familyIndex).get(index).Id;
                             gcmpListToInsert.add(newGCMP);
-                            if (!manager.fictionalMemberIdToGCMP.containsKey(gcmId)) {
-                                manager.fictionalMemberIdToGCMP.put(gcmId, new List<vlocity_ins__GroupCensusMemberPlan__c>());
-                            }
-                            manager.fictionalMemberIdToGCMP.get(gcmId).add(newGCMP);
                         }                    
                     }
                 }
+
                 if (!gcmpListToInsert.isEmpty()) {
+                    System.debug('Inserting Group Census Member Plan');
                     Database.UpsertResult[] results = Database.upsert(gcmpListToInsert, true);
+                    System.debug('Results size debug: ' + results.size());
                     for (Integer i = 0; i < results.size(); i++) {
                         Database.UpsertResult result = results[i];
                         if (!result.isSuccess()) {
                             for (Database.Error error : result.getErrors()) {
                                 System.debug('Error upserting group census member plan: ' + error.getMessage());
                             }
+                        } else {
+                            // Ancillary bundle GCMP resolution (SO)
+                            vlocity_ins__GroupCensusMemberPlan__c insertedGcmp = gcmpListToInsert[i];
+                            Id gcmpCliId = insertedGcmp.vlocity_ins__ContractLineId__c;
+
+                            if (!manager.memberIdToCriticalCareBundle.isEmpty()) {
+                                // Get the Product2Id of the CLI that was just inserted
+                                // We need to find which CLI this GCMP belongs to
+                                Id cliProduct2Id = null;
+                                for (Integer fIdx : manager.indexToParentCLI.keySet()) {
+                                    for (Integer cliIdx : manager.indexToParentCLI.get(fIdx).keySet()) {
+                                        vlocity_ins__ContractLineItem__c cli = manager.indexToParentCLI.get(fIdx).get(cliIdx);
+                                        if (cli.Id == gcmpCliId) {
+                                            cliProduct2Id = cli.vlocity_ins__Product2Id__c;
+                                            break;
+                                        }
+                                    }
+                                    if (cliProduct2Id != null) break;
+                                }
+                                System.debug('Product 2 debug: ' + cliProduct2Id);
+                                if (cliProduct2Id != null) {
+                                    for (String memberId : manager.memberIdToCriticalCareBundle.keySet()) {
+                                        Map<String, String> productIds = manager.memberIdToCriticalCareBundle.get(memberId);
+                                        System.debug('ProductIds debug: ' + productIds);
+                                        String bundleType = null;
+                                        if (cliProduct2Id == (Id)productIds.get('SMART')) {
+                                            bundleType = 'SMART';
+                                        } else if (cliProduct2Id == (Id)productIds.get('AIDD')) {
+                                            bundleType = 'AIDD';
+                                        }
+                                        
+                                        System.debug('Bundle type debug: ' + bundleType);
+                                        if (bundleType == null) continue;
+
+                                        String expectedCensusMemberId = manager.fictionalMemberIdToGCMListToUpsert.containsKey(memberId) 
+                                                ? manager.fictionalMemberIdToGCMListToUpsert.get(memberId).Id 
+                                                : memberId;
+                                        System.debug('expectedCensusMemberId debug: ' + expectedCensusMemberId);
+                                        System.debug('insertedGcmp.vlocity_ins__GroupCensusMemberId__c debug: ' + insertedGcmp.vlocity_ins__GroupCensusMemberId__c);
+
+                                        if (insertedGcmp.vlocity_ins__GroupCensusMemberId__c == expectedCensusMemberId) {
+                                            if (!manager.memberIdToBundleGcmpIds.containsKey(memberId)) {
+                                                manager.memberIdToBundleGcmpIds.put(memberId, new Map<String, Id>());
+                                            }
+                                            manager.memberIdToBundleGcmpIds.get(memberId).put(bundleType, result.getId());
+
+                                            System.debug('Bundle GCMP resolved (SO) | member=' + memberId
+                                                + ' | type=' + bundleType
+                                                + ' | productId=' + cliProduct2Id
+                                                + ' | GCMP Id=' + result.getId());
+                                        }
+                                    }
+                                }
+                            }
+                            // End bundle resolution
                         }
                     }
                 }
@@ -703,6 +702,70 @@ public with sharing class ARC_SODML {
                 System.debug('Exception while upserting group census member plans: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
                 throw e;
             }
+        }
+    }
+
+    /**
+     * @Description: Links resolved GCMP IDs (SMART / AIDD) to ARC_PromotionDiscount__c
+     * shells for the Critical Care bundle and upserts them.
+     * Mirrors processCriticalCarePromotionDiscount in ARC_PCDML.
+     */
+    private void processCriticalCarePromotionDiscount() {
+        try {
+            System.debug('Processing Critical Care Promotion Discount DML (SO)');
+            if (manager.memberIdToCriticalCareBundle.isEmpty()) return;
+
+            List<ARC_PromotionDiscount__c> bundleDiscounts = new List<ARC_PromotionDiscount__c>();
+
+            ARC_PromotionCode__c ancillaryCode = [
+                SELECT Id FROM ARC_PromotionCode__c
+                WHERE Name = 'Ancillary Discount'
+                LIMIT 1
+            ];
+
+            Id ancillaryDiscountRT = Schema.SObjectType.ARC_PromotionDiscount__c
+                .getRecordTypeInfosByDeveloperName()
+                .get('Ancillary_Discount')
+                .getRecordTypeId();
+
+            for (String memberId : manager.memberIdToCriticalCareBundle.keySet()) {
+                Map<String, Object> bundle = manager.memberIdToCriticalCareBundle.get(memberId);
+                Map<String, Id> gcmpIds = manager.memberIdToBundleGcmpIds.get(memberId);
+                System.debug('First debug: ' + manager.memberIdToBundleGcmpIds);
+                if (gcmpIds == null || !gcmpIds.containsKey('SMART') || !gcmpIds.containsKey('AIDD')) {
+                    System.debug('Incomplete GCMP IDs for bundle member (SO): ' + memberId + ' | resolved: ' + gcmpIds);
+                    continue;
+                }
+                String bundleFamily = (String)bundle.get('Family');
+                ARC_PromotionDiscount__c targetPd = new ARC_PromotionDiscount__c(
+                    RecordTypeId     = ancillaryDiscountRT,
+                    ARC_Contract__c  = bundleFamily == 'RemoveMember' ? manager.removeMemberContract.Id : manager.singleSpinOffContract.Id,
+                    ARC_SMART__c     = gcmpIds.get('SMART'),
+                    ARC_AIDD__c      = gcmpIds.get('AIDD'),
+                    ARC_PromoCode__c = ancillaryCode.Id
+                );
+
+                bundleDiscounts.add(targetPd);
+            }
+
+            if (!bundleDiscounts.isEmpty()) {
+                Database.UpsertResult[] results = Database.upsert(bundleDiscounts, true);
+                for (Database.UpsertResult result : results) {
+                    if (result.isSuccess()) {
+                        System.debug('Critical Care PromotionDiscount upserted (SO): ' + result.getId());
+                    } else {
+                        for (Database.Error error : result.getErrors()) {
+                            System.debug('Error upserting Critical Care PromotionDiscount (SO): ' + error.getMessage());
+                        }
+                        throw new DmlException('Failed to upsert Critical Care PromotionDiscount (SO): ' + results);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            System.debug('Error in processCriticalCarePromotionDiscount (SO): '
+                + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
+            throw e;
         }
     }
 
@@ -808,93 +871,9 @@ public with sharing class ARC_SODML {
         }
     }
 
-    /**
-     * @Description: Updates contract records with payment and case information.
-     * This method:updateContractFieldGuardian
-     * 1. Links payment orders to contracts
-     * 2. Updates contract status
-     * 3. Associates cases with contracts
-     * 4. Maintains contract relationships
-     * 
-     * @throws Exception If contract update fails
-     */
-    private void updateContract(){
-        /*
-        try{
-            //Get the fee order and the recurring order from the chargent orders
-            ChargentOrders__ChargentOrder__c feeOrder = null;
-            ChargentOrders__ChargentOrder__c recurringOrder = null;
-            
-            Set<Id> chargentOrderIds = manager.allInsertedRecords.get('ChargentOrder').keySet();
-            for(Id coId : chargentOrderIds){
-                ChargentOrders__ChargentOrder__c co = (ChargentOrders__ChargentOrder__c)manager.allInsertedRecords.get('ChargentOrder').get(coId);
-                if(co.ChargentOrders__Payment_Frequency__c == 'Monthly'){
-                    recurringOrder = (ChargentOrders__ChargentOrder__c)manager.allInsertedRecords.get('ChargentOrder').get(coId);
-                }
-                else{
-                    feeOrder = (ChargentOrders__ChargentOrder__c)manager.allInsertedRecords.get('ChargentOrder').get(coId);
-                }
-            }
+   
 
-            //Get UW case Id
-            Id newCaseId = null;
-            if(manager.allInsertedRecords.containsKey('CaseUW')){   
-                Map<Id, sObject> caseMap = manager.allInsertedRecords.get('CaseUW');
-                Set<Id> caseIds = caseMap.keySet();
-                newCaseId = new List<Id>(caseIds)[0];
-            }
-            
-            //Get contract Id
-            Set<Id> contractIds = manager.allInsertedRecords.get('Contract').keySet();
-            Id newContractId = new List<Id>(contractIds)[0];
-            Contract insertedContract = (Contract)manager.allInsertedRecords.get('Contract').get(newContractId);
-            insertedContract.ARC_AppFeeOrder__c = feeOrder != null ? feeOrder.Id : null;
-            insertedContract.ARC_RecurringMonthlyOrder__c = recurringOrder.Id;
-            insertedContract.ARC_Case__c = newCaseId;
-            insertedContract.Status = 'Awaiting Signature';
-
-            update insertedContract;
-        }
-        catch(Exception e){
-            System.debug('Exception while updating contract: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
-            throw e;
-        }
-        */
-    }
-
-    /**
-     * @Description: Updates contract ARC_Guardian__c field 
-     * This method:
-     * 1. Links Guardian Id to contracts
-     * 
-     * @throws Exception If contract ARC_Guardian__c field update fails
-     */
-    private void updateContractFieldGuardian(){
-        /*
-        try{
-            if(manager.allInsertedRecords.containsKey('Guardian')) {
-                //Get contract Id
-                Set<Id> contractIds = manager.allInsertedRecords.get('Contract').keySet();
-                Id newContractId = new List<Id>(contractIds)[0];
-                Contract insertedContract = (Contract)manager.allInsertedRecords.get('Contract').get(newContractId);
-
-                // Get Guardian Id
-                Map<Id, sObject> guardians = manager.allInsertedRecords.get('Guardian');
-                Set<Id> guardiansIds = guardians.KeySet();
-                Id guardianId = new List<Id>(guardiansIds)[0];
-                
-                insertedContract.ARC_Guardian__c = guardianId;
-            
-
-                update insertedContract;
-            }
-        }
-        catch(Exception e){
-            System.debug('Exception while updating contract: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
-            throw e;
-        }
-        */
-    }
+    
 
     /**
      * @Description: Processes underwriting case records.
@@ -1024,14 +1003,13 @@ public with sharing class ARC_SODML {
             Map<String,ChargentOrders__ChargentOrder__c> chargentOrdersToInsertMap = (Map<String,ChargentOrders__ChargentOrder__c>)JSON.deserialize(chargentsMap, Map<String,ChargentOrders__ChargentOrder__c>.class);
 
             // Store the new UW Cases IDs for contract update and UW Case Members, ([0] UW Case Remove Member - Contract, [1] UW Case Spin Off - Contract)
-            //List<Id> ListNewCaseId = new List<Id>();
+          
             List<ARC_PromotionDiscount__c> promotionDiscounts = new List<ARC_PromotionDiscount__c>();
             if(jsonPromotionDiscount != null && jsonPromotionDiscount != ''){
                 //Deserialize the promotion discount
                 promotionDiscounts = (List<ARC_PromotionDiscount__c>)JSON.deserialize(jsonPromotionDiscount, List<ARC_PromotionDiscount__c>.class);
             }
             
-            // try {
                 // Process results and log any errors
                 Database.UpsertResult[] resultsCases = Database.upsert(casesToUpsert.values(), true);
                 for (Database.UpsertResult result : resultsCases) {
@@ -1040,15 +1018,9 @@ public with sharing class ARC_SODML {
                             System.debug('Error upserting UW case in future context: ' + error.getMessage());
                         }
                     } 
-                    // else {
-                    //     ListNewCaseId.add(result.getId());
-                    // }
+                    
                 }
-            // } catch (Exception e) {
-            //     System.debug('Exception while processing UW Cases in future context: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
-            // }
-
-            // try {
+            
                 // Update the contract with the new case and orders
                 List<Contract> contractsToUpdate = new List<Contract>();
                 if (contractIdRC != null) {  // (Remove Member - Contract)
@@ -1056,7 +1028,7 @@ public with sharing class ARC_SODML {
                         Id = contractIdRC,
                         ARC_RecurringMonthlyOrder__c = chargentOrdersToInsertMap.get('recurringRemoveMemberChargent').Id,
                         ARC_Case__c = casesToUpsert.containsKey('0') && casesToUpsert.get('0').Id != null ? casesToUpsert.get('0').Id : null,
-                        Status = 'Awaiting Activation'
+                        Status = 'Awaiting Approval'
                     );
                     contractsToUpdate.add(contractToUpdate);
                 }
@@ -1073,11 +1045,9 @@ public with sharing class ARC_SODML {
                 }
                 if (!contractsToUpdate.isEmpty()) update contractsToUpdate;
                 
-            // } catch (Exception e) {
-            //     System.debug('Exception while updating contracts in future context: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
-            // }
+            
             if (!promotionDiscounts.isEmpty()) {     
-                // try {
+                
     
                     for(ARC_PromotionDiscount__c d : promotionDiscounts) {
                         d.ARC_Contract__c = contractIdSO != null ? contractIdSO : null;
@@ -1094,13 +1064,9 @@ public with sharing class ARC_SODML {
                             System.debug('Promotion discount upserted successfully');                
                         }
                     }
-                // } catch (Exception e) {
-                //     System.debug('Exception while upserting promotion discount: ' + e.getMessage() + e.getStackTraceString());
-                //     throw e;
-                // }
+                
             } 
 
-            // try {
                 // Handle UW Case Members if we have a successful case creation
                 if (!casesToUpsert.isEmpty()) {
                     List<ARC_UnderwritingCaseMember__c> listUWCMToUpsert = new List<ARC_UnderwritingCaseMember__c>();
@@ -1142,9 +1108,7 @@ public with sharing class ARC_SODML {
                     }
                 }
                 
-            // } catch (Exception e) {
-            //     System.debug('Exception while processing UW case members in future context: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
-            // }
+            
             
         } catch (Exception e) {
             Integer MAX_FIELD_SIZE = 131072-10;
@@ -1168,7 +1132,7 @@ public with sharing class ARC_SODML {
             
             insert log;
             System.debug('Exception while processing UW case and members in future context: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
-            throw e;
+            //throw e;
         }
     }
 
@@ -1312,12 +1276,6 @@ public with sharing class ARC_SODML {
                             System.debug('Error upserting medical condition: ' + error.getMessage());
                         }
                     } 
-                    // else {
-                    //     if (!manager.allInsertedRecords.containsKey('MedicalCondition')) {
-                    //         manager.allInsertedRecords.put('MedicalCondition', new Map<Id, SObject>());
-                    //     }
-                    //     manager.allInsertedRecords.get('MedicalCondition').put(result.getId(), manager.medicalConditionsToUpsert[i]);
-                    // }
                 }
             } catch (Exception e) {
                 System.debug('Exception while upsert Medical Conditions: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
@@ -1380,12 +1338,6 @@ public with sharing class ARC_SODML {
                             System.debug('Error inserting consumer drugs: ' + error.getMessage());
                         }
                     } 
-                    // else {
-                    //     if (!manager.allInsertedRecords.containsKey('MedicalCondition')) {
-                    //         manager.allInsertedRecords.put('MedicalCondition', new Map<Id, SObject>());
-                    //     }
-                    //     manager.allInsertedRecords.get('MedicalCondition').put(result.getId(), manager.medicalConditionsToUpsert[i]);
-                    // }
                 }
             } catch (Exception e) {
                 System.debug('Exception while upsert Consumer Drugs: ' + e.getLineNumber() + ' ' + e.getMessage() + e.getStackTraceString());
@@ -1406,7 +1358,6 @@ public with sharing class ARC_SODML {
      */
     private void updatePhysicianMemberData() {
 
-        //List<Account> physicianAccountToUpdateList = new List<Account>();
         List<vlocity_ins__GroupCensusMember__c> physicianGCMToUpdateList = new List<vlocity_ins__GroupCensusMember__c>();
 
         if(!manager.mapPhysicianDataToUpdate.isEmpty()) {
@@ -1441,13 +1392,7 @@ public with sharing class ARC_SODML {
                         for (Database.Error error : result.getErrors()) {
                             System.debug('Error updateing physician census member data: ' + error.getMessage());
                         }
-                    }               
-                    // else {
-                    //     if (!manager.allInsertedRecords.containsKey('physicianGCMToUpdate')) {
-                    //         manager.allInsertedRecords.put('physicianGCMToUpdate', new Map<Id, SObject>());
-                    //     }
-                    //     manager.allInsertedRecords.get('physicianGCMToUpdate').put(result.getId(), manager.physicianGCMToUpdate[i]);
-                    // }
+                    }  
                 }
             } catch (Exception e) {
                 System.debug('Exception while updateing physician census member data: ' + e.getMessage() + e.getStackTraceString());
@@ -1492,12 +1437,7 @@ public with sharing class ARC_SODML {
                         for (Database.Error error : result.getErrors()) {
                             System.debug('Error upserting PC case: ' + error.getMessage());
                         }
-                    } /* else {
-                        if (!manager.allInsertedRecords.containsKey('CasePC')) {
-                            manager.allInsertedRecords.put('CasePC', new Map<Id, SObject>());
-                        }
-                        manager.allInsertedRecords.get('CasePC').put(result.getId(), manager.casesPCToInsert[i]);
-                    } */
+                    } 
                 }
             } catch (Exception e) {
                 System.debug('Exception while upserting PC cases: ' + e.getMessage() + e.getStackTraceString());
@@ -1506,73 +1446,62 @@ public with sharing class ARC_SODML {
         }
     }
 
-    /**
-     * @Description: Handles promotion discount records.
-     * This method:
-     * 1. Creates discount records
-     * 2. Links discounts to contracts
-     * 3. Sets discount details
-     * 4. Maintains discount relationships
-     * 
-     * @throws Exception If discount operations fail
-     */
-    private void insertPromotionDiscount() {
-        /*
-        if (!manager.promotionDiscountToInsert.isEmpty()) {
-     
-            try {
-                Set<Id> contractIds = manager.allInsertedRecords.get('Contract').keySet();
-
-                if (!contractIds.isEmpty()) {
-                    Id newContractId = new List<Id>(contractIds)[0];
-                    for(ARC_PromotionDiscount__c d : manager.promotionDiscountToInsert) {
-                            d.ARC_Contract__c = newContractId;
-                    }
-                }
-
-
-                Database.UpsertResult[] results = Database.upsert(manager.promotionDiscountToInsert, true);//All or none = true
-                for (Integer i = 0; i < results.size(); i++) {
-                    Database.UpsertResult result = results[i];
-                    if (!result.isSuccess()) {
-                        for (Database.Error error : result.getErrors()) {
-                            System.debug('Error promotion disocunt: ' + error.getMessage());
-                        }
-                    } else {
-                        if (!manager.allInsertedRecords.containsKey('PromotionDiscount')) {
-                            manager.allInsertedRecords.put('PromotionDiscount', new Map<Id, SObject>());
-                        }                      
-                        manager.allInsertedRecords.get('PromotionDiscount').put(result.getId(), manager.promotionDiscountToInsert[i]);                        
-                    }
-                }
-            } catch (Exception e) {
-                System.debug('Exception while upserting promotion discount: ' + e.getMessage() + e.getStackTraceString());
-                throw e;
-            }
-        }    
-        */
-    }
+   
 
     /**
     * @Description: Inserts a new Policy for the new Contract, including its Insurance Policy Participants, Insurance Policy Coverage and Coverage Participants
     */
     private void insertPolicy() {
         try {
+            // ── Remove Member Contract ──────────────────────────────────────
             Contract removeMemberContract = manager.removeMemberContract;
+
+            // Carry over de beneficiaries para el Remove Member Contract
+            // Todos los miembros del RC son existentes, no hay fake IDs que resolver
+            Map<String, Object> beneficiariesMapRC = new Map<String, Object>();
+            if (!manager.contactOrFakeIdToBeneficiariesRC.isEmpty()) {
+                beneficiariesMapRC = manager.contactOrFakeIdToBeneficiariesRC;
+            }
+
             Map<String, Object> inputMapRemove = new Map<String, Object>();
-            Map<String, Object> outMapRemove = new Map<String, Object>();
-            inputMapRemove.put('contractId', removeMemberContract.Id);
+            Map<String, Object> outMapRemove   = new Map<String, Object>();
+            inputMapRemove.put('contractId',               removeMemberContract.Id);
+            inputMapRemove.put('IsSpinOffOmniscript',       true);
+            inputMapRemove.put('contactIdToBeneficiaries',  beneficiariesMapRC); // NUEVO: carry over
             ARC_PolicyCreation.createAllPolicyRecords(inputMapRemove, outMapRemove);
-            // Single Spin Off
+
+            // ── Single Spin Off Contract ────────────────────────────────────
             if (manager.contractsToInsertMap.size() == 2) {
                 Contract singleSpinOffContract = manager.singleSpinOffContract;
+
+                // Resolver Fake IDs del SpinOff Contract (lógica existente sin cambios)
+                Map<String,Object> contactOrFakeIdToBeneficiaries = manager.contactOrFakeIdToBeneficiaries;
+                Map<String,Object> beneficiariesMapSO = new Map<String,Object>();
+
+                for (String key : contactOrFakeIdToBeneficiaries.keySet()) {
+                    if (key.startsWith('MEM-')) {
+                        // Nuevo miembro: buscar PersonContactId en el GCM insertado
+                        vlocity_ins__GroupCensusMember__c newGCM = manager.fictionalMemberIdToGCMListToUpsert.containsKey(key)
+                            ? manager.fictionalMemberIdToGCMListToUpsert.get(key)
+                            : null;
+                        if (newGCM != null && newGCM.vlocity_ins__ContactId__c != null) {
+                            beneficiariesMapSO.put(newGCM.vlocity_ins__ContactId__c, contactOrFakeIdToBeneficiaries.get(key));
+                        }
+                    } else {
+                        // Miembro existente: ya tiene ContactId real
+                        beneficiariesMapSO.put(key, contactOrFakeIdToBeneficiaries.get(key));
+                    }
+                }
+
                 Map<String, Object> inputMapSpinOff = new Map<String, Object>();
-                Map<String, Object> outMapSpinOff = new Map<String, Object>();
-                inputMapSpinOff.put('contractId', singleSpinOffContract.Id);
+                Map<String, Object> outMapSpinOff   = new Map<String, Object>();
+                inputMapSpinOff.put('contractId',               singleSpinOffContract.Id);
+                inputMapSpinOff.put('IsSpinOffOmniscript',      true);
+                inputMapSpinOff.put('contactIdToBeneficiaries', beneficiariesMapSO);
                 ARC_PolicyCreation.createAllPolicyRecords(inputMapSpinOff, outMapSpinOff);
             }
         } catch (Exception e) {
-            System.debug('Exception while inserting policy: ' + e.getMessage() + e.getStackTraceString() );
+            System.debug('Exception while inserting policy: ' + e.getMessage() + e.getStackTraceString());
             throw e;
         }
     }
@@ -1701,22 +1630,9 @@ public with sharing class ARC_SODML {
             
             if (effectiveDate != null) {
                 
-                // Extract Effective Date
-                // try {
-                //     if (inputData.containsKey('STEP_AccountSelection')) {
-                //         Map<String, Object> STEP_AccountSelection = (Map<String, Object>)inputData.get('STEP_AccountSelection');
-                //         Map<String, Object> aRC_DatePicker = (Map<String, Object>)STEP_AccountSelection.get('aRC_DatePicker');
-                //         String effectiveDate = (String)aRC_DatePicker.get('DATE_SubscriberEffectiveDate');
-                        
-                //         if (String.isNotBlank(effectiveDate)) {
-                            result.put('effectiveDate', effectiveDate);
-                //         }
-                //     } else {
-                //         System.debug('EffectiveDate not found in JSON');
-                //     }
-                // } catch (Exception e) {
-                //     System.debug('Error extracting effective date: ' + e.getMessage());
-                // }
+                
+                result.put('effectiveDate', effectiveDate);
+                
                 
                 // Extract Spin-off Members
                 Map<String, Object> stepData = (Map<String, Object>) inputData.get('STEP_AccountSelection');
@@ -1748,80 +1664,42 @@ public with sharing class ARC_SODML {
     }
 
     /**
-    * @Description: Creates a new Person Account record with required fields
-    * @param LastName The last name for the account
-    * @return Account The newly created account record 
-    */
-    private Account createPersonAccount(String LastName) {
-        Account newPA = new Account();
-        newPA.RecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName().get('ARC_IFPPersonAccount').getRecordTypeId();
-        newPA.LastName = LastName;
-        newPA.ARC_Census__c = manager.inputMap.containsKey('CensusId') ? (Id)manager.inputMap.get('CensusId') : null;
-        return newPA;        
-    }
-
-    /**
-    * @Description: Updates census member records with contact IDs.
-    * This method:
-    * 1. Links census members to contacts
-    * 2. Updates member information
-    * 3. Maintains record relationships
-    * 4. Ensures data consistency
-    * 
-    * @throws Exception If member update fails
-    */
-    private void updateRelatedCensusMembers() {
-        /*
-        List<vlocity_ins__GroupCensusMember__c> censusMembersToUpdateContactId = new List<vlocity_ins__GroupCensusMember__c>();
-        List<Account> accContacts = new List<Account>([SELECT Id, PersonContactId FROM Account WHERE Id IN :manager.accountIdToMemberId.keySet()]);
-        for(Account acc : accContacts) {
-            vlocity_ins__GroupCensusMember__c censusMember = (vlocity_ins__GroupCensusMember__c)manager.allInsertedRecords.get('GroupCensusMember').get(manager.accountIdToMemberId.get(acc.Id));
-            censusMember.vlocity_ins__ContactId__c = acc.PersonContactId;
-            censusMember.vlocity_ins__SocialSecurityNumber__c = censusMember.vlocity_ins__SocialSecurityNumber__c;
-            censusMembersToUpdateContactId.add(censusMember);
+ * @Description: Updates OS Instances 'Resume -> Completed'.
+ * This method:
+ * 1. Retrieves the Account Id from the input parameters.
+ * 2. Queries all OmniScript Instances related to that Account that are in 'Resume' status.
+ * 3. Updates their ARC_ResumeStatus__c field to 'Completed'.
+ * 4. Handles any exceptions during the update process and logs relevant information.
+ */
+    private void completeOmniScriptInstancesForAccountContext() {
+        Id accountId = (Id) manager.inputMap.get('ContextId');
+        if (accountId == null) {
+            return;
         }
-        update censusMembersToUpdateContactId;
-        */
-    }
 
-    @future
-    public static void handleDemographicChangeFuture(List<Id> censusMemberIds, String jsonCensusMembers,String fullJson,Id contextId) {
-        List<vlocity_ins__GroupCensusMember__c> censusMembersDemographicChange = (List<vlocity_ins__GroupCensusMember__c>)JSON.deserialize(jsonCensusMembers, List<vlocity_ins__GroupCensusMember__c>.class);
-        
-        try {                   
-            List<Database.UpsertResult> results = Database.upsert(censusMembersDemographicChange, true); 
-            
-            // Note: We can't update the manager.allInsertedRecords here since this is a future context
-            // The calling code will need to handle this differently
-                     
+        List<vlocity_ins__OmniScriptInstance__c> toUpdate = [SELECT Id, ARC_ResumeStatus__c FROM 
+        vlocity_ins__OmniScriptInstance__c 
+        WHERE vlocity_ins__ObjectId__c = :accountId 
+        AND (ARC_ResumeStatus__c = 'Resume' OR ARC_ResumeStatus__c = null OR ARC_ResumeStatus__c = '')];
+
+        if (toUpdate.isEmpty()) {
+            System.debug('No OmniScript instances in Resume for Account ' + accountId);
+            return;
+        }
+
+        for (vlocity_ins__OmniScriptInstance__c os : toUpdate) {
+            os.ARC_ResumeStatus__c = 'Completed';
+        }
+
+        try {
+            Database.SaveResult[] results = Database.update(toUpdate, true);
+
         } catch (Exception e) {
-            System.debug('Exception while upserting census members in future context: ' + e.getMessage() + e.getStackTraceString());
-
-
-            Integer MAX_FIELD_SIZE = 131072;
-
-            String serializedData = fullJson;
-            Custom_Logs__c log = new Custom_Logs__c();
-            log.Name = 'Exception while upserting census members in future context';
-            log.Account__c = contextId;
-            log.OwnerId = UserInfo.getUserId();
-            log.Status__c = 'New';
-            
-            if(serializedData.length() > MAX_FIELD_SIZE) {
-                log.Log__c = serializedData.substring(0, MAX_FIELD_SIZE);
-                if(serializedData.length() > MAX_FIELD_SIZE) {
-                    Integer remainingLength = Math.min(serializedData.length() - MAX_FIELD_SIZE, MAX_FIELD_SIZE);
-                    log.Log_2__c = serializedData.substring(MAX_FIELD_SIZE, MAX_FIELD_SIZE + remainingLength);
-                }
-            } else {
-                log.Log__c = serializedData;
-            }
-            
-            insert log;
-
+            System.debug('Exception while completing OmniScript instances: ' + e.getMessage() + e.getStackTraceString());
             throw e;
         }
     }
+
  
     private static Map<String,vlocity_ins__GroupCensusMember__c> mapGroupCensusMembers(Map<String,vlocity_ins__GroupCensusMember__c> groupCensusMembersToInsertMap, Map<vlocity_ins__GroupCensus__c,List<String>> groupCensusToFictionalId, Map<String,Account> personAccountsToInsertMap){
         Map<String,String> pAFictionalIdToPersonContactId = new Map<String,String>();
@@ -1887,7 +1765,6 @@ public with sharing class ARC_SODML {
 
             }
             
-            //vlocity_ins__RelatedCensusMemberId__c
         
             groupCensusMembersToInsert.put(fictionalId, groupCensusMember);
         }

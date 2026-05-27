@@ -1,0 +1,31 @@
+/* Owner Modal Styles */
+
+:host {
+    display: block;
+}
+
+.slds-modal__container {
+    max-width: 500px;
+}
+
+.slds-modal__header {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+.slds-modal__title {
+    color: #ffffff;
+}
+
+.slds-modal__close {
+    color: #ffffff;
+}
+.slds-modal__close{
+    border-radius:4px;
+}
+
+.ownership-error {
+    color: #c23934;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    margin-left: 0.125rem;
+}

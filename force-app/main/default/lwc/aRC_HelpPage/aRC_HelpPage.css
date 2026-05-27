@@ -1,0 +1,72 @@
+.help-page-container{
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.help-form-section{
+    flex: 1 1 300px;
+    max-width: 600px;
+    min-width: 300px;
+    display: flex;
+    gap: 20px;
+    flex-flow: column;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2b2b2b;
+    font-family: Aktiv Grotesk Ex;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #6b6e7a;
+    margin: 4px 0 0 0;
+    line-height: 1.35;
+}
+
+.header-text{
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+/* TABLET / SURFACE */
+@media (max-width: 1366px) {
+    .header-text {
+        margin-top: 110px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .header-text {
+        margin-top: 140px;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .header-text {
+        margin-top: 42%;
+    }
+
+    .help-page-container {
+        padding-top: 0;
+    }
+
+    .help-form-section{
+        min-width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-text {
+        margin-top: 50%;
+    }
+}

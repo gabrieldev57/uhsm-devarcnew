@@ -37,6 +37,7 @@ global with sharing class ARC_QwikPayEligibilityFile implements Database.Batchab
         Set<Id> memberIds = new Set<Id>();
         Map<Id, Contract> contractMap = new Map<Id, Contract>(contracts);
         Map<Id, vlocity_ins__GroupCensusMember__c> groupCensusMembers = new Map<Id, vlocity_ins__GroupCensusMember__c>();
+        Map<Id, InsurancePolicyParticipant> policyParticipants = new Map<Id, InsurancePolicyParticipant>();
         List<vlocity_ins__GroupCensusMemberPlan__c> groupCensusMemberPlans = getGroupCensusMemberPlans(contractMap.keySet());
         List<Map<String,String>> fileMap = new List<Map<String,String>>();
         
@@ -45,8 +46,9 @@ global with sharing class ARC_QwikPayEligibilityFile implements Database.Batchab
         }
         
         groupCensusMembers = getGroupCensusMembers(memberIds);
+        policyParticipants = getPolicyParticipants(contractMap.keySet());
 
-        this.fileBody += generateFileBody(groupCensusMemberPlans, groupCensusMembers, contractMap);
+        this.fileBody += generateFileBody(groupCensusMemberPlans, groupCensusMembers,policyParticipants,contractMap);
 
 
         // if(this.memberCount > 5000){
@@ -116,6 +118,9 @@ global with sharing class ARC_QwikPayEligibilityFile implements Database.Batchab
             when 'Child' {
                 return '02';
             }
+            when 'Temporary Newborn' {
+                return '02';
+            }
             when 'Spouse' {
                 return '41';
             }
@@ -156,14 +161,32 @@ global with sharing class ARC_QwikPayEligibilityFile implements Database.Batchab
         return groupCensusMemberPlans;
     }
 
-    private String generateFileBody(List<vlocity_ins__GroupCensusMemberPlan__c> groupCensusMemberPlans, Map<Id,vlocity_ins__GroupCensusMember__c> groupCensusMembers, Map<Id,Contract> contracts){
+    private Map<Id,InsurancePolicyParticipant> getPolicyParticipants(Set<Id> contractIds){
+        List<InsurancePolicyParticipant> policyParticipants = new List<InsurancePolicyParticipant>([
+            SELECT Id, ARC_StartDate__c, ARC_EndDate__c,PrimaryParticipantContact.Account.Census_Member__c
+            FROM InsurancePolicyParticipant  
+            WHERE InsurancePolicy.ARC_Contract__c IN :contractIds AND PrimaryParticipantContactId != null AND PrimaryParticipantContact.Account.Census_Member__c != null
+        ]);
+        if(policyParticipants.isEmpty()){
+            return new Map<Id,InsurancePolicyParticipant>();
+        }
+        Map<Id,InsurancePolicyParticipant> memberIppMap = new Map<Id,InsurancePolicyParticipant>();
+        for(InsurancePolicyParticipant ipp : policyParticipants){
+            memberIppMap.put(ipp.PrimaryParticipantContact.Account.Census_Member__c,ipp);
+        }
+        return memberIppMap;
+    }
+
+    private String generateFileBody(List<vlocity_ins__GroupCensusMemberPlan__c> groupCensusMemberPlans, Map<Id,vlocity_ins__GroupCensusMember__c> groupCensusMembers, Map<Id,InsurancePolicyParticipant> policyParticipants, Map<Id,Contract> contracts){
         List<Map<String,String>> fileMap = new List<Map<String,String>>();
         for (vlocity_ins__GroupCensusMemberPlan__c gcmp : groupCensusMemberPlans) {
             vlocity_ins__GroupCensusMember__c groupCensusMember = groupCensusMembers.get(gcmp.vlocity_ins__GroupCensusMemberId__c);
             if (isValidMember(groupCensusMember)) {
                 Contract contract = contracts.get(gcmp.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c);
+                InsurancePolicyParticipant ipp = policyParticipants.containsKey(gcmp.Id)? policyParticipants.get(gcmp.Id) : null;
+
                 Map<String,String> fileRow = newRow();
-    
+
                 fileRow.put('First Name', groupCensusMember.vlocity_ins__FirstName__c);
                 fileRow.put('Last Name', groupCensusMember.vlocity_ins__LastName__c);
                 fileRow.put('Gender', getGender(groupCensusMember.vlocity_ins__Gender__c));
@@ -179,7 +202,15 @@ global with sharing class ARC_QwikPayEligibilityFile implements Database.Batchab
                 fileRow.put('Group Name', 'UNITE HEALTH SHARE MINISTRIES');
                 fileRow.put('Group ID', 'UHSMARCPO ARCS');
                 fileRow.put('Primary Language', 'E');
-                fileRow.put('Coverage Start', formatDatetime(contract.ARC_EffectiveDate__c));
+                if(ipp == null){
+                    fileRow.put('Coverage Start', formatDatetime(contract.ARC_EffectiveDate__c));
+                }
+                else{
+                    fileRow.put('Coverage Start', formatDatetime(ipp.ARC_StartDate__c));
+                    if(ipp.ARC_EndDate__c != null){
+                        fileRow.put('Coverage End', formatDatetime(ipp.ARC_EndDate__c));
+                    }
+                } 
                 fileRow.put('Plan Option ID', gcmp.vlocity_ins__ContractLineId__r.vlocity_ins__ProductCode__c.toUpperCase());
                 fileRow.put('Relationship to Primary Subscriber',  getRelationshipCode(groupCensusMember.ARC_DependentRelationship__c));
     

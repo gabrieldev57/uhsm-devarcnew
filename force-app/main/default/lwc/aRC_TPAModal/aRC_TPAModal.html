@@ -1,0 +1,217 @@
+<template>
+    <template lwc:if={isOpen}>
+        <!-- Modal Backdrop -->
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Header -->
+                <div class="slds-modal__header">
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Close"
+                        class="slds-modal__close"
+                        onclick={handleCancel}>
+                    </lightning-button-icon>
+                    <h1 class="slds-modal__title slds-hyphenate">{modalTitle}</h1>
+                </div>
+
+                <!-- Body -->
+                <div class="slds-modal__content slds-p-around_medium">
+                    <!-- Account Selection: Use Existing or Create New -->
+                    <div class="slds-m-bottom_medium">
+                        <c-a-r-c_-radio-group
+                            label="TPA Account"
+                            name="accountSelection"
+                            options={accountSelectionOptions}
+                            value={accountSelectionValue}
+                            variant="button"
+                            required
+                            container-class="slds-m-bottom_small"
+                            onchange={handleAccountSelectionChange}>
+                        </c-a-r-c_-radio-group>
+                    </div>
+
+                    <!-- Existing Account Lookup with Portal Access -->
+                    <template lwc:if={showAccountLookup}>
+                        <div class="slds-grid slds-gutters_small slds-m-bottom_medium">
+                            <div class="slds-col slds-size_2-of-3">
+                                <c-a-r-c_-generic-lookup
+                                    label="Search Business Accounts"
+                                    placeholder="Type to search accounts..."
+                                    object-type="Account"
+                                    icon-name="standard:account"
+                                    required
+                                    data-id="account-lookup"
+                                    onselect={handleAccountSelect}
+                                    onclear={handleAccountClear}>
+                                </c-a-r-c_-generic-lookup>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-combobox
+                                    label="Portal Access"
+                                    name="portalAccess"
+                                    value={tpaData.portalAccess}
+                                    options={portalAccessOptions}
+                                    required
+                                    data-validate="contact"
+                                    onchange={handleFieldChange}>
+                                </lightning-combobox>
+                            </div>
+                        </div>
+                    </template>
+                    <template lwc:else>
+                         <div class="slds-grid slds-gutters_small slds-m-bottom_medium">
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-combobox
+                                    label="Portal Access"
+                                    name="portalAccess"
+                                    value={tpaData.portalAccess}
+                                    options={portalAccessOptions}
+                                    required
+                                    data-validate="contact"
+                                    onchange={handleFieldChange}>
+                                </lightning-combobox>
+                            </div>
+                         </div>
+                    </template>
+
+                    <!-- Create New Account Fields -->
+                    <template lwc:if={showAccountFields}>
+                        <!-- Company Name and Portal Access in one row -->
+                        <div class="slds-grid slds-gutters_small slds-m-bottom_medium">
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-input
+                                    type="text"
+                                    label="TPA Company Name"
+                                    name="companyName"
+                                    value={tpaData.companyName}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                            </div>
+                        </div>
+
+                        <!-- Address Section -->
+                        <div class="slds-m-bottom_medium">
+                            <lightning-input
+                                type="text"
+                                label="Mailing Street"
+                                name="mailingAddress"
+                                value={tpaData.mailingAddress}
+                                required
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+
+                        <div class="slds-grid slds-gutters_small slds-m-bottom_medium">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input
+                                    type="text"
+                                    label="City"
+                                    name="city"
+                                    value={tpaData.city}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-4">
+                                <lightning-combobox
+                                    label="State"
+                                    name="state"
+                                    value={tpaData.state}
+                                    options={stateOptions}
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-4">
+                                <lightning-input
+                                    type="text"
+                                    label="Zip"
+                                    name="zip"
+                                    value={tpaData.zip}
+                                    maxlength="10"
+                                    pattern="[0-9]{5}(-[0-9]{4})?"
+                                    message-when-pattern-mismatch="Please enter a valid ZIP code (e.g., 12345 or 12345-6789)"
+                                    required
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Contact Information -->
+                    <h3 class="slds-text-heading_small slds-m-bottom_small slds-m-top_medium">Contact Information</h3>
+                    
+                    <div class="slds-grid slds-gutters_small slds-m-bottom_medium">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="text"
+                                label="First Name"
+                                name="firstName"
+                                value={tpaData.firstName}
+                                required
+                                data-validate="contact"
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="text"
+                                label="Last Name"
+                                name="lastName"
+                                value={tpaData.lastName}
+                                required
+                                data-validate="contact"
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+
+                    <div class="slds-grid slds-gutters_small">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="tel"
+                                label="Phone"
+                                name="phone"
+                                value={tpaData.phone}
+                                placeholder="(555) 123-4567"
+                                maxlength="14"
+                                data-validate="contact"
+                                onchange={handleFieldChange}
+                                onfocus={handlePhoneFocus}
+                                onblur={handlePhoneBlur}
+                                onkeydown={handlePhoneKeyDown}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="email"
+                                label="Email"
+                                name="email"
+                                value={tpaData.email}
+                                required
+                                data-validate="contact"
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="slds-modal__footer">
+                    <lightning-button 
+                        label="Cancel" 
+                        onclick={handleCancel}>
+                    </lightning-button>
+                    <lightning-button 
+                        variant="brand" 
+                        label={saveButtonLabel}
+                        class="slds-m-left_x-small"
+                        onclick={handleSave}>
+                    </lightning-button>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

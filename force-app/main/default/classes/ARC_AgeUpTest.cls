@@ -229,4 +229,40 @@ private class ARC_AgeUpTest {
         System.assert(result.errorMessage.contains('Error calculating price'), 'Error message should be "Error calculating price"');
         System.assert(!result.success, 'The result should not have been successful');
     }
+
+    @isTest
+    static void mapPlanUserInputsBypassTest() {
+        Contract setupContract = [SELECT Id FROM Contract WHERE Status = 'Activated' ORDER BY CreatedDate DESC LIMIT 1];
+        
+        Ages_Up__c au = new Ages_Up__c();
+        au.Contract__c = setupContract.Id;
+        au.ARC_BypassContractEffectiveCheck__c = true; 
+        au.ARC_EffectiveDate__c = Date.Today().addMonths(-3); 
+        insert au;
+        
+        Ages_Up__c ageUpRecord = [
+            SELECT Id, Contract__c, ARC_BypassContractEffectiveCheck__c, 
+                   ARC_ManualDelay__c, ARC_EffectiveDate__c, 
+                   Contract__r.ARC_EffectiveDate__c
+            FROM Ages_Up__c 
+            WHERE ARC_BypassContractEffectiveCheck__c = true 
+            ORDER BY CreatedDate DESC
+            LIMIT 1
+        ];
+
+        vlocity_ins__ContractLineItem__c cli = [
+            SELECT vlocity_ins__UnitPrice__c 
+            FROM vlocity_ins__ContractLineItem__c
+            ORDER BY CreatedDate DESC 
+            LIMIT 1
+        ];
+        List<Ages_Up__c> ageUpList = new List<Ages_Up__c>{ ageUpRecord };
+        ARC_AgeUpPriceCalculationQueable job = new ARC_AgeUpPriceCalculationQueable(ageUpList);
+        
+        job.applyOnPlans = false; 
+
+        Test.startTest();
+            System.enqueueJob(job);
+        Test.stopTest(); 
+    }
 }

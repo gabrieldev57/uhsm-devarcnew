@@ -177,11 +177,7 @@ export default class arc_InsOsGridProductSelectionSugg extends insOsGridProductS
         omniscriptUtils.clearStateOnChange(this);
         const clickedProductId = e.detail;
         const selectedProduct = this.products.find(p => p.Id === clickedProductId);
-        console.log('selecteddProduct =>',JSON.parse(JSON.stringify(selectedProduct)));
-
         if (selectedProduct) {
-            console.log('Hay selected product');
-            console.log('selectedProduct.isSelected =>', selectedProduct.isSelected);
             selectedProduct.isSelected = !selectedProduct.isSelected;
             pubsub.fire(this.rootChannel, 'updateProduct', { product: selectedProduct });
         }
@@ -436,12 +432,10 @@ export default class arc_InsOsGridProductSelectionSugg extends insOsGridProductS
 
         }
 
-        console.log('this.initAction', this.initAction)
-        console.log('this.changePlan', this.changePlan)
+
 
         omniscriptUtils.omniGenericInvoke(this, this.initAction)
             .then(response => {
-                console.log('response', response)
                 const eligibleProductsResponse = JSON.parse(response);
                 this.totalNumProducts = eligibleProductsResponse.totalNumProducts;
                 if (this.totalNumProducts > 0) {
@@ -449,7 +443,6 @@ export default class arc_InsOsGridProductSelectionSugg extends insOsGridProductS
                     const batchOperations = productIdBatches.map(productIds => {
                         const batchDataMap = this.getRatedProductsDataMap(productIds);
                         return () => {
-                            console.log('batchDataMap', batchDataMap)
                             return omniscriptUtils.omniGenericInvoke(this, batchDataMap).then(res => {
                                 const response = JSON.parse(res);
                                 let records;
@@ -522,7 +515,6 @@ export default class arc_InsOsGridProductSelectionSugg extends insOsGridProductS
 
                             this.updateProductsInCart();
                             this.updateProducts();
-                            console.log('this.filteredProductsF =>', this.filteredProducts);
                             this.initAction.optionsMap.filters = this.getFilter();
                             this.isLoaded = true;
                         });
@@ -911,7 +903,6 @@ export default class arc_InsOsGridProductSelectionSugg extends insOsGridProductS
     }
 
     renderedCallback() {
-        
         const stepCartProductIds = this.omniJsonData[this.stepName]?.[this.lwcName]?.cartProductIds;
         if (stepCartProductIds?.length) {
             stepCartProductIds.forEach(prod => {

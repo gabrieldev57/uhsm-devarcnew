@@ -239,7 +239,6 @@ public without sharing class ARC_ContractTriggerHandler {
                     Date paymentDate = calculateInitialCommDate(contractsToCreateCommissions.get(commission.Contract__c));
                     ARC_Commission_Payment__c cp = new ARC_Commission_Payment__c(
                         Commission__c = commission.Id,
-                        // Agent__c = commission.ARC_Agent__c,
                         Amount__c = commission.ARC_InitialCommission__c,
                         ARC_PaymentDate__c = paymentDate,
                         Type__c = 'Initial',
@@ -348,7 +347,6 @@ public without sharing class ARC_ContractTriggerHandler {
                 if(cp.Type__c == 'Initial'){
                     ARC_Commission_Payment__c cpayment = new ARC_Commission_Payment__c();
                     cpayment.Amount__c = comm.ARC_InitialCommission__c - oldInitialAmount;
-                    // cpayment.Agent__c = comm.ARC_Agent__c;
                     cpayment.RecordTypeId = cp.RecordTypeId;
                     cpayment.Type__c = 'Adjustment';
                     cpayment.Commission__c = comm.Id;
@@ -373,7 +371,6 @@ public without sharing class ARC_ContractTriggerHandler {
         if(comm != null){
             ARC_Commission_Payment__c cpayment = new ARC_Commission_Payment__c();
             cpayment.Amount__c = comm.ARC_RecurringCommission__c;
-            // cpayment.Agent__c = comm.ARC_Agent__c;
             cpayment.RecordTypeId = rtCommPaymentAccExecutive;
             cpayment.Type__c = 'Recurring';
             cpayment.Commission__c = comm.Id;
@@ -409,11 +406,10 @@ public without sharing class ARC_ContractTriggerHandler {
     }
 
     /*******************************************************************
-    * @MethodName         :   getTransactionsFromPC
+    * @MethodName         :   calculateInitialCommDate
     * @Description        :   Returns the Commission Payment date based on the Contract Effective Date and Contract Awaiting Activation Date. 
     ********************************************************************/
     public static Date calculateInitialCommDate(Contract cont){
-        //Calculate Commission Payment Date
         if(cont.ARC_AwaitingActivationDate__c != null && (cont.ARC_AwaitingActivationDate__c.date() > cont.ARC_EffectiveDate__c)){
             if(cont.ARC_AwaitingActivationDate__c.date().day() == 1 ) return Date.newInstance(cont.ARC_AwaitingActivationDate__c.date().year(),cont.ARC_AwaitingActivationDate__c.date().month(), 15);
             else return Date.newInstance(cont.ARC_AwaitingActivationDate__c.date().year(),cont.ARC_AwaitingActivationDate__c.date().month(), 15).addMonths(1);
@@ -422,5 +418,268 @@ public without sharing class ARC_ContractTriggerHandler {
             if(cont.ARC_EffectiveDate__c.day() == 1 ) return Date.newInstance(cont.ARC_EffectiveDate__c.year(),cont.ARC_EffectiveDate__c.month(), 15);
             else return Date.newInstance(cont.ARC_EffectiveDate__c.year(),cont.ARC_EffectiveDate__c.month(), 15).addMonths(1);
         }
+    }
+
+    /*********************************************************************************************************
+     * @name            updateAggregators
+     * @description     When a Contract gets voided, this method verifies if the Participant Aggregators are pointing to a Terminated/Activated policy
+     *                  and if they do, relocates the Aggregators to the closest future Terminated/Activated Policy from its Participant Aggregators,
+     *                  otherwise, the ARC_IsInactive__c field is checked.
+     * @param           newVoidedContractMap
+     *********************************************************************************************************/
+    public static void updateAggregators(Map<Id,Contract> newVoidedContractMap){
+        Map<Id, InsurancePolicy> mapPolicies;
+        List<ARC_Aggregator__c> aggregatorsList = new List<ARC_Aggregator__c>();
+        Map<Id, List<Map<String, String>>> mapFamilyAggregators = new Map<Id, List<Map<String, String>>>();
+        List<ARC_Aggregator__c> aggregatorsToUpdate = new List<ARC_Aggregator__c>();
+        Set<Id> familyAggregatorsIds = new Set<Id>();
+
+        mapPolicies = new Map<Id, InsurancePolicy>([SELECT Id FROM InsurancePolicy WHERE ARC_Contract__c = :newVoidedContractMap.keySet()]);
+
+        aggregatorsList = [SELECT Id, Name, RecordType.Name, ARC_FamilyAggregator__c, ARC_FamilyAggregator__r.ARC_CreatedIn__c, ARC_FamilyAggregator__r.ARC_CreatedIn__r.ARC_Contract__r.ARC_EffectiveDate__c, ARC_FamilyAggregator__r.ARC_CreatedIn__r.ARC_Contract__r.CreatedDate,
+                                (SELECT Id, Name, ARC_PolicyParticipant__r.InsurancePolicyId, ARC_PolicyParticipant__r.InsurancePolicy.ARC_Contract__r.Status, ARC_PolicyParticipant__r.InsurancePolicy.ARC_Contract__r.ARC_EffectiveDate__c, ARC_PolicyParticipant__r.InsurancePolicy.ARC_Contract__r.CreatedDate
+                                FROM Participant_Aggregators__r
+                                WHERE ARC_PolicyParticipant__r.InsurancePolicy.ARC_Contract__r.Status = 'Activated' OR ARC_PolicyParticipant__r.InsurancePolicy.ARC_Contract__r.Status = 'Terminated'
+                                ORDER BY ARC_PolicyParticipant__r.InsurancePolicy.ARC_Contract__r.ARC_EffectiveDate__c)
+                           FROM ARC_Aggregator__c
+                           WHERE ARC_CreatedIn__c IN :mapPolicies.keySet()];
+        
+        for (ARC_Aggregator__c aggregatorTemp : aggregatorsList) {
+            if (aggregatorTemp.RecordType.Name == 'Family') {
+                familyAggregatorsIds.add(aggregatorTemp.Id);
+            } else if (aggregatorTemp.Participant_Aggregators__r.isEmpty()) {
+                aggregatorTemp.ARC_IsInactive__c = true;
+                aggregatorsToUpdate.add(aggregatorTemp);
+            } else {
+                Id closestPolicyId;
+                Id closestContractId;
+                Date closestEffectiveDate = Date.today();
+                Datetime closestCreatedDate = Date.today();
+
+                Map<Id, Map<String, String>> mapContractDates = new Map<Id, Map<String, String>>();
+                for (ARC_ParticipantAggregator__c participantAggregatorTemp : aggregatorTemp.Participant_Aggregators__r) {
+                    mapContractDates.put(participantAggregatorTemp.ARC_PolicyParticipant__r.InsurancePolicy.ARC_Contract__c, new Map<String, String> {
+                        'ARC_EffectiveDate__c' => String.valueOf(participantAggregatorTemp.ARC_PolicyParticipant__r.InsurancePolicy.ARC_Contract__r.ARC_EffectiveDate__c),
+                        'CreatedDate' => String.valueOf(participantAggregatorTemp.ARC_PolicyParticipant__r.InsurancePolicy.ARC_Contract__r.CreatedDate),
+                        'InsurancePolicyId' => String.valueOf(participantAggregatorTemp.ARC_PolicyParticipant__r.InsurancePolicyId)
+                    });
+                }
+
+                for (Id contractIdTemp : mapContractDates.keySet()) {
+                    if (closestPolicyId == null) {
+                        closestContractId = contractIdTemp;
+                        closestPolicyId = mapContractDates.get(contractIdTemp).get('InsurancePolicyId');
+                        closestEffectiveDate = Date.valueOf(mapContractDates.get(contractIdTemp).get('ARC_EffectiveDate__c'));
+                        closestCreatedDate = Datetime.valueOf(mapContractDates.get(contractIdTemp).get('CreatedDate'));
+                    } else {
+                        Date currentEffectiveDate = Date.valueOf(mapContractDates.get(contractIdTemp).get('ARC_EffectiveDate__c'));
+                        if (currentEffectiveDate <= closestEffectiveDate) {
+                            if (currentEffectiveDate == closestEffectiveDate) {
+                                if (Datetime.valueOf(mapContractDates.get(contractIdTemp).get('CreatedDate')) < Datetime.valueOf(mapContractDates.get(closestContractId).get('CreatedDate'))) {
+                                    closestPolicyId = mapContractDates.get(contractIdTemp).get('InsurancePolicyId');
+                                    closestContractId = contractIdTemp;
+                                    closestEffectiveDate = Date.valueOf(mapContractDates.get(contractIdTemp).get('ARC_EffectiveDate__c'));
+                                    closestCreatedDate = Datetime.valueOf(mapContractDates.get(contractIdTemp).get('CreatedDate'));
+                                }
+                            } else {
+                                closestPolicyId = mapContractDates.get(contractIdTemp).get('InsurancePolicyId');
+                                closestContractId = contractIdTemp;
+                                closestEffectiveDate = Date.valueOf(mapContractDates.get(contractIdTemp).get('ARC_EffectiveDate__c'));
+                                closestCreatedDate = Datetime.valueOf(mapContractDates.get(contractIdTemp).get('CreatedDate'));
+                            }
+                        }
+                    }
+                }
+
+                if (aggregatorTemp.ARC_FamilyAggregator__c != null) {
+                    if (mapFamilyAggregators.containsKey(aggregatorTemp.ARC_FamilyAggregator__c)) {
+                        List<Map<String, String>> childAggregators = mapFamilyAggregators.get(aggregatorTemp.ARC_FamilyAggregator__c);
+                        childAggregators.add(new Map<String, String> {
+                            'ARC_EffectiveDate__c' => String.valueOf(closestEffectiveDate),
+                            'CreatedDate' => String.valueOf(closestCreatedDate),
+                            'InsurancePolicyId' => String.valueOf(closestPolicyId)
+                        });
+                        mapFamilyAggregators.put(aggregatorTemp.ARC_FamilyAggregator__c, childAggregators);
+                    } else {
+                        mapFamilyAggregators.put(aggregatorTemp.ARC_FamilyAggregator__c, new List<Map<String, String>> {
+                            new Map<String, String> {
+                                'ARC_EffectiveDate__c' => String.valueOf(closestEffectiveDate),
+                                'CreatedDate' => String.valueOf(closestCreatedDate),
+                                'InsurancePolicyId' => String.valueOf(closestPolicyId)
+                            }
+                        });
+                    }
+                } 
+
+                aggregatorTemp.ARC_CreatedIn__c = closestPolicyId;
+                aggregatorsToUpdate.add(aggregatorTemp);
+            }
+        }
+
+        for (Id aggregatorIdTemp : familyAggregatorsIds) {
+            Id closestPolicyId;
+            Date closestEffectiveDate = Date.today();
+            Datetime closestCreatedDate = Date.today();
+            ARC_Aggregator__c familyAggregator = new ARC_Aggregator__c(Id = aggregatorIdTemp);
+
+            if (!mapFamilyAggregators.containsKey(aggregatorIdTemp)) {
+                familyAggregator.ARC_IsInactive__c = true;
+            } else {
+                for (Map<String, String> mapFamilyAggregatorTemp : mapFamilyAggregators.get(aggregatorIdTemp)) {
+                    if (closestPolicyId == null) {
+                        closestPolicyId = mapFamilyAggregatorTemp.get('InsurancePolicyId');
+                        closestEffectiveDate = Date.valueOf(mapFamilyAggregatorTemp.get('ARC_EffectiveDate__c'));
+                        closestCreatedDate = Datetime.valueOf(mapFamilyAggregatorTemp.get('CreatedDate'));
+                    } else {
+                        Date currentEffectiveDate = Date.valueOf(mapFamilyAggregatorTemp.get('ARC_EffectiveDate__c'));
+                        if (currentEffectiveDate <= closestEffectiveDate) {
+                            if (currentEffectiveDate == closestEffectiveDate) {
+                                if (Datetime.valueOf(mapFamilyAggregatorTemp.get('CreatedDate')) < closestCreatedDate) {
+                                    closestPolicyId = mapFamilyAggregatorTemp.get('InsurancePolicyId');
+                                    closestEffectiveDate = Date.valueOf(mapFamilyAggregatorTemp.get('ARC_EffectiveDate__c'));
+                                    closestCreatedDate = Datetime.valueOf(mapFamilyAggregatorTemp.get('CreatedDate'));
+                                }
+                            } else {
+                                closestPolicyId = mapFamilyAggregatorTemp.get('InsurancePolicyId');
+                                closestEffectiveDate = Date.valueOf(mapFamilyAggregatorTemp.get('ARC_EffectiveDate__c'));
+                                closestCreatedDate = Datetime.valueOf(mapFamilyAggregatorTemp.get('CreatedDate'));
+                            }
+                        }
+                    }
+                }
+                familyAggregator.ARC_CreatedIn__c = closestPolicyId;
+            }
+            aggregatorsToUpdate.add(familyAggregator);
+        }
+
+        if (!aggregatorsToUpdate.isEmpty()) update aggregatorsToUpdate;
+    }
+
+    /************************************************************************************************************
+     * @name            reactivateAggregators
+     * @description     When a Voided Contract gets Terminated or Activated, this method unchecks the ARC_IsInactive__c fields 
+     *                  of the Aggregators its Participant Aggregators point to.
+     * @param           reactivatedVoidedContractMap
+     *********************************************************************************************************/
+    public static void reactivateAggregators(Map<Id,Contract> reactivatedVoidedContractMap) {
+        List<ARC_ParticipantAggregator__c> participantAggregatorsList = new List<ARC_ParticipantAggregator__c>();
+        Map<Id, ARC_Aggregator__c> aggregatorsToUpdate = new Map<Id, ARC_Aggregator__c>();
+
+        participantAggregatorsList = [
+            SELECT Id, Name, ARC_Aggregator__c, ARC_Aggregator__r.ARC_FamilyAggregator__c, ARC_Aggregator__r.ARC_FamilyAggregator__r.ARC_IsInactive__c
+            FROM ARC_ParticipantAggregator__c
+            WHERE ARC_Policy__r.ARC_Contract__c IN :reactivatedVoidedContractMap.keySet()
+                AND ARC_Aggregator__r.ARC_IsInactive__c = true
+                AND (NOT (ARC_Aggregator__r.ARC_Year__c != null AND ARC_Aggregator__r.ARC_Code__c IN ('PREEX__c', 'MAT__c')))
+        ];
+        for (ARC_ParticipantAggregator__c partAgg : participantAggregatorsList) {
+            if (!aggregatorsToUpdate.containsKey(partAgg.ARC_Aggregator__c)) {
+                aggregatorsToUpdate.put(partAgg.ARC_Aggregator__c, new ARC_Aggregator__c(Id = partAgg.ARC_Aggregator__c, ARC_IsInactive__c = false));
+            }
+            if (
+                partAgg.ARC_Aggregator__r.ARC_FamilyAggregator__c != null 
+                && partAgg.ARC_Aggregator__r.ARC_FamilyAggregator__r.ARC_IsInactive__c 
+                && !aggregatorsToUpdate.containsKey(partAgg.ARC_Aggregator__r.ARC_FamilyAggregator__c)
+            ) {
+                aggregatorsToUpdate.put(partAgg.ARC_Aggregator__r.ARC_FamilyAggregator__c, new ARC_Aggregator__c(Id = partAgg.ARC_Aggregator__r.ARC_FamilyAggregator__c, ARC_IsInactive__c = false));
+            }
+        }
+
+        if (!aggregatorsToUpdate.isEmpty()) update aggregatorsToUpdate.values();
+    }
+
+    // Recursion prevention
+    private static Boolean billingAutomationExecuted = false;
+    
+    /************************************************************************************************************
+     * @name            updateNextInvoiceAnchor
+     * @description     Updates ARC_NextInvoiceCoverageStart__c for pre-invoice contracts when effective date changes.
+     *                  Must run in before context to avoid DML operations.
+     * @param           newContracts   - List of new/updated contracts
+     * @param           oldContractMap - Map of old contract versions (null for insert)
+     * @developer       lucas.benero@arcsona.com
+     * @date            2026-01-26
+     *********************************************************************************************************/
+    public static void updateNextInvoiceAnchor(List<Contract> newContracts, Map<Id, Contract> oldContractMap) {
+        if (newContracts == null || newContracts.isEmpty()) return;
+        
+        Id smallGroupRTId = Schema.SObjectType.Contract.getRecordTypeInfosByDeveloperName().get('ARC_SmallGroup').getRecordTypeId();
+        Boolean isInsert = (oldContractMap == null);
+        
+        for (Contract newContract : newContracts) {
+            if (newContract.RecordTypeId != smallGroupRTId) continue;
+            if (newContract.ARC_CoveragePaidThrough__c != null) continue;
+            
+            Boolean effectiveDateChanged = false;
+            if (isInsert && newContract.ARC_EffectiveDate__c != null) {
+                effectiveDateChanged = true;
+            } else if (!isInsert) {
+                Contract oldContract = oldContractMap.get(newContract.Id);
+                if (newContract.ARC_EffectiveDate__c != oldContract.ARC_EffectiveDate__c) {
+                    effectiveDateChanged = true;
+                }
+            }
+            
+            if (effectiveDateChanged) {
+                newContract.ARC_NextInvoiceCoverageStart__c = newContract.ARC_EffectiveDate__c;
+            }
+        }
+    }
+    
+    /************************************************************************************************************
+     * @name            processBillingAutomation
+     * @description     Evaluates contract changes and invokes billing service for qualified contracts.
+     *                  Uses bulk methods to avoid hitting SOQL governor limits when multiple contracts
+     *                  are updated in the same transaction.
+     * @param           newContracts   - List of new/updated contracts
+     * @param           oldContractMap - Map of old contract versions (null for insert)
+     * @developer       lucas.benero@arcsona.com
+     * @date            2026-01-26
+     *********************************************************************************************************/
+    public static void processBillingAutomation(List<Contract> newContracts, Map<Id, Contract> oldContractMap) {
+        if (billingAutomationExecuted) return;
+        billingAutomationExecuted = true;
+        
+        if (newContracts == null || newContracts.isEmpty()) {
+            billingAutomationExecuted = false;
+            return;
+        }
+        
+        Id smallGroupRTId = Schema.SObjectType.Contract.getRecordTypeInfosByDeveloperName().get('ARC_SmallGroup').getRecordTypeId();
+        Boolean isInsert = (oldContractMap == null);
+        
+        Set<Id> qualifiedContractIds = new Set<Id>();
+        
+        for (Contract newContract : newContracts) {
+            if (newContract.RecordTypeId != smallGroupRTId) continue;
+            
+            Boolean isQualified = false;
+            
+            if (isInsert) {
+                isQualified = true;
+            } else {
+                Contract oldContract = oldContractMap.get(newContract.Id);
+                if (newContract.ARC_EffectiveDate__c != oldContract.ARC_EffectiveDate__c ||
+                    newContract.ARC_Inactive_Date__c != oldContract.ARC_Inactive_Date__c ||
+                    newContract.ARC_PaymentFrequency__c != oldContract.ARC_PaymentFrequency__c) {
+                    isQualified = true;
+                }
+            }
+            
+            if (isQualified) qualifiedContractIds.add(newContract.Id);
+        }
+        
+        if (qualifiedContractIds.isEmpty()) {
+            billingAutomationExecuted = false;
+            return;
+        }
+        
+        // Step 1: Evaluate eligibility for all contracts — BULK (single set of queries)
+        ARC_ContractBillingService.evaluatePolicyEligibilityForContracts(qualifiedContractIds);
+        
+        // Step 2: Recalculate next bill amount for all contracts — BULK (single set of queries)
+        ARC_ContractBillingService.recalculateNextBillAmount(qualifiedContractIds);
+        
+        billingAutomationExecuted = false;
     }
 }

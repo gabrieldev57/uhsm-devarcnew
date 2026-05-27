@@ -4,13 +4,34 @@
 * @MethodName         :   onBefore,onAfter,findContractForCase,findCensusMemberForContract,copyContentDocumentLink,shareFilesWithinPersonAccountAndCensusMember
 ********************************************************************/
 
-public with sharing class ARC_CopyContentDocumentTriggerHandler {
+public without sharing class ARC_CopyContentDocumentTriggerHandler {
 
     /*******************************************************************
     * @MethodName         :   onBefore
     * @Description        :   Its called before the content document link is created. 
     ********************************************************************/
     public static void onBefore(List<ContentDocumentLink> cdList) {
+
+        List<String> excludedProfiles = new List<String>{
+        'Employer Portal Profile',
+        'Employer Admin',
+        'Employer Viewer'
+    };
+    
+    List<Profile> profilesToSkip = [SELECT Id FROM Profile WHERE Name IN :excludedProfiles];
+    Set<Id> profileIdsToSkip = new Map<Id, Profile>(profilesToSkip).keySet();
+    
+    if(profileIdsToSkip.contains(UserInfo.getProfileId())){
+        System.debug('Skipping ARC_ContentDocumentLinkHandler for profile: ' + UserInfo.getProfileId());
+        return;
+    }
+
+        // Profile profile = [SELECT Id FROM Profile WHERE Name = 'Employer Portal Profile' LIMIT 1];
+        // Boolean isEmployerPortalUser = false;
+        // if(UserInfo.getProfileId() == profile.Id){
+        //     return;
+        // }
+
         Set<Id> contentDocumentIds = new Set<Id>();
         String objectLinkedEntityId;
         Boolean isCase = false;
@@ -18,9 +39,12 @@ public with sharing class ARC_CopyContentDocumentTriggerHandler {
         Boolean isContract = false;
         List<ContentDocumentLink> cdListfromCMAndPA = new List<ContentDocumentLink>();
 
+
         for(ContentDocumentLink cd : cdList){
+            cd.Visibility = 'AllUsers';
             contentDocumentIds.add(cd.ContentDocumentId);
             objectLinkedEntityId = cd.LinkedEntityId;
+            
             Schema.SObjectType sObjType = cd.LinkedEntityId?.getSobjectType();
             if(sObjType?.getDescribe().getName() == 'Case'){
                 isCase = true;
@@ -30,6 +54,7 @@ public with sharing class ARC_CopyContentDocumentTriggerHandler {
                 isContract = true;
             } 
         }
+        // :D 
         
         if(isTask){ 
             Task taskFound = [SELECT Id, WhatId FROM Task WHERE Id = :objectLinkedEntityId];

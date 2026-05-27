@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-<apiVersion>51.0</apiVersion>
-<runtimeNamespace>vlocity_ins</runtimeNamespace>
-<isExposed>true</isExposed>
-<masterLabel>cfARC_PersonAccountConsoleOrderInfo360_5_UHSM</masterLabel>
-</LightningComponentBundle>
+  <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>56</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>cfARC_PersonAccountConsoleOrderInfo360_5_UHSM</masterLabel>
+    <runtimeNamespace>vlocity_ins</runtimeNamespace>
+    </LightningComponentBundle>

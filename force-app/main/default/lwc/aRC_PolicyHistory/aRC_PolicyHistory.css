@@ -1,0 +1,116 @@
+.policy-wrapper {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #dfdfdf;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: white;
+    margin-top: 15px;
+    position: relative;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.add-button {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid #0176d3;
+    background-color: white;
+    color: #0176d3;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.add-button:hover {
+    background-color: #f3f3f3;
+}
+
+.button-icon {
+    --sds-c-icon-color-foreground-default: #0176d3;
+}
+
+.error-text {
+    color: red;
+    margin-top: 1rem;
+}
+
+/* Make header bold and slightly larger */
+.custom-title {
+    font-weight: 600;
+    font-size: 18px;
+     font-family: Aktiv Grotesk Ex;
+}
+
+
+.small-button {
+    /* Yellow background */
+    --slds-c-button-color-background: #F5BE27;
+    --slds-c-button-color-border: #F5BE27;
+
+    /* White text */
+    --slds-c-button-text-color: #FFFFFF;
+
+    /* Hover state */
+    --slds-c-button-color-background-hover: #e0a91f;
+    --slds-c-button-color-border-hover: #e0a91f;
+    --slds-c-button-text-color-hover: #FFFFFF;
+
+    /* Icon color */
+    --slds-c-icon-color-foreground-default: #FFFFFF;
+
+    /* Keep size */
+    --slds-c-button-spacing-block-start: 0.2rem;
+    --slds-c-button-spacing-block-end: 0.2rem;
+    --slds-c-button-font-size: 0.75rem;
+
+    border-radius: 5px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.page-info {
+    font-weight: 500;
+}
+
+.export-style-button {
+    background: #F5BE27;
+    padding: 6.4px 12.8px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+}
+
+.export-style-button:hover {
+    background: #e0a91f;
+}
+
+.export-icon {
+    --sds-c-icon-color-foreground-default: white;
+    margin-right: 6px;
+}

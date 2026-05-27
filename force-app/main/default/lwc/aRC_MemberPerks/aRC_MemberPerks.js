@@ -66,10 +66,6 @@ export default class ARC_MemberPerks extends LightningElement {
             title: 'rightnow media',
             text: '<p><b><a href="https://www.weshare.org/community/rightnow-media/">rightnow media</a></b> has the world’s largest customizable library of biblical video resources. Authentic videos for everyone, including, family, children, teams, and professionals to equip and inspire people beyond Sunday. <b><a href="https://app.rightnowmedia.org/en/join/UHSM/">Sign up!</a></b></p>',
         },
-        {
-            title: 'Active&Fit',
-            text: '<p>Break a sweat without breaking the bank<sup>TM</sup>! With <b><a href="https://www.activeandfitdirect.com">Active&Fit Direct</a></b>, you can find your perfect gym for just $28/mo. with 12,700+ facility options nationwide, including 24 Hour Fitness®, EōS Fitness®, Crunch Fitness®, Blink Fitness®, Anytime Fitness®, Chuze Fitness®, and more. Enroll online in minutes, with no long-term contracts or annual fees. Plus, 1:1 well-being coaching is included in your membership. By creating an account, you also Get Fit at Home<sup>TM</sup> for free with 12,000+ on-demand workout videos. <b><a href="https://www.activeandfitdirect.com/fitness/AF791633UH">Get started!</a></b></p>',
-        },
    
     ];
 

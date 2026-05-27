@@ -27,18 +27,14 @@ public with sharing class  ARC_SOManager {
     // Input and Control Variables
     public Map<String, Object> soReasons;  // Stores the reasons for program changes
     public Map<String,Object> inputMap;    // Stores the input data
-    public List<String> ActionsSelected = new List<String>();  // Tracks selected actions
     public Set<String> actionsToPerform = new Set<String>();
+     public List<String> ActionsSelected = new List<String>();  // Tracks selected actions
     
     // Account Related Variables
     public Map<Integer,Account> groupAccountsToInsertMap = new Map<Integer,Account>();
     public Map<Integer,List<Account>> personAccountsToInsertMap = new Map<Integer,List<Account>>();
     public Map<String,Account> fictionalMemberIdToPersonAccount = new Map<String,Account>();
-    // public List<Account> accountsToInsert = new List<Account>();  // NOT USED in SO implementation
     public List<Account> guardiansToInsert = new List<Account>();
-    public Id guardianInserted;
-    // public List<Account> physicianAccountToUpdate = new List<Account>(); // NOT USED in SO implementation
-    public Map<Id, Account> censusMemberToAccount = new Map<Id, Account>();
     public Map<Id,Id> accountIdToMemberId = new Map<Id,Id>();
     public Map<Map<String,Object>,List<Map<String,Object>>> spinnedCensusMembersGroupedByPrimary = new Map<Map<String,Object>,List<Map<String,Object>>>();
     
@@ -47,20 +43,14 @@ public with sharing class  ARC_SOManager {
     
 
     //Census Groups to create
-    public List<vlocity_ins__GroupCensus__c> groupCensusToInsert = new List<vlocity_ins__GroupCensus__c>();
     public Map<vlocity_ins__GroupCensus__c,List<String>> groupCensusToFictionalId = new Map<vlocity_ins__GroupCensus__c,List<String>>();
-    public Map<Integer,vlocity_ins__GroupCensus__c> groupCensusToInsertMap = new Map<Integer,vlocity_ins__GroupCensus__c>();
-    public Map<String,vlocity_ins__GroupCensus__c> groupCensusByTemporalId = new Map<String,vlocity_ins__GroupCensus__c>();//change to maps
     
     // Group Census Member Related Variables
     public Map<Integer,List<vlocity_ins__GroupCensusMember__c>> groupCensusMembersToInsertMap = new Map<Integer,List<vlocity_ins__GroupCensusMember__c>>();
     public List<vlocity_ins__GroupCensusMember__c> censusMembersToInsert = new List<vlocity_ins__GroupCensusMember__c>();
-    public Map<String,vlocity_ins__GroupCensusMember__c> censusMemberByTemporalId = new Map<String,vlocity_ins__GroupCensusMember__c>();
-    public Map<String,vlocity_ins__GroupCensusMember__c> temporalIdToCensusMembers = new Map<String,vlocity_ins__GroupCensusMember__c>();
     public vlocity_ins__GroupCensusMember__c primaryCensusMemberWithId = new vlocity_ins__GroupCensusMember__c();
     public Map<String,vlocity_ins__GroupCensusMember__c> fictionalMemberIdToGCM = new Map<String,vlocity_ins__GroupCensusMember__c>();
     public Map<String,vlocity_ins__GroupCensusMember__c> fictionalMemberIdToGCMListToUpsert = new Map<String,vlocity_ins__GroupCensusMember__c>();
-    // public List<vlocity_ins__GroupCensusMember__c> physicianGCMToUpdate = new List<vlocity_ins__GroupCensusMember__c>(); // NOT USED in SO implementation
     
     // Contract Related Variables
     public Map<Integer, Contract> contractsToInsertMap = new Map<Integer, Contract>();
@@ -68,21 +58,14 @@ public with sharing class  ARC_SOManager {
     public Contract removeMemberContract;
     public Contract singleSpinOffContract;
     public List<Contract> contractsToVoid = new List<Contract>();
-    // public List<Contract> contractsToInsert = new List<Contract>(); // NOT USED in SO implementation
-    // public List<Contract> contractsToUpdate = new List<Contract>(); // NOT USED in SO implementation
-    // public Id newContractId; // NOT USED in SO implementation
     
     // Contract Line Item Related Variables 
     public Map<Integer,Map<Integer, vlocity_ins__ContractLineItem__c>> indexToParentCLI = new Map<Integer, Map<Integer, vlocity_ins__ContractLineItem__c>>();
     public Map<Integer, Map<Integer, List<vlocity_ins__ContractLineItem__c>>> indexToChildCLI = new Map<Integer, Map<Integer, List<vlocity_ins__ContractLineItem__c>>>();
     public Map<Integer, Map<Integer, List<String>>> indexToCLIGCM = new Map<Integer, Map<Integer, List<String>>>();
-    public Map<String, List<vlocity_ins__ContractLineItem__c>> CMIdToCLI = new Map<String, List<vlocity_ins__ContractLineItem__c>>();
     
-    // Group Census Member Plan Related Variables
-    public Map<String, List<vlocity_ins__GroupCensusMemberPlan__c>> fictionalMemberIdToGCMP = new Map<String, List<vlocity_ins__GroupCensusMemberPlan__c>>();
-
+    
     // Contract Participant Related Variables
-    public List<ARC_ContractParticipant__c> contractParticipantsToInsert = new List<ARC_ContractParticipant__c>();
     public Map<String, ARC_ContractParticipant__c> fictionalMemberIdToContractParticipant = new Map<String, ARC_ContractParticipant__c>();
     
     // Case Related Variables
@@ -110,20 +93,26 @@ public with sharing class  ARC_SOManager {
     public Map<String, ARC_HipaaAuthorization__c> fakeIdToHipaaAuth = new Map<String, ARC_HipaaAuthorization__c>();
     
     // Chargent Order Related Variables
-    // public List<ChargentOrders__ChargentOrder__c> chargentOrdersChangeFee = new List<ChargentOrders__ChargentOrder__c>(); // NOT USED in SO implementation
-    // public List<ChargentOrders__ChargentOrder__c> chargentOrdersRecurringOrder = new List<ChargentOrders__ChargentOrder__c>(); // NOT USED in SO implementation
     public Map<String,ChargentOrders__ChargentOrder__c> chargentOrdersToInsertMap = new Map<String,ChargentOrders__ChargentOrder__c>();
     
     // Promotion Discount Related Variables
      public List<ARC_PromotionDiscount__c> promotionDiscountToInsert = new List<ARC_PromotionDiscount__c>(); // NOT USED in SO implementation
     
     // Data Mapping and Processing Variables
-    public List<Map<String,Object>> censusMembersInSOContract = new List<Map<String,Object>>();
-    //public Map<String, Map<String,Object>> physicianNewMemberDataToUpdate = new Map<String, Map<String,Object>>(); // NOT USED in SO implementation
     public Map<Integer, List<Map<String,Object>>> censusMembersMap = new Map<Integer, List<Map<String,Object>>>();
     public List<Map<String,Object>> censusMembersInSpinOffContract = new List<Map<String,Object>>();
     public List<Map<String,Object>> censusMembersRemoveContract = new List<Map<String,Object>>();
     public List<Map<String, String>> spinOffmembersIds = new List<Map<String, String>>();
+
+    // Beneficiaries related variables
+    public Map<String,Object> contactOrFakeIdToBeneficiaries = new Map<String,Object>();
+    public Map<String,Object> contactOrFakeIdToBeneficiariesRC = new Map<String,Object>();
+
+    // Ancillary discount related variables
+    // Key: memberId → { 'SMART' → ProductId, 'AIDD' → ProductId }
+    public Map<String, Map<String, String>> memberIdToCriticalCareBundle = new Map<String, Map<String, String>>();
+    // Key: memberId → { 'SMART' → GCMPId, 'AIDD' → GCMPId }
+    public Map<String, Map<String, Id>> memberIdToBundleGcmpIds = new Map<String, Map<String, Id>>();
 
     /**
      * @Description: Main execution method that coordinates the entire single Spin Off process

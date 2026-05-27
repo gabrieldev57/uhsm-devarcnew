@@ -1,0 +1,46 @@
+.dynamic-form-container{
+        display: flex;
+    flex-direction: column;
+    border: 2px solid #dfdfdf;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: white;
+    margin-top: 15px;
+    position: relative;
+}
+.slds-notify {
+        font-size: 15px;
+    padding: 5px;
+    text-align: center;
+}
+.header{
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 0.75rem;
+    font-family: Aktiv Grotesk Ex;
+}
+
+.edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background-color: #ffffff;
+    color: #2b2b2b;
+    border: 1px solid #d1d1d1;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.edit-btn:hover {
+    background-color: #f3f4f6;
+    border-color: #adadad;
+}
+.buttons-container{
+    justify-content: flex-end;
+    display: flex;
+    gap: 8px;
+}

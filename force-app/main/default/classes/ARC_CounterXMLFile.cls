@@ -3,11 +3,6 @@ public without sharing class ARC_CounterXMLFile {
         String printString = '';
         ARC_XMLCounter__c xmlCounter = ARC_XMLCounter__c.getInstance('ZelisXML');
         // List<String> counterArray = new List <String>{'00','00'};
-        if (Test.isRunningTest()) {
-            xmlCounter = new ARC_XMLCounter__c();
-            xmlCounter.ARC_Date__c = Date.today();
-            xmlCounter.ARC_Counter__c = '00.00';
-        }
         System.debug('xmlCounter.ARC_Date__c: '+ xmlCounter.ARC_Date__c);
         System.debug('Today: '+ Date.today());
         if(xmlCounter.ARC_Date__c == Date.today()){
@@ -59,10 +54,7 @@ public without sharing class ARC_CounterXMLFile {
             printString='00';
         }
         System.debug(printString);
-
-        if (Test.isRunningTest() == false) {
-            update xmlCounter;
-        }
+        update xmlCounter;
 
     return printString;
     }

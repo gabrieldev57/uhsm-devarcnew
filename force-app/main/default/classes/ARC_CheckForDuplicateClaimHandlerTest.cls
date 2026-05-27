@@ -3,7 +3,7 @@ public with sharing class ARC_CheckForDuplicateClaimHandlerTest {
 
     @isTest
     public static void CheckForDuplicateClaimTest() {
-        InsurancePolicy testPolicy = ARC_TestUtility.createTestPolicies(1)[0];
+        InsurancePolicy testPolicy = ARC_TestUtility.createTestPolicies(1, 'ARC_IndividualAndFamily')[0];
         vlocity_ins__GroupCensusMember__c member = ARC_TestUtility.createTestCensusMember(1)[0];
         Contact cont = ARC_TestUtility.createTestContact(1, 'Contact')[0];
         Claim claim1 = new Claim(Name = 'TestClaim1');

@@ -1,0 +1,42 @@
+<template>
+    <lightning-card>
+        <div class="slds-p-horizontal_medium">
+            <div class="header-section slds-m-bottom_medium">
+                <h2 class="slds-text-heading_medium slds-font-weight_bold" style="color:#080707; font-weight: 500;">
+                    Opportunity Progress
+                </h2>
+                <p class="slds-text-body_regular slds-text-color_weak">
+                    Negotiation & Review Stage
+                </p>
+            </div>
+
+            <div class="progress-container">
+                <template for:each={steps} for:item="step">
+                    <div key={step.id} class={step.wrapperClass}>
+                        
+                        <div class="visual-column">
+                            <div class={step.bubbleClass}>
+                                <template if:true={step.iconName}>
+                                    <lightning-icon icon-name={step.iconName} size="xx-small" variant="inverse"></lightning-icon>
+                                </template>
+                                <template if:false={step.iconName}>
+                                    <div class="inner-dot"></div>
+                                </template>
+                            </div>
+                            <div class="vertical-line"></div>
+                        </div>
+
+                        <div class="text-column">
+                            <span class={step.textClass}>{step.label}</span>
+                        </div>
+
+                        <div class="badge-column">
+                            <span class={step.badgeClass}>{step.statusLabel}</span>
+                        </div>
+
+                    </div>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+</template>

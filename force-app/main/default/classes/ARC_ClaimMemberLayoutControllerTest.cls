@@ -5,7 +5,7 @@ public with sharing class ARC_ClaimMemberLayoutControllerTest {
     public static void testMethods() {
         vlocity_ins__GroupCensusMember__c cm = ARC_TestUtility.createTestCensusMember(1)[0];
         Claim clm = ARC_TestUtility.createTestClaims(1)[0];
-        InsurancePolicy pol = ARC_TestUtility.createTestPolicies(1)[0];
+        InsurancePolicy pol = ARC_TestUtility.createTestPolicies(1, 'ARC_IndividualAndFamily')[0];
         Contract cont = ARC_TestUtility.createContractsAA(1)[0];
         InsurancePolicyParticipant polPart = ARC_TestUtility.createTestPolicyParticipant(1)[0];
         Contact con = ARC_TestUtility.createTestContact(1, 'Contact')[0];

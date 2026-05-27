@@ -1,0 +1,110 @@
+.container {
+    margin-bottom: 1.5rem;
+    background-color: #ffffff;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.header {
+    font-weight: bold;
+    font-size: 18px;
+    font-family: Aktiv Grotesk Ex;
+}
+.header-container{
+    align-items: center;
+}
+
+.edit-payment-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.85rem;
+    background-color: #ffffff;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #514f4d;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.edit-payment-button:hover {
+    background-color: #f3f3f3;
+    border-color: #c9c7c5;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.edit-btn-icon {
+    --lwc-colorTextIconDefault: #514f4d;
+}
+
+.form-row-container {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-row-item {
+    flex: 1 1 45%;
+}
+
+.form-row-item-cost {
+    flex: 1 1 45%;
+    font-weight: bold;
+}
+
+.address-display {
+    border: 1px solid #ccc;
+    background-color: #f3f3f3;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    color: #888;
+    display: block;
+    font-size: 0.875rem;
+}
+
+.cost-display {
+    border: 1px solid #ccc;
+    background-color: #f3f3f3;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.25rem;
+    color: #888;
+    display: block;
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+}
+
+.invoice-button {
+    background-color: #ecbd4f;
+    padding: 6.4px 12.8px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+.invoice-button:hover {
+    background-color: #d4a63e;
+}
+
+lightning-icon{
+    --sds-c-icon-color-foreground-default: #F2BC30;
+}

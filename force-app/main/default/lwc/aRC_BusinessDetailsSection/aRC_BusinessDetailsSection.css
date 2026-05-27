@@ -1,0 +1,43 @@
+/* BusinessDetailsSection Styles */
+
+:host {
+    display: block;
+}
+
+.meets-small-employer-error {
+    color: #c23934;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+    position: relative;
+    min-height: 200px;
+}
+
+/* Saving Overlay */
+.saving-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(2px);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+
+.saving-message {
+    text-align: center;
+}
+
+/* Association box styling - light blue background like PaymentInfoSection */
+.association-box {
+    background-color: #EFF6FF;
+    border: none;
+}

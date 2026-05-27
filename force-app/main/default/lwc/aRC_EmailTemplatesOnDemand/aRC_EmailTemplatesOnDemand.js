@@ -66,9 +66,10 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 	useOrgEmail = true;
 	currentUserName = null;
 	selectedOption;
+	isSendingEmail = false;
 
 	@api get disableSend() {
-		return this.membersSelected.length == 0 || !this.templateSelected
+		return this.membersSelected.length == 0 || !this.templateSelected || this.isSendingEmail
 	}
 
 	get showEmailDropdown() {
@@ -118,7 +119,7 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 		return EmailAddressOptions
 	}
 
-	
+
 	//Handle function to open model when button is pressed
 	handleManageModal(evt) {
 		evt.currentTarget.dataset.manage == 'open' ? this.isModalOpen = true : this.isModalOpen = false;
@@ -154,13 +155,13 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 			if (promotiondiscount?.length > 0) {
 
 				parameters['Old Monthly Contribution'] = promotiondiscount[0].ARC_CorePriceWithoutDiscount__c;
-			} 
-			if(healthydiscount?.length > 0){
+			}
+			if (healthydiscount?.length > 0) {
 				this.HDExpirationDate = healthydiscount[0].ARC_EndDate__c;
 				parameters['HD Expiration Date'] = healthydiscount[0].ARC_EndDate__c;
-				
+
 			}
-	
+
 			//Age Up Information
 			ageup = response.result.ageup
 			const options = {
@@ -180,6 +181,11 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 						let orderUpdateDate = ageupMember.ARC_ManualDelay__c ? ageupMember.ARC_ManualDelay__c : ageupMember.ARC_EffectiveDate__c;
 						AgeUpMemberName = ageupMember.ARC_Account__r.FirstName;
 						RawAgeUpBirthdate = ageupMember.ARC_Account__r.PersonBirthdate;
+						let ageUpEffectiveDate = ageupMember.ARC_EffectiveDate__c;
+						formattedAgeUpBirthdate = /^\d{4}-\d{2}-\d{2}$/.test(ageUpEffectiveDate)
+						let currentAge = this.calculateAge(new Date(RawAgeUpBirthdate));
+						var formatedAgeUpEffectiveDate = formatter.format(new Date(ageUpEffectiveDate));
+						let nextAge = currentAge + 1;
 
 						if (/^\d{4}-\d{2}-\d{2}$/.test(orderUpdateDate)) {
 							// Original date in another format, e.g., YYYY-MM-DD
@@ -191,7 +197,6 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 							var year = ActivedateParts[2];
 							var monthName = this.getMonthName(month);
 							formattedOrderUpdateDate = month + '/' + day + '/' + year;
-
 
 						} else {
 							formattedOrderUpdateDate = ' ';
@@ -217,6 +222,9 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 						parameters["Oldest Member Birthdate"] = AgeUpBirthdate;
 						parameters["Next Contribution In Sixty Days"] = ageupMember.ARC_PriceAfterAgeUp__c;
 						parameters['Ages Up Draft Date'] = monthName;
+						parameters['Ages Up Effective Date'] = formatedAgeUpEffectiveDate;
+						parameters['Program Name'] = ageupMember.Contract__r.ARC_MedicalPlan__r.Name;
+						parameters['AgeUp'] = nextAge + 'th';
 					}
 
 				});
@@ -321,10 +329,13 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 				// parameters["Oldest Member Birthdate"] = AgeUpMemberName === primaryMemberName ? memberAgeUpBirthdate : AgeUpBirthdate;
 			}
 
-            if(response.result.projectedPaidThroughDate != null){
-                parameters["Projected Paid Through Date"] = response.result.projectedPaidThroughDate;
-                console.log('projected paid through date: '+parameters["Projected Paid Through Date"]);
-            }
+			if (response.result.projectedPaidThroughDate != null) {
+				var formatter = new Intl.DateTimeFormat('en-US', options);
+				var formatedAgeUpEffectiveDate = formatter.format(new Date(response.result.projectedPaidThroughDate));
+
+				parameters["Projected Paid Through Date"] = formatedAgeUpEffectiveDate;
+				console.log('projected paid through date: ' + parameters["Projected Paid Through Date"]);
+			}
 
 			if (response.result.imageURLs) {
 				this.EFTFormURL = response.result.imageURLs.EFTForm;
@@ -385,13 +396,13 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 
 
 		if (selectedMember.birthdate) {
-			let birthdate = this.parseDate(selectedMember.birthdate);		
+			let birthdate = this.parseDate(selectedMember.birthdate);
 			// Next Birth Date Formatted Logic, if birthdate is this year, use this year, else next year
 			let [year, month, day] = birthdate.toISOString().substring(0, 10).split("-");
 			let today = new Date();
 			let currentYear = today.getFullYear();
-			let birthdayThisYear = new Date(currentYear, month - 1, day); 
-			let yearToUse = today >= birthdayThisYear ? currentYear + 1 : currentYear;			
+			let birthdayThisYear = new Date(currentYear, month - 1, day);
+			let yearToUse = today >= birthdayThisYear ? currentYear + 1 : currentYear;
 			let formattedNextBirthDate = `${yearToUse}-${month}-${day}`;
 			parameters["Next Birth Date"] = formattedNextBirthDate;
 		}
@@ -438,6 +449,7 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 				if (smartPlan) addPlanDetails(smartPlan, 'SMART');
 				if (aiddPlan) addPlanDetails(aiddPlan, 'AIDD');
 				parameters["Plan List"] = planListHtml;
+
 			}
 		}
 
@@ -458,6 +470,13 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 
 	// Handle when Send Email button is pressed
 	async handleSendEmail() {
+		// Prevent multiple simultaneous sends
+		if (this.isSendingEmail) {
+			return;
+		}
+
+		this.isSendingEmail = true;
+
 		let emailListToSend = [];
 		for (const m of this.membersSelected) {
 			console.log("membersSelected ", this.membersSelected);
@@ -482,8 +501,11 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 			} catch (error) {
 				this.displayErrorMessage();
 			} finally {
+				this.isSendingEmail = false;
 				this.isModalOpen = false;
 			}
+		} else {
+			this.isSendingEmail = false;
 		}
 	}
 
@@ -531,16 +553,19 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 	}
 
 	async getCaseRecord(caseId) {
-		await this.omniRemoteCall({
-			input: { caseId },
-			sClassName: 'ARC_EmailTemplatesOnDemandController',
-			sMethodName: 'getCaseRecord',
-			options: '{}',
-		}, true).then(response => {
+		try {
+			const response = await this.omniRemoteCall({
+				input: { caseId },
+				sClassName: 'ARC_EmailTemplatesOnDemandController',
+				sMethodName: 'getCaseRecord',
+				options: '{}',
+			}, true);
 			return response.result.caseRecord;
-		}).catch(error => {
+		} catch (error) {
+			console.error('Error getting case record:', error);
 			this.displayErrorMessage();
-		});
+			return null;  // Return null on error
+		}
 	}
 
 	getDayWithSuffix(day) {
@@ -558,5 +583,18 @@ export default class ARC_EmailTemplatesOnDemand extends OmniscriptBaseMixin(Ligh
 			return "Invalid month number";
 		}
 		return monthNames[monthNumber - 1];
+	}
+
+	// Calculate age based on birth date
+	calculateAge(birthDate) {
+		if (!birthDate) return null;
+		const today = new Date();
+		const birth = new Date(birthDate);
+		let age = today.getFullYear() - birth.getFullYear();
+		const monthDiff = today.getMonth() - birth.getMonth();
+		if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+			age--;
+		}
+		return age;
 	}
 }

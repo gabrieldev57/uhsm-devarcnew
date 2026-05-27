@@ -216,7 +216,7 @@ public with sharing class ARC_ClaimsXML {
         //System.debug('TotalNet: '+ c?.ARC_TotalNetPaidAmount__c);
         //System.debug('Payto: '+  c?.ARC_Payment_To__c);
         if(checkClosing){
-            if(c?.ARC_TotalNetPaidAmount__c != null && c?.ARC_TotalNetPaidAmount__c != 0.00 && (isProvider && c?.ARC_Payment_To__c== 'Provider') || (!isProvider && c?.ARC_Payment_To__c== 'Member')){
+            if(c?.ARC_TotalNetPaidAmount__c != null && c?.ARC_TotalNetPaidAmount__c != 0.00 && ((isProvider && c?.ARC_Payment_To__c== 'Provider') || (!isProvider && c?.ARC_Payment_To__c== 'Member'))){
                 //Generate cPayeeName.
                 String cPayeeName = '';
                 if(c?.ARC_Payment_To__c== 'Provider' && c.ARC_Vendor__r.Name != null) cPayeeName = (String)c.ARC_Vendor__r.Name.substring(0, Math.min(c.ARC_Vendor__r.Name.length(), 80));
@@ -348,7 +348,9 @@ public with sharing class ARC_ClaimsXML {
                         }
 
                         mapFieldNamesValue.put('cAdjustmentGroupCode', cAdjustmentGroupCode);
-                        mapFieldNamesValue.put('cAdjustmentReasonCode', cAdjustmentReasonCode);
+                        if (cAdjustmentReasonCode != null) {
+                            mapFieldNamesValue.put('cAdjustmentReasonCode', cAdjustmentReasonCode);
+                        }
 
                         // Add the Map values to XML_Claim variable
                         XML_Claim += generateRecordLine('32', mapFieldNamesValue);

@@ -1,0 +1,127 @@
+<template>
+    <div class="dynamic-form-container">
+        <div class="header">
+            <h2 class="title">Personal Information</h2>
+            <template lwc:if={showEditButton}>
+                <button class="edit-btn" onclick={handleEdit}>
+                    <lightning-icon icon-name="utility:edit" size="xx-small"></lightning-icon>
+                    Edit
+                </button>
+            </template>
+        </div>
+
+        <template lwc:if={editMode}>
+            <lightning-record-edit-form object-api-name={object} record-id={recordId} onsuccess={handleSuccess} onerror={handleError} onsubmit={handleSubmit}>
+                <template if:true={isLoading}>
+                    <div class="spinner-overlay slds-align_absolute-center slds-text-align_center">
+                        <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+                        <p class="slds-m-top_small">Updating Employee Details...</p>
+                    </div>
+                </template>
+
+                <div class="slds-grid">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="FirstName"></lightning-input-field>
+                        <lightning-input-field field-name="LastName"></lightning-input-field>
+                        <lightning-input-field field-name="PersonBirthdate"></lightning-input-field>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="vlocity_ins__MiddleName__pc"></lightning-input-field>
+                        <lightning-input-field field-name="PersonGender"></lightning-input-field>
+                        <lightning-input-field field-name="ARC_JobTitle__c"></lightning-input-field>
+                        <lightning-input-field field-name="ARC_HireDate__c"></lightning-input-field>
+                        <lightning-input-field field-name="ARC_TerminationDate__c" disabled></lightning-input-field>
+                    </div>
+                </div>
+
+                <div class="slds-grid">
+                    <div class="slds-col slds-size_2-of-2">
+                        <lightning-input-field field-name="BillingAddress"></lightning-input-field>
+                    </div>
+                </div>
+
+                <div class="slds-grid">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="PersonEmail"></lightning-input-field>
+                        <lightning-input-field field-name="Phone"></lightning-input-field>
+                    </div>
+                </div>
+
+                <div class="slds-var-m-top_medium buttons-container">
+                    <div class="slds-var-m-top_medium buttons-container">
+                        <lightning-button variant="brand" type="submit" label="Save Changes"></lightning-button>
+                        <lightning-button variant="neutral" type="button" label="Cancel" onclick={handleCancel}></lightning-button>
+                    </div>
+                </div>
+
+                <lightning-messages></lightning-messages>
+            </lightning-record-edit-form>
+        </template>
+
+        <template lwc:else>
+            <lightning-record-view-form object-api-name={object} record-id={recordId}>
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">Full Name</span>
+                            <div class="slds-form-element__control">
+                                <lightning-output-field field-name="Name" variant="label-hidden"></lightning-output-field>
+                            </div>
+                        </div>
+
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">Date of Birth</span>
+                            <div class="slds-form-element__control">{formattedBirthdate}</div>
+                        </div>
+
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">Address</span>
+                            <div class="slds-form-element__control">{formattedAddress}</div>
+                        </div>
+
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">Job Title</span>
+                            <div class="slds-form-element__control">{jobTitle}</div>
+                        </div>
+
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">Hire Date</span>
+                            <div class="slds-form-element__control">{formattedHireDate}</div>
+                        </div>
+
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">Termination Date</span>
+                            <div class="slds-form-element__control">{formattedTerminationDate}</div>
+                        </div>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">Sex</span>
+                            <div class="slds-form-element__control">
+                                <lightning-output-field field-name="PersonGender" variant="label-hidden"></lightning-output-field>
+                            </div>
+                        </div>
+
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">SSN</span>
+                            <div class="slds-form-element__control">{maskedSSN}</div>
+                        </div>
+
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">Email</span>
+                            <div class="slds-form-element__control">{email}</div>
+                        </div>
+
+                        <div class="slds-form-element slds-m-bottom_medium">
+                            <span class="slds-form-element__label">Phone Number</span>
+                            <div class="slds-form-element__control">{phone}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <lightning-messages></lightning-messages>
+            </lightning-record-view-form>
+        </template>
+    </div>
+</template>

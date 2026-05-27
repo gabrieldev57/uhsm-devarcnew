@@ -4,6 +4,9 @@ public with sharing  class ARC_PCSOManager {
 
     // Variables to store records for different operations
     public Map<String, Object> soReasons;  // Stores the reasons for program changes
+    public Map<String, Object> soChanges; // Stores the changes to be made
+    public Map<String, Object> sTEP_ChargentPayment;
+    public Map<String, Object> selectedContractInfo;
     public Map<String,Object> inputMap;    // Stores the input data
     public List<String> ActionsSelected = new List<String>();  // Tracks selected actions
     
@@ -11,12 +14,9 @@ public with sharing  class ARC_PCSOManager {
     public List<vlocity_ins__GroupCensusMember__c> censusMembersToInsert = new List<vlocity_ins__GroupCensusMember__c>();
     public List<vlocity_ins__GroupCensusMember__c> censusMembersToUpdate = new List<vlocity_ins__GroupCensusMember__c>();
     public Map<String,vlocity_ins__GroupCensusMember__c> censusMemberByTemporalId = new Map<String,vlocity_ins__GroupCensusMember__c>();
-    public Map<String,vlocity_ins__GroupCensusMember__c> temporalIdToCensusMembers = new Map<String,vlocity_ins__GroupCensusMember__c>();
-    public Map<String,String> censusMemberTemporalIdToId = new Map<String,String>();
     public vlocity_ins__GroupCensusMember__c primaryCensusMemberWithId = new vlocity_ins__GroupCensusMember__c();
     public List<vlocity_ins__GroupCensusMember__c> censusMembersDemographicChange = new List<vlocity_ins__GroupCensusMember__c>();
     public List<Account> accountsToInsert = new List<Account>(); 
-    public List<Account> accountsToUpdate = new List<Account>(); 
     public Map<String, ARC_UnderwritingCaseMember__c> censusMemberIdOrFakeIdToUWCM = new Map<String, ARC_UnderwritingCaseMember__c>();
     public List<Map<String,Object>> censusMembersInPcContract = new List<Map<String,Object>>();
     public List<Account> guardiansToInsert = new List<Account>();
@@ -24,7 +24,9 @@ public with sharing  class ARC_PCSOManager {
     public ARC_HipaaAuthorization__c guardianHippa;
     public Map<String, ARC_HipaaAuthorization__c> fakeIdToHipaaAuth = new Map<String, ARC_HipaaAuthorization__c>();
     public List<Contract> contractsToInsert = new List<Contract>();
-    public List<vlocity_ins__ContractLineItem__c> contractLineItemsToInsert = new List<vlocity_ins__ContractLineItem__c>();
+    public List<Contract> contractToUpdateEffectiveDate = new List<Contract>();
+    public List<Ages_Up__c> agesUpToInsert = new List<Ages_Up__c>();
+    
     public Map<Integer,vlocity_ins__ContractLineItem__c> indexToParentCLI = new Map<Integer,vlocity_ins__ContractLineItem__c>();
     public Map<Integer,List<vlocity_ins__ContractLineItem__c>> indexToChildCLI = new Map<Integer,List<vlocity_ins__ContractLineItem__c>>();
     public Map<Integer,List<String>> indexToCLIGCM = new Map<Integer,List<String>>();
@@ -32,7 +34,6 @@ public with sharing  class ARC_PCSOManager {
     public List<ChargentOrders__ChargentOrder__c> chargentOrdersChangeFee = new List<ChargentOrders__ChargentOrder__c>();
     public List<ChargentOrders__ChargentOrder__c> chargentOrdersRecurringOrder = new List<ChargentOrders__ChargentOrder__c>(); 
     public Map<String, List<Case>> casesUWToInsert = new Map<String, List<Case>>();
-    // public List<Case> casesUWToInsert = new List<Case>();
     public List<ARC_MedicalConditions__c> medicalConditionsToUpsert = new List<ARC_MedicalConditions__c>();
     public List<vlocity_ins__ConsumerDrug__c> consumerDrugsToUpsert = new List<vlocity_ins__ConsumerDrug__c>();
     public Map<String, List<ARC_MedicalConditions__c>> newMembersMapMedicalConditionsToInsert = new Map<String, List<ARC_MedicalConditions__c>>();
@@ -40,32 +41,38 @@ public with sharing  class ARC_PCSOManager {
     public List<Account> physicianAccountToUpdate = new List<Account>();
     public List<vlocity_ins__GroupCensusMember__c> physicianGCMToUpdate = new List<vlocity_ins__GroupCensusMember__c>();
     public Map<String, Map<String,Object>> physicianNewMemberDataToUpdate = new Map<String, Map<String,Object>>();
-    public List<Case> casesPCToInsert = new List<Case>(); 
-    public Map<String,List<vlocity_ins__ContractLineItem__c>> CMIdToCLI = new Map<String,List<vlocity_ins__ContractLineItem__c>>();
+    public List<Case> casesPCToInsert = new List<Case>();
     public Map<String, ARC_ContractParticipant__c> personAccIdOrFakeIdToContractPart = new Map<String, ARC_ContractParticipant__c>();
     public List<ARC_ContractParticipant__c> contractParticipantsToDelete = new List<ARC_ContractParticipant__c>();
     public Map<String, Case> FakeIdToCasePc = new Map<String, Case>();
     public List<ARC_PromotionDiscount__c> promotionDiscountToInsert = new List<ARC_PromotionDiscount__c>();
-    public List<Contract> contractsToUpdate = new List<Contract>();
     public Id newContractId;
+    
+    // Beneficiaries related variables
+    public Map<String,Object> contactOrFakeIdToBeneficiaries = new Map<String,Object>();
     
     // Maps to maintain relationships between records
     public Map<Id, Account> censusMemberToAccount = new Map<Id, Account>();
     public Map<String, String> censusMemberToPersonAccount = new Map<String, String>();
     public Map<String, Account> insertedCensusMemberToPersonAccount = new Map<String, Account>();
-    
-    public Map<Id,Id> accountIdToMemberId = new Map<Id,Id>();
 
     // Map to store all inserted records by their type
     public Map<String, Map<Id, SObject>> allInsertedRecords = new Map<String, Map<Id, SObject>>();
 
+    // Ancillary discount related variables
+    public Map<String, Map<String, String>> memberIdToCriticalCareBundle = new Map<String, Map<String, String>>();
+    public Map<String, Map<String, Id>> memberIdToBundleGcmpIds = new Map<String, Map<String, Id>>();
+    
     /**
      * @Description: Constructor that initializes the manager with program change reasons and input data
      * @param pcReasons: Map containing reasons for program changes
      * @param inputMap: Map containing input data for processing
      */
     public ARC_PCSOManager(Map<String, Object> soReasons, Map<String,Object> inputMap) {
-        this.soReasons = soReasons; 
+        this.soChanges = inputMap.containsKey('soChanges') && (Map<String, Object>)inputMap.get('soChanges') != null ? (Map<String, Object>)inputMap.get('soChanges') : null;
+        this.soReasons = soReasons;
+        this.sTEP_ChargentPayment = inputMap.containsKey('STEP_ChargentPayment') && (Map<String, Object>)inputMap.get('STEP_ChargentPayment') != null ? (Map<String, Object>)inputMap.get('STEP_ChargentPayment') : null;
+        this.selectedContractInfo = inputMap.containsKey('SelectedContractInfo') && (Map<String, Object>)inputMap.get('SelectedContractInfo') != null ? (Map<String, Object>)inputMap.get('SelectedContractInfo') : null;
         this.inputMap = inputMap;
     }   
 

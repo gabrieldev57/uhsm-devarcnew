@@ -1,0 +1,369 @@
+.member-header-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e3e3e3;
+    border-radius: 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+.top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px 14px 14px;
+    border-bottom: 1px solid #e8e8e8;
+    background: #ffffff;
+    min-height: 78px;
+}
+
+.identity-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    flex: 1;
+}
+
+.avatar {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 50%;
+    border: 1px solid #d7bf74;
+    background: #f2e7c9;
+    color: #7e620b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    line-height: 20px;
+    font-weight: 700;
+}
+
+.identity-content {
+    min-width: 0;
+}
+
+.name-pill-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.member-name {
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 700;
+    color: #1f1f1f;
+}
+
+.sub-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 16px;
+    color: #7a7a7a;
+    font-weight: 500;
+}
+
+.dot {
+    color: #9d9d9d;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-size: 12px;
+    line-height: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.relationship-pill.primary,
+.relationship-pill.spouse {
+    background: #f2e5bb;
+    border-color: #e1c874;
+    color: #9a6a00;
+}
+
+.relationship-pill.child {
+    background: #e7eefc;
+    border-color: #c5d3f2;
+    color: #3359b8;
+}
+
+.status-pill.active {
+    background: #e7f1df;
+    border-color: #b9d2a8;
+    color: #4f7b2e;
+}
+
+.status-pill.inactive {
+    background: #f8e3e3;
+    border-color: #e8bebe;
+    color: #b42318;
+}
+
+.actions-block {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+}
+
+.header-action {
+    display: flex;
+    align-items: center;
+}
+
+.header-action-neutral {
+    min-width: 150px;
+}
+
+.header-action-brand {
+    min-width: 150px;
+}
+
+.header-action-icon {
+    width: 36px;
+    justify-content: center;
+}
+
+.temporary-newborn-btn,
+.member-id-card-btn {
+    height: 38px;
+    min-width: 150px;
+    padding: 0 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: none;
+    outline: none;
+}
+
+.temporary-newborn-btn {
+    border: 1px solid #d8d8d8;
+    background: #f6f6f6;
+    color: #2f2f2f;
+}
+
+.temporary-newborn-btn:hover,
+.temporary-newborn-btn:active,
+.temporary-newborn-btn:focus,
+.temporary-newborn-btn:focus-visible {
+    border: 1px solid #d8d8d8;
+    background: #f6f6f6;
+    color: #2f2f2f;
+    box-shadow: none;
+    outline: none;
+}
+
+.member-id-card-btn {
+    border: 1px solid #d99a22;
+    background: #d99a22;
+    color: #ffffff;
+}
+
+.member-id-card-btn:hover,
+.member-id-card-btn:active,
+.member-id-card-btn:focus,
+.member-id-card-btn:focus-visible {
+    border: 1px solid #d99a22;
+    background: #d99a22;
+    color: #ffffff;
+    box-shadow: none;
+    outline: none;
+}
+
+.header-action-icon {
+    --slds-c-button-color-border: #8d8d8d;
+    --slds-c-button-color-background: #f6f6f6;
+    --slds-c-button-color-background-hover: #f6f6f6;
+    --slds-c-button-color-border-hover: #8d8d8d;
+    --slds-c-button-color-background-active: #f6f6f6;
+    --slds-c-button-color-border-active: #8d8d8d;
+    --slds-c-button-radius-border: 8px;
+    --slds-c-button-shadow-focus: none;
+}
+
+.header-action-icon:focus,
+.header-action-icon:focus-within,
+.header-action-icon lightning-button-icon:focus,
+.header-action-icon lightning-button-icon:focus-within {
+    outline: none;
+    box-shadow: none;
+}
+
+.data-row {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr 1.45fr 1.05fr 0.7fr 1fr 1.05fr;
+    background: #ffffff;
+}
+
+.field-box {
+    min-height: 78px;
+    padding: 12px 16px 12px 16px;
+    border-right: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.field-box:last-child {
+    border-right: 0;
+}
+
+.field-label {
+    margin-bottom: 5px;
+    font-size: 11px;
+    line-height: 13px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    color: #a1a1a1;
+    text-transform: uppercase;
+}
+
+.field-value {
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 600;
+    color: #232323;
+    word-break: break-word;
+}
+
+.field-box-age .field-value {
+    text-align: left;
+}
+
+.field-box-ssn .field-value {
+    justify-content: flex-start;
+}
+
+.ssn-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.ssn-toggle {
+    height: 22px;
+    padding: 0 8px;
+    border: 1px solid #e3c56d;
+    border-radius: 6px;
+    background: #f6e8be;
+    color: #9a6a00;
+    font-size: 11px;
+    line-height: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    min-width: 46px;
+}
+
+.ssn-toggle:hover {
+    background: #efdd9f;
+}
+
+.ssn-toggle:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.enrollment-modal-content {
+    min-height: 64px;
+}
+
+.enrollment-spinner-container {
+    position: relative;
+    height: 40px;
+}
+
+@media (max-width: 1500px) {
+    .data-row {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .field-box {
+        border-bottom: 1px solid #e8e8e8;
+    }
+
+    .field-box:nth-child(4n) {
+        border-right: 0;
+    }
+}
+
+@media (max-width: 1024px) {
+    .top-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .actions-block {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .data-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .field-box {
+        border-right: 1px solid #e8e8e8;
+    }
+
+    .field-box:nth-child(2n) {
+        border-right: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .top-row {
+        padding: 14px 12px 14px 12px;
+    }
+
+    .data-row {
+        grid-template-columns: 1fr;
+    }
+
+    .field-box {
+        border-right: 0;
+        min-height: 70px;
+    }
+
+    .member-name {
+        font-size: 15px;
+        line-height: 19px;
+    }
+
+    .field-value {
+        font-size: 14px;
+        line-height: 18px;
+    }
+
+    .avatar {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        font-size: 18px;
+    }
+
+    .temporary-newborn-btn,
+    .member-id-card-btn {
+        min-width: 150px;
+    }
+}

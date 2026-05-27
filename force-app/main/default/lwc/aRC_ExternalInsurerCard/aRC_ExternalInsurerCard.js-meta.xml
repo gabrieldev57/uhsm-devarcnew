@@ -10,4 +10,9 @@
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
     </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <property name="formButton" type="Boolean" description="Allow new External Insurance form" default="false"/>
+        </targetConfig>
+    </targetConfigs>
 </LightningComponentBundle>

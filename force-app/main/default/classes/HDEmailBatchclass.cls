@@ -11,7 +11,7 @@ global class HDEmailBatchclass implements Database.Batchable<sObject>,Schedulabl
     global Database.QueryLocator start(Database.BatchableContext bc) {
         // collect the batches of records or objects to be passed to execute      
         return Database.getQueryLocator([
-            SELECT Id, ARC_EndDate__c, ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.FirstName, ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.PersonEmail 
+            SELECT Id, ARC_EndDate__c, ARC_Contract__c,ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.FirstName, ARC_Contract__r.vlocity_ins__EnrollmentCensusId__r.ARC_PrimaryAccount__r.PersonEmail 
             FROM ARC_PromotionDiscount__c  
             WHERE RecordType.DeveloperName = 'Healthy_Discount' 
                 AND ARC_Status__c = 'Activated' 
@@ -25,12 +25,33 @@ global class HDEmailBatchclass implements Database.Batchable<sObject>,Schedulabl
 
         Date today = Date.today();
         Map<String,ARC_PromotionDiscount__c> sendHealthyDiscountEmailList = new Map<String,ARC_PromotionDiscount__c>();
+        Set<Id> contractIds = new Set<Id>();
+
+        for (ARC_PromotionDiscount__c discount : records) {
+            if (discount.ARC_Contract__c != null) contractIds.add(discount.ARC_Contract__c);
+        }
+
+        Set<Id> contractsWithAwaitingHealthy = new Set<Id>();
+        if (!contractIds.isEmpty()) {
+            for (ARC_PromotionDiscount__c hd : [
+                SELECT Id, ARC_Contract__c
+                FROM ARC_PromotionDiscount__c 
+                WHERE RecordType.DeveloperName = 'Healthy_Discount'
+                    AND ARC_Status__c = 'Awaiting Activation'
+                    AND ARC_Contract__c IN :contractIds
+            ]) {
+                contractsWithAwaitingHealthy.add(hd.ARC_Contract__c);
+            }
+        }
+        System.debug('contractsWithAwaitingHealthy ' + contractsWithAwaitingHealthy);
         
         for (ARC_PromotionDiscount__c discount : records) {
 
             String daysUntilEndDate = String.valueOf(today.daysBetween(discount.ARC_EndDate__c));
 
-            if (daysUntilEndDate == '90' || daysUntilEndDate == '30') {
+            System.debug('Contains contract with awaiting HD? ' + contractsWithAwaitingHealthy.contains(discount.ARC_Contract__c));
+
+            if ((daysUntilEndDate == '90' || daysUntilEndDate == '30') && !contractsWithAwaitingHealthy.contains(discount.ARC_Contract__c)) {
                 sendHealthyDiscountEmailList.put(discount.Id, discount);
             }
         

@@ -67,19 +67,16 @@ public without sharing class ARC_CommunityController {
     ********************************************************************/
     @AuraEnabled 
     public static Map<String,Object> forgotUserNameEmail(String inputEmail){
-        System.debug(inputEmail);
         List<User> portalUser = [SELECT Id,Name, ARC_PortalUsername__c,FirstName, Contact.Account.Census_Member__c FROM User WHERE Email =: inputEmail AND IsActive = TRUE ];
         if(portalUser.isEmpty()) return new Map<String,Object>{'success'=>false, 'message'=>'Sorry, there is no User with that email. Make sure the email is correct'};
         String resultUsernames = '';
         for (User user : portalUser) {
             resultUsernames += 'Username: '+user.ARC_PortalUsername__c+'<br>';
         }
-        System.debug(resultUsernames);
         Map<String, Object> mergeFieldsMap = new Map<String, Object>();
         mergeFieldsMap.put('{!PortalUsernames}',resultUsernames);
         mergeFieldsMap.put('{!User.FirstName}',portalUser[0].FirstName);
         Map<String,Object> emailResponse = ARC_Emails.sendEmailConstructor(inputEmail, 'WeShareForgotUsernameEmail',mergeFieldsMap, portalUser[0].Contact?.Account?.Census_Member__c);
-        System.debug(emailResponse);
         return emailResponse;
     }
 

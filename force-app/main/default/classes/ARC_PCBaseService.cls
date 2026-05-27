@@ -19,6 +19,8 @@ global without sharing class ARC_PCBaseService implements vlocity_ins.VlocityOpe
     global Boolean invokeMethod(String methodName, Map<String,Object> inputMap, Map<String,Object> outputMap, Map<String,Object> options) {
         if (methodName == 'processChanges') {
             processChanges(inputMap, outputMap);
+        } else if (methodName == 'sendEnvelope') {
+            sendEnvelope(inputMap, outputMap);
         } else if (methodName == 'updateEnvelopeContractData') {
             updateEnvelopeContractData(inputMap, outputMap);
         }
@@ -68,6 +70,34 @@ global without sharing class ARC_PCBaseService implements vlocity_ins.VlocityOpe
     }
 
     /**
+     * @Description: Get the input information of the envelope and call the method to send the envelope
+     * @param inputData: Map containing teh envelope information
+     * @throws AuraHandledException: If there's an error during processing
+     */
+    public static Map<String, Object> sendEnvelope(Map<String, Object> inputData, Map<String,Object> outputMap) {
+        Map<String, Object> response = new Map<String, Object>();
+        try {
+            Map<String,Object> envelopeInfoMap = inputData.containsKey('EnvelopeInformation') ? (Map<String,Object>)inputData.get('EnvelopeInformation') : new Map<String,Object>();
+
+            String subjectStr = 'Please DocuSign: UHSM Program Change';
+            String signerListStr = envelopeInfoMap.containsKey('signerList') ? JSON.serialize(envelopeInfoMap.get('signerList')) : null; System.debug('Signer List Str: ' + signerListStr);
+            String templatesIdListStr = envelopeInfoMap.containsKey('templateIdList') ? JSON.serialize(envelopeInfoMap.get('templateIdList')) : null; System.debug('Templates Id List Str: ' + templatesIdListStr);
+            String tabsMapStr = envelopeInfoMap.containsKey('tabs') ? JSON.serialize(envelopeInfoMap.get('tabs')) : null; System.debug('Tabs Map Str: ' + tabsMapStr);
+            String contractId = inputData.containsKey('contractId') && inputData.get('contractId') != null ? (String)inputData.get('contractId') : null; System.debug('Contract Id: ' + contractId);
+
+            ARC_DocuSignApi.sendCompositeEnvelope(subjectStr, signerListStr, templatesIdListStr, tabsMapStr, contractId);
+
+            response.put('success', true);
+            outputMap.put('success', true);
+        } catch (Exception e) {
+            System.debug('Error in sendEnvelope method: ' + e.getMessage() + e.getStackTraceString());
+            response.put('success', false);
+            outputMap.put('success', false);
+        }
+        return response;
+    }
+
+    /**
      * @Description: Updates the envelope contract data
      * @param inputData: Map containing the program change data and the contract id
      * @throws AuraHandledException: If there's an error during processing
@@ -90,7 +120,6 @@ global without sharing class ARC_PCBaseService implements vlocity_ins.VlocityOpe
                         newContract.ARC_Signer_Email__c = (String)envelopeContractData.get('signerEmail');
                         newContract.ARC_Signer_Name__c = (String)envelopeContractData.get('signerName');
                         newContract.vlocity_ins__LastDocuSignEnvelopeId__c = (String)envelopeContractData.get('envelopeId');
-                        //newContract.vlocity_ins__LastDocuSignEnvelopeStatus__c = (String)envelopeContractData.get('vlocity_ins__LastDocuSignEnvelopeStatus__c');
                         update newContract;
                         retries = 0;
                         System.debug('newContract: ' + newContract); 

@@ -137,7 +137,7 @@ global class ARC_CreateAggregatorsPerYear implements Database.Batchable<sObject>
 
 		/* Una vez insertados los deductibles familiares, se popula el lookup en el deductible individual y se insertan */
 		for (ARC_Aggregator__c individual_aggregator : old_to_new_individual_aggregators_map.values()) {
-			if (individual_aggregator.Name == 'Individual Max AMCS') {
+			if (individual_aggregator.Name == 'Individual AMCS') {
                 if(policyId_to_new_family_aggregator.get(individual_aggregator.ARC_CreatedIn__c) != null){
                     individual_aggregator.ARC_FamilyAggregator__c = policyId_to_new_family_aggregator.get(individual_aggregator.ARC_CreatedIn__c).Id;
                 }

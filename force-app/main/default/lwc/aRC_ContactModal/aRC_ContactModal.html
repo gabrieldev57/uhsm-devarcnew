@@ -1,0 +1,58 @@
+<template>
+    <template lwc:if={isOpen}>
+        <!-- Modal Backdrop -->
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Header -->
+                <div class="slds-modal__header">
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Close"
+                        class="slds-modal__close"
+                        onclick={handleCancel}>
+                    </lightning-button-icon>
+                    <h1 class="slds-modal__title slds-hyphenate">{modalTitle}</h1>
+                </div>
+
+                <!-- Body -->
+                <div class="slds-modal__content slds-p-around_medium">
+                    <!-- Portal Access -->
+                    <div class="slds-m-bottom_medium">
+                        <lightning-combobox
+                            label="Portal Access"
+                            value={contactData.portalAccess}
+                            options={portalAccessOptions}
+                            required
+                            onchange={handlePortalAccessChange}>
+                        </lightning-combobox>
+                    </div>
+
+                    <!-- Contact Form Fields -->
+                    <c-a-r-c_-contact-form
+                        contact={contactData}
+                        required
+                        hide-card
+                        hide-address={hideAddress}
+                        hide-phone={hidePhone}
+                        onformchange={handleFieldChange}>
+                    </c-a-r-c_-contact-form>
+                </div>
+
+                <!-- Footer -->
+                <div class="slds-modal__footer">
+                    <lightning-button 
+                        label="Cancel" 
+                        onclick={handleCancel}>
+                    </lightning-button>
+                    <lightning-button 
+                        variant="brand" 
+                        label={saveButtonLabel}
+                        class="slds-m-left_x-small"
+                        onclick={handleSave}>
+                    </lightning-button>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

@@ -1,0 +1,378 @@
+<template>
+  <div class="pageWrap">
+    <div class="topBar">
+      <div>
+        <div class="crumbs">
+          <span>Group Classes</span>
+          <span class="sep">/</span>
+          <span>Contribution Configuration</span>
+        </div>
+        <div class="titleRow">
+          <lightning-button-icon icon-name="utility:back" variant="bare" class="backBtn" alternative-text="Back"
+            onclick={handleBack} disabled={hasGroupClasses}></lightning-button-icon>
+
+          <h1 class="title">Employer Contribution Configuration</h1>
+        </div>
+      </div>
+
+      <div class="topActions">
+        <button class="changeBtn" type="button" onclick={openResetModal}>
+          <lightning-icon icon-name="utility:edit" size="x-small" class="changeBtnIcon"></lightning-icon>
+          <span>Change Group Classes</span>
+        </button>
+
+      </div>
+    </div>
+
+    <template if:false={hasGroupClasses}>
+      <div class="emptyState">
+        No Group Classes found for this Opportunity.
+      </div>
+    </template>
+
+    <template if:true={hasGroupClasses}>
+      <div class="cardsWrap">
+        <template for:each={groupClassesUi} for:item="gc">
+          <section key={gc.id} class={gc.cardClass}>
+            <div class="cardHeader" onclick={toggleCard} data-id={gc.id}>
+              <template if:true={gc.isSaving}>
+                <div class="cardOverlay">
+                  <lightning-spinner alternative-text="Saving" size="medium"></lightning-spinner>
+                </div>
+              </template>
+              <div class="cardHeaderLeft">
+                <div class={gc.iconWrapClass} style={gc.iconBgStyle}>
+                  <lightning-icon icon-name="utility:orders" size="x-small" class="cardIcon"
+                    style={gc.iconStyle}></lightning-icon>
+                </div>
+
+                <div class="cardHeaderText">
+                  <div class="cardTitle">{gc.name}</div>
+                  <div class="cardSub">Configure contribution rules for this group class</div>
+                </div>
+
+              </div>
+
+              <div class="cardHeaderRight" onclick={stopProp}>
+                <span class={gc.statusClass}>
+                  <lightning-icon icon-name={gc.statusIcon} size="xx-small" class="statusIcon"></lightning-icon>
+                  <span class="statusText">{gc.statusLabel}</span>
+                </span>
+                <template if:true={gc.expanded}>
+                  <button class="saveAllBtn" type="button" onclick={handleSaveSingle} data-id={gc.id}
+                    disabled={gc.isSaving}>
+                    <span>{gc.saveBtnLabel}</span>
+                  </button>
+                </template>
+
+                <lightning-button-icon class="chev" icon-name={gc.chevronIcon} variant="bare" alternative-text="Toggle"
+                  onclick={toggleCard} data-id={gc.id}></lightning-button-icon>
+              </div>
+            </div>
+
+            <template if:true={gc.expanded}>
+              <div class="cardBody">
+                <div class="section">
+                  <div class="sectionHead">
+                    <div class="sectionIconWrap blue">
+                      <lightning-icon icon-name="utility:apps" size="x-small" class="sectionIconSvg"></lightning-icon>
+                    </div>
+                    <div>
+                      <div class="sectionTitle">Configuration Settings</div>
+                      <div class="sectionDesc slds-text-color_weak">
+                        Define the base parameters for your contribution rules.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid2">
+                    <div class="box">
+                      <div class="boxTitle">Employee Type Applied For Contribution</div>
+                      <div class="boxDesc slds-text-color_weak">Choose segmentation dimension.</div>
+
+                      <div class="optionGroup">
+                        <button class={gc.modelFtPtClass} data-id={gc.id} data-field="employeeTypeModel"
+                          data-value="FullTime_PartTime" onclick={selectOption} disabled={gc.disableModelFtPt}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">Full Time / Part Time</span>
+                        </button>
+
+                        <button class={gc.modelExemptClass} data-id={gc.id} data-field="employeeTypeModel"
+                          data-value="Exempt_NonExempt" onclick={selectOption} disabled={gc.disableModelExempt}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">Exempt / Non-Exempt</span>
+                        </button>
+
+                        <button class={gc.modelNoneClass} data-id={gc.id} data-field="employeeTypeModel"
+                          data-value="None" onclick={selectOption} disabled={gc.disableModelNone}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">None</span>
+                        </button>
+                      </div>
+
+                      <template if:true={gc.showLockedWarning}>
+                        <div class="lockedBanner">
+                          {gc.lockedWarningText}
+                        </div>
+                      </template>
+
+                      <template if:true={gc.showModelInfo}>
+                        <div class="infoBanner">
+                          {gc.modelInfoText}
+                        </div>
+                      </template>
+                    </div>
+
+                    <div class="box">
+                      <div class="boxTitle">Apply Dependent Differentiators</div>
+                      <div class="boxDesc slds-text-color_weak">
+                        If enabled: Employee Only / Employee +1 / Family.
+                      </div>
+
+                      <div class="optionGroup">
+                        <button class={gc.depYesClass} data-id={gc.id} data-field="dependentDiff" data-value="YES"
+                          onclick={selectOption} disabled={gc.readonly}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">Yes → Employee Only / Employee +1 / Family</span>
+                        </button>
+
+                        <button class={gc.depNoClass} data-id={gc.id} data-field="dependentDiff" data-value="NO"
+                          onclick={selectOption} disabled={gc.readonly}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">None</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="box">
+                      <div class="boxTitle">Apply Program Based Contributions</div>
+                      <div class="boxDesc slds-text-color_weak">If enabled, contributions are defined per program.</div>
+
+                      <div class="optionGroup">
+                        <button class={gc.pbYesClass} data-id={gc.id} data-field="programBased" data-value="YES"
+                          onclick={selectOption} disabled={gc.readonly}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">Yes, Program Based</span>
+                        </button>
+
+                        <button class={gc.pbNoClass} data-id={gc.id} data-field="programBased" data-value="NO"
+                          onclick={selectOption} disabled={gc.readonly}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">None</span>
+                        </button>
+                      </div>
+
+                    </div>
+
+                    <div class="box">
+                      <div class="boxTitle">Contribution Type</div>
+                      <div class="boxDesc slds-text-color_weak">Defines the method used for contributions.</div>
+
+                      <div class="optionGroup">
+                        <button class={gc.ctFlatAmtClass} data-id={gc.id} data-field="contributionMethod"
+                          data-value="Flat_Amount" onclick={selectOption} disabled={gc.readonly}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">Flat Amount ($)</span>
+                        </button>
+
+                        <button class={gc.ctFlatPctClass} data-id={gc.id} data-field="contributionMethod"
+                          data-value="Flat_Percentage" onclick={selectOption} disabled={gc.disableFlatPct}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">Flat % (Percentage)</span>
+                        </button>
+
+                        <button class={gc.ctLowestCostClass} data-id={gc.id} data-field="contributionMethod"
+                          data-value="Percent_Of_Lowest_Cost" onclick={selectOption} disabled={gc.disableLowestCost}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">% of lowest cost offered</span>
+                        </button>
+
+                        <button class={gc.ctLowestByCatClass} data-id={gc.id} data-field="contributionMethod"
+                          data-value="Percent_Of_Lowest_By_Category" onclick={selectOption}
+                          disabled={gc.disableLowestByCat}>
+                          <span class="radioDot"></span>
+                          <span class="radioLabel">% of lowest cost per “WeShare & Access”</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <template if:true={gc.disableLowestCostOptions}>
+                    <div class="warnBanner">
+                      <div class="dot"></div>
+                      <div>
+                        <div class="warnTitle">Restricted Options</div>
+                        <div class="warnText">
+                          Percentage-based options are disabled when Program Based contributions are selected.
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+
+                <div class="section">
+                  <div class="sectionHead">
+                    <div class="sectionIconWrap blue">
+                      <lightning-icon icon-name="utility:task" size="x-small" class="sectionIconSvg"></lightning-icon>
+                    </div>
+                    <div>
+                      <div class="sectionTitle">Program Selection</div>
+                      <div class="sectionDesc slds-text-color_weak">
+                        Choose which programs will be offered in this Group Class.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="programGrid">
+                    <div class="programCol">
+                      <div class="programColTitle">AVAILABLE PROGRAMS</div>
+                      <div class="programList">
+                        <template for:each={gc.availableProgramsUi} for:item="p">
+                          <button key={p.id} class={p.cardClass} data-id={gc.id} data-prog={p.id} data-list="available"
+                            onclick={toggleProgramPick} disabled={gc.readonly}>
+                            <div class="pName">{p.name}</div>
+                            <div class="pDesc">{p.description}</div>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+
+                    <div class="programCol">
+                      <div class="programColTitle">SELECTED PROGRAMS ({gc.selectedCount})</div>
+                      <div class="programList selectedList">
+                        <template for:each={gc.selectedProgramsUi} for:item="p">
+                          <div key={p.id} class="selectedRow">
+                            <div class="selectedCard">
+                              <div class="pName">{p.name}</div>
+                              <div class="pDesc">{p.description}</div>
+                            </div>
+                            <button class="removeBtn" title="Remove" data-id={gc.id} data-prog={p.id}
+                              onclick={removeSelectedProgram} disabled={gc.readonly}>
+                              ✕
+                            </button>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="programActions">
+                    <lightning-button variant="brand" label="Add Selected" onclick={addSelectedPrograms} data-id={gc.id}
+                      disabled={gc.disableAddSelected}></lightning-button>
+                  </div>
+                </div>
+
+                <div class="section">
+                  <div class="sectionHead">
+                    <div class="sectionIconWrap purple">
+                      <lightning-icon icon-name="utility:table" size="x-small" class="sectionIconSvg"></lightning-icon>
+                    </div>
+                    <div>
+                      <div class="sectionTitle">Contribution Matrix</div>
+                      <div class="sectionDesc slds-text-color_weak">
+                        Configure contribution values based on your settings.
+                      </div>
+                    </div>
+                  </div>
+
+                  <template if:true={gc.matrixUi.showLowestCostWarning}>
+                    <div class="matrixBanner slds-notify slds-notify_alert slds-theme_warning" role="alert">
+                      <span class="slds-assistive-text">Warning</span>
+
+                      <lightning-icon icon-name="utility:warning" size="small" variant="warning"
+                        class="matrixWarningIcon"></lightning-icon>
+
+                      <div>
+                        <div><strong>Contributions are calculated using the lowest cost program overall</strong></div>
+                        <div class="matrixBannerSubtext">
+                          Ensure all values are properly configured before saving
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+
+                  <div class="matrixPlaceholder">
+                    <template if:true={gc.matrixUi.hasRows}>
+                      <div class="matrixTableWrap">
+                        <table class="matrixTable">
+                          <thead>
+                            <tr>
+                              <template for:each={gc.matrixUi.headers} for:item="h">
+                                <th key={h.key}>{h.label}</th>
+                              </template>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            <template for:each={gc.matrixUi.rows} for:item="r">
+                              <tr key={r.key}>
+                                <template for:each={r.cells} for:item="c">
+                                  <td key={c.key} class={c.tdClass}>
+                                    <template if:true={c.isLabel}>
+                                      {c.label}
+                                    </template>
+
+                                    <template if:false={c.isLabel}>
+                                      <div class="inputCell">
+                                        <span class="prefix">{gc.matrixUi.valuePrefix}</span>
+
+                                        <lightning-input type="number" variant="label-hidden" value={c.value}
+                                          data-gcid={gc.id} data-cellkey={c.cellKey} onchange={handleMatrixValueChange}
+                                          disabled={gc.readonly}></lightning-input>
+
+                                        <span class="suffix">{gc.matrixUi.valueSuffix}</span>
+                                      </div>
+                                    </template>
+                                  </td>
+                                </template>
+                              </tr>
+                            </template>
+                          </tbody>
+                        </table>
+                      </div>
+                    </template>
+
+                    <template if:false={gc.matrixUi.hasRows}>
+                      <div class="emptyState">
+                        Select at least one program to configure contributions.
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </section>
+        </template>
+      </div>
+    </template>
+  </div>
+
+  <template if:true={showResetModal}>
+    <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <h2 class="slds-text-heading_medium">
+            ⚠️ Change Group Classes
+          </h2>
+        </header>
+
+        <div class="slds-modal__content slds-p-around_medium">
+          <p>
+            Changing Group Classes will reset all contribution configurations defined so far.
+            This action cannot be undone. Are you sure you want to continue?
+          </p>
+        </div>
+
+        <footer class="slds-modal__footer">
+          <lightning-button variant="neutral" label="Cancel" onclick={closeResetModal}
+            disabled={loading}></lightning-button>
+
+          <lightning-button class="slds-m-left_small" variant="destructive" label="Continue" onclick={confirmReset}
+            disabled={loading}></lightning-button>
+        </footer>
+      </div>
+    </section>
+
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+</template>

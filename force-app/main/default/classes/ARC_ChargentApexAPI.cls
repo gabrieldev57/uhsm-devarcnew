@@ -31,7 +31,6 @@ global without sharing class ARC_ChargentApexAPI implements vlocity_ins.VlocityO
     @InvocableMethod(label='Take Chargent Payment' description='Takes the Chargent Order payment from the Id' category='Chargent Order')
     
     public static List<ChargentOrders__ChargentOrder__c> chargeOrder (List<ChargentOrders__ChargentOrder__c> orders) {
-        System.debug('Inside draft order test');
         for (ChargentOrders__ChargentOrder__c order : orders) {
             draftOrder(order.Id);
         }

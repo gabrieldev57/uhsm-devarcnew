@@ -181,8 +181,8 @@ public without sharing class ARC_AccountContMembCovUpdateBatchTest {
             Assert.areEqual(Date.newInstance(2020, 10, 10), resultList[0].ARC_ContinuousCoverageStartDate__c, 'Error calculating the Continuous Coverage Start Date of the first member');
             Assert.areEqual(Date.newInstance(2021, 10, 11), resultList[0].ARC_Last_Aggregator_Reset_Date__c, 'Error calculating the Continuous Coverage Start Date of the first member');
     
-            Assert.areEqual(Date.newInstance(2000, 1, 1), resultList[1].ARC_ContinuousCoverageStartDate__c, 'Error calculating the Continuous Coverage Start Date of the second member');
-            Assert.areEqual(Date.newInstance(2000, 1, 1), resultList[1].ARC_Last_Aggregator_Reset_Date__c, 'Error calculating the Continuous Coverage Start Date of the second member');
+            Assert.areEqual(Date.newInstance(2023, 10, 11), resultList[1].ARC_ContinuousCoverageStartDate__c, 'Error calculating the Continuous Coverage Start Date of the second member');
+            Assert.areEqual(Date.newInstance(2023, 10, 11), resultList[1].ARC_Last_Aggregator_Reset_Date__c, 'Error calculating the Continuous Coverage Start Date of the second member');
         
     }
 }

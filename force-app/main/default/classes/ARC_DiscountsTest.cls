@@ -6,7 +6,9 @@ public with sharing class ARC_DiscountsTest {
     static void makeData(){
         // Create test accounts
         List<Account> testAccounts = ARC_TestUtility.createTestAccount(1, 'ARC_IFPPersonAccount');
-        testAccounts[0].ARC_ContinuousMembershipStartDate__c = System.today();
+        testAccounts[0].ARC_ContinuousMembershipStartDate__c = Date.newInstance(2024, 10, 01);
+
+        List<User> admin = [SELECT Id FROM User WHERE  Profile.Name='System Administrator' AND isActive = true LIMIT 1];
 
         //Create vlocity_ins__GroupCensusMember__c
 		List<vlocity_ins__GroupCensusMember__c> censMemb = ARC_TestUtility.createTestCensusMember(1);
@@ -24,6 +26,7 @@ public with sharing class ARC_DiscountsTest {
 		testContracts[0].ARC_EffectiveDate__c = System.today().addDays(1);
         testContracts[0].ARC_PaidThroughDate__c = System.today();
         testContracts[0].AccountId = testAccounts[0].Id;
+        testContracts[0].ARC_Selling_Agent__c = admin[0].Id;
         insert testContracts;
         testContracts[0].Status = 'Awaiting Activation';
         update testContracts;
@@ -55,6 +58,7 @@ public with sharing class ARC_DiscountsTest {
         List<Product2> testProducts = ARC_TestUtility.createTestProducts(2);
         for(Product2 prod : testProducts) {
             prod.vlocity_ins__Type__c = 'Medical';
+            prod.Name = 'WeShare 3K';
         }
         update testProducts;
         
@@ -66,6 +70,7 @@ public with sharing class ARC_DiscountsTest {
             vlocity_ins__ContractLineItem__c cli = testCLIs[i];
             cli.vlocity_ins__ContractId__c = testContracts[0].Id;
             cli.vlocity_ins__ProductId__c = testProducts[i].Id;
+            cli.Name = testProducts[i].Name;
             cli.ARC_SmokerFee__c = 50;
             cli.ARC_ExtraDependentFee__c = 50;
             cli.ARC_OriginalPrice__c = 100;
@@ -73,6 +78,12 @@ public with sharing class ARC_DiscountsTest {
             cli.vlocity_ins__UnitPrice__c  = 70;
         }
         update testCLIs;
+        for(vlocity_ins__ContractLineItem__c cli : testCLIs) {
+            if(cli.Name == 'WeShare 3K') {
+                testContracts[0].ARC_MedicalPlan__c=cli.Id;
+            }
+        }
+        update testContracts;
 
         Id healthyDiscountRecordTypeId = Schema.SObjectType.ARC_PromotionDiscount__c.getRecordTypeInfosByDeveloperName().get('Healthy_Discount').getRecordTypeId();
         Id temporaryDiscountRecordTypeId = Schema.SObjectType.ARC_PromotionDiscount__c.getRecordTypeInfosByDeveloperName().get('Temporary_Discount').getRecordTypeId();
@@ -129,12 +140,6 @@ public with sharing class ARC_DiscountsTest {
             promotionDiscounts.add(discount);
         }
         insert promotionDiscounts;
-
-
-
-
-
-
     }
 
     /************************Test Methods************************/
@@ -176,7 +181,7 @@ public with sharing class ARC_DiscountsTest {
     static void testGetPlansWithDiscounts() {
         List<vlocity_ins__ContractLineItem__c> testPlans = [SELECT Id, vlocity_ins__UnitPrice__c, ARC_OriginalPrice__c, ARC_SmokerFee__c, ARC_ExtraDependentFee__c, vlocity_ins__ContractId__c, vlocity_ins__ProductType__c FROM vlocity_ins__ContractLineItem__c];
 
-        List<ARC_PromotionDiscount__c> testDiscounts = [SELECT Id, Name, ARC_StartDate__c, ARC_Description__c, ARC_EndDate__c, ARC_PromoCode__c, RecordTypeId, ARC_ApplyOver__c, ARC_ApplyFirst__c, ARC_DiscountRate__c, ARC_PromoCode__r.ARC_DiscountRate__c, ARC_DiscountedAmount__c, ARC_PromoCode__r.ARC_DiscountedAmount__c, ARC_Status__c, ARC_PromoCode__r.ARC_ApplyOver__c, ARC_Contract__c FROM ARC_PromotionDiscount__c ];
+        List<ARC_PromotionDiscount__c> testDiscounts = [SELECT Id, Name, ARC_StartDate__c, ARC_Description__c, ARC_EndDate__c, ARC_PromoCode__c, RecordTypeId, ARC_ApplyOver__c, ARC_ApplyFirst__c, ARC_DiscountRate__c, ARC_PromoCode__r.ARC_DiscountRate__c, ARC_DiscountedAmount__c, ARC_PromoCode__r.ARC_DiscountedAmount__c, ARC_Status__c, ARC_PromoCode__r.ARC_ApplyOver__c, ARC_Contract__c, ARC_SMART__c, ARC_SMART__r.vlocity_ins__ContractLineId__c, ARC_AIDD__c, ARC_AIDD__r.vlocity_ins__ContractLineId__c FROM ARC_PromotionDiscount__c ];
         
         Test.startTest();
         List<vlocity_ins__ContractLineItem__c> updatedPlans = ARC_Discounts.getPlansWithDiscounts(testPlans, testDiscounts);
@@ -330,7 +335,7 @@ public with sharing class ARC_DiscountsTest {
     static void testPopulateDiscountDollarAmmounts() {
 
         List<vlocity_ins__ContractLineItem__c> plans = [SELECT Id, vlocity_ins__UnitPrice__c, ARC_OriginalPrice__c, ARC_SmokerFee__c, ARC_ExtraDependentFee__c, vlocity_ins__ContractId__c, vlocity_ins__ProductType__c FROM vlocity_ins__ContractLineItem__c];
-        List<ARC_PromotionDiscount__c> discounts = [SELECT Id, Name, ARC_Active__c, ARC_StartDate__c, ARC_Description__c, ARC_EndDate__c, ARC_PromoCode__c, RecordTypeId, ARC_ApplyOver__c, ARC_ApplyFirst__c, ARC_DiscountRate__c, ARC_PromoCode__r.ARC_DiscountRate__c, ARC_DiscountedAmount__c, ARC_PromoCode__r.ARC_DiscountedAmount__c, ARC_Status__c, ARC_PromoCode__r.ARC_ApplyOver__c, ARC_Contract__c FROM ARC_PromotionDiscount__c ];
+        List<ARC_PromotionDiscount__c> discounts = [SELECT Id, Name, ARC_Active__c, ARC_StartDate__c, ARC_Description__c, ARC_EndDate__c, ARC_PromoCode__c, RecordTypeId, ARC_ApplyOver__c, ARC_ApplyFirst__c, ARC_DiscountRate__c, ARC_PromoCode__r.ARC_DiscountRate__c, ARC_DiscountedAmount__c, ARC_PromoCode__r.ARC_DiscountedAmount__c, ARC_Status__c, ARC_PromoCode__r.ARC_ApplyOver__c, ARC_Contract__c, ARC_SMART__c, ARC_SMART__r.vlocity_ins__ContractLineId__c, ARC_AIDD__c, ARC_AIDD__r.vlocity_ins__ContractLineId__c FROM ARC_PromotionDiscount__c ];
         Map<Id,Map<Id,ARC_PromotionDiscount__c>> discountMap = new Map<Id,Map<Id,ARC_PromotionDiscount__c>>();
         discountMap.put(plans[0].vlocity_ins__ContractId__c, new Map<Id,ARC_PromotionDiscount__c>());
         discountMap.get(plans[0].vlocity_ins__ContractId__c).put(discounts[0].Id, discounts[0]);
@@ -534,7 +539,7 @@ public with sharing class ARC_DiscountsTest {
     @isTest
     static void testIsDiscountApplicable() {
 
-        ARC_PromotionDiscount__c discount = [SELECT Id, ARC_ApplyOver__c, ARC_PromoCode__r.ARC_ApplyOver__c,ARC_PromoCode__r.ARC_DiscountedAmount__c,ARC_DiscountedAmount__c FROM ARC_PromotionDiscount__c LIMIT 1];
+        ARC_PromotionDiscount__c discount = [SELECT Id, ARC_ApplyOver__c, ARC_PromoCode__r.ARC_ApplyOver__c,ARC_PromoCode__r.ARC_DiscountedAmount__c,ARC_DiscountedAmount__c, ARC_SMART__c, ARC_SMART__r.vlocity_ins__ContractLineId__c, ARC_AIDD__c, ARC_AIDD__r.vlocity_ins__ContractLineId__c FROM ARC_PromotionDiscount__c LIMIT 1];
         vlocity_ins__ContractLineItem__c plan = [SELECT vlocity_ins__ProductType__c FROM vlocity_ins__ContractLineItem__c LIMIT 1];
 
         Test.startTest();
@@ -607,11 +612,11 @@ public with sharing class ARC_DiscountsTest {
     @isTest
     static void testGetDiscountAccounts() {
 
-        Contract testContract = [SELECT Id FROM Contract LIMIT 1];
+        Contract testContract = [SELECT Id, ARC_Selling_Agent__c FROM Contract LIMIT 1];
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
 
         List<ARC_ContractParticipant__c> contList = new List<ARC_ContractParticipant__c>();
-         for (Integer i = 0; i < 2; i++) {
+         for (Integer i = 0; i < 1; i++) {
             ARC_ContractParticipant__c cp = new ARC_ContractParticipant__c();
             cp.Name = 'Sarah Participant Expire';
             cp.ARC_Contract__c = testContract.Id;

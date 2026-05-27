@@ -1,0 +1,56 @@
+<template>
+    <div class="form-container" oncontactupdate={handleContactUpdate} oncompanyaddresschange={handleCompanyAddressChange}>
+        
+
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+        </template>
+
+        <div class="form-sections slds-p-around_medium">
+            <!-- 1. Business Details -->
+            <c-a-r-c_-business-details-section
+                data-section="businessDetails"
+                record-id={recordId}
+                start-open
+                onsave={handleSectionSave}>
+            </c-a-r-c_-business-details-section>
+
+            <!-- 2. Payment -->
+            <c-a-r-c_-payment-info-section
+                data-section="paymentInfo"
+                record-id={recordId}
+                onsave={handleSectionSave}>
+            </c-a-r-c_-payment-info-section>
+
+            <!-- 3. Contacts -->
+            <c-a-r-c_-company-contact-section
+                data-section="primaryContact"
+                record-id={recordId}
+                onsave={handleSectionSave}>
+            </c-a-r-c_-company-contact-section>
+
+             <!-- 4. Account Manager -->
+            <c-a-r-c_-account-manager-section
+                data-section="accountManager"
+                record-id={recordId}
+                onsave={handleSectionSave}>
+            </c-a-r-c_-account-manager-section>
+
+            <!-- 5. Owners -->
+            <c-a-r-c_-ownership-section
+                data-section="ownership"
+                record-id={recordId}
+                onsave={handleSectionSave}>
+            </c-a-r-c_-ownership-section>
+
+            <!-- 6. Affiliated Entities -->
+            <c-a-r-c_-affiliated-entities-section
+                data-section="affiliatedEntities"
+                record-id={recordId}
+                onsave={handleSectionSave}>
+            </c-a-r-c_-affiliated-entities-section>
+
+           
+        </div>
+    </div>
+</template>

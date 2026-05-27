@@ -1,0 +1,121 @@
+.business-contact-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    margin: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background-color: #f8f9fb;
+}
+
+.avatar-wrapper {
+    flex-shrink: 0;
+    width: 48px;
+}
+
+.avatar-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    background-color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content-wrapper {
+    width: calc(100% - 64px);
+    min-width: 0px;
+}
+
+.header-block {
+    margin-bottom: 14px;
+}
+
+.contact-name a {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0176d3;
+    text-decoration: none;
+}
+
+.contact-name a:hover {
+    text-decoration: underline;
+}
+
+.contact-title {
+    margin-top: 3px;
+    color: #3e3e3c;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 260px 260px;
+    column-gap: 32px;
+    row-gap: 14px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #3e3e3c;
+    font-size: 14px;
+    line-height: 20px;
+    min-width: 0px;
+}
+
+.detail-item a {
+    color: #0176d3;
+    text-decoration: none;
+}
+
+.detail-item a:hover {
+    text-decoration: underline;
+}
+
+.address-item {
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
+
+.address-text {
+    white-space: pre-line;
+    line-height: 22px;
+}
+
+.state-message {
+    padding: 16px;
+    color: #5c5c5c;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.error-message {
+    color: #ba0517;
+}
+
+@media (max-width: 768px) {
+    .business-contact-card {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .content-wrapper {
+        width: 100%;
+    }
+
+    .details-grid {
+        grid-template-columns: 260px;
+        row-gap: 14px;
+        column-gap: 0px;
+    }
+
+    .address-item {
+        grid-column-start: 1;
+        grid-column-end: 2;
+    }
+}

@@ -389,6 +389,7 @@ global without sharing class ARC_Emails implements vlocity_ins.VlocityOpenInterf
 				String newMonthlyContribution = String.valueOf(
 					account.Age_Up__r[0].ARC_PriceAfterAgeUp__c
 				);
+				String programName = account.Age_Up__r[0].Contract__r.ARC_MedicalPlan__r.Name ?? 'WeShare';
 				Date ageUpEffectiveDate = account.Age_Up__r[0]
 						.ARC_ManualDelay__c != null
 					? account.Age_Up__r[0].ARC_ManualDelay__c
@@ -416,6 +417,7 @@ global without sharing class ARC_Emails implements vlocity_ins.VlocityOpenInterf
 						currentMonthlycontribution,
 						newMonthlyContribution,
 						nextTransactionMonth,
+						programName,
 						icons
 					);
 					message.setSubject(
@@ -426,9 +428,7 @@ global without sharing class ARC_Emails implements vlocity_ins.VlocityOpenInterf
 						firstName,
 						ageOffName,
 						ageOffbirthdateformat,
-						currentMonthlycontribution,
-						newMonthlyContribution,
-						nextTransactionMonth,
+						nextTransactionDateformat,
 						icons
 					);
 					message.setSubject(
@@ -2115,97 +2115,7 @@ global without sharing class ARC_Emails implements vlocity_ins.VlocityOpenInterf
 		Map<String, String> mergeSyntaxToApiNameMap,
 		Map<Id, Id> userToMember
 	) {
-		Map<String, Object> response = new Map<String, Object>();
-		List<EmailMessage> emList = new List<EmailMessage>();
-		List<EmailTemplate> emailTemp = [
-			SELECT Subject, HtmlValue
-			FROM EmailTemplate
-			WHERE DeveloperName = :templateDeveloperName
-			LIMIT 1
-		];
-		List<Messaging.SingleEmailMessage> emailList = new List<Messaging.SingleEmailMessage>();
-		List<Id> userIds = new List<Id>();
-		for (User user : users) {
-			userIds.add(user.Id);
-		}
-		List<User> usersList = [
-			SELECT FirstName, Username, Name, Email, AccountId 
-			FROM USER
-			WHERE Id IN :userIds
-		];
-		String resetPasswordUrl =
-			'https://' +
-			ARC_CommunityController.domainURLCommunity +
-			'/members/s/set-username-and-password?';
-		if (!emailTemp.isEmpty() && !usersList.isEmpty()) {
-            //Map<Messaging.SingleEmailMessage, Id> emailRecipient = new Map<Messaging.SingleEmailMessage, Id>();
-			for (User u : usersList) {
-				Map<String, Object> mergeFieldsMap = new Map<String, Object>();
-				Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-
-				//Add Signature Images
-				addSignatureImagesToMap(mergeFieldsMap);
-
-				email.setOrgWideEmailAddressId(oMail.Id);
-				email.setSubject(emailTemp[0].Subject);
-				email.setBccSender(false);
-				email.setUseSignature(false);
-				email.setToAddresses(new List<String>{ u.Email });
-				email.setWhatId(u.AccountId);
-
-				for (String key : mergeSyntaxToApiNameMap.keySet()) {
-					String value = (String) mergeSyntaxToApiNameMap.get(key);
-					mergeFieldsMap.put(key, u.get(value));
-				}
-
-				String encryptedUserId = ARC_EncryptionHelper.encryptText(u.Id);
-				mergeFieldsMap.put(
-					'{!Reset.Password.Url}',
-					resetPasswordUrl + 'id=' + encryptedUserId
-				);
-
-				email.setHtmlBody(
-					ARC_Emails.replaceEmailTemplateFields(
-						mergeFieldsMap,
-						emailTemp[0].HtmlValue
-					)
-				);
-				emailList.add(email);
-                //emailRecipient.put(email, u.AccountId);
-			}
-			try {
-				List<Messaging.SendEmailResult> results = Messaging.sendEmail(
-					emailList
-				);
-                for (Messaging.SendEmailResult r : results) {
-					if (!r.isSuccess())
-						throw new EmailException();
-				}
-                // for(Messaging.SingleEmailMessage message : emailList){
-                //     ARC_EmailMessageQueable messageQueable = new ARC_EmailMessageQueable(
-                //         message.toAddresses,
-                //         message.subject,
-                //         null,
-                //         Datetime.now()
-                //     );
-                //     messageQueable.recipientId = emailRecipient.get(message);
-                //     messageQueable.execute(null);
-                // }
-			} catch (EmailException e) {
-				response.put('success', false);
-				response.put('message', e.getMessage());
-				String apexErrorEmail = System.Label.ARC_ApexErrorEmail;
-            	ARC_QueableSendFileBatch.sendEmailNotification(('Error in ARC_Emails sendResetUsernameAndPasswordEmailConstructor: '+e.getMessage()), 'ERROR ARC_Emails sendResetUsernameAndPasswordEmailConstructor', apexErrorEmail);
-				return response;
-			}
-		} else {
-			response.put('success', false);
-			response.put('message', 'Invalid arguments');
-			return response;
-		}
-		response.put('success', true);
-		response.put('message', 'Email List sent successfully!');
-		return response;
+		return new Map<String, Object>();
 	}
 
 	public static String replaceEmailTemplateFields(
@@ -2233,74 +2143,7 @@ global without sharing class ARC_Emails implements vlocity_ins.VlocityOpenInterf
 		category='Member Portal'
 	)
 	public static void sendWelcomeEmail(List<Id> contactId) {
-		List<EmailTemplate> emailTemp = [
-			SELECT Subject, HtmlValue
-			FROM EmailTemplate
-			WHERE DeveloperName = 'WeSharePortalWelcomeEmailSelfEnroll'
-			LIMIT 1
-		];
-		//Map<Messaging.SingleEmailMessage, Id> emailRecipient = new Map<Messaging.SingleEmailMessage, Id>();
-		List<Messaging.SingleEmailMessage> emailList = new List<Messaging.SingleEmailMessage>();
-		List<User> portalUsers = [
-			SELECT Id, FirstName, Name, ARC_PortalUsername__c, Email, AccountId
-			FROM User
-			WHERE ContactId IN :contactId
-		];
-		String loginUrl =
-			'https://' +
-			ARC_CommunityController.domainURLCommunity +
-			'/members/s/login';
-		Id memberServicesId = ARC_Emails.oMail.Id;
-
-		if (!portalUsers.isEmpty()) {
-			for (User u : portalUsers) {
-				Map<String, Object> mergeFieldsMap = new Map<String, Object>();
-				Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-				addSignatureImagesToMap(mergeFieldsMap);
-
-				email.setOrgWideEmailAddressId(memberServicesId);
-				email.setSubject(emailTemp[0].Subject);
-				email.setBccSender(false);
-				email.setUseSignature(false);
-				email.setWhatId(u.AccountId);
-				email.setToAddresses(new List<String>{ u.Email });
-				//Generate the Merge Field Map
-				mergeFieldsMap.put('{!User.FirstName}', u.FirstName);
-				mergeFieldsMap.put(
-					'{!User.PortalUsername}',
-					u.ARC_PortalUsername__c
-				);
-				mergeFieldsMap.put('{!Portal.LoginUrl}', loginUrl);
-				//Repalce the merge fields.
-				email.setHtmlBody(
-					ARC_Emails.replaceEmailTemplateFields(
-						mergeFieldsMap,
-						emailTemp[0].HtmlValue
-					)
-				);
-				emailList.add(email);
-				//emailRecipient.put(email, u.AccountId);
-			}
-			//Send the Emails
-			try {
-				List<Messaging.SendEmailResult> results = Messaging.sendEmail(
-					emailList
-				);
-				// for(Messaging.SingleEmailMessage message : emailList){
-                //     ARC_EmailMessageQueable messageQueable = new ARC_EmailMessageQueable(
-                //         message.toAddresses,
-                //         message.subject,
-                //         null,
-                //         Datetime.now()
-                //     );
-                //     messageQueable.recipientId = emailRecipient.get(message);
-                //     messageQueable.execute(null);
-                // }
-			} catch (Exception e) {
-				String apexErrorEmail = System.Label.ARC_ApexErrorEmail;
-            	ARC_QueableSendFileBatch.sendEmailNotification(('Error in ARC_Emails sendWelcomeEmail: '+e.getMessage()), 'ERROR ARC_Emails sendWelcomeEmail', apexErrorEmail);
-			}
-		}
+		
 	}
 
 	

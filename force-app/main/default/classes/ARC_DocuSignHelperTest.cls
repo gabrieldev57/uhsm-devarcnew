@@ -262,6 +262,7 @@ public with sharing class ARC_DocuSignHelperTest{
                 templateSettings.ARC_DRTransform__c = 'Transform for ' + reason;
                 templateSettings.ARC_Min_Dependents__c = minDeps;
                 templateSettings.ARC_Max_Dependents__c = i * 5;
+                if (reason == 'New Application') templateSettings.ARC_PlanType__c = 'WeShare';
                 minDeps = (i * 5) + 1;
                 templateSettingsList.add(templateSettings);
             }
@@ -291,9 +292,9 @@ public with sharing class ARC_DocuSignHelperTest{
 
 
                 Integer num = dependents/5 ;
-                vlocity_ins__VlocityDocuSignTemplate__c returnedTemplate = (vlocity_ins__VlocityDocuSignTemplate__c)ret.get('Template');
+                Map<String,String> returnedTemplate = (Map<String,String>)ret.get('Template');
     
-                System.assertEquals('Template ' + reason + num, (String)returnedTemplate.get('name'));
+                System.assertEquals('Template ' + reason + num, (String)returnedTemplate.get('Name'));
 
             }
 

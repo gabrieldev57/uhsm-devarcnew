@@ -1,0 +1,142 @@
+<template>
+    <!-- With Card Wrapper -->
+    <template lwc:if={showCard}>
+        <div class="contact-form-card">
+            <div class="contact-form-header">
+                <span class="custom-header-icon" data-icon="header" aria-hidden="true">
+                </span>
+
+                <span class="contact-form-title">{title}</span>
+            </div>
+            <div class="contact-form-body">
+                <div class="slds-grid slds-wrap slds-gutters_small">
+                    <!-- First Name -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input type="text" label="First Name" value={firstName} required={required}
+                            disabled={readOnly} data-field="firstName" onchange={handleFieldChange}>
+                        </lightning-input>
+                    </div>
+                    <!-- Last Name -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input type="text" label="Last Name" value={lastName} required={required}
+                            disabled={readOnly} data-field="lastName" onchange={handleFieldChange}>
+                        </lightning-input>
+                    </div>
+                    <!-- Title -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input type="text" label="Title" value={contactTitle} required={required}
+                            disabled={readOnly} data-field="title" onchange={handleFieldChange}>
+                        </lightning-input>
+                    </div>
+                    <!-- Email -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input type="email" label="Email Address" value={email} required={required}
+                            disabled={readOnly} data-field="email" onchange={handleFieldChange}>
+                        </lightning-input>
+                    </div>
+                    <!-- Phone -->
+                    <template lwc:if={showPhoneField}>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input type="tel" label="Phone Number" value={phone} required={required}
+                            disabled={readOnly} data-field="phone" placeholder="(555) 123-4567"
+                            onchange={handleFieldChange} onfocus={handlePhoneFocus} onblur={handlePhoneBlur}
+                            onkeydown={handlePhoneKeyDown}>
+                        </lightning-input>
+                    </div>
+                    </template>
+                    <!-- Street -->
+                    <template lwc:if={showAddressFields}>
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-input type="text" label="Street" value={street} disabled={readOnly}
+                                data-field="street" onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+                        <!-- City -->
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                            <lightning-input type="text" label="City" value={city} disabled={readOnly} data-field="city"
+                                onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+                        <!-- State -->
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                            <lightning-input type="text" label="State" value={state} disabled={readOnly}
+                                data-field="state" maxlength="2" onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+                        <!-- Zip -->
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                            <lightning-input type="text" label="Zip Code" value={zip} disabled={readOnly}
+                                data-field="zip" onchange={handleFieldChange}>
+                            </lightning-input>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Without Card Wrapper (fields only) -->
+    <template lwc:else>
+        <div class="slds-grid slds-wrap slds-gutters_small">
+            <!-- First Name -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input type="text" label="First Name" value={firstName} required={required}
+                    disabled={readOnly} data-field="firstName" onchange={handleFieldChange}>
+                </lightning-input>
+            </div>
+            <!-- Last Name -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input type="text" label="Last Name" value={lastName} required={required} disabled={readOnly}
+                    data-field="lastName" onchange={handleFieldChange}>
+                </lightning-input>
+            </div>
+            <!-- Title -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input type="text" label="Title" value={contactTitle} required={required} disabled={readOnly}
+                    data-field="title" onchange={handleFieldChange}>
+                </lightning-input>
+            </div>
+            <!-- Email -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input type="email" label="Email Address" value={email} required={required}
+                    disabled={readOnly} data-field="email" onchange={handleFieldChange}>
+                </lightning-input>
+            </div>
+            <!-- Phone -->
+            <template lwc:if={showPhoneField}>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input type="tel" label="Phone Number" value={phone} required={required} disabled={readOnly}
+                    data-field="phone" placeholder="(555) 123-4567" onchange={handleFieldChange}
+                    onfocus={handlePhoneFocus} onblur={handlePhoneBlur} onkeydown={handlePhoneKeyDown}>
+                </lightning-input>
+            </div>
+            </template>
+            <!-- Street -->
+            <template lwc:if={showAddressFields}>
+                <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                    <lightning-input type="text" label="Street" value={street} disabled={readOnly} data-field="street"
+                        onchange={handleFieldChange}>
+                    </lightning-input>
+                </div>
+                <!-- City -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                    <lightning-input type="text" label="City" value={city} disabled={readOnly} data-field="city"
+                        onchange={handleFieldChange}>
+                    </lightning-input>
+                </div>
+                <!-- State -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                    <lightning-input type="text" label="State" value={state} disabled={readOnly} data-field="state"
+                        maxlength="2" onchange={handleFieldChange}>
+                    </lightning-input>
+                </div>
+                <!-- Zip -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                    <lightning-input type="text" label="Zip Code" value={zip} disabled={readOnly} data-field="zip"
+                        onchange={handleFieldChange}>
+                    </lightning-input>
+                </div>
+            </template>
+        </div>
+    </template>
+</template>

@@ -6,16 +6,36 @@
                 value={keyString} placeholder="Search contract by status..."></lightning-input>
             <lightning-button onclick={newContract} label="Open contract" value="Open contract"
                 class="newContractButton"></lightning-button>
+
             <lightning-button-icon icon-name="utility:refresh" alternative-text="Refresh" title="Refresh"
                 onclick={handleRefresh}></lightning-button-icon>
         </div>
+
         <template if:true={contractList} for:each={contractList} for:item="contract" for:index="index">
             <div key={contract.id} class="main">
                 <lightning-card>
+                    
+                    <!-- expand/collapse control-->
                     <div class="container title-container">
-                        <h3>
-                            {contract.contractNumber} - {contract.status}
-                        </h3>
+                        
+
+                        <h3>{contract.contractNumber} - {contract.status}</h3>
+
+                        <div class ="buttonContract">
+                            <template lwc:if={contract.isVoided}>
+                                <template lwc:if={contract._expanded}>
+                                    <lightning-button-icon icon-name="utility:chevronup" alternative-text="Collapse"
+                                        title="Collapse" onclick={toggleContractDetails} data-id={contract.id}>
+                                    </lightning-button-icon>
+                                </template>
+                                <template lwc:else>
+                                    <lightning-button-icon icon-name="utility:chevrondown" alternative-text="Expand"
+                                        title="Expand" onclick={toggleContractDetails} data-id={contract.id}>
+                                    </lightning-button-icon>
+                                </template>
+                            </template>
+                        </div>
+
                         <div class="actions">
                             <a onclick={viewRecord} data-id={contract.id}>
                                 <lightning-icon size="x-small" icon-name="utility:case" alternative-text="View Contract"
@@ -30,41 +50,83 @@
                                     alternative-text="Contract Owner" title="Contract Owner"></lightning-icon>
                             </a>
                         </div>
+                        
                     </div>
-                    <hr />
-                    <div class="container">
-                        <div class="column">
-                            <span>Effective Date</span>
-                            <span>Paid Through Date</span>
 
-                            <!-- <span if:false={contract.hasInactiveDate}>Status</span> -->
-                            <span if:true={contract.inactiveDate}>Inactive Date</span>
-                            <span>Product Name</span>
-                            <span>Reason</span>
-                            <span if:true={contract.cancellationReason}>Cancellation Reason</span>
-                            <span if:true={contract.repriced}>Repriced</span>
-                            <span>Active Members</span>
-                            <span>Agent</span>
+                    <!-- DETAILS VOIDED -->
+                    <template lwc:if={contract.isVoided}>
+                        <template lwc:if={contract._expanded}>
+                            <div class="container minimize-container">
+                                <div class="column">
+                                    <span>Effective Date</span>
+                                    <span>Paid Through Date</span>
+                                    <span if:true={contract.inactiveDate}>Inactive Date</span>
+                                    <span>Product Name</span>
+                                    <span>Reason</span>
+                                    <span if:true={contract.cancellationReason}>Cancellation Reason</span>
+                                    <span if:true={contract.repriced}>Repriced</span>
+                                    <span>Active Members</span>
+                                    <span>Temporary Newborns</span>
+                                    <span>Agent</span>
+                                </div>
+                                <div class="column">
+                                    <p>
+                                        <lightning-formatted-date-time value={contract.effectiveDate} year="numeric"
+                                            month="numeric" day="numeric" time-zone="UTC"></lightning-formatted-date-time>
+                                    </p>
+                                    <p>{contract.paidThroughDate}</p>
+                                    <p if:true={contract.inactiveDate}>{contract.inactiveDate}</p>
+                                    <p>{contract.productName}</p>
+                                    <p>{contract.reason}</p>
+                                    <p if:true={contract.cancellationReason}>{contract.cancellationReason}</p>
+                                    <p if:true={contract.repriced}>{contract.repriced}</p>
+                                    <p>{contract.members}</p>
+                                    <p>{contract.temporaryNewborns}</p>
+                                    <p>{contract.sellingAgent}</p>
+                                </div>
+                            </div>
+                        </template>
+                        <template lwc:else></template>
+                    </template>
+
+                    <!-- non-voided -->
+                    <template lwc:else>
+                        <hr />
+                        <div class="container">
+                            <div class="column">
+                                <span>Effective Date</span>
+                                <span>Paid Through Date</span>
+                                <span if:true={contract.inactiveDate}>Inactive Date</span>
+                                <span>Product Name</span>
+                                <span>Reason</span>
+                                <span if:true={contract.cancellationReason}>Cancellation Reason</span>
+                                <span if:true={contract.repriced}>Repriced</span>
+                                <span>Active Members</span>
+                                <span>Temporary Newborns</span>
+                                <span>Agent</span>
+                            </div>
+                            <div class="column">
+                                <p>
+                                    <lightning-formatted-date-time value={contract.effectiveDate} year="numeric"
+                                        month="numeric" day="numeric" time-zone="UTC"></lightning-formatted-date-time>
+                                </p>
+                                <p>{contract.paidThroughDate}</p>
+                                <p if:true={contract.inactiveDate}>
+                                    {contract.inactiveDate}
+                                </p>
+                                <p>{contract.productName}</p>
+                                <p>{contract.reason}</p>
+                                <p if:true={contract.cancellationReason}>
+                                    {contract.cancellationReason}
+                                </p>
+                                <p if:true={contract.repriced}>{contract.repriced}</p>
+                                <p>{contract.members}</p>
+                                <p>{contract.temporaryNewborns}</p>
+                                <p>{contract.sellingAgent}</p>
+                            </div>
                         </div>
-                        <div class="column">
-                            <p>
-                                <lightning-formatted-date-time value={contract.effectiveDate} year="numeric"
-                                    month="numeric" day="numeric" time-zone="UTC"></lightning-formatted-date-time>
-                            </p>
-                            <p>{contract.paidThroughDate}</p>
-                            <p if:true={contract.inactiveDate}>
-                                {contract.inactiveDate}
-                            </p>
-                            <p>{contract.productName}</p>
-                            <p>{contract.reason}</p>
-                            <p if:true={contract.cancellationReason}>
-                                {contract.cancellationReason}
-                            </p>
-                            <p if:true={contract.repriced}>{contract.repriced}</p>
-                            <p>{contract.members}</p>
-                            <p>{contract.sellingAgent}</p>
-                        </div>
-                    </div>
+                    </template>
+
                 </lightning-card>
             </div>
         </template>

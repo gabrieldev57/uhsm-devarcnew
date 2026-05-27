@@ -1,0 +1,8 @@
+:host .slds-modal__content {
+    background-color: transparent !important;
+}
+
+:host .slds-spinner_container {
+    background-color: transparent !important;
+    background: none !important;
+}

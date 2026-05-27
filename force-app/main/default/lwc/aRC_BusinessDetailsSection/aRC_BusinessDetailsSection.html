@@ -1,0 +1,544 @@
+<template>
+    <c-a-r-c_-collapsible-section
+        title="Business Details"
+        subtitle="Company information and enrollment settings"
+        custom-icon-url={sectionIconUrl}
+        status={status}
+        accent-color="#0D9488"
+        start-open
+        auto-close-on-save
+        onsave={handleSave}>
+
+        <!-- Content Wrapper with position relative for overlay -->
+        <div class="content-wrapper">
+            <!-- Saving Spinner Overlay -->
+            <template lwc:if={isSaving}>
+                <div class="saving-overlay">
+                    <div class="saving-message">
+                        <lightning-spinner alternative-text="Saving business details..." size="large" variant="brand"></lightning-spinner>
+                    </div>
+                </div>
+            </template>
+
+            <div class="slds-grid slds-wrap slds-gutters_small">
+                <!-- Requested Effective Date -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="date"
+                        label="Requested Effective Date"
+                        name="requestedEffectiveDate"
+                        value={businessDetails.requestedEffectiveDate}
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+
+                <!-- Company Name -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="text"
+                        label="Company Name"
+                        name="companyName"
+                        value={businessDetails.companyName}
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+                <!-- Legal Company Name -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="text"
+                        label="Legal Company Name"
+                        name="legalCompanyName"
+                        value={businessDetails.legalCompanyName}
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+
+
+                <!-- Company Address - Street -->
+                <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                    <lightning-input
+                        type="text"
+                        label="Company Street Address"
+                        name="companyStreet"
+                        value={businessDetails.companyStreet}
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+
+                <!-- Company Address - City -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                    <lightning-input
+                        type="text"
+                        label="City"
+                        name="companyCity"
+                        value={businessDetails.companyCity}
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+
+                <!-- Company Address - State -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                    <lightning-combobox
+                        label="State"
+                        name="companyState"
+                        value={businessDetails.companyState}
+                        placeholder="Select State"
+                        options={stateOptions}
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-combobox>
+                </div>
+
+                <!-- Company Address - Zip -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                    <lightning-input
+                        type="text"
+                        label="Zip Code"
+                        name="companyZip"
+                        value={businessDetails.companyZip}
+                        required
+                        maxlength="10"
+                        pattern="[0-9]{5}(-[0-9]{4})?"
+                        message-when-pattern-mismatch="Please enter a valid ZIP code (e.g., 12345 or 12345-6789)"
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+
+                <!-- Open Enrollment Start Date -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="date"
+                        label="Open Enrollment Start Date"
+                        name="openEnrollmentStartDate"
+                        value={businessDetails.openEnrollmentStartDate}
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+
+                <!-- Open Enrollment End Date -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="date"
+                        label="Open Enrollment End Date"
+                        name="openEnrollmentEndDate"
+                        value={businessDetails.openEnrollmentEndDate}
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+
+                <!-- Federal Employer Tax ID Number -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="text"
+                        label="Federal Employer Tax ID Number"
+                        name="federalTaxId"
+                        value={businessDetails.federalTaxId}
+                        placeholder="XX-XXXXXXX"
+                        pattern="[0-9]{2}-[0-9]{7}"
+                        maxlength="10"
+                    message-when-pattern-mismatch="Please enter a valid Tax ID in format XX-XXXXXXX"
+                    required
+                    onkeyup={handleFederalTaxIdKeyUp}
+                    onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+
+            <!-- Doing Business As (DBA) -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="text"
+                    label="Doing Business As (DBA)"
+                    name="doingBusinessAs"
+                    value={businessDetails.doingBusinessAs}
+                    placeholder="Enter DBA name"
+                    field-level-help="If applicable"
+                    onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+
+            <!-- SIC Code (Lookup/Search) -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <c-a-r-c_-generic-lookup
+                    label="SIC Code"
+                    placeholder="Search SIC Code"
+                    object-type="SIC_Code__mdt"
+                    search-field="ARC_SicCode__c"
+                    subtitle-field="ARC_SicCodeDescription__c"
+                    icon-name="standard:account"
+                    required
+                    onselect={handleSICCodeSelect}
+                    onclear={handleSICCodeClear}>
+                </c-a-r-c_-generic-lookup>
+            </div>
+
+            <!-- NAICS 6-digit Code -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="text"
+                    label="NAICS 6-digit Code"
+                    name="naicsCode"
+                    value={businessDetails.naicsCode}
+                    placeholder="123456"
+                    required
+                    maxlength="6"
+                    onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+
+            <!-- Type of Business -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-combobox
+                    label="Type of Business"
+                    name="typeOfBusiness"
+                    value={businessDetails.typeOfBusiness}
+                    placeholder="Select Business Type"
+                    options={typeOfBusinessOptions}
+                    required
+                    onchange={handleTypeOfBusinessChange}>
+                </lightning-combobox>
+            </div>
+
+            <!-- Other Type of Business (shown when 'Other' is selected) -->
+            <template lwc:if={showOtherTypeOfBusiness}>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="text"
+                        label="Specify Type of Business"
+                        name="otherTypeOfBusiness"
+                        value={businessDetails.otherTypeOfBusiness}
+                        placeholder="Please specify..."
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+            </template>
+
+            <!-- Date Business Established -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="date"
+                    label="Date Business Established"
+                    name="dateEstablished"
+                    value={businessDetails.dateEstablished}
+                    date-style="short"
+                    required
+                    onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+
+            <!-- Organization Type -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-combobox
+                    label="Organization Type"
+                    name="organizationType"
+                    value={businessDetails.organizationType}
+                    placeholder="Select Organization Type"
+                    options={organizationTypeOptions}
+                    required
+                    onchange={handleOrganizationTypeChange}>
+                </lightning-combobox>
+            </div>
+
+            <!-- Other Organization Type (shown when 'Other' is selected) -->
+            <template lwc:if={showOtherOrganizationType}>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="text"
+                        label="Specify Organization Type"
+                        name="otherOrganizationType"
+                        value={businessDetails.otherOrganizationType}
+                        placeholder="Please specify..."
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+            </template>
+            
+
+            <!-- Pay Period -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-combobox
+                    label="Pay Period"
+                    name="payPeriod"
+                    value={businessDetails.payPeriod}
+                    placeholder="Select Pay Period"
+                    options={payPeriodOptions}
+                    required
+                    onchange={handleComboboxChange}>
+                </lightning-combobox>
+            </div>
+
+            <!-- Medical Leave Allowed Months -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-combobox
+                    label="Medical Leave Allowed Months"
+                    name="medicalLeaveMonths"
+                    value={businessDetails.medicalLeaveMonths}
+                    options={medicalLeaveOptions}
+                    field-level-help="Number of months employees are eligible to continue group sharing while on an employer–approved temporary medical leave of absence"
+                    onchange={handleComboboxChange}>
+                </lightning-combobox>
+            </div>
+
+            <!-- Total Employees -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="number"
+                    label="Total Employees"
+                    name="totalEmployees"
+                    value={businessDetails.totalEmployees}
+                    placeholder="Enter total employees"
+                    min="1"
+                    required
+                    onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+
+            <!-- New Employee Waiting Period -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-combobox
+                    label="New Employee Waiting Period"
+                    name="newEmployeeWaitingPeriod"
+                    value={businessDetails.newEmployeeWaitingPeriod}
+                    placeholder="Select Waiting Period"
+                    options={waitingPeriodOptions}
+                    required
+                    onchange={handleComboboxChange}>
+                </lightning-combobox>
+            </div>
+
+            <!-- Number of Ineligible Employees -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="number"
+                    label="Number of Ineligible Employees"
+                    name="ineligibleEmployees"
+                    value={businessDetails.ineligibleEmployees}
+                    placeholder="Enter number"
+                    min="0"
+                    onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-combobox
+                    label="Non-profit?"
+                    name="isNonProfit"
+                    value={nonProfitValue}
+                    options={nonProfitOptions}
+                    required
+                    onchange={handleNonProfitChange}>
+                </lightning-combobox>
+            </div>
+        </div>
+
+        <!-- Checkboxes Row -->
+        <div class="slds-grid slds-wrap slds-gutters_small slds-m-top_small slds-m-bottom_medium">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                <lightning-input
+                    type="checkbox"
+                    label="Meets Small Employer Definition"
+                    name="meetsSmallEmployerDefinition"
+                    checked={businessDetails.meetsSmallEmployerDefinition}
+                    onchange={handleCheckboxChange}>
+                </lightning-input>
+                <template lwc:if={meetsSmallEmployerError}>
+                    <p class="meets-small-employer-error">This field is required to complete the Business Details section.</p>
+                </template>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                <lightning-input
+                    type="checkbox"
+                    label="Allow Dependents to Enroll"
+                    name="allowDependentsToEnroll"
+                    checked={businessDetails.allowDependentsToEnroll}
+                    onchange={handleCheckboxChange}>
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                <lightning-input
+                    type="checkbox"
+                    label="Employees in Other States"
+                    name="employeesInOtherStates"
+                    checked={businessDetails.employeesInOtherStates}
+                    onchange={handleCheckboxChange}>
+                </lightning-input>
+            </div>
+        </div>
+
+        <!-- Other States Section (Conditional) -->
+        <template lwc:if={showOtherStates}>
+            <div class="slds-box slds-box_x-small slds-m-bottom_medium">
+                <div class="slds-grid slds-wrap slds-gutters_small">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="text"
+                            label="Other States"
+                            name="otherStates"
+                            value={businessDetails.otherStates}
+                            placeholder="e.g., CA, TX, NY"
+                            required
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="number"
+                            label="Number of Employees in Other States"
+                            name="employeesInOtherStatesCount"
+                            value={businessDetails.employeesInOtherStatesCount}
+                            min="0"
+                            required
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Benefits & COBRA Section -->
+        <div class="slds-box slds-box_x-small slds-m-bottom_medium">
+            <h3 class="slds-text-heading_small slds-m-bottom_small">Benefits & COBRA</h3>
+            <div class="slds-grid slds-wrap slds-gutters_small">
+                <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                    <lightning-input
+                        type="checkbox"
+                        label="Offer Benefits During Waiting Period"
+                        name="offerBenefitsDuringWaitingPeriod"
+                        checked={businessDetails.offerBenefitsDuringWaitingPeriod}
+                        onchange={handleCheckboxChange}>
+                    </lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="checkbox"
+                        label="Subject to Cal-COBRA"
+                        name="subjectToCalCOBRA"
+                        checked={businessDetails.subjectToCalCOBRA}
+                        onchange={handleCheckboxChange}>
+                    </lightning-input>
+                </div>
+                <template lwc:if={showCalCOBRACount}>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="number"
+                            label="Number of Cal-COBRA Enrollees"
+                            name="calCOBRAEnrolleesCount"
+                            value={businessDetails.calCOBRAEnrolleesCount}
+                            min="0"
+                            required
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+                </template>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                    <lightning-input
+                        type="checkbox"
+                        label="Subject to COBRA"
+                        name="subjectToCOBRA"
+                        checked={businessDetails.subjectToCOBRA}
+                        onchange={handleCheckboxChange}>
+                    </lightning-input>
+                </div>
+                <template lwc:if={showCOBRACount}>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="number"
+                            label="Number of COBRA Enrollees"
+                            name="cobraEnrolleesCount"
+                            value={businessDetails.cobraEnrolleesCount}
+                            min="0"
+                            required
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Association Plan Radio Group -->
+        <div class="association-box slds-box slds-box_x-small slds-m-top_small">
+            <c-a-r-c_-radio-group
+                label="Is your company a member of an association plan?"
+                name="associationMember"
+                options={yesNoOptions}
+                value={associationMemberValue}
+                required
+                hide-box
+                onchange={handleAssociationMemberChange}>
+            </c-a-r-c_-radio-group>
+            
+            <template lwc:if={showAssociationName}>
+                <div class="slds-m-top_small">
+                    <lightning-input
+                        type="text"
+                        label="Association Name"
+                        name="associationName"
+                        value={businessDetails.associationName}
+                        placeholder="Enter association name"
+                        required
+                        onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+            </template>
+        </div>
+
+        <!-- Other Coverage Section -->
+        <div class="slds-box slds-box_x-small slds-m-top_small">
+            <h3 class="slds-text-heading_small slds-m-bottom_small">Other Coverage</h3>
+            <div class="slds-m-bottom_medium">
+                <lightning-input
+                    type="checkbox"
+                    label="Offering Other Coverage"
+                    name="hasOtherCoverage"
+                    checked={businessDetails.hasOtherCoverage}
+                    onchange={handleCheckboxChange}>
+                </lightning-input>
+            </div>
+            
+            <template lwc:if={showOtherCoverageFields}>
+                <div class="slds-grid slds-wrap slds-gutters_small">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="text"
+                            label="Name of Carrier"
+                            name="carrierName"
+                            value={businessDetails.carrierName}
+                            required
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-combobox
+                            label="Renewal Month"
+                            name="renewalMonth"
+                            value={businessDetails.renewalMonth}
+                            placeholder="Select Month"
+                            options={renewalMonthOptions}
+                            required
+                            onchange={handleComboboxChange}>
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="number"
+                            label="Number of Employees Covered"
+                            name="employeesCovered"
+                            value={businessDetails.employeesCovered}
+                            placeholder="Enter number"
+                            required
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+                </div>
+            </template>
+        </div>
+        </div>
+    </c-a-r-c_-collapsible-section>
+</template>

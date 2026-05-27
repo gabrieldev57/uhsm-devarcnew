@@ -335,8 +335,8 @@ global class ARC_EliminateDuplicatedAggregators implements Database.Batchable<sO
                             Double familyLimit = 0;
                             for (Id familyCheckMemberId : membersMap.keySet()) {
                                 Map<String, Map<String, List<ARC_Aggregator__c>>> aggregatorNameMapFamilyCheck = membersMap.get(familyCheckMemberId);
-                                if (aggregatorNameMapFamilyCheck == null || !aggregatorNameMapFamilyCheck.containsKey('Individual Max AMCS')) continue;
-                                Map<String, List<ARC_Aggregator__c>> yearMapFamilyCheck = aggregatorNameMapFamilyCheck.get('Individual Max AMCS');
+                                if (aggregatorNameMapFamilyCheck == null || !aggregatorNameMapFamilyCheck.containsKey('Individual AMCS')) continue;
+                                Map<String, List<ARC_Aggregator__c>> yearMapFamilyCheck = aggregatorNameMapFamilyCheck.get('Individual AMCS');
                                 if (yearMapFamilyCheck == null || yearMapFamilyCheck.get(year) == null) continue;
                                 List<ARC_Aggregator__c> aggregators = yearMapFamilyCheck.get(year);
                                 for (ARC_Aggregator__c agg : aggregators) {
@@ -563,7 +563,7 @@ global class ARC_EliminateDuplicatedAggregators implements Database.Batchable<sO
         body += 'Number of Aggregators processed with errors: ' + aggNotEliminatedCounter;
         body += '\n\n\n' + 'Aggregators processed with errors: ' + '\n' + String.join(aggNotEliminatedList, '\n');
         body += '\n\n' + 'Aggregators exceeding limits: ' + '\n' + String.join(aggExceedingLimitList, '\n');
-        body += '\n\n' + 'Individual Max AMCS Aggregators exceeding limits: ' + '\n' + String.join(aggAMCSExceedingLimitList, '\n');
+        body += '\n\n' + 'Individual AMCS Aggregators exceeding limits: ' + '\n' + String.join(aggAMCSExceedingLimitList, '\n');
         body += '\n\n' + 'Policies with conflicting Aggregator Limit Values: ' + '\n' + String.join(policiesWithConflictingAggregatorLimitValues, '\n');
         body += '\n\n' + 'Voided Policies: ' + '\n' + String.join(policiesVoidedExceptions, '\n');
         body += '\n\n' + 'Unnecesary Aggregators Policies: ' + '\n' + String.join(policiesUnnecesaryAggregatorsExceptions, '\n');
@@ -579,7 +579,7 @@ global class ARC_EliminateDuplicatedAggregators implements Database.Batchable<sO
         System.debug('Number of Aggregators processed with errors: ' + aggNotEliminatedCounter);
         System.debug('Aggregators processed with errors: ' + aggNotEliminatedList.size());
         System.debug('Aggregators exceeding limits: ' + aggExceedingLimitList.size());
-        System.debug('Individual Max AMCS Aggregators exceeding limits: ' + aggAMCSExceedingLimitList.size());
+        System.debug('Individual AMCS Aggregators exceeding limits: ' + aggAMCSExceedingLimitList.size());
         System.debug('Policies with duplicated Aggregators: ' + policiesWithDuplicatesSet.size());
     }
 

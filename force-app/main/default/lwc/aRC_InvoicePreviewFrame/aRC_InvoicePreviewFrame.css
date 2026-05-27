@@ -1,0 +1,26 @@
+:host {
+    display: block;
+    width: 100%;
+    min-height: calc(100vh - 56px);
+}
+
+.preview-container {
+    width: 100%;
+    min-height: calc(100vh - 56px);
+    background: #ffffff;
+    position: relative;
+}
+
+.invoice-frame {
+    width: 100%;
+    height: calc(100vh - 56px);
+    min-height: 850px;
+    border: none;
+    display: block;
+}
+
+.empty-state {
+    padding: 24px;
+    font-size: 16px;
+    color: #c23934;
+}

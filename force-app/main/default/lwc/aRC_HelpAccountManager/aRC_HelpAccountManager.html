@@ -1,0 +1,44 @@
+<template>
+    <div class="master-container">
+        <div class="header">
+            <lightning-icon icon-name="utility:user" size="small" class="header-icon"></lightning-icon>
+            <h2>Your Account Manager</h2>
+        </div>
+
+        <template lwc:if={hasManager}>
+            <div class="user-card">
+                <template lwc:if={manager.Photo}>
+                    <img src={manager.Photo} alt="Account Manager photo" class="user-photo"
+                         onerror={handlePhotoError} />
+                </template>
+                <template lwc:else>
+                    <lightning-icon icon-name="standard:user" size="large" class="user-photo-fallback"></lightning-icon>
+                </template>
+                <div class="user-detail">
+                    <p class="user-name">{manager.Name}</p>
+                    <p class="user-role">{manager.Role}</p>
+                </div>
+            </div>
+
+            <p class="user-contact-info">
+                <lightning-icon icon-name="utility:email" size="x-small"></lightning-icon>
+                <a href={manager.mailto}>{manager.Email}</a>
+            </p>
+            <p class="user-contact-info">
+                <lightning-icon icon-name="utility:call" size="x-small"></lightning-icon>
+                <a href={manager.tel}>{manager.Phone}</a>
+            </p>
+
+            <template lwc:if={manager.Availability}>
+                <div class="user-availability">
+                    <lightning-icon icon-name="utility:info_alt" size="x-small"></lightning-icon>
+                    <span>{manager.FirstName} is available {manager.Availability} for direct assistance</span>
+                </div>
+            </template>
+        </template>
+
+        <template lwc:else>
+            <p class="no-manager">No account manager assigned.</p>
+        </template>
+    </div>
+</template>

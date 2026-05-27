@@ -96,6 +96,24 @@ export function validateSSNFormat(field_name, modified_member, member_index) {
     return { name: 'validateSSNFormat', member_index, success: false, error_message: "Field SSN must contain only numbers." };
 }
 
+// Validate US ZIP Code format (5 digits or 5+4 with hyphen, max 10 chars)
+export function validateZipCodeFormat(field_name, value, member_index) {
+    if (field_name !== 'ARC_PhysicalAddressZipCode__c') return null;
+
+    const zipRegex = /^\d{5}(-\d{4})?$/;
+
+    if (!value) {
+        return { name: 'validateZipCodeFormat', member_index, success: false, error_message: "Zip Code is required." };
+    }
+    if (value.length > 10) {
+        return { name: 'validateZipCodeFormat', member_index, success: false, error_message: "Zip Code must be at most 10 characters." };
+    }
+    if (!zipRegex.test(value)) {
+        return { name: 'validateZipCodeFormat', member_index, success: false, error_message: "Zip Code must be 5 digits or 5+4 digits (e.g. 12345 or 12345-6789)." };
+    }
+    return { name: 'validateZipCodeFormat', member_index, success: true };
+}
+
 export function validateMiddleInitialFormat(field_name, modified_member, member_index) {
     if(field_name !== 'ARC_MiddleInitial__c'){
         return null

@@ -1,0 +1,46 @@
+<template>
+    <div class="container">
+        <template if:true={hasSellingAgent}>
+            
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_12-of-12">
+                    <div class="slds-grid slds-wrap header-container">
+                        <div class="slds-col slds-size_2-of-12 slds-large-size_1-of-12">
+                            <lightning-icon icon-name="utility:contact" size="small"></lightning-icon>
+                        </div>
+                        <div class="header slds-col slds-size_10-of-12 slds-medium-size_10-of-12 slds-large-size_11-of-12 slds-var-p-top_x-small">
+                            Account Manager
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <lightning-input label="Name" type="text" name="Name"
+                value={manager.Name} disabled>
+            </lightning-input>
+            <lightning-input label="Email" type="text" name="Email"
+                value={manager.Email} disabled>
+            </lightning-input>
+            <lightning-input label="Phone" type="text" name="Phone"
+                value={formattedManagerPhone} disabled>
+            </lightning-input>
+        </template>
+
+        <template if:false={hasSellingAgent}>
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_12-of-12">
+                    <div class="slds-grid slds-wrap header-container">
+                        <div class="slds-col slds-size_2-of-12 slds-large-size_1-of-12">
+                            <lightning-icon icon-name="utility:contact" size="small"></lightning-icon>
+                        </div>
+                        <div class="header slds-col slds-size_10-of-12 slds-medium-size_10-of-12 slds-large-size_11-of-12 slds-var-p-top_x-small">
+                            Account Manager
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="slds-text-color_weak">
+                No Account Manager is assigned to this employer.
+            </p>
+        </template>
+    </div>
+</template>

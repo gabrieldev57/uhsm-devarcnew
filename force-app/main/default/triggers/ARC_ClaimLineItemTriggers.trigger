@@ -12,22 +12,9 @@ trigger ARC_ClaimLineItemTriggers on ClaimCoveragePaymentDetail (after insert, a
         if (Trigger.isInsert || Trigger.isUpdate) {
             ARC_ClaimLineItemTriggersHandler.updateChxInClaim(Trigger.new);
         }
-
-        if (Trigger.isDelete) {
-            Boolean hasErrors = false;
-
-            for (ClaimCoveragePaymentDetail smbItem : Trigger.old) {
-                if (smbItem.Status == 'Paid') {
-                    smbItem.addError('Cannot delete an SMB Item with a status of Paid.');
-                    hasErrors = true; // Flag that there is an error
-                }
-            }
-
-            // Only proceed if there were no errors
-            if (!hasErrors) {
-                Set<Id> clmsToUpdate = ARC_ClaimLineItemTriggersHandler.getClaimsToUpdate(Trigger.oldMap, null); // REMOVE VALUE FROM CLAIM TOTALS
-                ARC_ClaimLineItemTriggersHandler.recalculateTotals(clmsToUpdate);
-            }
+        if(Trigger.isDelete) {
+            Set<Id> clmsToUpdate = ARC_ClaimLineItemTriggersHandler.getClaimsToUpdate(Trigger.oldMap, null); // REMOVE VALUE FROM CLAIM TOTALS
+            ARC_ClaimLineItemTriggersHandler.recalculateTotals(clmsToUpdate);
         }
     }
 }

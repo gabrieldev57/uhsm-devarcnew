@@ -67,14 +67,14 @@ public with sharing class ARC_Templates {
 		if(eftFormSent == true){
 			body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Dear ' + FirstName + ', </p>';
 			body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Our records indicate that your credit card on file' + (hasMetalPlan == false ? ' ending in ' + Last4Digits : '') + ' is expiring soon.</span></p>';
-			body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Please fill out the DocuSign form sent separately, '+(hasMetalPlan == false ? 'or update your payment information in the member portal at <a href="https://uhsm.my.site.com/members/s/payment-information">https://uhsm.my.site.com/members/s/payment-information</a>' : 'respond to this email, or call us at <strong>1-800-900-8476</strong> as soon as possible to provide your updated expiration date')+'.</span></p>';
+			body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Please fill out the DocuSign form sent separately, '+(hasMetalPlan == false ? 'or update your payment information in the member portal at <a href="https://app.weshare.org"">https://app.weshare.org"</a>' : 'respond to this email, or call us at <strong>1-800-900-8476</strong> as soon as possible to provide your updated expiration date')+'.</span></p>';
 			body += (hasMetalPlan == false ? '<p style="margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:0in;line-height:normal;"><span>You may also contact us directly at <a href="mailto:Members@weshare.org">Members@weshare.org</a> or call us <strong>1-800-900-8476</strong> to provide your updated expiration date.</span></p>' : '' );
 		} else {
 			body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Dear ' + FirstName + ', </p>';
 			body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Our records indicate that your credit card on file' + (hasMetalPlan == false ? ' ending in ' + Last4Digits : '') + ' is expiring soon. </span></p>';
 
 			if (hasMetalPlan == false) {
-				body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Please update your payment information in the member portal at <a href="https://uhsm.my.site.com/members/s/payment-information">https://uhsm.my.site.com/members/s/payment-information</a>.</span></p>';
+				body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Please update your payment information in the member portal at <a href="https://app.weshare.org">https://app.weshare.org"/a>.</span></p>';
 				body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>You may also contact us directly at <a href="mailto:Members@weshare.org">Members@weshare.org</a> or call us <strong>1-800-900-8476</strong> to provide your updated expiration date.</span></p>';
 			} else {
 				body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Please respond to the email or call us at <strong>1-800-900-8476</strong> as soon as possible to provide your updated expiration date.</span></p>';
@@ -124,29 +124,29 @@ public with sharing class ARC_Templates {
             you_are = firstName + ' is';
         }
 		body += '<p style="margin-bottom:8pt;line-height:normal;">Hi ' + recipientName + ',</p>';
-		body += '<p style="margin-bottom:8pt;line-height:normal;">Congratulations on an exciting milestone. As ' + you_approach_your +' 65th birthday, we want to make sure you continue to feel cared for and supported through every stage in life.</p>';
-		body += '<p style="margin-bottom:8pt;line-height:normal;">' + Capital_Your + ' current WeShare membership will end on ' + birthDate + ' as '+you+' become eligible for Medicare. To continue '+your+' journey with us, '+you+'\'ll need to enroll in the WeShare Legacy program using '+your+' Medicare ID. We\'re here to guide you into the next phase, with confidence and care.</p>';
+		body += '<p style="margin-bottom:8pt;line-height:normal;">You\'ve got an exciting milestone coming up! As you approach your 65th birthday, we\'re here to guide you into the next phase with confidence and care.</p>';
+		body += '<p style="margin-bottom:8pt;line-height:normal;">Your current WeShare membership will end on ' + birthDate + ' when you become eligible for Medicare. To continue your journey with us, you\'ll need to enroll in the WeShare Senior program using your Medicare ID.</p>';
 
         body += '<p style="margin-bottom:8pt;line-height:normal;"><b>What\'s coming next:</b></br>';
-        body += 'Our team will be reaching out by phone in the coming days to walk you through the transition process and introduce you to the WeShare Legacy Program. Legacy is designed for members 65+ enrolled in Medicare who want continued faith-based support for their health needs along with resources for the mind, body, and spirit.</p>';
+        body += 'Our team will be reaching out by phone in the coming days to walk you through the transition process and introduce you to the WeShare Senior Program. Legacy is designed for Members 65+ enrolled in Medicare who want continued faith-based support for their health needs along with resources for the mind, body, and spirit.</p>';
 
-     	body += '<p style="margin-bottom:8pt;line-height:normal;">You don’t have to take action today, but we invite you to begin exploring: </p>';
+     	body += '<p style="margin-bottom:8pt;line-height:normal;">You don\'t have to take action today, but we invite you to begin exploring: </p>';
         body += '<ul style="margin-left:20px;margin-bottom:8pt;">';
-		body += '    <li><a href="https://www.weshare.org/WeShare-Legacy-Program-Brochure" target="_blank">WeShare Legacy program brochure</a></li>';
+		body += '    <li><a href="https://www.weshare.org/WeShare-Legacy-Program-Brochure" target="_blank">WeShare Senior program brochure</a></li>';
 		body += '    <li><a href="https://www.weshare.org/weshare-medicare-checklist" target="_blank">Your medicare enrollment checklist</a></li>';
         body += '</ul>';
         
         body += '<p style="margin-bottom:8pt;line-height:normal;"><b>Have dependents on your account?</b></br>';
-		body += 'If ' +you_are+ ' the Primary Sharing Member for your household, and there are dependents on your account, their sharing membership will stay the same. Only the Member transitioning into the WeShare Legacy Program will move to a separate membership.</p>';
-		
-        body += '<p style="margin-bottom:8pt;line-height:normal;"><b>Let\'s do this together</b></br>';
+		body += 'If you are the Primary Sharing Member for your household and have dependents on your account, their sharing membership will stay the same. Only the Member transitioning into the WeShare Senior Program will move to a separate membership.</p>';		
+        
+		body += '<p style="margin-bottom:8pt;line-height:normal;"><b>Let\'s do this together</b></br>';
 		body += 'We\'re committed to making this transition simple and personal. If you have any immediate questions or would like to schedule your call sooner, reach out to our team at <a href="mailto:Members@weshare.org">Members@weshare.org</a> or call 800-900-8476.</p>';
         
-        body += '<p style="margin-bottom:8pt;line-height:normal;">We\'re honored to walk with you into this next season.</p>';
+        body += '<p style="margin-bottom:8pt;line-height:normal;">We\'re honored to walk with you into this next season!</p>';
         
-        body += '<p style="margin-bottom:8pt;line-height:normal;">Blessings,</p>';
+        // body += '<p style="margin-bottom:8pt;line-height:normal;">Blessings,</p>';
         
-        body += '<p style="margin-bottom:8pt;line-height:normal;">The WeShare team</p>';
+        // body += '<p style="margin-bottom:8pt;line-height:normal;">The WeShare team</p>';
       
 		Map<String, String> generatedURLs = generateImageURLs(icons);
 		body += Signature(generatedURLs);		
@@ -160,10 +160,10 @@ public with sharing class ARC_Templates {
 	
 		body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Hi ' + recipientName + ',</span></p>';
 		body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Thank you for trusting WeShare with your family&apos;s health and wellness needs!</span></p>';
-		body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Our records indicate '+fullName+' will soon exceed the program age limits (age 26) within your current family Sharing Program.</span></p>';	
-		body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Adjusting your current Sharing Program will only take a few minutes, and we can discuss individual enrollment options for '+firstName+'. <b>Please note that these changes must be implemented before '+firstName+'&apos;s eligibility expires to avoid any gaps in sharing and/or re-enrollment fees.</b></span></p>';
+		body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Our records indicate '+fullName+' will soon exceed your Sharing Program\'s age limits (age 26).</span></p>';	
+		body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>We need to adjust your current Sharing Program to reflect this change and discuss individual enrollment options for '+firstName+'. <b>Please note that these changes must be implemented before '+firstName+'\'s eligibility expires to avoid any gaps in sharing and/or re-enrollment fees.</b></span></p>';
 		body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Removal of any dependent(s) may apply changes to your current membership program, so please contact Member Services by phone at (800) 900-8476 or respond to this email as soon as possible.</span></p>';
-		body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Thanks for being a valuable Member of the WeShare community, and we look forward to serving you for many years to come.</span></p>';	
+		body += '<p style="margin-top:0in;margin-right:0in;margin-bottom:8.0pt;margin-left:0in;line-height:normal;"><span>Thanks for being a valuable Member of the WeShare community and we look forward to serving you in the future.</span></p>';	
 
 		Map<String, String> generatedURLs = generateImageURLs(icons);
 		body += Signature(generatedURLs);
@@ -190,12 +190,12 @@ public with sharing class ARC_Templates {
 	
 	// SUBEJCT: AgesUp 60 days Out 
 	// NOTE: This template exist in ARC_EmailsTemplateOnDemand LWC Template 45. MUST BE UPDATED HERE AS WELL.
-	public static String Template39(String firstName,String AgeOffName,String AgeOffbirthdate,String CurrentMonthlyContribution,String NewMonthlyContribution,Integer NextTransactionMonth, List<Document> icons){
+	public static String Template39(String firstName,String AgeOffName,String AgeOffbirthdate, String CurrentMonthlyContribution,String NewMonthlyContribution,Integer NextTransactionMonth, String ProgramName, List<Document> icons){
 		String body = '';
-		body += '<p style="margin-bottom:8.0pt;line-height:15px;">Hello ' + FirstName + ',</p>';
-		body += '<p>As part of your WeShare membership, we’re notifying you of an upcoming change to your monthly sharing amount due to '+ AgeOffName +' upcoming birthday on '+ AgeOffbirthdate +', moving your membership into a new age bracket. <span style="font-weight:bold;">There is no action required on your part.</span></p>';
-		body += '<p>Your current monthly sharing amount of $'+currentmonthlycontribution +'  will change to $'+ newMonthlycontribution+', and will be reflected in your monthly sharing amount moving forward beginning in '+getMonthName(Integer.valueOf(NextTransactionMonth))+'.</p>';
-		body += '<p>Our Member Services team is available and happy to assist with any questions you may have, any time Monday through Friday from 7am – 5pm PT. Call us at (800) 900-UHSM (8476) or send an email to <a href="mailto:Members@weshare.org">Members@weshare.org</a>. </p>';
+		body += '<p style="margin-bottom:8.0pt;line-height:15px;">Hey ' + FirstName + ',</p>';
+		body += '<p>You\'ve got a celebration coming up! With your '+ AgeOffName +' birthday on '+ AgeOffbirthdate +', your membership is moving into a new age bracket. This means there\'s a change coming to your '+ ProgramName +' Monthly Contribution Amount. <span style="font-weight:bold;">There is no action required on your part.</span></p>';
+		body += '<p>Your current Monthly Contribution Amount of $'+currentmonthlycontribution +' will change to $'+ newMonthlycontribution+' and will be reflected in your membership beginning on '+getMonthName(Integer.valueOf(NextTransactionMonth))+'.</p>';
+		body += '<p>Our Member Services team is happy to assist with any questions you may have, any time Monday through Friday from 7am – 5pm PT. Call us at (800) 900-UHSM (8476) or send an email to <a href="mailto:memberservices@uhsm.org">memberservices@uhsm.org</a>. </p>';
 		body += '<p>Thank you,</p>';
 	
 		Map<String, String> generatedURLs = generateImageURLs(icons);
@@ -205,12 +205,11 @@ public with sharing class ARC_Templates {
 
 	// SUBJECT: AgesUp 30 days Out
 	// NOTE: This template exist in ARC_EmailsTemplateOnDemand LWC Template 46. MUST BE UPDATED HERE AS WELL.
-	public static String Template40(String firstName,String AgeOffName,String AgeOffbirthdate,String CurrentMonthlyContribution,String NewMonthlyContribution,Integer NextTransactionMonth, List<Document> icons){
+	public static String Template40(String firstName,String AgeOffName,String AgeOffbirthdate,String nextTransactionDateformat,List<Document> icons){
 		String body = '';
-		body += '<p style="margin-bottom:8.0pt;line-height:15px;">Hello ' + FirstName + ',</p>';
-		body += '<p>This is a reminder of an upcoming change to your monthly WeShare membership sharing amount due to '+ AgeOffName +' upcoming birthday on '+ AgeOffbirthdate +', moving your membership into a new age bracket. <span style="font-weight:bold;">There is no action required on your part.</span></p>';
-		body += '<p>Your current monthly sharing amount of $'+currentmonthlycontribution +'  will change to $'+ newMonthlycontribution+', and will be reflected in your monthly sharing amount moving forward beginning in '+getMonthName(Integer.valueOf(NextTransactionMonth))+'.</p>';
-		body += '<p>Our Member Services team is available and happy to assist with any questions you may have, any time Monday through Friday from 7am – 5pm PT. Call us at (800) 900-UHSM (8476) or send an email to <a href="mailto:Members@weshare.org">Members@weshare.org</a>. </p>';
+		body += '<p style="margin-bottom:8.0pt;line-height:15px;">Hey ' + FirstName + ',</p>';
+		body += '<p>This is a reminder that your Monthly Contribution Amount will be changing soon. With your upcoming '+ AgeOffName +' birthday on '+ AgeOffbirthdate +', your membership is moving into a new age bracket and your new Monthly Contribution Amount is effective on '+nextTransactionDateformat+'</p>';
+		body += '<p>Our Member Services team is available to assist with any questions you may have, any time Monday through Friday from 7am – 5pm PT. Call us at (800) 900-UHSM (8476) or send an email to <a href="mailto:memberservices@uhsm.org">memberservices@uhsm.org</a>. </p>';
 		body += '<p>Thank you,</p>';
 	
 		Map<String, String> generatedURLs = generateImageURLs(icons);
@@ -222,10 +221,9 @@ public with sharing class ARC_Templates {
 	// NOTE: This template exist in ARC_EmailsTemplateOnDemand LWC Template 47. MUST BE UPDATED HERE AS WELL.
 	public static String Template41(String firstName,String AgeOffName,String AgeOffbirthdate,String CurrentMonthlyContribution,String NewMonthlyContribution,Integer NextTransactionMonth, List<Document> icons){
 		String body = '';
-		body += '<p style="margin-bottom:8.0pt;line-height:15px;">Hello ' + FirstName + ',</p>';
-		body += '<p>This is a final reminder for an upcoming change to your monthly WeShare membership sharing amount due to '+ AgeOffName +' upcoming birthday on '+ AgeOffbirthdate +', moving your membership into a new age bracket. <span style="font-weight:bold;">There is no action required on your part.</span></p>';
-		body += '<p>Your current monthly sharing amount of $'+currentmonthlycontribution +'  will change to $'+ newMonthlycontribution+', and will be reflected in your monthly sharing amount moving forward beginning in '+getMonthName(Integer.valueOf(NextTransactionMonth))+'.</p>';
-		body += '<p>Our Member Services team is available and happy to assist with any questions you may have, any time Monday through Friday from 7am – 5pm PT. Call us at (800) 900-UHSM (8476) or send an email to <a href="mailto:Members@weshare.org">Members@weshare.org</a>. </p>';
+		body += '<p style="margin-bottom:8.0pt;line-height:15px;">Hey ' + FirstName + ',</p>';
+		body += '<p>One last reminder about an upcoming change to your Monthly Contribution Amount! Your current Monthly Contribution Amount of $'+ currentmonthlycontribution +' will change to $'+ newMonthlycontribution +' and will be reflected in your membership beginning on '+ getMonthName(Integer.valueOf(NextTransactionMonth)) +'.';
+		body += '<p>Have questions about this change? Call us at (800) 900-UHSM (8476) or send an email to <a href="mailto:memberservices@uhsm.org">memberservices@uhsm.org</a>. </p>';
 	
 		Map<String, String> generatedURLs = generateImageURLs(icons);
 		body += Signature(generatedURLs);
@@ -241,8 +239,8 @@ public with sharing class ARC_Templates {
 		body += '<p><p>Your Healthy Discount is approaching its annual expiration date,  '+ ExpirationDate +'. To be considered for this monthly contribution discount for the next year. </p> </p><br>';
 		body += '<p><span style="font-weight:bold;">Please follow the steps below:</span></p><br>';
 		body += '<ol style="list-style:decimal;margin-left:13px;">';
-		body += '    <li style="margin-left:43px;"><span>Login to the <a href="https://uhsm.my.site.com/members/s/login/" target="_blank">member portal</a>, navigate to the Healthy Discount tab, and download and complete the lab requisition form.</span></a></li>';
-		body += '    <li style="margin-left:43px;"><span>Visit a <a href="https://www.questdiagnostics.com/" target="_blank">Quest Diagnostics</a> or <a href="https://www.labcorp.com/" target="_blank">Labcorp of America</a> location: Take your lab order to Quest Diagnostic or Labcorp of America to have your routine blood test performed; pay your $10 Consultation Fee.</span></li>';
+		body += '    <li style="margin-left:43px;"><span>Login to the <a href="https://app.weshare.org"" target="_blank">member portal</a>, navigate to the Healthy Discount tab, and download and complete the lab requisition form.</span></a></li>';
+		body += '    <li style="margin-left:43px;"><span>Visit a <a href="https://www.labcorp.com/" target="_blank">Labcorp of America</a> location: Take your lab order to Labcorp of America to have your routine blood test performed; pay your $10 Consultation Fee. <b>Do not</b> use your WeShare ID for billing. Please ensure that LabCorp bills to the account listed on the lab order.</span></li>';
 		body += '    <li style="margin-left:43px;"><span>Sit back, relax, and allow 7-10 business days for review of your labs. Once reviewed, we’ll send you an e-mail detailing the outcome and what to expect next.</span></li>';
 		body += '</ol>';
 		body += '<p> </p><br>';
@@ -264,8 +262,8 @@ public with sharing class ARC_Templates {
 		body += '<p>We hope you are doing well! Following up from up prior communication, your Healthy Discount is approaching its annual expiration date, '+ ExpirationDate +'. We kindly request that you promptly initiate the renewal process to be considered for this monthly contribution discount for the next year.</p><br>';
 		body += '<p><span style="font-weight:bold;">Please follow the steps below:</span></p><br>';
 		body += '<ol style="list-style:decimal;margin-left:13px;">';
-		body += '    <li style="margin-left:43px;"><span>Login to the <a href="https://uhsm.my.site.com/members/s/login/" target="_blank">member portal</a>, navigate to the Healthy Discount tab, and download and complete the lab requisition form.</span></a></li>';
-		body += '    <li style="margin-left:43px;"><span>Visit a <a href="https://www.questdiagnostics.com/" target="_blank">Quest Diagnostics</a> or <a href="https://www.labcorp.com/" target="_blank">Labcorp of America</a> location: Take your lab order to Quest Diagnostic or Labcorp of America to have your routine blood test performed; pay your $10 Consultation Fee.</span></li>';
+		body += '    <li style="margin-left:43px;"><span>Login to the <a href="https://app.weshare.org" target="_blank">member portal</a>, navigate to the Healthy Discount tab, and download and complete the lab requisition form.</span></a></li>';
+		body += '    <li style="margin-left:43px;"><span>Visit a <a href="https://www.labcorp.com/" target="_blank">Labcorp of America</a> location: Take your lab order to Labcorp of America to have your routine blood test performed; pay your $10 Consultation Fee. <b>Do not</b> use your WeShare ID for billing. Please ensure that LabCorp bills to the account listed on the lab order.</span></li>';
 		body += '    <li style="margin-left:43px;"><span>Sit back, relax, and allow 7-10 business days for review of your labs. Once reviewed, we’ll send you an e-mail detailing the outcome and what to expect next.</span></li>';
 		body += '</ol>';
 		body += '<p> </p><br>';
@@ -287,7 +285,7 @@ public with sharing class ARC_Templates {
 		body += '<p style="margin-right:0in;margin-left:0in;margin-top:0in;margin-bottom:8.0pt;line-height:107%:"><span><br>Dear ' + FirstName + ',</span></p>';
 		body += '<p style="margin-right:0in;margin-left:0in;margin-top:0in;margin-bottom:8.0pt;line-height:107%;margin:0in:">Our records currently indicate that your current month\'s contribution was declined for your WeShare membership.</p>';
 		body += '<p style="margin-right:0in;margin-left:0in;margin-top:0in;margin-bottom:8.0pt;line-height:107%;margin:0in:"><Strong>If your contribution is not received, your membership will be cancelled, effective on the date of your last sharing contribution.</Strong></p>';
-		body += '<p style="margin-right:0in;margin-left:0in;margin-top:0in;margin-bottom:8.0pt;line-height:107%;margin:0in:">Please update your payment information in the member portal at <a href="https://uhsm.my.site.com/members/s/payment-information"><Strong>https://uhsm.my.site.com/members/s/payment-information</Strong></a> or via the DocuSign sent to your email separately.</p>';
+		body += '<p style="margin-right:0in;margin-left:0in;margin-top:0in;margin-bottom:8.0pt;line-height:107%;margin:0in:">Please update your payment information in the member portal at <a href="https://app.weshare.org/auth/log-in"><Strong>https://app.weshare.org/auth/log-in</Strong></a> or via the DocuSign sent to your email separately.</p>';
 		body += '<p style="margin-right:0in;margin-left:0in;margin-top:0in;margin-bottom:8.0pt;line-height:107%;margin:0in:">You may also reply to this email or call us <Strong>1-800-900-8476</Strong> to provide your updated payment method.</p>';
 		body += '<p style="margin-right:0in;margin-left:0in;margin-top:0in;margin-bottom:8.0pt;line-height:107%;margin:0in:">A charge can be declined for a variety of reasons. For more information on why the charge was declined, please contact your bank or the bank that issued your card.</p>';
 

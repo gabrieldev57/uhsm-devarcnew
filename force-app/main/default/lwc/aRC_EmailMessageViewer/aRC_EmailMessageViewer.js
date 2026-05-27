@@ -34,8 +34,7 @@ export default class ARC_EmailMessageViewer extends NavigationMixin(LightningEle
     }
 
     connectedCallback() {
-        console.log('record?' + this.recordId);
-        //console.log('Hello Wolrd 1');
+        console.log('record?' + this.recordId)
     }
 
     @wire(retrieveEm, { recordId: "$recordId" })
@@ -62,7 +61,7 @@ export default class ARC_EmailMessageViewer extends NavigationMixin(LightningEle
                         
                     }
                     this.recordsList.push(records)
-                    //console.log('recordsList ',this.recordsList);
+                    
                 }
                 for(let i = 0;i<this.recordsList.length;i++){
                     this.numberList.push(i+1);
@@ -79,7 +78,6 @@ export default class ARC_EmailMessageViewer extends NavigationMixin(LightningEle
 
     accordionFunctionality(event) {
         event.currentTarget.classList.toggle("active");
-        //console.log('Hello World');
 
         var panel = event.currentTarget.nextElementSibling;
         panel.classList.toggle("active")
@@ -113,7 +111,7 @@ export default class ARC_EmailMessageViewer extends NavigationMixin(LightningEle
 
     }
 
-    navigateToRelatedList(event) { 
+    navigateToRelatedList(event) {
         // Navigate to the CaseComments related list page
         // for a specific Case record.
         this[NavigationMixin.Navigate]({

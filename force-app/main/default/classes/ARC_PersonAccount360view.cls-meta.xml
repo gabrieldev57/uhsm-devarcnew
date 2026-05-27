@@ -3,8 +3,13 @@
     <apiVersion>56.0</apiVersion>
     <packageVersions>
         <majorNumber>7</majorNumber>
-        <minorNumber>90</minorNumber>
+        <minorNumber>70</minorNumber>
         <namespace>ChargentOrders</namespace>
+    </packageVersions>
+    <packageVersions>
+        <majorNumber>258</majorNumber>
+        <minorNumber>0</minorNumber>
+        <namespace>HealthCloudGA</namespace>
     </packageVersions>
     <packageVersions>
         <majorNumber>890</majorNumber>

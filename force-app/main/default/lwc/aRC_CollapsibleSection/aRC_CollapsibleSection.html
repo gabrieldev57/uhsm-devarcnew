@@ -1,0 +1,44 @@
+<template>
+    <section class={sectionClasses}>
+        <div class="cardHeader" onclick={handleToggle}>
+            <div class="cardHeaderLeft">
+                <div class={iconClass}>
+                    <template lwc:if={useCustomSectionIcon}>
+                        <img src={sectionIconUrl} alt={title} class="cardIconImg" />
+                    </template>
+                    <template lwc:elseif={iconName}>
+                        <lightning-icon icon-name={iconName} size="x-small" class="cardIcon"></lightning-icon>
+                    </template>
+                </div>
+
+                <div class="cardHeaderText">
+                    <div class="cardTitle">{title}</div>
+                    <div class="cardSub">{subtitle}</div>
+                </div>
+            </div>
+
+            <div class="cardHeaderRight" onclick={stopProp}>
+                
+                <template lwc:if={showStatusBadge}>
+                    <span class={statusClass}>
+                        <lightning-icon icon-name={statusIcon} size="xx-small" class="statusIcon"></lightning-icon>
+                        <span class="statusText">{statusLabel}</span>
+                    </span>
+                </template>
+
+                <template lwc:if={showSaveButtonInHeader}>
+                    <button class="saveAllBtn" type="button" onclick={handleSave}>
+                        <span>Save</span>
+                    </button>
+                </template>
+
+                <lightning-button-icon class="chev" icon-name={chevronIcon} variant="bare" alternative-text="Toggle"
+                    onclick={handleToggle}></lightning-button-icon>
+            </div>
+        </div>
+        
+        <div class={cardBodyClass}>
+            <slot></slot>
+        </div>
+    </section>
+</template>

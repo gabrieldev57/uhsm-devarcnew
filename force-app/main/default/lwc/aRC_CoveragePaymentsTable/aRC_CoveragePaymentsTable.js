@@ -84,10 +84,14 @@ export default class ARC_CoveragePaymentsTable extends OmniscriptBaseMixin(Light
     originalSmbNetPaidSize = 0;
    
     // LEGACY ONLY TOTALS
+    mcrBilledTotal = 0.00;
+    mcrBilledTotalSize = 0;
     mcrAllowedTotal = 0.00;
     mcrAllowedTotalSize = 0;
     mcrPaidTotal = 0.00;
     mcrPaidTotalSize = 0;
+    mcrAdjustedTotal = 0.00;
+    mcrAdjustedTotalSize = 0;
     mcrMbrLiabilityTotal = 0.00;
     mcrMbrLiabilityTotalSize = 0;
     isLegacy = false;
@@ -98,12 +102,12 @@ export default class ARC_CoveragePaymentsTable extends OmniscriptBaseMixin(Light
     // Add this getter instead:
     get tableStyleLegacy() {
         if (this.profClaim) {
-            return 'grid-template-columns: repeat(25, 1fr);'; // Professional has 2 extra columns (Place of Service & ICD DX)
+            return 'grid-template-columns: repeat(27, minmax(0, 1fr));'; // Professional has 2 extra columns (Place of Service & ICD DX) + MCR fields
         } else if (this.instClaim) {
-            return 'grid-template-columns: repeat(24, 1fr);'; // Institutional has 1 extra column (Revenue Code)
+            return 'grid-template-columns: repeat(26, minmax(0, 1fr));'; // Institutional has 1 extra column (Revenue Code) + MCR fields
         }
         // Default fallback
-        return 'grid-template-columns: repeat(25, 1fr);';
+        return 'grid-template-columns: repeat(27, minmax(0, 1fr));';
     }
 
     get optMedicalVisit() {
@@ -118,9 +122,18 @@ export default class ARC_CoveragePaymentsTable extends OmniscriptBaseMixin(Light
             { label: "Mammograms", value: "Mammograms" },
             { label: "Prostate Screenings", value: "Prostate Screenings" },
             { label: "Psychiatric Care", value: "Psychiatric Care" },
-            { label: "CC - Self-Screen Option", value: "CC - Self-Screen Option" },
-            { label: "CC - Flexible Sigmoisoscopy", value: "CC - Flexible Sigmoisoscopy" },
-            { label: "CC - Colonoscopy", value: "CC - Colonoscopy" }
+            { label: "CC - Cologuard / Self Screen", value: "CC - Cologuard / Self Screen" },
+            { label: "CC - Flexible Sigmoidoscopy", value: "CC - Flexible Sigmoidoscopy" },
+            { label: "CC - Colonoscopy", value: "CC - Colonoscopy" },
+            //{ label: "Generic Formulary Injectable Pen", value: "Generic Formulary Injectable Pen" },
+            //{ label: "Standard Brand Formulary Injectable Pen", value: "Standard Brand Formulary Injectable Pen" },
+            //{ label: "Non-Formulary Brand Injectable Pen", value: "Non-Formulary Brand Injectable Pen" },
+            //{ label: "Specialty Brand Injectable Pen", value: "Specialty Brand Injectable Pen" },
+            { label: "Bone Density Screening", value: "Bone Density Screening" },
+            { label: "Well Woman Visit", value: "Well Woman Visit" },
+            { label: "Shingles Vaccine - Zostavax 90736", value: "Shingles Vaccine - Zostavax 90736" },
+            { label: "Shingles Vaccine - Shingrix 90750", value: "Shingles Vaccine - Shingrix 90750" },
+            { label: "Sleep/Insomnia Counseling", value: "Sleep/Insomnia Counseling" }
         ]
     }
 
@@ -173,9 +186,11 @@ export default class ARC_CoveragePaymentsTable extends OmniscriptBaseMixin(Light
                     this.adjustNetPaid = 0.00;
                     
                     // LEGACY ONLY TOTALS
-                    this.mcrAllowedTotal = 0;
-                    this.mcrPaidTotal = 0;
-                    this.mcrMbrLiabilityTotal = 0;
+                    this.mcrBilledTotal = 0.00;
+                    this.mcrAllowedTotal = 0.00;
+                    this.mcrPaidTotal = 0.00;
+                    this.mcrAdjustedTotal = 0.00;
+                    this.mcrMbrLiabilityTotal = 0.00;
 
                     response.result.items.forEach(item => {
                         let obj = {};
@@ -217,8 +232,10 @@ export default class ARC_CoveragePaymentsTable extends OmniscriptBaseMixin(Light
                             interest: false,
                             penalty: false,
                             // Add these Medicare fields
+                            mcrBilled: false,
                             mcrAllowed: false,
                             mcrPaid: false,
+                            mcrAdjusted: false,
                             mcrMbrLiability: false
                         }
 
@@ -231,16 +248,22 @@ export default class ARC_CoveragePaymentsTable extends OmniscriptBaseMixin(Light
                         obj['adjustedSize'] = this.decimalPlaces(obj['adjusted'].toString());
                         
                         // LEGACY ONLY FIELDS
+                        obj['mcrBilled'] = parseFloat(item.Medicare_Billed__c ?? '0.00');
+                        obj['mcrBilledSize'] = this.decimalPlaces(obj['mcrBilled'].toString());
                         obj['mcrAllowed'] = parseFloat(item.Medicare_Allowed__c ?? '0.00');
                         obj['mcrAllowedSize'] = this.decimalPlaces(obj['mcrAllowed'].toString());
                         obj['mcrPaid'] = parseFloat(item.Medicare_Paid__c ?? '0.00');
                         obj['mcrPaidSize'] = this.decimalPlaces(obj['mcrPaid'].toString());
+                        obj['mcrAdjusted'] = parseFloat(item.Medicare_Adjusted__c ?? '0.00');
+                        obj['mcrAdjustedSize'] = this.decimalPlaces(obj['mcrAdjusted'].toString());
                         obj['mcrMbrLiability'] = parseFloat(item.Medicare_Member_Liability__c ?? '0.00');
                         obj['mcrMbrLiabilitySize'] = this.decimalPlaces(obj['mcrMbrLiability'].toString());
 
                         // Add to totals
+                        this.mcrBilledTotal += obj['mcrBilled'];
                         this.mcrAllowedTotal += obj['mcrAllowed'];
                         this.mcrPaidTotal += obj['mcrPaid'];
+                        this.mcrAdjustedTotal += obj['mcrAdjusted'];
                         this.mcrMbrLiabilityTotal += obj['mcrMbrLiability'];
 
 
@@ -380,8 +403,10 @@ export default class ARC_CoveragePaymentsTable extends OmniscriptBaseMixin(Light
                     this.wasAdjusted = (response.result.claimData.Status == 'Adjusted') && (this.adjustCopay > 0 || this.adjustCoinsurance > 0 || this.adjustDeductible > 0);
 
                     // MCR Calculation Values
+                    this.mcrBilledTotalSize = this.mcrBilledTotal ? this.decimalPlaces(this.mcrBilledTotal.toString()) : 2;
                     this.mcrAllowedTotalSize = this.mcrAllowedTotal ? this.decimalPlaces(this.mcrAllowedTotal.toString()) : 2;
                     this.mcrPaidTotalSize = this.mcrPaidTotal ? this.decimalPlaces(this.mcrPaidTotal.toString()) : 2;
+                    this.mcrAdjustedTotalSize = this.mcrAdjustedTotal ? this.decimalPlaces(this.mcrAdjustedTotal.toString()) : 2;
                     this.mcrMbrLiabilityTotalSize = this.mcrMbrLiabilityTotal ? this.decimalPlaces(this.mcrMbrLiabilityTotal.toString()) : 2;
 
                     this.dataPayment = data;

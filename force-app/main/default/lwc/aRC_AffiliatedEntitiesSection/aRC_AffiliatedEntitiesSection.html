@@ -1,0 +1,70 @@
+<template>
+    <c-a-r-c_-collapsible-section
+        title="Affiliated Entities"
+        subtitle="Related business entities (optional)"
+        custom-icon-url={sectionIconUrl}
+        status={status}
+        accent-color="#8B5CF6"
+        hide-save="true"
+        onsave={handleSave}>
+
+        <!-- Loading State -->
+        <template lwc:if={isLoading}>
+            <div class="loading-container">
+                <lightning-spinner alternative-text="Loading entities..." size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Error State -->
+        <template lwc:elseif={loadError}>
+            <div class="error-container">
+                <lightning-icon icon-name="utility:error" size="small" variant="error"></lightning-icon>
+                <span class="error-message">{loadError}</span>
+            </div>
+        </template>
+
+        <!-- Content -->
+        <template lwc:else>
+            <!-- Content Wrapper with position relative for overlay -->
+            <div class="content-wrapper">
+                <!-- Header with Add Button -->
+                <div class="section-header">
+                    <template lwc:if={isSaved}>
+                        <span class="saved-indicator">
+                            <lightning-icon icon-name="utility:check" size="x-small" variant="success"></lightning-icon>
+                            Saved
+                        </span>
+                    </template>
+                    <lightning-button
+                        variant="brand"
+                        label="Add Entity"
+                        icon-name="utility:add"
+                        class="add-entity-btn"
+                        onclick={handleAddEntity}>
+                    </lightning-button>
+                </div>
+
+                <!-- Entities Table -->
+                <div class="table-spinner-container">
+                    <template lwc:if={isSaving}>
+                        <div class="table-spinner-overlay">
+                            <lightning-spinner size="small" variant="brand" alternative-text="Saving..."></lightning-spinner>
+                        </div>
+                    </template>
+                    <c-a-r-c_-form-table
+                        columns={entityColumns}
+                        rows={entitiesForTable}
+                        empty-message="No affiliated entities added yet"
+                        row-count-label="entities"
+                        oneditrow={handleEditEntity}
+                        onremoverow={handleRemoveEntity}>
+                    </c-a-r-c_-form-table>
+                </div>
+            </div>
+        </template>
+
+        <!-- Entity Modal -->
+        <c-a-r-c_-affiliated-entity-modal></c-a-r-c_-affiliated-entity-modal>
+        <c-a-r-c_-confirm-modal></c-a-r-c_-confirm-modal>
+    </c-a-r-c_-collapsible-section>
+</template>

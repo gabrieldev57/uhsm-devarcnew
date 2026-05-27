@@ -1,0 +1,193 @@
+<template>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header Container -->
+        <div class="header-container">
+            <div class="header">
+                <!-- Title -->
+                <h1 class="title">Invoices</h1>
+                <!-- Subtitle -->
+                <p class="subtitle">Track and manage all your invoices in one place</p>
+            </div>
+            <!-- Export All button -->
+            <div class="export-all-container">
+                <div class="export-all-button clickable-element" onclick={handleExportAllInvoices}>
+                    <lightning-icon 
+                        icon-name="utility:download" 
+                        alternative-text="Download" 
+                        title="Download"
+                        size="xx-small"
+                        class="export-all-icon"
+                        ></lightning-icon>
+                    <span>Export All</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Table Container -->
+        <div class="table-container">
+            <!-- Spinner -->
+            <template if:true={isLoading}>
+                <lightning-spinner
+                    alternative-text="Loading data"
+                    size="medium">
+                </lightning-spinner>
+            </template>
+            <!-- Filters Section -->
+            <div class="filter-container">
+                <!-- Table Header -->
+                <div class="filter-header">
+                    <lightning-icon 
+                        icon-name="utility:filterList" 
+                        alternative-text="Filter List" 
+                        title="Filter List"
+                        size="small"
+                        class="filter-icon"
+                        ></lightning-icon>
+                    <span class="title">Filter Invoices</span>
+                </div>
+                <!-- Table Filters -->
+                <div class="filters">
+                    <!-- Status Combobox-->
+                    <lightning-combobox
+                        class="individual-filter"
+                        name="status"
+                        value={value}
+                        placeholder="All statuses"
+                        options={statusesOptions}
+                        onchange={handleFilterChange} ></lightning-combobox>
+                    <!-- From Date Picker -->
+                    <lightning-input 
+                        class="individual-filter"
+                        type="date" 
+                        name="fromDate" 
+                        placeholder="From date"
+                        onchange={handleFilterChange}></lightning-input>
+                    <!-- To Date Picker -->
+                    <lightning-input 
+                        class="individual-filter"
+                        type="date" 
+                        name="toDate" 
+                        placeholder="To date"
+                        onchange={handleFilterChange}></lightning-input>
+                </div>
+            </div>
+            <!-- Table Body -->
+            <div class="data-table-container">
+                <!-- Table -->
+                <table>
+                    <!-- Header -->
+                    <thead>
+                        <tr class="slds-text-title_caps data-table-header">
+                            <th>INVOICE #</th>
+                            <th>DESCRIPTION</th>
+                            <th>AMOUNT</th>
+                            <th>DATE</th>
+                            <th>DUE DATE</th>
+                            <th>STATUS</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+
+                    <!-- Body -->
+                    <tbody>
+                        <template if:false={hasInvoices}>
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    No invoices found.
+                                </td>
+                            </tr>
+                        </template>
+                        <template for:each={paginatedData} for:item="invoice">
+                            <tr key={invoice.Id} class="data-table-content">
+                                <!-- Invoice Number -->
+                                <td>
+                                    <div class="slds-text-body_regular 
+                                                slds-text-title_bold">
+                                        {invoice.Number}
+                                    </div>
+                                </td>
+                                <!-- Description -->
+                                <td>
+                                    <div class="slds-text-body_regular">
+                                        {invoice.Description}
+                                    </div>
+                                </td>
+                                <!-- Amount -->
+                                <td>
+                                    <lightning-formatted-number
+                                        class="slds-text-title_bold "
+                                        value={invoice.Amount}
+                                        format-style="currency">
+                                    </lightning-formatted-number>
+                                </td>
+                                <!-- Date -->
+                                <td>
+                                    <!-- <lightning-formatted-date-time
+                                        value={invoice.Date}
+                                        month="short"
+                                        day="2-digit"
+                                        year="numeric">
+                                    </lightning-formatted-date-time> -->
+                                    <span>{invoice.DateFormatted}</span>
+                                </td>
+                                <!-- Due Date-->
+                                <td>
+                                    <!-- <lightning-formatted-date-time
+                                        value={invoice.DueDate}
+                                        month="short"
+                                        day="2-digit"
+                                        year="numeric">
+                                    </lightning-formatted-date-time> -->
+                                    <span>{invoice.DueDateFormatted}</span>
+                                </td>
+                                <!-- Status -->
+                                <td>
+                                    <div class={invoice.StatusStyle}>
+                                        {invoice.Status}
+                                    </div>
+                                </td>
+                                <!-- Actions -->
+                                <td>
+                                    <!-- Preview -->
+                                    <lightning-icon 
+                                        data-invoice-id={invoice.Id} 
+                                        onclick={handlePreviewInvoice} 
+                                        icon-name="utility:preview"
+                                        alternative-text="Preview" 
+                                        title="Preview" 
+                                        size="x-small" 
+                                        class="preview-icon clickable-element"
+                                    ></lightning-icon>
+                                    <!-- Download -->
+                                    <lightning-icon
+                                        data-invoice-id={invoice.Id}
+                                        onclick={handleDownloadInvoice}
+                                        icon-name="utility:download" 
+                                        alternative-text="Download" 
+                                        title="Download"
+                                        size="x-small"
+                                        class="download-icon clickable-element"
+                                    ></lightning-icon>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <!-- Pagination Section -->
+                 <div class="pagination-section">
+                    <div class="start-to-end-pagination">
+                        Showing {startPagination} to {endPagination} of {filteredInvoices.length} results
+                    </div>
+
+                    <div class="actions-pagination">
+                        <div class="clickable-element" onclick={handlePrevious}>Previous</div>
+                        <div class="page-number-container">Page {pageNumber} of {totalPages}</div>
+                        <div class="clickable-element" onclick={handleNext}>Next</div>
+                    </div>
+                 </div>
+            </div>
+        </div>
+    </div>
+</template>

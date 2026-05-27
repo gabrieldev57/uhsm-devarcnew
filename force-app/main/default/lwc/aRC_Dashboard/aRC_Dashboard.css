@@ -1,0 +1,360 @@
+.dashboard-container {
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    margin-left: 0px;
+    z-index: auto;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.main-heading {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    line-height: 1.2;
+    font-family: Aktiv Grotesk Ex;
+}
+
+.sub-heading {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Row Styling */
+.row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.small-cards lightning-card {
+    width: calc(33.333% - 11px);
+    min-width: 0;
+}
+
+.small-cards .card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
+    padding-left: var(--slds-c-card-header-spacing-inline-start,
+            var(--slds-c-card-header-spacing-inlinestart,
+                var(--sds-c-card-header-spacing-inline-start,
+                    var(--slds-c-card-header-spacing-inline,
+                        var(--sds-c-card-header-spacing-inline, var(--lwc-varSpacingHorizontalMedium, 1rem))))));
+}
+
+.small-cards .card-content > div:last-child {
+    font-size: 14px;
+    color: #6B6D70;
+    margin-top: 6px;
+}
+
+.square-cards {
+    display: flex;
+    gap: 16px;
+}
+
+.square-cards lightning-card {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Card Content Styling */
+.square-cards .card-content {
+    min-height: 150px;
+}
+
+.dashboard-number {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 0;
+}
+
+.kpi-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+}
+
+.kpi-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.7rem;
+    background: white;
+    border: 1px solid #d8dde6;
+    border-radius: 6px;
+    min-height: 50px;
+    gap: 10px;
+}
+
+.kpi-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.kpi-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #444;
+}
+
+.kpi-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.quick-action-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.quick-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1px solid #d8dde6;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    gap: 10px;
+}
+
+.quick-action-row:hover {
+    background-color: #f3f3f3;
+}
+
+.quick-action-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.quick-action-label {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #333;
+}
+
+.quick-action-subheading {
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.quick-action-value {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #888;
+}
+
+.termination-card {
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.termination-content {
+    text-align: center;
+}
+
+.termination-count {
+    font-size: 42px;
+    font-weight: 700;
+    color: #030609;
+    line-height: 1.2;
+}
+
+.termination-subtext {
+    font-size: 14px;
+    color: #6B6D70;
+    margin-top: 6px;
+}
+
+.warning-icon {
+    --sds-c-icon-color-foreground-default: #F2BC30;
+}
+
+.header-icon {
+    --sds-c-icon-color-foreground-default: #F2BC30;
+}
+
+.kpi-icon {
+    --sds-c-icon-color-foreground-default: #F2BC30;
+}
+
+.dollar-icon {
+    --sds-c-icon-color-foreground-default: #F2BC30;
+    font-size: 17px;
+    font-weight: 700;
+    color: #F2BC30;
+}
+
+.icon-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-right: 0.25rem;
+}
+
+.kpi-icon {
+    --sds-c-icon-color-foreground-default: #F2BC30;
+}
+
+.kpi-check {
+    --sds-c-icon-color-foreground-default: #F2BC30;
+    position: absolute;
+    bottom: 4px;
+    right: -10px;
+}
+
+.square-cards lightning-card:first-of-type .kpi-row {
+    background-color: #f6f6f6;
+    border: none;
+}
+
+.square-cards .title {
+    font-size: 18px;
+    font-family: Aktiv Grotesk Ex;
+    font-weight: 600;
+}
+
+.small-cards .title {
+    justify-content: space-between;
+    color: #6e737b;
+    font-family: Aktiv Grotesk Ex;
+}
+
+/* @media (max-width: 1280px) {
+    .dashboard-container {
+        margin-left: 180px;
+    }
+} */
+
+/* TABLET */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        padding: 1rem;
+        padding-left: 1rem;
+        padding-top: 150px;
+        margin-left: 0;
+    }
+
+    .row {
+        flex-wrap: wrap;
+    }
+
+    .small-cards lightning-card {
+        width: calc(50% - 8px);
+    }
+
+    .square-cards {
+        flex-direction: column;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 16px 16px 16px 16px;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
+        padding-top: 150px;
+    }
+
+    .header {
+        margin-bottom: 12px;
+    }
+
+    .main-heading {
+        font-size: 24px;
+        margin-bottom: 4px;
+        line-height: 1.2;
+    }
+
+    .sub-heading {
+        font-size: 13px;
+        line-height: 1.4;
+        margin-bottom: 0;
+    }
+
+    .row {
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .small-cards,
+    .square-cards {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .small-cards lightning-card,
+    .square-cards lightning-card {
+        width: 100%;
+    }
+
+    .dashboard-number {
+        font-size: 28px;
+    }
+
+    .square-cards .title {
+        font-size: 18px;
+    }
+
+    .kpi-row {
+        padding: 0.75rem;
+        min-height: auto;
+    }
+
+    .kpi-label {
+        font-size: 0.8rem;
+    }
+
+    .kpi-value {
+        font-size: 1.2rem;
+    }
+
+    .termination-card {
+        height: 160px;
+    }
+
+    .termination-count {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding-top: 150px;
+    }
+}
+
+@media (max-height: 720px) and (max-width: 1024px) {
+    .dashboard-container {
+        padding-top: 150px;
+    }
+}

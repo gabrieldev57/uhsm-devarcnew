@@ -7,9 +7,9 @@
 public without sharing class ARC_CaseHandler {
     private static Id integrationUserId;
     
-    /*******************************************************************
-    * @MethodName         :   getMemberAndProgramData
-    * @Description        :   Retrieves the required data to display in custom LWC shown on UW Case Record Page that display Member Information 
+    /********************************************************************
+     @MethodName         :   getMemberAndProgramData
+    * @Description        :   Retrieves the required data to display in custom LWC shown on UW Case Record Page that display Member Information
     ********************************************************************/
 
     @AuraEnabled(cacheable=true)
@@ -19,94 +19,93 @@ public without sharing class ARC_CaseHandler {
         String activePlan = null;
         Account accountData;
         Date firstEffectiveDate = null;
-        List<Id> contracts = new List<Id>();
 
-        Case caseData = [SELECT ARC_PersonAccount__c, RecordType.Name, ARC_Contract__c, ARC_Contract__r.ContractNumber, ARC_Contract__r.ARC_EffectiveDate__c FROM Case WHERE Id = :caseId];
-        if(caseData.ARC_Contract__c!=null && caseData.RecordType.Name=='Underwriting'){
-            vlocity_ins__ContractLineItem__c contractLineItem = [SELECT Id, vlocity_ins__Product2Id__r.Name FROM vlocity_ins__ContractLineItem__c WHERE vlocity_ins__ProductType__c = 'Medical' AND vlocity_ins__ParentItemId__c=null AND vlocity_ins__ContractId__c =: caseData.ARC_Contract__c LIMIT 1];
-            activePlan = contractLineItem?.vlocity_ins__Product2Id__r?.Name;
-        }
-        if(caseData.ARC_PersonAccount__c!=null){
-            accountData = [SELECT Id, Name, PersonBirthdate, Phone, PersonEmail, BillingState, BillingPostalCode FROM Account WHERE Id =: caseData.ARC_PersonAccount__c];
-        } else{
-            return responseData;
-        }
-        
-        List<vlocity_ins__GroupCensusMemberPlan__c> gcmpRelatedToPA = [SELECT Id, vlocity_ins__ContractLineId__r.vlocity_ins__Product2Id__r.Name, vlocity_ins__ContractLineId__c, vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c, vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status,
-        vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.StatusCode, vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId, Contract_Effective_Date__c, Contract_Inactive_Date__c
-            FROM vlocity_ins__GroupCensusMemberPlan__c 
-            WHERE vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId =: accountData.Id AND vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c = 'Medical' AND (
-                vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status = 'Activated' OR 
-                vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status = 'Terminated' OR 
-                vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status = 'Awaiting Activation' OR 
-                vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status = 'Awaiting Signature' OR 
-                vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status = 'Awaiting Approval' OR 
-                vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status = 'Awaiting First Payment')
-                 ORDER BY Contract_Effective_Date__c ASC
+        Case caseData = [
+            SELECT ARC_PersonAccount__c,
+                RecordType.Name,
+                ARC_Contract__c,
+                ARC_Contract__r.ContractNumber,
+                ARC_Contract__r.ARC_EffectiveDate__c,
+                ARC_Contract__r.RecordType.DeveloperName,
+                ARC_Contract__r.ARC_MedicalPlan__r.Name
+            FROM Case
+            WHERE Id = :caseId
+            LIMIT 1
         ];
 
-        //Date previousEffectiveDate = null;
-        Date lastTerminatedDate = null;
-        Date latestActiveDate = null;
-        vlocity_ins__GroupCensusMemberPlan__c activeContract = null;
-        vlocity_ins__GroupCensusMemberPlan__c inApprovalContract = null;
-        
-        if(caseData.RecordType.Name != 'Underwriting'){
-            // Loop through Group Census Member Plans to determine firstEffectiveDate and activePlan
-            for (vlocity_ins__GroupCensusMemberPlan__c gcmp : gcmpRelatedToPA) {
-                Id contractId = gcmp?.vlocity_ins__ContractLineId__r?.vlocity_ins__ContractId__c;
-                
-                if (!contracts.contains(contractId)) {
-                    contracts.add(contractId);
-                    
-                    if (firstEffectiveDate == null) {
-                        firstEffectiveDate = gcmp.Contract_Effective_Date__c;
-                    } else {
-                        if (lastTerminatedDate != null && gcmp.Contract_Effective_Date__c > lastTerminatedDate.addDays(1) && gcmp.vlocity_ins__ContractLineId__r?.vlocity_ins__ContractId__r?.StatusCode != 'InApproval') {
-                            firstEffectiveDate = gcmp.Contract_Effective_Date__c;
-                        }
-                    }
+        if (caseData.ARC_PersonAccount__c != null) {
+            accountData = [
+                SELECT Id,
+                    Name,
+                    PersonBirthdate,
+                    Phone,
+                    PersonEmail,
+                    BillingState,
+                    BillingPostalCode,
+                    ARC_ContinuousCoverageStartDate__c
+                FROM Account
+                WHERE Id = :caseData.ARC_PersonAccount__c
+                LIMIT 1
+            ];
+        } else {
+            return responseData;
+        }
 
-                    if (gcmp.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status == 'Activated') {
-                        if (latestActiveDate == null || gcmp.Contract_Effective_Date__c > latestActiveDate) {
-                            latestActiveDate = gcmp.Contract_Effective_Date__c;
-                            activeContract = gcmp;
-                        }
-                    // Update the inApproval contract if there is no active contract
-                    } else if (gcmp.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.StatusCode == 'InApproval'){
-                        inApprovalContract = gcmp;
-                    }
-                    // Update the last termination date only for terminated contracts
-                    if (gcmp.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__r.Status == 'Terminated') {
-                        lastTerminatedDate = gcmp.Contract_Inactive_Date__c;
+        firstEffectiveDate = accountData.ARC_ContinuousCoverageStartDate__c;
+
+        Boolean isIFUnderwritingCase = caseData.RecordType.Name == 'Underwriting' && caseData.ARC_Contract__c != null;
+        //For Individual & Family Underwriting Cases, take the active plan from the related contract's medical plan
+        if (isIFUnderwritingCase) {
+            activePlan = caseData.ARC_Contract__r?.ARC_MedicalPlan__r?.Name;
+        }
+        else {
+            Set<String> policyStatuses = new Set<String>{
+                'Activated',
+                'Awaiting Activation',
+                'Awaiting Signature',
+                'Awaiting Approval',
+                'Awaiting First Payment',
+                'Terminated'
+            };
+
+            List<ARC_CoverageParticipant__c> coverageParticipants = [
+                SELECT Id,
+                        ARC_Policy__r.ARC_EffectiveDate__c,
+                        ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.Name,
+                        ARC_Policy__r.ARC_PolicyStatus__c
+                FROM ARC_CoverageParticipant__c
+                WHERE ARC_PolicyParticipant__r.PrimaryParticipantContact.AccountId = :accountData.Id AND 
+                      ARC_Policy__r.ARC_PolicyStatus__c IN :policyStatuses AND
+                      ARC_PolicyCoverage__r.vlocity_ins_fsc__Product2Id__r.RecordType.DeveloperName = 'Product'
+                ORDER BY ARC_Policy__r.ARC_EffectiveDate__c ASC
+            ];
+
+            for(ARC_CoverageParticipant__c cp:coverageParticipants){
+                if(firstEffectiveDate == null){
+                    firstEffectiveDate = cp.ARC_Policy__r.ARC_EffectiveDate__c;
+                }
+                //For Individual & Family Contracts, take the name from the contract's medical plan.
+                if(activePlan ==  null && caseData.ARC_Contract__c != null && caseData.ARC_Contract__r.RecordType.DeveloperName == 'ARC_IndividualAndFamily'){
+                    activePlan = caseData.ARC_Contract__r?.ARC_MedicalPlan__r?.Name;
+                    break;
+                }
+                else if(cp.ARC_Policy__r.ARC_PolicyStatus__c == 'Activated'){
+                    activePlan = cp.ARC_PolicyCoverage__r?.vlocity_ins_fsc__Product2Id__r?.Name;
+                    break;
+                }
+                else{
+                    if(activePlan == null){
+                        activePlan = cp.ARC_PolicyCoverage__r?.vlocity_ins_fsc__Product2Id__r?.Name;
                     }
                 }
-            }
+            }           
         }
 
-        // Update active plan if there is no active contract but there is an in-approval contract
-        if (activeContract != null) {
-            activePlan = activeContract?.vlocity_ins__ContractLineId__r?.vlocity_ins__Product2Id__r?.Name;
-            if (firstEffectiveDate == null) {
-                firstEffectiveDate = activeContract.Contract_Effective_Date__c;
-            }
-        } else if (inApprovalContract != null) {
-            activePlan = inApprovalContract?.vlocity_ins__ContractLineId__r?.vlocity_ins__Product2Id__r?.Name;
-            if (firstEffectiveDate == null) {
-                firstEffectiveDate = inApprovalContract.Contract_Effective_Date__c;
-            }
-        }
-
-        // Prepare the response object
-        responseData.put('caseData', caseData);
         responseData.put('accountData', accountData);
-        responseData.put('contractlist', contracts);
+        responseData.put('caseData', caseData);
         responseData.put('currentProgram', activePlan);
-        if(caseData.RecordType.Name!='Underwriting'){
-            responseData.put('effectiveDate', firstEffectiveDate);
-        } else{
-            responseData.put('effectiveDate', caseData.ARC_Contract__r.ARC_EffectiveDate__c);
-        }
+        System.debug('activePlan: ' + activePlan);
+        responseData.put('effectiveDate', firstEffectiveDate);
 
         return responseData;
     }
@@ -144,7 +143,7 @@ public without sharing class ARC_CaseHandler {
         System.debug(newCase);
 
         if(newCase.ARC_Contract__c!=null){
-            newContract = [SELECT Id, ContractNumber, ARC_EffectiveDate__c, ARC_ContractReason__c, vlocity_ins__ExpiredContractId__c, vlocity_ins__ExpiredContractId__r.ContractNumber, vlocity_ins__ExpiredContractId__r.ARC_EffectiveDate__c,ARC_PaidThroughDate__c,vlocity_ins__ExpiredContractId__r.ARC_PaidThroughDate__c,  (SELECT Id,Name, vlocity_ins__ProductType__c, vlocity_ins__ProductSubType__c, vlocity_ins__UnitPrice__c FROM vlocity_ins__ContractLineItems__r WHERE vlocity_ins__RecordTypeName__c='Product' AND (vlocity_ins__ProductType__c='Ancillary' OR vlocity_ins__ProductType__c='Medical') ORDER BY vlocity_ins__ProductType__c DESC, vlocity_ins__UnitPrice__c DESC) FROM Contract WHERE Id =: newCase.ARC_Contract__c];
+            newContract = [SELECT Id, ContractNumber, ARC_EffectiveDate__c, ARC_ContractReason__c, vlocity_ins__ExpiredContractId__c, vlocity_ins__ExpiredContractId__r.ContractNumber, vlocity_ins__ExpiredContractId__r.ARC_EffectiveDate__c, (SELECT Id,Name, vlocity_ins__ProductType__c, vlocity_ins__ProductSubType__c, vlocity_ins__UnitPrice__c FROM vlocity_ins__ContractLineItems__r WHERE vlocity_ins__RecordTypeName__c='Product' AND (vlocity_ins__ProductType__c='Ancillary' OR vlocity_ins__ProductType__c='Medical') ORDER BY vlocity_ins__ProductType__c DESC, vlocity_ins__UnitPrice__c DESC) FROM Contract WHERE Id =: newCase.ARC_Contract__c];
             newContractLineItems = newContract.vlocity_ins__ContractLineItems__r;
             newMemberPlans = [SELECT Id, vlocity_ins__GroupCensusMemberId__c, vlocity_ins__GroupCensusMemberId__r.Name, vlocity_ins__GroupCensusMemberId__r.vlocity_ins__ContactId__r.AccountId FROM vlocity_ins__GroupCensusMemberPlan__c WHERE vlocity_ins__ContractLineId__c IN: newContractLineItems];            
             if(newContract.vlocity_ins__ExpiredContractId__c != null){
@@ -189,18 +188,27 @@ public without sharing class ARC_CaseHandler {
         String communityBaseUrl = URL.getOrgDomainUrl().toExternalForm();
         communityBaseUrl = communityBaseUrl.replace('salesforce', 'site');
         // Define the community path - this should be stored in Custom Metadata or Custom Settings
-        String communityPath = '/members/s/upload?caseId='; 
-        
+        String communityPath = '/members/s/upload?caseId=';
+        String communityEmployerPath = '/employerportal/s/upload?caseId='; //new community path for employers
+
+         Id rtSmallGroup = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName().get('ARC_SmallGroupUnderwriting')?.getRecordTypeId();
+
         for (Case c : newCases) {
             Case updatedCase = new Case(Id = c.Id);
-            if (c.Id != null) {
+           
+            if(c.Id != null && c.RecordTypeId == rtSmallGroup){
+                updatedCase.ARC_Upload_files_URL__c = EncodingUtil.base64Encode(Blob.valueOf(c.Id));
+                System.debug('baseUrl ' + communityBaseUrl + ' communityEmployerPath ' + communityEmployerPath + ' c.ARC_Encrypted_Files_URL__c ' + updatedCase.ARC_Upload_files_URL__c);
+                updatedCase.ARC_Upload_files_URL__c = '<a href="' + communityBaseUrl + communityEmployerPath + updatedCase.ARC_Upload_files_URL__c + '" target="_blank">Upload files here.</a>';
+                casesToUpdate.add(updatedCase);
+            }
+            if (c.Id != null && c.RecordTypeId != rtSmallGroup) {
                 updatedCase.ARC_Upload_files_URL__c = EncodingUtil.base64Encode(Blob.valueOf(c.Id));
                 System.debug('baseUrl ' + communityBaseUrl + ' communityPath ' + communityPath + ' c.ARC_Encrypted_Files_URL__c ' + updatedCase.ARC_Upload_files_URL__c);
                 updatedCase.ARC_Upload_files_URL__c = '<a href="' + communityBaseUrl + communityPath + updatedCase.ARC_Upload_files_URL__c + '" target="_blank">Upload files here.</a>';
                 casesToUpdate.add(updatedCase);
             }
         }
-    
         if (!casesToUpdate.isEmpty()) {
             update casesToUpdate;
         }
@@ -224,5 +232,174 @@ public without sharing class ARC_CaseHandler {
                 }
             }
         }
+    }
+
+    //-------------- UHSM-3204
+    public class PolicyCoverageDTO {
+        @AuraEnabled public Id coverageId;
+        @AuraEnabled public String coverageName;
+        @AuraEnabled public Id policyId;
+        @AuraEnabled public String policyName;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<PolicyCoverageDTO> getPolicyCoverages(Id caseId) {
+        if (caseId == null) return new List<PolicyCoverageDTO>();
+        Case c = [
+            SELECT Id, ARC_PersonAccount__c
+            FROM Case
+            WHERE Id = :caseId
+            LIMIT 1
+        ];
+        Id personAccountId = c.ARC_PersonAccount__c;
+        if (personAccountId == null) return new List<PolicyCoverageDTO>();
+
+        //Get all relevant polocies for this member/person account
+        List<InsurancePolicy> policies = [
+            SELECT Id, Name, Status, CreatedDate
+            FROM InsurancePolicy
+            WHERE NameInsuredId = :personAccountId
+            AND Status IN ('Activated', 'Awaiting Signature', 'Awaiting Approval', 'Awaiting Activation', 'Terminated')
+            ORDER BY CreatedDate DESC
+            LIMIT 200
+        ];
+
+        if(policies.isEmpty()) return new List<PolicyCoverageDTO>();
+
+        //Pick one policy based on priority: Activated > Awaiting * > Terminated
+        InsurancePolicy selected;
+
+        //Tier 1: Activated
+        for (InsurancePolicy p : policies) {
+            if (p.Status == 'Activated') {
+                selected = p;
+                break;
+            }
+        }
+
+        // Tier 2: Any Awaiting*
+        if (selected == null) {
+            for (InsurancePolicy p : policies) {
+                if (p.Status == 'Awaiting Activation'
+                || p.Status == 'Awaiting Approval'
+                || p.Status == 'Awaiting Signature') {
+                    selected = p; break;
+                }
+            }
+        }
+
+        // Tier 3: Terminated
+        if (selected == null) {
+            for (InsurancePolicy p : policies) {
+                if (p.Status == 'Terminated') { selected = p; break; }
+            }
+        }
+
+        if (selected == null) return new List<PolicyCoverageDTO>();
+
+        //Get coverages ONLY for the selected policy
+        
+        List<InsurancePolicyCoverage> covs = [
+            SELECT Id,
+                Name,
+                CoverageName,
+                InsurancePolicyId,
+                InsurancePolicy.Name,
+                InsurancePolicy.NameInsuredId,
+                InsurancePolicy.Status
+            FROM InsurancePolicyCoverage
+            WHERE InsurancePolicyId = :selected.Id
+            AND ARC_ParentProduct__c = null
+            ORDER BY CoverageName ASC
+            LIMIT 200
+        ];
+
+        //Map to DTOs
+        List<PolicyCoverageDTO> out = new List<PolicyCoverageDTO>();
+        for (InsurancePolicyCoverage cov : covs) {
+            PolicyCoverageDTO dto = new PolicyCoverageDTO();
+            dto.coverageId = cov.Id;
+            dto.coverageName = String.isBlank(cov.CoverageName) ? cov.Name : cov.CoverageName;
+            dto.policyId = cov.InsurancePolicyId;
+            dto.policyName = cov.InsurancePolicy != null ? cov.InsurancePolicy.Name : null;
+            out.add(dto);
+        }
+        return out;
+    }
+
+    //-------------- UHSM-3204
+    public class EmployerInfoDTO{
+        @AuraEnabled public Id accountId;
+        @AuraEnabled public String accountName;
+        @AuraEnabled public Boolean isSmallGroup;
+        @AuraEnabled public String groupNumber;
+        @AuraEnabled public String pbcName;
+        @AuraEnabled public String pbcPhone;
+        @AuraEnabled public String pbcEmail;
+        @AuraEnabled public Date contracOriginalEffeciveDate;
+    }
+
+
+    @AuraEnabled(cacheable=true)
+    public static EmployerInfoDTO getEmployerInfo(Id caseId) {
+        EmployerInfoDTO dto = new EmployerInfoDTO();
+        if (caseId == null) return dto;
+
+        Case c = [
+            SELECT Id,
+                AccountId,
+                Account.Name,
+                Account.RecordType.DeveloperName,
+                Account.ARC_GroupNumber__c
+            FROM Case
+            WHERE Id = :caseId
+            LIMIT 1
+        ];
+
+        if (c.AccountId == null) {
+            //If it's not Small Group, we hide the section in the LWC.
+            dto.isSmallGroup = false;
+            return dto;
+        }
+
+        dto.accountId = c.AccountId;
+        dto.accountName = c.Account.Name;
+        dto.groupNumber = c.Account.ARC_GroupNumber__c;
+        dto.isSmallGroup = (c.Account.RecordType.DeveloperName == 'ARC_SmallGroup');
+
+        //Get Orinal Effectiva date from the contract related to the account
+        List<Contract> contracts = [
+            SELECT Id, ARC_EffectiveDate__c, Status
+            FROM Contract
+            WHERE AccountId = :dto.accountId
+            LIMIT 1
+        ];
+
+        if (!contracts.isEmpty()) {
+            dto.contracOriginalEffeciveDate = contracts[0].ARC_EffectiveDate__c;
+        }
+
+        //Get Primary Business Contact
+        List<AccountContactRelation> acrs = [
+            SELECT Id, 
+                Contact.Name, 
+                Contact.Phone, 
+                Contact.Email, 
+                Roles, 
+                ContactId
+            FROM AccountContactRelation
+            WHERE AccountId = :dto.accountId 
+                AND IsActive = true
+                AND Roles INCLUDES ('Primary Business Contact')
+            LIMIT 1
+        ];
+
+        if (!acrs.isEmpty()) {
+            dto.pbcName = acrs[0].Contact.Name;
+            dto.pbcPhone = acrs[0].Contact.Phone;
+            dto.pbcEmail = acrs[0].Contact.Email;
+        }
+
+        return dto;
     }
 }

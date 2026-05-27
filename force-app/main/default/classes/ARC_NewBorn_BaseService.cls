@@ -29,32 +29,21 @@ global without sharing class ARC_NewBorn_BaseService implements vlocity_ins.Vloc
         else if (methodName == 'getDocuSignData') {
             getDocuSignData(inputMap, outputMap, options);
         }
-        // TODO: Add additional method calls here as they are implemented
-        // Example:
-        // else if (methodName == 'TRANSFORM_NewBornDataToUserInputs') {
-        //     TRANSFORM_NewBornDataToUserInputs(inputMap, outputMap, options);
-        // }
-        
+        else if (methodName == 'sendEnvelope') {
+            sendEnvelope(inputMap, outputMap);
+        }
+        else if (methodName == 'hasTemporaryNewBornMember') {
+            hasTemporaryNewBornMember(inputMap, outputMap, options);
+        }
+        else if (methodName == 'getMemberBeneficiaries') {
+            getMemberBeneficiaries(inputMap, outputMap, options);
+        }
+        else if (methodName == 'mergeMedicalQuestions') {
+            mergeMedicalQuestions(inputMap, outputMap, options);
+        }
         return true;       
     }
 
-    /**
-     * @Description: Example placeholder method showing the structure for implementing newborn-related operations
-     * @param inputData: Map containing the input parameters specific to this operation
-     * @param outputMap: Map to store the operation results
-     * @param options: Additional configuration options that may be required for specific implementations
-     * @return Map<String, Object>: Returns processed data (implementation pending)
-     */
-    public static Map<String, Object> TRANSFORM_NewBornDataToUserInputs(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
-        // TODO: Implement newborn data transformation logic
-        // This method should transform newborn-specific data into user input format
-        // Similar to TRANSFORM_CensusMemberToUserInputs but for newborns
-        
-        Map<String,Object> result = new Map<String,Object>();
-        // Placeholder for actual implementation
-        outputMap.put('userInputs', result.get('userInputs'));
-        return outputMap;
-    }
 
     /**
      * @Description: Processes the newborn request by extracting reasons and initializing the handler
@@ -63,10 +52,12 @@ global without sharing class ARC_NewBorn_BaseService implements vlocity_ins.Vloc
      */
     public static Map<String, Object> NB_NewBornDML(Map<String, Object> inputData, Map<String,Object> outputMap) {       
         Map<String, Object> response = new Map<String, Object>();
+        
         Map<String, Object> nbReasons = (Map<String, Object>)((Map<String, Object>) inputData.get('nbChanges')).get('nbReasons');
         try { 
             
             ARC_NBManager handler = new ARC_NBManager(nbReasons, inputData);
+            System.debug('### NewBorn Handler initialized: ' + handler);
             handler.executeSingleNewBorn();
             if (handler.contractsToUpsert.containsKey('PermanentNewborn') && handler.contractsToUpsert.get('PermanentNewborn') != null) {
                 response.put('newBornContract', ((Contract)handler.contractsToUpsert.get('PermanentNewborn')).Id); 
@@ -92,6 +83,7 @@ global without sharing class ARC_NewBorn_BaseService implements vlocity_ins.Vloc
             
             throw new AuraHandledException('Error processing newborn changes.'); 
         }
+        System.debug('### Response: ' + response);
         return response;
     }
 
@@ -101,6 +93,18 @@ global without sharing class ARC_NewBorn_BaseService implements vlocity_ins.Vloc
 
         if(outputMap.containsKey('STEP_MedicalQuestions')) outputMap.put('STEP_MedicalQuestions', outputMap.get('STEP_MedicalQuestions'));
         if(outputMap.containsKey('CensusMember')) outputMap.put('CensusMember', outputMap.get('CensusMember'));
+        return outputMap;
+    }
+
+    public static Map<String, Object> mergeMedicalQuestions(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
+        ARC_TemporaryNewborn_Utilities.mergeMedicalQuestions(inputData, outputMap, options);
+        if(outputMap.containsKey('carryOverMedicalQuestions')) outputMap.put('carryOverMedicalQuestions', outputMap.get('carryOverMedicalQuestions'));
+        return outputMap;
+    }
+    
+    public static Map<String, Object> hasTemporaryNewBornMember(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
+        Map<String, Object> hasTemporaryNewBornMemberResult = ARC_TemporaryNewborn_Utilities.hasTemporaryNewBornMember(inputData, outputMap, options);
+        outputMap.put('hasTemporaryNewBornMember', hasTemporaryNewBornMemberResult.get('hasTemporaryNewBornMember'));
         return outputMap;
     }
 
@@ -127,13 +131,46 @@ global without sharing class ARC_NewBorn_BaseService implements vlocity_ins.Vloc
         return outputMap;
     }
 
-    public static Map<String, Object> getDocuSignData(Map<String, Object> inputData, Map<String, Object> outputMap, Map<String, Object> options) {
-        ARC_TemporaryNewborn_Utilities.getDocuSignData(inputData, outputMap, options);
+    public static Map<String, Object> getMemberBeneficiaries(Map<String, Object> inputData, Map<String,Object> outputMap, Map<String,Object> options) {
+        Map<String, Object> result = ARC_TemporaryNewborn_Utilities.getMemberBeneficiaries(inputData, outputMap, options);
 
-        if(outputMap.get('DocuSignTemplateId') != null) outputMap.put('DocuSignTemplateId', outputMap.get('DocuSignTemplateId'));
-        if(outputMap.get('SignerList') != null) outputMap.put('SignerList', outputMap.get('SignerList'));
-        if(outputMap.get('RAresponse') != null) outputMap.put('RAresponse', outputMap.get('RAresponse'));
+        if (result.get('census_members') != null) outputMap.put('census_members', result.get('census_members'));
+        return outputMap;
+    }
+
+    public static Map<String, Object> getDocuSignData(Map<String, Object> inputData, Map<String, Object> outputMap, Map<String, Object> options) {
+        ARC_TemporaryNewborn_Utilities.getDocuSignDataNew(inputData, outputMap, options);
+        if(outputMap.get('EnvelopeInformation') != null) outputMap.put('EnvelopeInformation', outputMap.get('EnvelopeInformation'));
+        if(outputMap.get('recipientStepLabel') != null) outputMap.put('recipientStepLabel', outputMap.get('recipientStepLabel'));
 
         return outputMap;
+    }
+
+    /**
+     * @Description: Get the input information of the envelope and call the method to send the envelope
+     * @param inputData: Map containing teh envelope information
+     * @throws AuraHandledException: If there's an error during processing
+     */
+    public static Map<String, Object> sendEnvelope(Map<String, Object> inputData, Map<String,Object> outputMap) {
+        Map<String, Object> response = new Map<String, Object>();
+        try {
+            Map<String,Object> envelopeInfoMap = inputData.containsKey('EnvelopeInformation') ? (Map<String,Object>)inputData.get('EnvelopeInformation') : new Map<String,Object>();
+
+            String subjectStr = 'Please DocuSign: UHSM Program Change';
+            String signerListStr = envelopeInfoMap.containsKey('signerList') ? JSON.serialize(envelopeInfoMap.get('signerList')) : null; System.debug('Signer List Str: ' + signerListStr);
+            String templatesIdListStr = envelopeInfoMap.containsKey('templateIdList') ? JSON.serialize(envelopeInfoMap.get('templateIdList')) : null; System.debug('Templates Id List Str: ' + templatesIdListStr);
+            String tabsMapStr = envelopeInfoMap.containsKey('tabs') ? JSON.serialize(envelopeInfoMap.get('tabs')) : null; System.debug('Tabs Map Str: ' + tabsMapStr);
+            String contractId = inputData.containsKey('contractId') && inputData.get('contractId') != null ? (String)inputData.get('contractId') : null; System.debug('Contract Id: ' + contractId);
+
+            ARC_DocuSignApi.sendCompositeEnvelope(subjectStr, signerListStr, templatesIdListStr, tabsMapStr, contractId);
+
+            response.put('success', true);
+            outputMap.put('success', true);
+        } catch (Exception e) {
+            System.debug('Error in sendEnvelope method: ' + e.getMessage() + e.getStackTraceString());
+            response.put('success', false);
+            outputMap.put('success', false);
+        }
+        return response;
     }
 }

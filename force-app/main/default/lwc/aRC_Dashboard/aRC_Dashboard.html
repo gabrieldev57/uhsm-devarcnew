@@ -1,0 +1,294 @@
+<template> 
+    <div class="dashboard-container">
+         <!-- Header Section --> 
+          <div class="header"> 
+            <h1 class="main-heading">Dashboard</h1>
+            
+            <p class="sub-heading">Overview of your company's health sharing benefits</p> 
+        </div> 
+        
+        <!-- First Row --> 
+         <div class="row small-cards"> 
+            <lightning-card>
+                <div slot="title" class="title slds-grid slds-grid_vertical-align-center">
+                    <span class="slds-m-right_x-small">
+                        Pending Enrollments
+                    </span>
+            
+                    <lightning-icon
+                        icon-name="utility:clock"
+                        size="x-small"
+                        class="warning-icon"
+                        alternative-text="Time">
+                    </lightning-icon>
+                </div>
+            
+                <div class="card-content"> 
+                    <div class="slds-p-around_medium dashboard-number">
+                        {pendingEnrollment}
+                    </div>
+                    <div class="termination-subtext">
+                        Require action
+                    </div>
+                </div> 
+            </lightning-card>
+                <lightning-card > 
+                    <div slot="title" class="title slds-grid slds-grid_vertical-align-center">
+                        <span class="slds-m-right_x-small">
+                            Awaiting Signature
+                        </span>
+                
+                        <lightning-icon
+                            icon-name="utility:people"
+                            size="x-small"
+                            class="warning-icon"
+                            alternative-text="People">
+                        </lightning-icon>
+                    </div>
+                    <div class="card-content"> 
+                        <div class="slds-p-around_medium dashboard-number">
+                            {inProgressPolicies}
+                        </div>
+                        <div class="termination-subtext">
+                            Processing applications
+                        </div>
+                    </div> 
+                </lightning-card> 
+                <lightning-card > 
+                    <div slot="title" class="title slds-grid slds-grid_vertical-align-center">
+                        <span class="slds-m-right_x-small">
+                            Awaiting Activation
+                        </span>
+                
+                        <lightning-icon
+                            icon-name="utility:people"
+                            size="x-small"
+                            class="warning-icon"
+                            alternative-text="People">
+                        </lightning-icon>
+                    </div>
+                    <div class="card-content"> 
+                        <div class="slds-p-around_medium dashboard-number">
+                            {awaitingActivationPolicies}
+                        </div>
+                        <div class="termination-subtext">
+                            Activating policies
+                        </div>
+                    </div> 
+                </lightning-card> 
+                <lightning-card>
+                    <div slot="title" class="title slds-grid slds-grid_vertical-align-center">
+                        <span class="slds-m-right_x-small">
+                           Waived Coverage
+                        </span>
+                
+                        <lightning-icon
+                            icon-name="utility:resource_absence"
+                            size="x-small"
+                            class="warning-icon"
+                            alternative-text="Resource Absent">
+                        </lightning-icon>
+                    </div>
+                    <div class="card-content"> 
+                        <div class="slds-p-around_medium dashboard-number">
+                            {coverageWaived}
+                        </div>
+                        <div class="termination-subtext">
+                            Declined coverage
+                        </div>
+                    </div> 
+                </lightning-card> 
+        </div> 
+                    
+                    <!-- Second Row --> 
+                    <div class="row square-cards">
+                        <lightning-card> 
+                            <div slot="title" class="title slds-grid slds-grid_vertical-align-center">
+                                <lightning-icon 
+                                    icon-name="utility:trending" 
+                                    size="x-small" 
+                                    class="slds-m-right_x-small header-icon"
+                                    alternative-text="Enrollment">
+                                </lightning-icon>
+
+                                <span>Enrollment Overview</span>
+                            </div>
+                            <div class="card-content"> 
+                                <div class="kpi-container">
+                                    <div class="kpi-row">
+                                        <span class="kpi-label">Active Employees</span>
+                                        <span class="kpi-value">{activePolicies}</span>
+                                    </div>
+
+                                    <div class="kpi-row">
+                                        <span class="kpi-label">Pending Enrollments</span>
+                                        <span class="kpi-value">{pendingEnrollment}</span>
+                                    </div>
+                            
+                                    <div class="kpi-row">
+                                        <span class="kpi-label">Awaiting Signature</span>
+                                        <span class="kpi-value">{inProgressPolicies}</span>
+                                    </div>
+                                    <div class="kpi-row">
+                                        <span class="kpi-label">Awaiting Activation</span>
+                                        <span class="kpi-value">{awaitingActivationPolicies}</span>
+                                    </div>
+                            
+                                    <div class="kpi-row">
+                                        <span class="kpi-label">Waived</span>
+                                        <span class="kpi-value">{coverageWaived}</span>
+                                    </div>
+                                </div>
+                            </div> 
+                        </lightning-card> 
+                            <lightning-card> 
+                                <div slot="title" class="title slds-grid slds-grid_vertical-align-center">
+                                    <lightning-icon 
+                                        icon-name="utility:money" 
+                                        size="x-small" 
+                                        class="slds-m-right_x-small header-icon"
+                                        alternative-text="Credit Card">
+                                    </lightning-icon>
+    
+                                    <span>Billing Overview</span>
+                                </div>
+                                <div class="card-content"> 
+                                    <div class="kpi-container">
+                                        <div class="kpi-row">
+                                            <div class="kpi-left">
+                                                <lightning-icon
+                                            icon-name="utility:event"
+                                            size="x-small"
+                                            class="kpi-icon"
+                                            alternative-text="Calendar">
+                                            </lightning-icon>
+                                            <span class="kpi-label">Paid Through Date</span>
+                                            </div>
+                                            <span class="kpi-value">
+                                                <lightning-formatted-date-time value={coveragePaidThrough} year="numeric" month="long" day="2-digit"></lightning-formatted-date-time>
+                                            </span>
+                                        </div>
+                                
+                                        <div class="kpi-row">
+                                            <div class="kpi-left">
+                                                <div class="dollar-icon">$</div>
+                                                <span class="kpi-label">Upcoming Payment Amount</span>
+                                            </div>
+                                            <span class="kpi-value">
+                                                <lightning-formatted-number 
+                                                    value={upcomingPaymentAmount} 
+                                                    format-style="currency" 
+                                                    currency-code="USD">
+                                                </lightning-formatted-number>
+                                            </span>
+                                        </div>
+                                
+                                        <div class="kpi-row">
+                                            <div class="kpi-left">
+                                                <span class="icon-wrapper">
+                                                    <!-- Person icon -->
+                                                    <lightning-icon
+                                                        icon-name="utility:user"
+                                                        size="x-small"
+                                                        class="kpi-icon"
+                                                        alternative-text="Person">
+                                                    </lightning-icon>
+                                            
+                                                    <!-- Small check overlay -->
+                                                    <lightning-icon
+                                                        icon-name="utility:check"
+                                                        size="xx-small"
+                                                        class="kpi-check"
+                                                        alternative-text="Check">
+                                                    </lightning-icon>
+                                                </span>
+                                                <span class="kpi-label">Outstanding Balance</span>
+                                            </div>
+                                            <span class="kpi-value">
+                                                <lightning-formatted-number value={finalOutstandingBalance} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                             </lightning-card> 
+                            </div> 
+                            
+                            <!-- Third Row--> 
+                             <div class="row square-cards"> 
+                                <lightning-card>
+                                    <div slot="title" class="title slds-grid slds-grid_vertical-align-center">
+                                        <lightning-icon 
+                                            icon-name="utility:event" 
+                                            size="x-small" 
+                                            class="slds-m-right_x-small header-icon"
+                                            alternative-text="Calendar">
+                                        </lightning-icon>
+        
+                                        <span>Upcoming Terminations</span>
+                                    </div>
+
+                                    <div class="termination-card">
+                                        <div class="termination-content">
+                                            <div class="termination-count">
+                                                {upcomingTerminations}
+                                            </div>
+                                            <div class="termination-subtext">
+                                                employees terminating this month
+                                            </div>
+                                        </div>
+                                    </div>
+                                </lightning-card>
+
+                                <lightning-card> 
+                                    <div slot="title" class="title slds-grid slds-grid_vertical-align-center">
+                                        <lightning-icon 
+                                            icon-name="utility:people" 
+                                            size="x-small" 
+                                            class="slds-m-right_x-small header-icon"
+                                            alternative-text="Actions">
+                                        </lightning-icon>
+        
+                                        <span>Quick Actions</span>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="quick-action-container">
+                                            <template lwc:if={canEdit}>
+                                                <div class="quick-action-row" onclick={handleAddEmployeeClick}>
+                                                    <div class="quick-action-text">
+                                                        <div class="quick-action-label">Add New Employee</div>
+                                                        <div class="quick-action-subheading">Click to add a new employee</div>
+                                                    </div>
+                                                    <div class="quick-action-value"></div>
+                                                </div>
+                                            </template>
+                                        
+                                            <div class="quick-action-row" onclick={handleReviewPendingClick}>
+                                                <div class="quick-action-text">
+                                                    <div class="quick-action-label">Review Pending</div>
+                                                    <div class="quick-action-subheading">Process {pendingEnrollment} pending enrollments</div>
+                                                </div>
+                                                <div class="quick-action-value"></div>
+                                            </div>
+                                        
+                                            <div class="quick-action-row" onclick={handleViewReportsClick}>
+                                                <div class="quick-action-text">
+                                                    <div class="quick-action-label">View Reports</div>
+                                                    <div class="quick-action-subheading">Access detailed analytics</div>
+                                                </div>
+                                                <div class="quick-action-value"></div>
+                                            </div>
+                                        
+                                        </div>
+        
+                                    </div> 
+                                </lightning-card> 
+                                </div> 
+                            </div> 
+
+<!-- Conditionally render the existing LWC -->
+<template if:true={showAddNewEmployeeModal}>
+    <c-a-r-c_-add-primary-census-member-portal  title="Add Primary Census Member"
+            onclose={handleExistingLwcClose}> </c-a-r-c_-add-primary-census-member-portal>    
+</template>
+
+</template>

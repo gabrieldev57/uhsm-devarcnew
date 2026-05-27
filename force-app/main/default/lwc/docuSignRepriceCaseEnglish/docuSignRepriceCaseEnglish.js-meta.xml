@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-<apiVersion>54.0</apiVersion>
-<runtimeNamespace>vlocity_ins</runtimeNamespace>
-<isExposed>true</isExposed>
-<description>Vlocity OmniScript Auto-generated - a4rRm00000003kHIAQ</description>
-<masterLabel>DocuSign/RepriceCase/English</masterLabel>
-<targets>
-<target>lightningCommunity__Page</target>
-<target>lightningCommunity__Default</target>
-<target>lightning__RecordPage</target>
-<target>lightning__AppPage</target>
-<target>lightning__HomePage</target>
-</targets>
-<targetConfigs>
+        <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+            <apiVersion>62.0</apiVersion>
+            <description>Vlocity OmniScript Auto-generated - a4rcf000000ChXRAA0</description>
+            <isExposed>true</isExposed><runtimeNamespace>vlocity_ins</runtimeNamespace>
+            <masterLabel>DocuSign/RepriceCase/English</masterLabel>
+            
+        <targets>
+            <target>lightningCommunity__Page</target>
+            <target>lightningCommunity__Default</target>
+            <target>lightning__RecordPage</target>
+            <target>lightning__AppPage</target>
+            <target>lightning__HomePage</target>
+        </targets>
+            <targetConfigs>
+                
             <targetConfig targets="lightning__AppPage, lightning__RecordPage">
                 <property name="layout" type="String" datasource="lightning,newport"/>
                 <property name="inline" type="boolean" default="false" />
-                <property name="inlineLabel" type="string" default="Launch DocuSign/RepriceCase" />
+                <property name="inlineLabel" type="string" default="Launch undefined/undefined" />
                 <property name="inlineVariant" type="string" default="brand" datasource="brand,outline-brand,neutral,success,destructive,text-destructive,inverse,link"/>
                 <property name="dir" type="string" default="ltr" datasource="ltr,rtl"/>
                 <supportedFormFactors>
@@ -27,7 +28,7 @@
             <targetConfig targets="lightning__HomePage">
                 <property name="layout" type="String" datasource="lightning,newport"/>
                 <property name="inline" type="boolean" default="false" />
-                <property name="inlineLabel" type="string" default="Launch DocuSign/RepriceCase" />
+                <property name="inlineLabel" type="string" default="Launch undefined/undefined" />
                 <property name="inlineVariant" type="string" default="brand" datasource="brand,outline-brand,neutral,success,destructive,text-destructive,inverse,link"/>
                 <property name="dir" type="string" default="ltr" datasource="ltr,rtl"/>
                 <supportedFormFactors>
@@ -37,10 +38,11 @@
             <targetConfig targets="lightningCommunity__Default">
                 <property name="layout" type="String" datasource="lightning,newport"/>
                 <property name="inline" type="boolean" default="false" />
-                <property name="inlineLabel" type="string" default="Launch DocuSign/RepriceCase" />
+                <property name="inlineLabel" type="string" default="Launch undefined/undefined" />
                 <property name="inlineVariant" type="string" default="brand" datasource="brand,outline-brand,neutral,success,destructive,text-destructive,inverse,link"/>
                 <property name="recordId" type="String" label="Record Id" description="Automatically bind the page's record id to the component variable" default="{!recordId}" />
                 <property name="flexipageRegionWidth" type="String" label="Region Width" description="Set the responsive context for the OmniScript." default="LARGE" datasource="LARGE,MEDIUM,SMALL" />
                 <property name="dir" type="string" default="ltr" datasource="ltr,rtl"/>
-            </targetConfig></targetConfigs>
-</LightningComponentBundle>
+            </targetConfig>
+            </targetConfigs>
+        </LightningComponentBundle>

@@ -1,0 +1,124 @@
+.main-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.memberTableSG_cardBody {
+    margin-bottom: 0px !important;
+}
+
+.fw-bold {
+    font-weight: 700;
+}
+
+.section-headerAM, .section-headerIM {
+    background-color: #f3f3f3;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #e5e5e5;
+    color: #8c8c8c;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.section-headerAM {
+    border-top: 1px solid #e5e5e5;
+}
+
+.member-block {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.member-header-row {
+    padding-top: 1rem;
+    background-color: #f3f3f3;
+}
+
+.member-value-row {
+    margin-bottom: 0px !important;
+    padding-bottom: 0.75rem !important;
+    background-color: #f3f3f3;
+}
+
+.label-text {
+    font-size: 0.7rem;
+    color: #a0a0a0;
+    font-weight: 600;
+}
+
+.value-text {
+    font-size: 0.9rem;
+    color: #1a1a1a;
+}
+
+.value-text a {
+    color: #1a1a1a;
+}
+
+.sub-text {
+    font-size: 0.8rem;
+    color: #909090;
+}
+
+.badge-relationship {
+    display: flex;
+    width: fit-content;
+    background-color: #f2e5bb;
+    color: #9a6a00;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #e1c874;
+}
+
+.plans-container {
+    background-color: #ffffff;
+    border: 1px solid #f0f0f0;
+}
+
+.plan-header-row {
+    background-color: #ffffff;
+    padding: 0.5rem 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.plan-row {
+    padding: 0.75rem 1.5rem;
+}
+
+.plan-row:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.plan-name {
+    color: #F2BC30; 
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.status-cell {
+    display: flex;
+    align-items: center;
+    color: #1a1a1a;
+}
+
+.active-dot {
+    height: 8px;
+    width: 8px;
+    background-color: #2e844a; 
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.inactive-dot {
+    height: 8px;
+    width: 8px;
+    background-color: #b0adab; 
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}

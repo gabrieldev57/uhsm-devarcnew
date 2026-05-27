@@ -1,0 +1,110 @@
+<template>
+    <div class="sidebar">
+        <!-- ===== Mobile Header Row (hamburger + logo) ===== -->
+        <div class="sidebar-header">
+
+            <!-- Hamburger (mobile only) -->
+            <lightning-button-icon
+                icon-name="utility:rows"
+                onclick={toggleMenu}
+                class="mobile-toggle"
+                variant="bare"
+                alternative-text="Open menu"
+                title="Open menu">
+            </lightning-button-icon>
+
+            <!-- Logo -->
+            <div class="logo">
+                <img src={logoUrl} alt="WeShare Logo" class="logo-img" />
+                <h2 class="portal-title slds-align_absolute-center">Employer Portal</h2>
+            </div>
+        </div>
+
+        <div class="first-section">
+            <!-- Logo -->
+
+            <!-- Company name -->
+            <div class="company">
+                <p>{companyName}</p>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class={menuClass}>
+                <ul>
+                    <li tabindex="0" onclick={navigateTo} onkeydown={handleKeyDown} target=""
+                        class={dashboardClass} data-target="Home">
+                        <lightning-icon icon-name="utility:clock" size="x-small"></lightning-icon>
+                        <span>Dashboard</span>
+                    </li>
+                    <li tabindex="0" onclick={navigateTo} onkeydown={handleKeyDown} target=""
+                        class={companyDetailsClass} data-target="companyDetails__c">
+                        <lightning-icon icon-name="utility:company" size="x-small"></lightning-icon>
+                        <span>Company Details</span>
+                    </li>
+                     <li tabindex="0" onclick={navigateTo} onkeydown={handleKeyDown} target=""
+                        class={contactsClass} data-target="Contacts__c">
+                        <lightning-icon icon-name="utility:contact" size="x-small"></lightning-icon>
+                        <span>Contacts</span>
+                    </li>
+                    <li tabindex="0" onclick={navigateTo} onkeydown={handleKeyDown} target="" 
+                    class={employeesClass} data-target="Employees__c">
+                        <lightning-icon icon-name="utility:people" size="x-small"></lightning-icon>
+                        <span>Employees</span>
+                    </li>
+                    <li tabindex="0" onclick={navigateTo} onkeydown={handleKeyDown} target="" 
+                    class={benefitsClass} data-target="Benefits__c">
+                        <lightning-icon icon-name="utility:heart" size="x-small"></lightning-icon>
+                        <span>Benefits</span>
+                    </li>
+                    <li tabindex="0" onclick={navigateTo} onkeydown={handleKeyDown} target="" 
+                    class={invoicesClass} data-target="Invoices__c">
+                        <lightning-icon icon-name="utility:contract_doc" size="x-small"></lightning-icon>
+                        <span>Invoices</span>
+                    </li>
+                    <li tabindex="0" onclick={navigateTo} onkeydown={handleKeyDown} target="" 
+                    class={helpClass} data-target="Help__c">
+                        <lightning-icon icon-name="utility:question" size="x-small"></lightning-icon>
+                        <span>Help & Support</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- User info -->
+        <div class="user-info slds-media slds-media_center slds-var-p-around_small slds-border_top">
+
+            <!-- Avatar -->
+            <div class="slds-media__figure">
+                <span class="slds-avatar slds-avatar_circle slds-avatar_medium">
+                    <img if:true={user.Photo} src={user.Photo} alt="User photo" />
+                </span>
+            </div>
+        
+            <!-- Name + Role -->
+            <div class="slds-media__body user-name">
+                <div class="slds-truncate slds-text-body_x-small" title={user.Name}>
+                    {user.Name}
+                </div>
+                <div class="slds-truncate slds-text-color_weak slds-text-body_x-small" title={user.Role}>
+                    {user.Role}
+                </div>
+            </div>
+        
+            <!-- Logout action (icon only for mobile compact) -->
+            <div class="slds-media__figure slds-media__figure_reverse">
+                 <!-- Logout (icon only, always compact) -->
+                <div class="slds-media__figure slds-media__figure_reverse">
+                    <lightning-button-icon
+                        icon-name="utility:logout"
+                        variant="bare"
+                        alternative-text="Logout"
+                        aria-label="Logout"
+                        title="Logout"
+                        onclick={handleLogout}>
+                    </lightning-button-icon>
+                </div>
+            </div>
+        
+        </div>
+    </div>
+</template>

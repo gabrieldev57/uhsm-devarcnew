@@ -1,0 +1,104 @@
+<template>
+    <div class={containerClass}>
+        <!-- Data Table -->
+        <template lwc:if={hasRows}>
+            <div class="table-wrapper">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered custom-table">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <template for:each={columns} for:item="col">
+                                <th key={col.fieldName} scope="col" class="slds-text-title_caps table-header-cell">
+                                    {col.label}
+                                </th>
+                            </template>
+                            <template lwc:if={showActions}>
+                                <th scope="col" class="slds-text-title_caps table-header-cell actions-column">Actions</th>
+                            </template>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={rowsWithIndex} for:item="row">
+                            <tr key={row.id} class="slds-hint-parent table-row">
+                                <template for:each={row.cells} for:item="cell">
+                                    <td key={cell.key} class="table-cell" title={cell.value}>
+                                        <template lwc:if={cell.isBoolean}>
+                                            <lightning-icon 
+                                                icon-name={cell.booleanIcon}
+                                                size="x-small"
+                                                class={cell.booleanValue}>
+                                            </lightning-icon>
+                                        </template>
+                                        <template lwc:elseif={cell.isBadge}>
+                                            <span class={cell.badgeClass} title={cell.value}>{cell.value}</span>
+                                        </template>
+                                        <template lwc:elseif={cell.isNameWithIcon}>
+                                            <div class="name-with-icon">
+                                                <span class="name-icon">
+                                                    <lightning-icon icon-name="standard:user" size="x-small"></lightning-icon>
+                                                </span>
+                                                <span title={cell.value}>{cell.value}</span>
+                                            </div>
+                                        </template>
+                                        <template lwc:elseif={cell.isEligible}>
+                                            <span class={cell.eligibleClass}>
+                                                <img src={cell.eligibleIcon} alt={cell.value} class="eligible-icon" />
+                                                {cell.value}
+                                            </span>
+                                        </template>
+                                        <template lwc:else>
+                                            <span title={cell.value}>{cell.value}</span>
+                                        </template>
+                                    </td>
+                                </template>
+                                <template lwc:if={showActions}>
+                                    <td class="table-cell actions-cell">
+                                        <div class="action-buttons">
+                                            <button 
+                                                class="action-btn edit-btn"
+                                                title="Edit"
+                                                data-index={row.index}
+                                                onclick={handleEditRow}>
+                                                <img src={editIconUrl} alt="Edit" class="action-icon" />
+                                            </button>
+                                            <button 
+                                                class="action-btn delete-btn"
+                                                title="Delete"
+                                                data-index={row.index}
+                                                onclick={handleRemoveRow}>
+                                                <img src={trashIconUrl} alt="Delete" class="action-icon" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </template>
+                            </tr>
+                        </template>
+                    </tbody>
+                    <template lwc:if={showTotals}>
+                        <tfoot>
+                            <tr class="totals-row">
+                                <td colspan={totalColspan} class="slds-text-align_right"><strong>Total:</strong></td>
+                                <td class={totalClass}><strong>{totalDisplay}</strong></td>
+                                <template lwc:if={showActions}>
+                                    <td></td>
+                                </template>
+                            </tr>
+                        </tfoot>
+                    </template>
+                </table>
+                <!-- Showing Count Row -->
+                <template lwc:if={showRowCount}>
+                    <div class="showing-count-row">Showing {rowCount} {rowCountLabel}</div>
+                </template>
+            </div>
+        </template>
+
+        <!-- Empty State -->
+        <template lwc:if={showEmptyState}>
+            <div class="empty-state slds-p-around_medium">
+                <div class="slds-text-longform slds-text-align_center">
+                    <p class="slds-text-body_regular slds-text-color_weak">{emptyMessage}</p>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>

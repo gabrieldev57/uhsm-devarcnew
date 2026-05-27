@@ -131,7 +131,7 @@ public with sharing class ARC_QueableSendFileBatch implements Queueable, Databas
         String prodPath = 'Rx_enroll//'+fileName;
 
         if (testMode) {
-            //sentToEmail(content, fileName);
+            sentToEmail(content, fileName);
             if (sendFilesToTestSites) {
                 if (isFirst) {
                     sentToServer('UHSM', 'cvs/'+fileName, content);

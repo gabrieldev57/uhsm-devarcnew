@@ -4,12 +4,17 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import USER_ID from '@salesforce/user/Id';
 import getCaseForUpdate from '@salesforce/apex/ARC_RepriceCase.getCaseForUpdate';
 
+
+
+
 export default class ARC_AssignToMe extends NavigationMixin(LightningElement) {
     @track currentPageReference;
     recordId;
 
     @wire(CurrentPageReference)
-    currentPageReference
+    setCurrentPageReference(currentPageReference) {
+        this.currentPageReference = currentPageReference;
+    }
 
     async getCaseForUpdate() {
 
@@ -27,20 +32,27 @@ export default class ARC_AssignToMe extends NavigationMixin(LightningElement) {
 
 
         if (response.caseRecord?.Owner.Type === 'User') {
-            this.closeTabAndNavigateToCaseListView(focusedTab.tabId);
-        } else if (response.caseRecord?.Owner.Type === 'Queue') {
+            this.closeTabHandler(focusedTab.tabId)
+            this.navigateToCasesListView()
+        } else {
             this.closeTabAndNavigateToCaseRecord(focusedTab.tabId);
         }
 
     }
 
-    async connectedCallback() {
+    connectedCallback() {
         this.recordId = this.currentPageReference.state.c__recordId;
-
         if (this.recordId != null) {
             this.getCaseForUpdate();
         }
+    }
 
+    renderedCallback() {
+        setTimeout(() => {
+            if (this.template.querySelector('lightning-spinner').click) {
+                this.template.querySelector('lightning-spinner').click();
+            }
+        }, 1000);
     }
 
     navigateToCasesListView() {

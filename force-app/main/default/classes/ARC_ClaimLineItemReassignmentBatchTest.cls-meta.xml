@@ -3,7 +3,7 @@
     <apiVersion>61.0</apiVersion>
     <packageVersions>
         <majorNumber>890</majorNumber>
-        <minorNumber>458</minorNumber>
+        <minorNumber>339</minorNumber>
         <namespace>vlocity_ins</namespace>
     </packageVersions>
     <status>Active</status>

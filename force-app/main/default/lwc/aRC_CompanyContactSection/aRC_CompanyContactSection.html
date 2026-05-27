@@ -1,0 +1,618 @@
+<template>
+    <div class={contentClass}>
+    <c-a-r-c_-collapsible-section 
+        title="Company Contacts" 
+        subtitle="Primary and secondary contact information"
+        custom-icon-url={sectionIconUrl} 
+        status={status}
+        hide-status={hideStatusBadge}
+        start-open={shouldStartOpen}
+        accent-color="#A855F7" 
+        hide-save="true"
+        onsave={handleSave}>
+
+        <div class="content-wrapper">
+            <!-- Loading Spinner -->
+            <template lwc:if={isLoading}>
+                <div class="saving-overlay">
+                    <div class="saving-message">
+                        <lightning-spinner alternative-text="Loading contacts..." size="large"
+                            variant="brand"></lightning-spinner>
+                    </div>
+                </div>
+            </template>
+
+
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <!-- PRIMARY BUSINESS CONTACT -->
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <div class="primary-contact-card slds-m-bottom_medium">
+                <div class="primary-contact-header">
+                    <svg class="header-icon-custom" width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Primary Contact"><path d="M7.875 9C5.39138 9 3.375 6.98362 3.375 4.5C3.375 2.01638 5.39138 0 7.875 0C10.3586 0 12.375 2.01638 12.375 4.5C12.375 6.98362 10.3586 9 7.875 9ZM7.35117 12.6281L6.69727 11.5383C6.47227 11.1621 6.74297 10.6875 7.17891 10.6875H7.875H8.56758C9.00352 10.6875 9.27422 11.1656 9.04922 11.5383L8.39531 12.6281L9.56953 16.984L10.8352 11.8195C10.9055 11.5348 11.1797 11.3484 11.4645 11.4223C13.9289 12.041 15.75 14.2699 15.75 16.9207C15.75 17.5184 15.2648 18 14.6707 18H10.0371C9.96328 18 9.89648 17.9859 9.8332 17.9613L9.84375 18H5.90625L5.9168 17.9613C5.85352 17.9859 5.7832 18 5.71289 18H1.0793C0.485156 18 0 17.5148 0 16.9207C0 14.2664 1.82461 12.0375 4.28555 11.4223C4.57031 11.352 4.84453 11.5383 4.91484 11.8195L6.18047 16.984L7.35469 12.6281H7.35117Z" fill="currentColor"/></svg>
+                    <span class="primary-contact-title">Primary Business Contact <abbr class="required-indicator" title="required">*</abbr></span>
+                    <template lwc:if={isSaved}>
+                        <span class="saved-indicator">
+                            <lightning-icon icon-name="utility:check" size="x-small" variant="success"></lightning-icon>
+                            Saved
+                        </span>
+                    </template>
+                </div>
+                <p class="section-description slds-m-top_xx-small slds-m-bottom_small slds-m-horizontal_medium">UHSM's main point of contact for all account-related questions and communications.</p>
+                <div class="primary-contact-body">
+                    <!-- Display Mode: Show selected contact -->
+                    <template lwc:if={showPrimaryContactDisplay}>
+                        <div class="contact-info-row">
+                            <div class="contact-avatar">
+                                <lightning-icon icon-name="utility:user" size="x-small"></lightning-icon>
+                            </div>
+                            <div class="contact-details">
+                                <p class="contact-name">{primaryContact.firstName} {primaryContact.lastName}</p>
+                                <p class="contact-detail">{primaryContact.title} - {primaryContact.email}</p>
+                            </div>
+                            <template lwc:if={canEdit}>
+                                <div class="contact-action">
+                                    <a  class="change-link" onclick={handleChangePrimaryContact}>
+                                        <lightning-icon icon-name="utility:edit" size="xx-small"
+                                            class="edit-icon"></lightning-icon>
+                                        Edit
+                                    </a>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Edit Mode: Show portal access, method selection, and fields -->
+                    <template lwc:if={canEdit}>
+                    <template lwc:if={showPrimaryContactEdit}>
+                        <!-- Save/Cancel buttons -->
+                        <div class="slds-m-bottom_medium slds-text-align_right">
+                            <template lwc:if={hasPrimaryContact}>
+                                <lightning-button class="slds-m-right_small" variant="neutral" label="Cancel" icon-name="utility:back"
+                                    onclick={handleCancelPrimaryContactEdit}>
+                                </lightning-button>
+                            </template>
+                            <template lwc:if={isSaving}>
+                                <div class="inline-spinner-container">
+                                    <lightning-spinner size="small" variant="brand" alternative-text="Saving..."></lightning-spinner>
+                                </div>
+                            </template>
+                            <template lwc:else>
+                                <lightning-button variant="brand" label="Save" icon-name="utility:save"
+                                    onclick={handleSave}>
+                                </lightning-button>
+                            </template>
+                        </div>
+
+                        <!-- Portal Access Dropdown -->
+                        <div class="slds-m-bottom_medium">
+                            <lightning-combobox data-id="primaryPortalAccess" label="Portal Access" value={primaryContact.portalAccess}
+                                options={portalAccessOptions} required onchange={handlePortalAccessChange}>
+                            </lightning-combobox>
+                        </div>
+
+                        <!-- Contact Selection Method Radio -->
+                        <c-a-r-c_-radio-group label="Contact Selection Method" name="primaryContactMethod"
+                            options={contactMethodOptions} value={primaryContactMethod} required
+                            container-class="slds-m-bottom_medium" onchange={handlePrimaryContactMethodChange}>
+                        </c-a-r-c_-radio-group>
+
+                        <!-- Existing Contact: Show Lookup (only if no contact selected yet) -->
+                        <template lwc:if={showPrimaryContactLookup}>
+                            <c-a-r-c_-generic-lookup label="Search Contact" placeholder="Search contacts..."
+                                object-type="Contact" icon-name="standard:contact" opportunity-id={effectiveRecordId} required
+                                onselect={handlePrimaryContactSelect} data-field="primaryContact">
+                            </c-a-r-c_-generic-lookup>
+                        </template>
+
+
+                        <!-- Existing Contact: Show Edit Fields (if contact already selected) -->
+                        <template lwc:if={showPrimaryContactEditFields}>
+                            <br>
+                            <c-a-r-c_-contact-form 
+                                title="Edit Contact Information" 
+                                icon-name="standard:contact"
+                                contact={primaryContact}
+                                required
+                                hide-address
+                                onformchange={handlePrimaryContactEditChange}>
+                            </c-a-r-c_-contact-form>
+                        </template>
+
+                        <!-- New Contact: Show Fields -->
+                        <template lwc:if={showNewContactFields}>
+                            <c-a-r-c_-contact-form 
+                                title="New Contact Information" 
+                                icon-name="standard:contact"
+                                contact={newPrimaryContact}
+                                required
+                                hide-address
+                                onformchange={handleNewPrimaryContactChange}>
+                            </c-a-r-c_-contact-form>
+                        </template>
+                    </template>
+                    </template><!-- /canEdit -->
+
+                    <!-- Initial State: No contact yet -->
+                    <template lwc:if={showInitialLookup}>
+                        <c-a-r-c_-generic-lookup label="Select Primary Contact" placeholder="Search contacts..."
+                            object-type="Contact" icon-name="standard:contact" opportunity-id={effectiveRecordId} required
+                            onselect={handlePrimaryContactSelect}>
+                        </c-a-r-c_-generic-lookup>
+                    </template>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <!-- COMPANY OFFICER CONTACT -->
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <div class="officer-contact-card slds-m-bottom_medium">
+                <div class="officer-contact-header">
+                    <svg class="header-icon-custom" width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Company Officer"><path d="M7.875 9C10.3586 9 12.375 6.98362 12.375 4.5C12.375 2.01638 10.3586 0 7.875 0C5.39138 0 3.375 2.01638 3.375 4.5C3.375 6.98362 5.39138 9 7.875 9ZM6.26836 10.6875C2.80547 10.6875 0 13.493 0 16.9559C0 17.5324 0.467578 18 1.04414 18H14.7059C14.7691 18 14.8289 17.993 14.8922 17.9824C12.2098 16.0453 11.3836 13.0254 11.2676 10.9441C10.7016 10.7754 10.1039 10.6875 9.48516 10.6875H6.26836ZM17.1246 7.93477L12.9059 9.62227C12.5859 9.75234 12.375 10.0617 12.375 10.4062C12.375 12.6316 13.2855 16.3406 17.1141 17.9367C17.3215 18.0246 17.557 18.0246 17.7645 17.9367C21.5895 16.3406 22.5 12.6316 22.5 10.4062C22.5 10.0617 22.2891 9.75234 21.9691 9.62227L17.7504 7.93477C17.55 7.85391 17.325 7.85391 17.1246 7.93477ZM20.7914 10.9688C20.6543 12.7512 19.8352 15.0715 17.4375 16.2316V9.62578L20.7914 10.9688Z" fill="currentColor"/></svg>
+                    <span class="officer-contact-title">Company Officer Contact <abbr class="required-indicator" title="required">*</abbr></span>
+                    <template lwc:if={isSaved}>
+                        <span class="saved-indicator">
+                            <lightning-icon icon-name="utility:check" size="x-small" variant="success"></lightning-icon>
+                            Saved
+                        </span>
+                    </template>
+                </div>
+                <p class="section-description slds-m-top_xx-small slds-m-bottom_small slds-m-horizontal_medium">The individual who signs the contract on behalf of the company.</p>
+                <div class="officer-contact-body">
+                    <!-- Radio: Same as Primary? -->
+                    <c-a-r-c_-radio-group label="Is the Company Officer Contact the same as the Primary Business Contact?"
+                        name="officerSameAsPrimary" options={yesNoOptions} value={officerSameAsPrimaryValue} required
+                        variant="box" background-color="#ffffff" container-class="slds-m-bottom_medium"
+                        onchange={handleOfficerSameChange}>
+                    </c-a-r-c_-radio-group>
+
+                    <!-- Display Mode: Show selected officer contact (when different from primary) -->
+                    <template lwc:if={showOfficerContactDisplay}>
+                        <div class="officer-info-row">
+                            <div class="officer-avatar">
+                                <lightning-icon icon-name="utility:user" size="x-small"></lightning-icon>
+                            </div>
+                            <div class="officer-details">
+                                <p class="officer-name">{officerContact.firstName} {officerContact.lastName}</p>
+                                <p class="officer-detail">{officerContact.title} - {officerContact.email}</p>
+                            </div>
+                            <template lwc:if={canEdit}>
+                                <div class="officer-action">
+                                    <a  class="change-link officer-change-link"
+                                        onclick={handleChangeOfficerContact}>
+                                        <lightning-icon icon-name="utility:edit" size="xx-small"
+                                            class="edit-icon"></lightning-icon>
+                                        Edit
+                                    </a>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Edit/Selection Mode: Show when officer is different and needs selection -->
+                    <template lwc:if={canEdit}>
+                    <template lwc:if={showOfficerSelection}>
+                        <!-- Save/Cancel buttons -->
+                        <div class="slds-m-bottom_medium slds-text-align_right">
+                            <template lwc:if={isEditingOfficerContact}>
+                                <lightning-button class="slds-m-right_small" variant="neutral" label="Cancel" icon-name="utility:back"
+                                    onclick={handleCancelOfficerContactEdit}>
+                                </lightning-button>
+                            </template>
+                            <template lwc:if={isSaving}>
+                                <div class="inline-spinner-container">
+                                    <lightning-spinner size="small" variant="brand" alternative-text="Saving..."></lightning-spinner>
+                                </div>
+                            </template>
+                            <template lwc:else>
+                                <lightning-button variant="brand" label="Save" icon-name="utility:save"
+                                    onclick={handleSave}>
+                                </lightning-button>
+                            </template>
+                        </div>
+
+                        <!-- Portal Access Dropdown -->
+                        <div class="slds-m-bottom_medium">
+                            <lightning-combobox data-id="officerPortalAccess" name="officerPortalAccess" label="Portal Access"
+                                value={officerPortalAccess} options={portalAccessOptions} required
+                                onchange={handleOfficerPortalAccessChange}>
+                            </lightning-combobox>
+                        </div>
+
+                        <!-- Contact Selection Method Radio -->
+                        <c-a-r-c_-radio-group label="Contact Selection Method" name="officerContactMethod"
+                            options={contactMethodOptions} value={officerContactMethod} required
+                            container-class="slds-m-bottom_medium" onchange={handleOfficerContactMethodChange}>
+                        </c-a-r-c_-radio-group>
+
+                        <!-- Existing Contact Lookup -->
+                        <template lwc:if={showOfficerLookup}>
+                            <c-a-r-c_-generic-lookup label="Select Company Officer" placeholder="Search contacts..."
+                                object-type="Contact" icon-name="standard:contact" opportunity-id={effectiveRecordId} required
+                                onselect={handleOfficerContactSelect}>
+                            </c-a-r-c_-generic-lookup>
+                        </template>
+
+                        <!-- Existing Contact: Edit Fields (when contact already selected) -->
+                        <template lwc:if={showOfficerEditFields}>
+                            <br>
+                            <c-a-r-c_-contact-form 
+                                title="Edit Officer Contact Information" 
+                                icon-name="standard:contact"
+                                contact={officerContact}
+                                required
+                                hide-address
+                                onformchange={handleOfficerContactEditChange}>
+                            </c-a-r-c_-contact-form>
+                        </template>
+
+                        <!-- New Contact Fields -->
+                        <template lwc:if={showNewOfficerContactFields}>
+                            <c-a-r-c_-contact-form 
+                                title="New Officer Contact Information" 
+                                icon-name="standard:contact"
+                                contact={newOfficerContact}
+                                required
+                                hide-address
+                                onformchange={handleNewOfficerContactChange}>
+                            </c-a-r-c_-contact-form>
+                        </template>
+                    </template>
+                    </template><!-- /canEdit -->
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <!-- ACCOUNT MODE ONLY: Account Holder, Billing Contact, Ownership -->
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <template lwc:if={isAccountMode}>
+
+                <!-- ACCOUNT HOLDER -->
+                <div class="primary-contact-card slds-m-bottom_medium">
+                    <div class="primary-contact-header">
+                        <svg class="header-icon-custom" width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Account Holder"><path d="M7.875 9C5.39138 9 3.375 6.98362 3.375 4.5C3.375 2.01638 5.39138 0 7.875 0C10.3586 0 12.375 2.01638 12.375 4.5C12.375 6.98362 10.3586 9 7.875 9ZM7.35117 12.6281L6.69727 11.5383C6.47227 11.1621 6.74297 10.6875 7.17891 10.6875H7.875H8.56758C9.00352 10.6875 9.27422 11.1656 9.04922 11.5383L8.39531 12.6281L9.56953 16.984L10.8352 11.8195C10.9055 11.5348 11.1797 11.3484 11.4645 11.4223C13.9289 12.041 15.75 14.2699 15.75 16.9207C15.75 17.5184 15.2648 18 14.6707 18H10.0371C9.96328 18 9.89648 17.9859 9.8332 17.9613L9.84375 18H5.90625L5.9168 17.9613C5.85352 17.9859 5.7832 18 5.71289 18H1.0793C0.485156 18 0 17.5148 0 16.9207C0 14.2664 1.82461 12.0375 4.28555 11.4223C4.57031 11.352 4.84453 11.5383 4.91484 11.8195L6.18047 16.984L7.35469 12.6281H7.35117Z" fill="currentColor"/></svg>
+                        <span class="primary-contact-title">Account Holder</span>
+                        <template lwc:if={isSaved}>
+                            <span class="saved-indicator">
+                                <lightning-icon icon-name="utility:check" size="x-small" variant="success"></lightning-icon>
+                                Saved
+                            </span>
+                        </template>
+                    </div>
+                    <p class="section-description slds-m-top_xx-small slds-m-bottom_small slds-m-horizontal_medium">The individual who holds the account and is legally responsible for the group.</p>
+                    <div class="primary-contact-body">
+                        <c-a-r-c_-radio-group label="Is the Account Holder the same as the Primary Business Contact?"
+                            name="accountHolderSameAsPrimary" options={yesNoOptions} value={accountHolderSameAsPrimaryValue} required
+                            variant="box" background-color="#ffffff" container-class="slds-m-bottom_medium"
+                            onchange={handleAccountHolderSameChange}>
+                        </c-a-r-c_-radio-group>
+
+                        <template lwc:if={showAccountHolderDisplay}>
+                            <div class="contact-info-row">
+                                <div class="contact-avatar">
+                                    <lightning-icon icon-name="utility:user" size="x-small"></lightning-icon>
+                                </div>
+                                <div class="contact-details">
+                                    <p class="contact-name">{accountHolderContact.firstName} {accountHolderContact.lastName}</p>
+                                    <p class="contact-detail">{accountHolderContact.title} - {accountHolderContact.email}</p>
+                                </div>
+                                <template lwc:if={canEdit}>
+                                    <div class="contact-action">
+                                        <a class="change-link" onclick={handleChangeAccountHolder}>
+                                            <lightning-icon icon-name="utility:edit" size="xx-small" class="edit-icon"></lightning-icon>
+                                            Edit
+                                        </a>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template lwc:if={canEdit}>
+                        <template lwc:if={showAccountHolderEdit}>
+                            <!-- Save/Cancel buttons -->
+                            <div class="slds-m-bottom_medium slds-text-align_right">
+                                <template lwc:if={hasAccountHolder}>
+                                    <lightning-button class="slds-m-right_small" variant="neutral" label="Cancel" icon-name="utility:back"
+                                        onclick={handleCancelAccountHolderEdit}>
+                                    </lightning-button>
+                                </template>
+                                <template lwc:if={isSaving}>
+                                    <div class="inline-spinner-container">
+                                        <lightning-spinner size="small" variant="brand" alternative-text="Saving..."></lightning-spinner>
+                                    </div>
+                                </template>
+                                <template lwc:else>
+                                    <lightning-button variant="brand" label="Save" icon-name="utility:save"
+                                        onclick={handleSave}>
+                                    </lightning-button>
+                                </template>
+                            </div>
+
+                            <div class="slds-m-bottom_medium">
+                                <lightning-combobox label="Portal Access" value={accountHolderContact.portalAccess}
+                                    options={portalAccessOptions} required
+                                    onchange={handleAccountHolderPortalAccessChange}>
+                                </lightning-combobox>
+                            </div>
+
+                            <c-a-r-c_-radio-group label="Contact Selection Method" name="accountHolderMethod"
+                                options={contactMethodOptions} value={accountHolderContactMethod} required
+                                container-class="slds-m-bottom_medium" onchange={handleAccountHolderMethodChange}>
+                            </c-a-r-c_-radio-group>
+
+                            <template lwc:if={showAccountHolderLookup}>
+                                <c-a-r-c_-generic-lookup label="Search Contact" placeholder="Search contacts..."
+                                    object-type="Contact" icon-name="standard:contact" opportunity-id={effectiveRecordId} required
+                                    onselect={handleAccountHolderSelect}>
+                                </c-a-r-c_-generic-lookup>
+                            </template>
+
+                            <template lwc:if={showAccountHolderEditFields}>
+                                <br>
+                                <c-a-r-c_-contact-form title="Edit Account Holder" icon-name="standard:contact"
+                                    contact={accountHolderContact} required hide-address
+                                    onformchange={handleAccountHolderEditChange}>
+                                </c-a-r-c_-contact-form>
+                            </template>
+
+                            <template lwc:if={showNewAccountHolderFields}>
+                                <c-a-r-c_-contact-form title="New Account Holder" icon-name="standard:contact"
+                                    contact={newAccountHolderContact} required hide-address
+                                    onformchange={handleNewAccountHolderChange}>
+                                </c-a-r-c_-contact-form>
+                            </template>
+                        </template>
+                        </template><!-- /canEdit -->
+                    </div>
+                </div>
+
+                <!-- BILLING CONTACT -->
+                <div class="officer-contact-card slds-m-bottom_medium">
+                    <div class="officer-contact-header">
+                        <svg class="header-icon-custom" width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Billing Contact"><path d="M7.875 9C10.3586 9 12.375 6.98362 12.375 4.5C12.375 2.01638 10.3586 0 7.875 0C5.39138 0 3.375 2.01638 3.375 4.5C3.375 6.98362 5.39138 9 7.875 9ZM6.26836 10.6875C2.80547 10.6875 0 13.493 0 16.9559C0 17.5324 0.467578 18 1.04414 18H14.7059C14.7691 18 14.8289 17.993 14.8922 17.9824C12.2098 16.0453 11.3836 13.0254 11.2676 10.9441C10.7016 10.7754 10.1039 10.6875 9.48516 10.6875H6.26836ZM17.1246 7.93477L12.9059 9.62227C12.5859 9.75234 12.375 10.0617 12.375 10.4062C12.375 12.6316 13.2855 16.3406 17.1141 17.9367C17.3215 18.0246 17.557 18.0246 17.7645 17.9367C21.5895 16.3406 22.5 12.6316 22.5 10.4062C22.5 10.0617 22.2891 9.75234 21.9691 9.62227L17.7504 7.93477C17.55 7.85391 17.325 7.85391 17.1246 7.93477ZM20.7914 10.9688C20.6543 12.7512 19.8352 15.0715 17.4375 16.2316V9.62578L20.7914 10.9688Z" fill="currentColor"/></svg>
+                        <span class="officer-contact-title">Billing Contact</span>
+                        <template lwc:if={isSaved}>
+                            <span class="saved-indicator">
+                                <lightning-icon icon-name="utility:check" size="x-small" variant="success"></lightning-icon>
+                                Saved
+                            </span>
+                        </template>
+                    </div>
+                    <p class="section-description slds-m-top_xx-small slds-m-bottom_small slds-m-horizontal_medium">The individual responsible for billing and payment communications.</p>
+                    <div class="officer-contact-body">
+                        <c-a-r-c_-radio-group label="Is the Billing Contact the same as the Account Holder?"
+                            name="billingSameAsAccountHolder" options={yesNoOptions} value={billingSameAsAccountHolderValue} required
+                            variant="box" background-color="#ffffff" container-class="slds-m-bottom_medium"
+                            onchange={handleBillingSameChange}>
+                        </c-a-r-c_-radio-group>
+
+                        <template lwc:if={showBillingContactDisplay}>
+                            <div class="officer-info-row">
+                                <div class="officer-avatar">
+                                    <lightning-icon icon-name="utility:user" size="x-small"></lightning-icon>
+                                </div>
+                                <div class="officer-details">
+                                    <p class="officer-name">{billingContact.firstName} {billingContact.lastName}</p>
+                                    <p class="officer-detail">{billingContact.title} - {billingContact.email}</p>
+                                </div>
+                                <template lwc:if={canEdit}>
+                                    <div class="officer-action">
+                                        <a class="change-link officer-change-link" onclick={handleChangeBillingContact}>
+                                            <lightning-icon icon-name="utility:edit" size="xx-small" class="edit-icon"></lightning-icon>
+                                            Edit
+                                        </a>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template lwc:if={canEdit}>
+                        <template lwc:if={showBillingContactEdit}>
+                            <!-- Save/Cancel buttons -->
+                            <div class="slds-m-bottom_medium slds-text-align_right">
+                                <template lwc:if={isEditingBillingContact}>
+                                    <lightning-button class="slds-m-right_small" variant="neutral" label="Cancel" icon-name="utility:back"
+                                        onclick={handleCancelBillingContactEdit}>
+                                    </lightning-button>
+                                </template>
+                                <template lwc:if={isSaving}>
+                                    <div class="inline-spinner-container">
+                                        <lightning-spinner size="small" variant="brand" alternative-text="Saving..."></lightning-spinner>
+                                    </div>
+                                </template>
+                                <template lwc:else>
+                                    <lightning-button variant="brand" label="Save" icon-name="utility:save"
+                                        onclick={handleSave}>
+                                    </lightning-button>
+                                </template>
+                            </div>
+
+                            <div class="slds-m-bottom_medium">
+                                <lightning-combobox label="Portal Access" value={billingContactPortalAccess}
+                                    options={portalAccessOptions} required
+                                    onchange={handleBillingContactPortalAccessChange}>
+                                </lightning-combobox>
+                            </div>
+
+                            <c-a-r-c_-radio-group label="Contact Selection Method" name="billingContactMethod"
+                                options={contactMethodOptions} value={billingContactMethod} required
+                                container-class="slds-m-bottom_medium" onchange={handleBillingContactMethodChange}>
+                            </c-a-r-c_-radio-group>
+
+                            <template lwc:if={showBillingContactLookup}>
+                                <c-a-r-c_-generic-lookup label="Search Contact" placeholder="Search contacts..."
+                                    object-type="Contact" icon-name="standard:contact" opportunity-id={effectiveRecordId} required
+                                    onselect={handleBillingContactSelect}>
+                                </c-a-r-c_-generic-lookup>
+                            </template>
+
+                            <template lwc:if={showBillingContactEditFields}>
+                                <br>
+                                <c-a-r-c_-contact-form title="Edit Billing Contact" icon-name="standard:contact"
+                                    contact={billingContact} required hide-address
+                                    onformchange={handleBillingContactEditChange}>
+                                </c-a-r-c_-contact-form>
+                            </template>
+
+                            <template lwc:if={showNewBillingContactFields}>
+                                <c-a-r-c_-contact-form title="New Billing Contact" icon-name="standard:contact"
+                                    contact={newBillingContact} required hide-address
+                                    onformchange={handleNewBillingContactChange}>
+                                </c-a-r-c_-contact-form>
+                            </template>
+                        </template>
+                        </template><!-- /canEdit -->
+                    </div>
+                </div>
+
+            </template>
+
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <!-- OTHER CONTACTS -->
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <div class="section-card slds-m-bottom_medium">
+                <div class="section-card-header slds-grid slds-grid_align-spread">
+                    <div class="slds-grid slds-grid_vertical-center">
+                        <svg class="header-icon-custom slds-m-right_x-small" width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Other Contacts"><path d="M5.0625 0C6.61476 0 7.875 1.26024 7.875 2.8125C7.875 4.36476 6.61476 5.625 5.0625 5.625C3.51024 5.625 2.25 4.36476 2.25 2.8125C2.25 1.26024 3.51024 0 5.0625 0ZM18 0C19.5523 0 20.8125 1.26024 20.8125 2.8125C20.8125 4.36476 19.5523 5.625 18 5.625C16.4477 5.625 15.1875 4.36476 15.1875 2.8125C15.1875 1.26024 16.4477 0 18 0ZM0 10.5012C0 8.43047 1.68047 6.75 3.75117 6.75H5.25234C5.81133 6.75 6.34219 6.87305 6.82031 7.09102C6.77461 7.34414 6.75352 7.60781 6.75352 7.875C6.75352 9.21797 7.34414 10.4238 8.27578 11.25C8.26875 11.25 8.26172 11.25 8.25117 11.25H0.748828C0.3375 11.25 0 10.9125 0 10.5012ZM14.2488 11.25C14.2418 11.25 14.2348 11.25 14.2242 11.25C15.1594 10.4238 15.7465 9.21797 15.7465 7.875C15.7465 7.60781 15.7219 7.34766 15.6797 7.09102C16.1578 6.86953 16.6887 6.75 17.2477 6.75H18.7488C20.8195 6.75 22.5 8.43047 22.5 10.5012C22.5 10.916 22.1625 11.25 21.7512 11.25H14.2488ZM7.875 7.875C7.875 6.01229 9.38729 4.5 11.25 4.5C13.1127 4.5 14.625 6.01229 14.625 7.875C14.625 9.73771 13.1127 11.25 11.25 11.25C9.38729 11.25 7.875 9.73771 7.875 7.875ZM4.5 17.0613C4.5 14.4738 6.59883 12.375 9.18633 12.375H13.3137C15.9012 12.375 18 14.4738 18 17.0613C18 17.5781 17.5816 18 17.0613 18H5.43867C4.92188 18 4.5 17.5816 4.5 17.0613Z" fill="currentColor"/></svg>
+                        <span class="section-card-title">Other Contacts</span>
+                    </div>
+                    <template lwc:if={canEdit}>
+                        <div class="slds-grid slds-grid_vertical-center">
+                            <template lwc:if={isSavedOtherContact}>
+                                <span class="saved-indicator">
+                                    <lightning-icon icon-name="utility:check" size="x-small" variant="success"></lightning-icon>
+                                    Saved
+                                </span>
+                            </template>
+                            <lightning-button variant="brand" label="New Contact" icon-name="utility:add"
+                                onclick={handleAddOtherContact}>
+                            </lightning-button>
+                        </div>
+                    </template>
+                </div>
+                <p class="section-description slds-m-top_xx-small slds-m-bottom_small slds-m-horizontal_medium">Company employees who may be granted access to the Employer Portal.</p>
+                <div class="section-card-body">
+                    <div class="table-spinner-container">
+                        <template lwc:if={isSavingOtherContact}>
+                            <div class="table-spinner-overlay">
+                                <lightning-spinner size="small" variant="brand" alternative-text="Saving..."></lightning-spinner>
+                            </div>
+                        </template>
+                        <c-a-r-c_-form-table columns={otherContactColumns} rows={otherContactsWithFullName}
+                            empty-message="No other contacts added yet." oneditrow={handleEditOtherContact}
+                            onremoverow={handleRemoveOtherContact} row-count-label="contacts"
+                            read-only={isReadOnly} is-community={isCommunity}>
+                        </c-a-r-c_-form-table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <!-- THIRD PARTY ADMINISTRATOR -->
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+            <div class="tpa-section section-card slds-m-bottom_medium">
+                <div class="section-card-header">
+                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-center" style="width: 100%;">
+                        <div class="tpa-header-left">
+                            <div class="slds-grid slds-grid_vertical-center">
+                                <svg class="header-icon-custom slds-m-right_x-small" width="26" height="16" viewBox="0 0 26 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Third Party Administrator"><path d="M13.1381 0.86125L9.20562 4.04625C8.55156 4.57437 8.42562 5.525 8.92125 6.20344C9.44531 6.92656 10.465 7.06875 11.1678 6.52031L15.2019 3.38406C15.4862 3.16469 15.8925 3.21344 16.1159 3.49781C16.3394 3.78219 16.2866 4.18844 16.0022 4.41187L15.1531 5.07L20.8 10.27V2.6H20.7716L20.6131 2.49844L17.6637 0.609375C17.0422 0.21125 16.315 0 15.5756 0C14.69 0 13.8287 0.304688 13.1381 0.86125ZM14.0644 5.915L11.9641 7.54812C10.6844 8.5475 8.82781 8.2875 7.86906 6.97125C6.96719 5.73219 7.19469 4.00156 8.385 3.03875L11.765 0.304688C11.2937 0.105625 10.7859 0.0040625 10.27 0.0040625C9.50625 0 8.76281 0.2275 8.125 0.65L5.2 2.6V11.7H6.34562L10.0587 15.0881C10.855 15.8153 12.0859 15.7584 12.8131 14.9622C13.0366 14.7144 13.1869 14.4259 13.2641 14.1253L13.9547 14.7591C14.7469 15.4862 15.9819 15.4334 16.7091 14.6412C16.8919 14.4422 17.0259 14.2106 17.1112 13.9709C17.8994 14.4991 18.9719 14.3894 19.6341 13.6662C20.3612 12.8741 20.3084 11.6391 19.5162 10.9119L14.0644 5.915ZM0.65 2.6C0.2925 2.6 0 2.8925 0 3.25V11.7C0 12.4191 0.580938 13 1.3 13H2.6C3.31906 13 3.9 12.4191 3.9 11.7V2.6H0.65ZM1.95 10.4C2.30874 10.4 2.6 10.6913 2.6 11.05C2.6 11.4087 2.30874 11.7 1.95 11.7C1.59126 11.7 1.3 11.4087 1.3 11.05C1.3 10.6913 1.59126 10.4 1.95 10.4ZM22.1 2.6V11.7C22.1 12.4191 22.6809 13 23.4 13H24.7C25.4191 13 26 12.4191 26 11.7V3.25C26 2.8925 25.7075 2.6 25.35 2.6H22.1ZM23.4 11.05C23.4 10.6913 23.6913 10.4 24.05 10.4C24.4087 10.4 24.7 10.6913 24.7 11.05C24.7 11.4087 24.4087 11.7 24.05 11.7C23.6913 11.7 23.4 11.4087 23.4 11.05Z" fill="currentColor"/></svg>
+                                <span class="section-card-title">Third Party Administrator</span>
+                            </div>
+                            <p class="section-description slds-m-top_xx-small">An external organization authorized to access the group's information and support benefits administration, billing, and enrollment.</p>
+                        </div>
+                        <div class="tpa-header-right">
+                            <template lwc:if={canEdit}>
+                                <div class="slds-grid slds-grid_vertical-center">
+                                    <template lwc:if={isSavedTPA}>
+                                        <span class="saved-indicator">
+                                            <lightning-icon icon-name="utility:check" size="x-small" variant="success"></lightning-icon>
+                                            Saved
+                                        </span>
+                                    </template>
+                                    <lightning-button variant="brand" label="Add TPA" icon-name="utility:add"
+                                        onclick={handleAddTPA}>
+                                    </lightning-button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-card-body">
+                    <div class="table-spinner-container">
+                        <template lwc:if={isSavingTPA}>
+                            <div class="table-spinner-overlay">
+                                <lightning-spinner size="small" variant="brand" alternative-text="Saving..."></lightning-spinner>
+                            </div>
+                        </template>
+                        <c-a-r-c_-form-table columns={tpaColumns} rows={tpaList} empty-message="No TPAs added yet."
+                            row-count-label="TPAs" oneditrow={handleEditTPA} onremoverow={handleRemoveTPA}
+                            read-only={isReadOnly} is-community={isCommunity}>
+                        </c-a-r-c_-form-table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPANY OWNERSHIP (Account mode only) -->
+            <template lwc:if={isAccountMode}>
+                <div class="section-card slds-m-bottom_medium ">
+                    <div class="section-card-header slds-grid slds-grid_align-spread">
+                        <div class="slds-grid slds-grid_vertical-center">
+                            <svg class="header-icon-custom slds-m-right_x-small" width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Company Ownership"><path d="M5.0625 0C6.61476 0 7.875 1.26024 7.875 2.8125C7.875 4.36476 6.61476 5.625 5.0625 5.625C3.51024 5.625 2.25 4.36476 2.25 2.8125C2.25 1.26024 3.51024 0 5.0625 0ZM18 0C19.5523 0 20.8125 1.26024 20.8125 2.8125C20.8125 4.36476 19.5523 5.625 18 5.625C16.4477 5.625 15.1875 4.36476 15.1875 2.8125C15.1875 1.26024 16.4477 0 18 0ZM0 10.5012C0 8.43047 1.68047 6.75 3.75117 6.75H5.25234C5.81133 6.75 6.34219 6.87305 6.82031 7.09102C6.77461 7.34414 6.75352 7.60781 6.75352 7.875C6.75352 9.21797 7.34414 10.4238 8.27578 11.25C8.26875 11.25 8.26172 11.25 8.25117 11.25H0.748828C0.3375 11.25 0 10.9125 0 10.5012ZM14.2488 11.25C14.2418 11.25 14.2348 11.25 14.2242 11.25C15.1594 10.4238 15.7465 9.21797 15.7465 7.875C15.7465 7.60781 15.7219 7.34766 15.6797 7.09102C16.1578 6.86953 16.6887 6.75 17.2477 6.75H18.7488C20.8195 6.75 22.5 8.43047 22.5 10.5012C22.5 10.916 22.1625 11.25 21.7512 11.25H14.2488ZM7.875 7.875C7.875 6.01229 9.38729 4.5 11.25 4.5C13.1127 4.5 14.625 6.01229 14.625 7.875C14.625 9.73771 13.1127 11.25 11.25 11.25C9.38729 11.25 7.875 9.73771 7.875 7.875ZM4.5 17.0613C4.5 14.4738 6.59883 12.375 9.18633 12.375H13.3137C15.9012 12.375 18 14.4738 18 17.0613C18 17.5781 17.5816 18 17.0613 18H5.43867C4.92188 18 4.5 17.5816 4.5 17.0613Z" fill="currentColor"/></svg>
+                            <span class="section-card-title">Company Ownership</span>
+                        </div>
+                        <template lwc:if={canEdit}>
+                            <div class="slds-grid slds-grid_vertical-center">
+                                <template lwc:if={isSavedOwnership}>
+                                    <span class="saved-indicator">
+                                        <lightning-icon icon-name="utility:check" size="x-small" variant="success"></lightning-icon>
+                                        Saved
+                                    </span>
+                                </template>
+                                <lightning-button variant="brand" label="Add Owner" icon-name="utility:add"
+                                    onclick={handleAddOwnershipContact}>
+                                </lightning-button>
+                            </div>
+                        </template>
+                    </div>
+                    <p class="section-description slds-m-top_xx-small slds-m-bottom_small slds-m-horizontal_medium">Individuals with ownership stake in the company.</p>
+                    <template lwc:if={isOwnershipOverAllocated}>
+                        <div class="slds-notify slds-notify_alert slds-alert_error slds-m-horizontal_medium slds-m-bottom_small" role="alert">
+                            <span class="slds-assistive-text">Error</span>
+                            <lightning-icon icon-name="utility:error" alternative-text="Error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            Total ownership is {totalOwnershipPercentage}%. It cannot exceed 100%.
+                        </div>
+                    </template>
+                    <div class="section-card-body">
+                        <div class="table-spinner-container">
+                            <template lwc:if={isSavingOwnership}>
+                                <div class="table-spinner-overlay">
+                                    <lightning-spinner size="small" variant="brand" alternative-text="Saving..."></lightning-spinner>
+                                </div>
+                            </template>
+                            <c-a-r-c_-form-table columns={ownershipColumns} rows={ownershipContactsWithFullName}
+                                empty-message="No ownership contacts added yet."
+                                oneditrow={handleEditOwnershipContact}
+                                onremoverow={handleRemoveOwnershipContact}
+                                row-count-label="owners"
+                                read-only={isReadOnly} is-community={isCommunity}>
+                            </c-a-r-c_-form-table>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+    </c-a-r-c_-collapsible-section>
+    </div>
+
+    <!-- Contact Modal for Add/Edit (Other Contacts) -->
+    <c-a-r-c_-contact-modal></c-a-r-c_-contact-modal>
+
+    <!-- Owner Modal for Company Ownership -->
+    <c-a-r-c_-owner-modal opportunity-id={effectiveRecordId}></c-a-r-c_-owner-modal>
+
+    <!-- TPA Modal for Add/Edit -->
+    <c-a-r-c_-t-p-a-modal></c-a-r-c_-t-p-a-modal>
+
+    <!-- Confirmation Modal -->
+    <c-a-r-c_-confirm-modal></c-a-r-c_-confirm-modal>
+</template>

@@ -1,0 +1,378 @@
+<template>
+
+    <div style="min-height: 60px;">
+        <div style="display:flex; justify-content:flex-end; gap:12px;">
+            <div style="width:200px;">
+                <div style="display:flex; align-items:flex-start; gap:6px;">
+                    <span style="margin-top:8px;">From:</span>
+                    <div style="flex:1;">
+                        <lightning-input
+                            type="date"
+                            name="fromDate"
+                            variant="label-hidden"
+                            value={inputFromDate}
+                            max={inputToDate}
+                            onchange={handleDateChange}>
+                        </lightning-input>
+                    </div>
+                </div>
+            </div>
+
+            <div style="width:200px;">
+                <div style="display:flex; align-items:flex-start; gap:6px;">
+                    <span style="margin-top:8px;">To:</span>
+                    <div style="flex:1;">
+                        <lightning-input
+                            type="date"
+                            name="toDate"
+                            variant="label-hidden"
+                            value={inputToDate}
+                            min={inputFromDate}
+                            onchange={handleDateChange}>
+                        </lightning-input>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="padding:20px">
+        <lightning-button-icon
+            icon-name="utility:refresh"
+            variant="border-filled"
+            title="Refresh"
+            onclick={getApexData}
+            class="btnHeader mgbt-10">
+        </lightning-button-icon>
+
+        <h1>Family Agregator</h1>
+
+        <template if:true={hasFamilyAgg}>
+            <template for:each={familyDisplay} for:item="item">
+                <div key={item.Id}>
+                    <br>
+                    <a href="javascript:void(0);" onclick={item.onClick}>
+                        {item.Name} - {item.year}
+                    </a>
+
+                    <p>
+                        Current Amount:&nbsp;
+                        <strong>
+                            <lightning-formatted-number value={item.current} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                        </strong>
+                        &nbsp;Limit Amount:&nbsp;
+                        <strong>
+                            <template lwc:if={item.nolimit}>
+                                <lightning-formatted-text value="No Max Limit"></lightning-formatted-text>
+                            </template>
+                            <template lwc:else>
+                                <lightning-formatted-number value={item.limit} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                            </template>
+                        </strong>
+                    </p>
+
+                    <lightning-progress-bar value={item.currentPercent} size="large" variant="circular"></lightning-progress-bar>
+
+                    <div class="slds-text-align_right">
+                        <p style="text-size: 12px;">
+                            <lightning-formatted-date-time value={item.startDate}></lightning-formatted-date-time>
+                            &nbsp;/&nbsp;
+                            <template lwc:if={item.endDate}>
+                                <lightning-formatted-date-time value={item.endDate}></lightning-formatted-date-time>
+                            </template>
+                            <template lwc:else>
+                                Active
+                            </template>
+                        </p>
+                    </div>
+                </div>
+            </template>
+        </template>
+
+        <template if:false={hasFamilyAgg}>
+            <div class="slds-text-color_error">
+                This program doesn't have any Family Aggregator
+            </div>
+        </template>
+    </div>
+
+    <div class="slds-grid slds-wrap">
+
+        <!-- LEFT COLUMN -->
+        <div class="slds-col slds-size_1-of-2">
+            <div style="padding:20px">
+
+                <h1>Individual - Yearly Refresh</h1>
+
+                <template for:each={members} for:item="item">
+                    <div key={item.Id}>
+                        <br>
+                        <a href="javascript:void(0);" onclick={item.onClick}>{item.Name}</a>
+
+                        <p>
+                            Current Amount:&nbsp;
+                            <strong>
+                                <lightning-formatted-number value={item.current} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                            </strong>
+                            &nbsp;Limit Amount:&nbsp;
+                            <strong>
+                                <template lwc:if={item.nolimit}>
+                                    <lightning-formatted-text value="No Max Limit"></lightning-formatted-text>
+                                </template>
+                                <template lwc:else>
+                                    <lightning-formatted-number value={item.limit} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                </template>
+                            </strong>
+                        </p>
+
+                        <lightning-progress-bar value={item.currentPercent} size="large" variant="circular"></lightning-progress-bar>
+
+                        <div class="slds-text-align_right">
+                            <p style="text-size: 12px;">
+                                <lightning-formatted-date-time value={item.startDate}></lightning-formatted-date-time>
+                                &nbsp;/&nbsp;
+                                <template lwc:if={item.endDate}>
+                                    <lightning-formatted-date-time value={item.endDate}></lightning-formatted-date-time>
+                                </template>
+                                <template lwc:else>
+                                    Active
+                                </template>
+                            </p>
+                        </div>
+                    </div>
+                </template>
+
+                <template if:true={theresMat}>
+                    <hr>
+                    <h1>Maternity - Effective Date Refresh</h1>
+
+                    <template for:each={membersMat} for:item="item">
+                        <div key={item.Id}>
+                            <br>
+                            <a href="javascript:void(0);" onclick={item.onClick}>Benefit Year 1 & 2</a>
+
+                            <lightning-progress-bar value={item.currentPercent} size="large" variant="circular"></lightning-progress-bar>
+
+                            <div style="display:flex; justify-content:space-between;">
+                                <p style="text-size: 12px;">
+                                    <lightning-formatted-number value={item.current} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                    &nbsp;/&nbsp;
+                                    <lightning-formatted-number value={item.limit} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                </p>
+                                <p style="text-size: 12px;">
+                                    <lightning-formatted-date-time value={item.startDate}></lightning-formatted-date-time>
+                                    &nbsp;/&nbsp;
+                                    <lightning-formatted-date-time value={item.endDate}></lightning-formatted-date-time>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+
+                <template if:true={theresPreEx}>
+                    <hr>
+                    <h1>Pre Existing Conditions - Effective Date Refresh</h1>
+
+                    <template for:each={membersPreEx} for:item="item">
+                        <div key={item.Id}>
+                            <br>
+                            <a href="javascript:void(0);" onclick={item.onClick}>{item.benefitYearName}</a>
+
+                            <lightning-progress-bar value={item.currentPercent} size="large" variant="circular"></lightning-progress-bar>
+
+                            <div style="display:flex; justify-content:space-between;">
+                                <p style="text-size: 12px;">
+                                    <lightning-formatted-number value={item.current} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                    &nbsp;/&nbsp;
+                                    <lightning-formatted-number value={item.limit} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                </p>
+                                <p style="text-size: 12px;">
+                                    <lightning-formatted-date-time value={item.startDate}></lightning-formatted-date-time>
+                                    &nbsp;/&nbsp;
+                                    <lightning-formatted-date-time value={item.endDate}></lightning-formatted-date-time>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+
+                <template if:true={theresMembLT}>
+                    <hr>
+                    <h1>Individual - Lifetime</h1>
+
+                    <template for:each={membersLongTerm} for:item="item">
+                        <div key={item.Id}>
+                            <br>
+                            <a href="javascript:void(0);" onclick={item.onClick}>{item.Name}</a>
+
+                            <template if:true={item.isCurrency}>
+                                <p>
+                                    Current Amount:&nbsp;
+                                    <strong>
+                                        <lightning-formatted-number value={item.current} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                    </strong>
+                                    &nbsp;Limit Amount:&nbsp;
+                                    <strong>
+                                        <template lwc:if={item.nolimit}>
+                                            <lightning-formatted-text value="No Max Limit"></lightning-formatted-text>
+                                        </template>
+                                        <template lwc:else>
+                                            <lightning-formatted-number value={item.limit} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                                        </template>
+                                    </strong>
+                                </p>
+                                <lightning-progress-bar value={item.currentPercent} size="large" variant="circular"></lightning-progress-bar>
+                                <div class="slds-text-align_right">
+                                    <p style="text-size: 12px;">
+                                        <lightning-formatted-date-time value={item.startDate}></lightning-formatted-date-time>
+                                        &nbsp;/&nbsp;
+                                        <template lwc:if={item.endDate}>
+                                            <lightning-formatted-date-time value={item.endDate}></lightning-formatted-date-time>
+                                        </template>
+                                        <template lwc:else>
+                                            Active
+                                        </template>
+                                    </p>
+                                </div>
+                                <template if:true={item.monthlyBars}>
+                                    <lightning-accordion allow-multiple-sections-open class="slds-p-bottom-small">
+                                        <lightning-accordion-section label="Monthly Consumption">
+                                            <template for:each={item.monthlyBars} for:item="month">
+                                                <div key={month.month} class="slds-m-bottom_small">
+                                                    <p>
+                                                        <strong>{month.label}</strong>
+                                                    </p>
+                                                    <lightning-progress-bar
+                                                        value={month.percent}
+                                                        size="large"
+                                                        variant="circular">
+                                                    </lightning-progress-bar>
+                                                    <p>
+                                                        <lightning-formatted-number
+                                                            value={month.current}
+                                                            format-style="currency"
+                                                            currency-code="USD">
+                                                        </lightning-formatted-number>
+                                                        /
+                                                        <lightning-formatted-number
+                                                            value={month.limit}
+                                                            format-style="currency"
+                                                            currency-code="USD">
+                                                        </lightning-formatted-number>
+                                                    </p>
+                                                </div>
+                                            </template>
+                                        </lightning-accordion-section>
+                                    </lightning-accordion>
+                                </template>
+                            </template>
+
+                            <template if:true={item.isUnit}>
+                                <p>
+                                    Current Units: <strong>{item.current}</strong>
+                                    Limit Units: <strong>{item.limit}</strong>
+                                </p>
+                                <lightning-progress-bar value={item.currentPercent} size="large" variant="circular"></lightning-progress-bar>
+                                <div class="slds-text-align_right">
+                                    <p style="text-size: 12px;">
+                                        <lightning-formatted-date-time value={item.startDate}></lightning-formatted-date-time>
+                                        &nbsp;/&nbsp;
+                                        <template lwc:if={item.endDate}>
+                                            <lightning-formatted-date-time value={item.endDate}></lightning-formatted-date-time>
+                                        </template>
+                                        <template lwc:else>
+                                            Active
+                                        </template>
+                                    </p>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="slds-col slds-size_1-of-2">
+            <div style="padding:20px">
+
+                <h1>Visits - Yearly Refresh</h1>
+
+                <template for:each={visits} for:item="item">
+                    <div key={item.Id}>
+                        <br>
+                        <a href="javascript:void(0);" onclick={item.onClick}>{item.Name}</a>
+
+                        <template if:true={item.isUnit}>
+                            <p>
+                                Current Units: <strong>{item.current}</strong>
+                                Limit Units: <strong>{item.limit}</strong>
+                            </p>
+                        </template>
+
+                        <template if:true={item.isVisit}>
+                            <p>
+                                Current Visits: <strong>{item.current}</strong>
+                                Limit Visits: <strong>{item.limit}</strong>
+                            </p>
+                        </template>
+
+                        <lightning-progress-bar value={item.currentPercent} size="large" variant="circular"></lightning-progress-bar>
+
+                        <div class="slds-text-align_right">
+                            <p style="text-size: 12px;">
+                                <lightning-formatted-date-time value={item.startDate}></lightning-formatted-date-time>
+                                &nbsp;/&nbsp;
+                                <template lwc:if={item.endDate}>
+                                    <lightning-formatted-date-time value={item.endDate}></lightning-formatted-date-time>
+                                </template>
+                                <template lwc:else>
+                                    Active
+                                </template>
+                            </p>
+                        </div>
+                    </div>
+                </template>
+
+                <template if:true={theresVisLT}>
+                    <hr>
+                    <h1>Visits - Long Term Refresh</h1>
+
+                    <template for:each={visitsLongTerm} for:item="item">
+                        <div key={item.Id}>
+                            <br>
+                            <a href="javascript:void(0);" onclick={item.onClick}>{item.Name}</a>
+
+                            <template if:true={item.isAvailable}>
+                                <p>
+                                    <lightning-icon icon-name="action:approval" alternative-text="Available" title="Available" size="xx-small"></lightning-icon>
+                                </p>
+                            </template>
+
+                            <template if:false={item.isAvailable}>
+                                <p>
+                                    <lightning-icon icon-name="action:close" alternative-text="Not Available" title="Not Available" size="xx-small" style="margin-right:5px;"></lightning-icon>
+                                    Next availability date:
+                                    <strong>{item.ARC_NextAvailabilityDate__c}</strong>
+                                </p>
+                            </template>
+
+                            <div>
+                                <p style="text-size: 12px;">
+                                    <lightning-formatted-date-time value={item.startDate}></lightning-formatted-date-time>
+                                    &nbsp;/&nbsp;
+                                    <template lwc:if={item.endDate}>
+                                        <lightning-formatted-date-time value={item.endDate}></lightning-formatted-date-time>
+                                    </template>
+                                    <template lwc:else>
+                                        Active
+                                    </template>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

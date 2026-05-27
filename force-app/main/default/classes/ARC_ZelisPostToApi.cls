@@ -40,6 +40,8 @@ public class ARC_ZelisPostToApi implements Queueable, Database.AllowsCallouts {
         request.setBody(requestBody);
         HttpResponse response = new HttpResponse();
         Http http = new Http();
+        Boolean isSandbox = [SELECT IsSandbox FROM Organization LIMIT 1].IsSandbox;
+        String endPointServer = isSandbox == false ? 'ZelisClaims' : 'ZelisClaimsTest';
         try {
             response = http.send(request);
         } catch (Exception ex) {
@@ -47,7 +49,8 @@ public class ARC_ZelisPostToApi implements Queueable, Database.AllowsCallouts {
         }
         if (response.getStatusCode() == 200){
             FTP2SF.FTP.Response result ;
-            if(!Test.isRunningTest() && sendToZelis ) result = FTP2SF.FTP.trn('UHSM', folderName +'/' + fileName + '.zip', 'ZelisClaims', '/'+fileName +'.zip');
+            System.debug('endPointServer: '+endPointServer);
+            if(!Test.isRunningTest() && sendToZelis) result = FTP2SF.FTP.trn('UHSM', folderName +'/' + fileName + '.zip', endPointServer, '/'+fileName +'.zip');
             System.debug(result);
             if (Test.isRunningTest() || (sendToZelis && updateCheckRun && result?.success==true )) {
                 try{

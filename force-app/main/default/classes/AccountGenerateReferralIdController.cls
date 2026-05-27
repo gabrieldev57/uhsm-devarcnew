@@ -4,7 +4,7 @@ public class AccountGenerateReferralIdController {
     @TestVisible
     public static Integer mockIdIndex = 0;
     
-    public static void assignReferralIds(List<Account> newAccounts) {
+     public static void assignReferralIds(List<Account> newAccounts) {
         String charString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         Set<String> allGeneratedIds = new Set<String>();
         
@@ -80,5 +80,5 @@ public class AccountGenerateReferralIdController {
             id += chars.substring(index, index + 1);
         }
         return id;
-     }
     }
+}

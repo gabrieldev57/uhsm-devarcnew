@@ -62,13 +62,13 @@ const PICKLIST_OPTIONS = [{
     label: 'Age 65 Notice',
     subject: 'Age 65 Notice',
     value: '13',
-    params: ["First Name", "Full Name", "Projected Paid Through Date", "imageURLs"]
+    params: ["Primary Name", "First Name", "Full Name", "Projected Paid Through Date", "imageURLs"]
 },
 {
     label: 'Age 26 Notice',
     subject: 'Age 26 Dependent Aging Out',
     value: '14',
-    params: ["First Name", "Full Name", "imageURLs"]
+    params: ["Primary Name", "First Name", "Full Name", "imageURLs"]
 },
 {
     label: 'Medical Review Follow Up APPROVED /Reprocessed',
@@ -216,14 +216,14 @@ const PICKLIST_OPTIONS = [{
     label: 'Age Up 60 Days Out',
     subject: 'Notice of upcoming change to your WeShare monthly sharing amount',
     value: '45',
-    params: ["First Name", "Oldest Member Name", "Oldest Member Birthdate", "Monthly Contribution", "Ages Up Draft Date", "Next Contribution In Sixty Days", "imageURLs"]
+    params: ["First Name", "AgeUp", "Oldest Member Birthdate", "Program Name", "Monthly Contribution", "Ages Up Draft Date", "Next Contribution In Sixty Days", "imageURLs"]
 
 },
 {
     label: 'Age Up 30 Days Out',
     subject: 'Reminder of upcoming change to your WeShare monthly sharing amount',
     value: '46',
-    params: ["First Name", "Oldest Member Name", "Oldest Member Birthdate", "Monthly Contribution", "Ages Up Draft Date", "Next Contribution In Sixty Days", "imageURLs"]
+    params: ["First Name", "AgeUp", "Oldest Member Birthdate", "Ages Up Effective Date", "imageURLs"]
 
 },
 {

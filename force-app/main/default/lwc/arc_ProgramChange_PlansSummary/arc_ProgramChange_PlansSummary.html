@@ -1,5 +1,16 @@
 <template>
-    <div class="comp-row" if:true={feeApplicable}>
+    <div class="comp-row" if:true={programSummaryFeeTextPending}>
+        <div class="reason-label">
+            <p>{programSummaryFeeTextPending}</p>
+        </div>
+        <div class="all-reasons">
+            <div>
+                <p>{feeAmountPending}</p>
+            </div>  
+        </div>
+    </div>
+    <template if:true={programSummaryFeeText}>
+        <div class="comp-row" if:true={feeApplicable}>
         <div class="reason-label">
             <p>{programSummaryFeeText}</p>
         </div>
@@ -9,6 +20,8 @@
             </div>  
         </div>
     </div>
+    </template>
+    
     <div class="comp-row">
         <div class="reason-label">
             <p>Reason:</p>

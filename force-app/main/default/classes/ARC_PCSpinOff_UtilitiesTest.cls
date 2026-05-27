@@ -215,4 +215,128 @@ public with sharing class ARC_PCSpinOff_UtilitiesTest {
         // Asserts
         
     }
+    
+    //added new
+     @IsTest
+    static void testGetMemberBeneficiaries_PremierSelected() {
+        
+        Account groupAccount = new Account(
+            Name = 'Group Account'
+        );
+        insert groupAccount;
+
+        // Create Account (Census Member / Person Account substitute)
+        Account memberAccount = new Account(
+            Name = 'Test Member'
+        );
+        insert memberAccount;
+
+        // Create Contract
+        Contract  contract = new Contract (
+            Name = 'Test Contract',
+            AccountId = groupAccount.Id
+        );
+        insert contract;
+
+        // Create Product (Medical Type)
+        Product2 prod = new Product2(
+            Name = 'Medical Product',
+            IsActive = true,
+            vlocity_ins__Type__c = 'Medical'
+        );
+        insert prod;
+
+        // Create Policy
+        InsurancePolicy  policy = new InsurancePolicy(
+            Name = 'Test Policy',
+            ARC_Contract__c = contract.Id,
+            NameInsuredId = memberAccount.Id
+        );
+        insert policy;
+
+        //Create Policy Coverage
+        InsurancePolicyCoverage  coverage = new InsurancePolicyCoverage (
+            InsurancePolicyId = policy.Id,
+            vlocity_ins_fsc__Product2Id__c = prod.Id
+        );
+        insert coverage;
+
+        //Create Policy Participant
+        InsurancePolicyParticipant  policyParticipant = new InsurancePolicyParticipant (
+            InsurancePolicyId = policy.Id,
+            Role = 'Primary'
+        );
+        insert policyParticipant;
+
+        //Create Contact for Account
+        Contact contact = new Contact(
+            LastName = 'Contact',
+            AccountId = memberAccount.Id
+        );
+        insert contact;
+
+        // Link PrimaryParticipantContact (if required field exists in your org)
+        policyParticipant.PrimaryParticipantContactId = contact.Id;
+        update policyParticipant;
+
+        //Create Coverage Participant with Beneficiaries
+        ARC_CoverageParticipant__c coverageParticipant = new ARC_CoverageParticipant__c(
+            ARC_Policy__c = policy.Id,
+            ARC_PolicyCoverage__c = coverage.Id,
+            ARC_PolicyParticipant__c = policyParticipant.Id,
+
+            ARC_PrimaryBeneficiaryName__c = 'John Benef',
+            ARC_PrimaryBeneficiaryBirthdate__c = Date.today().addYears(-30),
+            ARC_PrimaryBeneficiaryPhone__c = '1234567890',
+            ARC_PrimaryBeneficiaryRelationship__c = 'Spouse',
+
+            ARC_SecondaryBeneficiaryName__c = 'Jane Benef',
+            ARC_SecondaryBeneficiaryBirthdate__c = Date.today().addYears(-25),
+            ARC_SecondaryBeneficiaryPhone__c = '0987654321',
+            ARC_SecondaryBeneficiaryRelationship__c = 'Other',
+            ARC_SecondaryBeneficiaryOther__c = 'Friend'
+        );
+        insert coverageParticipant;
+
+        //Prepare Input Map
+        Map<String,Object> memberMap = new Map<String,Object>{
+            'PersonAccountId' => memberAccount.Id
+        };
+
+        Map<String,Object> inputMap = new Map<String,Object>{
+            'SelectedContractInfo' => new Map<String,Object>{
+                'ExpiredContract' => contract.Id
+            },
+            'census_component' => new Map<String,Object>{
+                'census_members' => new List<Object>{ memberMap }
+            },
+            'premierSelected' => true
+        };
+
+        Map<String,Object> outputMap = new Map<String,Object>();
+        Map<String,Object> options = new Map<String,Object>();
+
+        Test.startTest();
+        ARC_PCSpinOff_Utilities.getMemberBeneficiaries(inputMap, outputMap, options);
+        Test.stopTest();
+
+        //Assertions
+        System.assert(outputMap.containsKey('census_component'));
+
+        Map<String,Object> censusComponent =(Map<String,Object>) outputMap.get('census_component');
+        List<Object> resultMembers =(List<Object>) censusComponent.get('census_members');
+        System.assertEquals(1, resultMembers.size());
+
+        Map<String,Object> resultMember =(Map<String,Object>) resultMembers[0];
+        List<Object> beneficiaries =(List<Object>) resultMember.get('beneficiaries');
+        System.assertEquals(2, beneficiaries.size());
+
+        Map<String,Object> primaryBenef =(Map<String,Object>) beneficiaries[0];
+        System.assertEquals('Primary Beneficiary', primaryBenef.get('Label'));
+        System.assertEquals('John Benef', primaryBenef.get('BeneficiaryName'));
+
+        Map<String,Object> secondaryBenef =(Map<String,Object>) beneficiaries[1];
+        System.assertEquals(true, secondaryBenef.get('isOtherRelationship'));
+    }
+    
 }

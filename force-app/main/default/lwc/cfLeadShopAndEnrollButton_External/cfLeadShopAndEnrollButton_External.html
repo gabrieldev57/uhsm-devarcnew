@@ -1,0 +1,59 @@
+<template>
+            <div class="slds-grid slds-wrap slds-is-relative ">
+            <div style="position: fixed;z-index: 999999;top: 0;right: 0;">
+  <vlocity_ins-toast class="flexcard-toast-element" theme="slds" title="" message="" styletype=""> </vlocity_ins-toast>
+</div>
+            <div if:true={showLoader} class="slds-is-absolute vloc-loader_override" style="height: 100%; width: 100%; min-height:50px; background: transparent; z-index: 99;">
+  <div>
+   <vlocity_ins-spinner
+      variant="brand"
+      alternative-text="Loading content..."
+      size="medium"
+      theme="slds"
+      ></vlocity_ins-spinner>
+  </div>
+</div>
+            <template if:false={hasPermission}>
+              You don't have required permissions to view this card.
+            </template>
+            <template if:true={hasPermission}>
+              <template if:true={hasRecords}>
+                        <template for:each={_records} for:item="record" for:index="rindex">
+                            <vlocity_ins-flex-card-state if:true={record}  key={record._flex.uniqueKey} data-recordid={record.Id} record={record} data-statue="true"  data-index="0" data-rindex={rindex} class="cf-vlocity-state-0 cf-vlocity-state slds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="slds-grid slds-wrap slds-card slds-p-around_x-small slds-m-bottom_x-small " style="background-color:#FFFAFA;      
+        color:#FFFFFF; ">
+          <div data-style-id="state0element0" class="slds-col  slds-text-align_center  slds-size_12-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-flex-action data-style-id="state0element0_child"  tracking-obj={_childCardTrackingObj}  class= "state0element0_child flexActionElement" 
+        data-action-element-class="state0element0_child" data-action-key="state0element0" onexecuteaction={performAction} data-show-spinner="false"
+        data-element-label="shop&enroll"   state-obj={record}  record={record}  card={card}  action-list='\[{"actionIndex":1,"card":"{card}","draggable":true,"isOpen":false,"key":"1688988507685-b0gv7zgmj","label":"Update_Lead_Status","sObjectType":"Lead","stateAction":{"displayName":"Action","eventName":"updatedatasource","id":"flex-action-1764783899498","ignoreResponse":true,"message":"{\"type\":\"IntegrationProcedures\",\"value\":{\"dsDelay\":\"\",\"ipMethod\":\"Lead_Update\",\"vlocityAsync\":false,\"inputMap\":{\"lead_id\":\"{recordId}\",\"lead_status\":\"Qualified\"},\"jsonMap\":\"{\\\"recordId\\\":\\\"{recordId}\\\"}\"},\"orderBy\":{\"name\":\"\",\"isReverse\":\"\"},\"contextVariables\":[{\"id\":0,\"name\":\"recordId\",\"val\":\"00Q6u000003HZ0hEAG\"}]}","openUrlIn":"Current Window","subType":"Custom","type":"DataAction","vlocityIcon":"standard-default"}},{"actionIndex":1,"card":"{card}","draggable":false,"isOpen":true,"key":"1688991876256-cxfp5fgiz","label":"Open Prod Link","stateAction":{"Web Page":{"targetName":"https://enroll.weshare.org/enroll/beliefs?mode=internal&lead_id={recordId}&agent_id={User.userId}"},"actionConditions":{"group":[],"id":"state-condition-object","isParent":true},"displayName":"Action","hasExtraParams":true,"id":"flex-action-1764875249986","openUrlIn":"New Tab/Window","targetType":"Web Page","type":"Custom","vlocityIcon":"standard-default"}}]'  button-variant="brand"  disabled=""  display-as-button="true"  flyout-details='\{}'  hide-action-icon="true"  icon-name="standard-default"  icon-only="false"  label="Shop & Enroll - External"  styles='\{"label":{"color":"#FFFFFF"}}'  theme="slds"  ></vlocity_ins-flex-action>
+      </div>
+        </div>
+      </vlocity_ins-flex-card-state>
+                        </template>
+                      </template>
+                      <template if:false={hasRecords}>
+                            <vlocity_ins-flex-card-state  record={record} data-statue="false"  data-index="0" data-rindex={rindex} class="cf-vlocity-state-0 cf-vlocity-state slds-size_12-of-12 "  tracking-obj={_childCardTrackingObj} >
+      <div if:true={cardLoaded} class="slds-grid slds-wrap slds-card slds-p-around_x-small slds-m-bottom_x-small " style="background-color:#FFFAFA;      
+        color:#FFFFFF; ">
+          <div data-style-id="state0element0" class="slds-col  slds-text-align_center  slds-size_12-of-12  " data-rindex={rindex} style="      
+         " ><vlocity_ins-flex-action data-style-id="state0element0_child"  tracking-obj={_childCardTrackingObj}  class= "state0element0_child flexActionElement" 
+        data-action-element-class="state0element0_child" data-action-key="state0element0" onexecuteaction={performAction} data-show-spinner="false"
+        data-element-label="shop&enroll"   state-obj={record}  record={record}  card={card}  action-list='\[{"actionIndex":1,"card":"{card}","draggable":true,"isOpen":false,"key":"1688988507685-b0gv7zgmj","label":"Update_Lead_Status","sObjectType":"Lead","stateAction":{"displayName":"Action","eventName":"updatedatasource","id":"flex-action-1764783899498","ignoreResponse":true,"message":"{\"type\":\"IntegrationProcedures\",\"value\":{\"dsDelay\":\"\",\"ipMethod\":\"Lead_Update\",\"vlocityAsync\":false,\"inputMap\":{\"lead_id\":\"{recordId}\",\"lead_status\":\"Qualified\"},\"jsonMap\":\"{\\\"recordId\\\":\\\"{recordId}\\\"}\"},\"orderBy\":{\"name\":\"\",\"isReverse\":\"\"},\"contextVariables\":[{\"id\":0,\"name\":\"recordId\",\"val\":\"00Q6u000003HZ0hEAG\"}]}","openUrlIn":"Current Window","subType":"Custom","type":"DataAction","vlocityIcon":"standard-default"}},{"actionIndex":1,"card":"{card}","draggable":false,"isOpen":true,"key":"1688991876256-cxfp5fgiz","label":"Open Prod Link","stateAction":{"Web Page":{"targetName":"https://enroll.weshare.org/enroll/beliefs?mode=internal&lead_id={recordId}&agent_id={User.userId}"},"actionConditions":{"group":[],"id":"state-condition-object","isParent":true},"displayName":"Action","hasExtraParams":true,"id":"flex-action-1764875249986","openUrlIn":"New Tab/Window","targetType":"Web Page","type":"Custom","vlocityIcon":"standard-default"}}]'  button-variant="brand"  disabled=""  display-as-button="true"  flyout-details='\{}'  hide-action-icon="true"  icon-name="standard-default"  icon-only="false"  label="Shop & Enroll - External"  styles='\{"label":{"color":"#FFFFFF"}}'  theme="slds"  ></vlocity_ins-flex-action>
+      </div>
+        </div>
+      </vlocity_ins-flex-card-state>
+                      </template>
+            </template>
+            <template if:true={hasError}>
+            {error}
+            </template>
+            
+      <vlocity_ins-action action-wrapperclass="slds-hide" re-render-flyout class="action-trigger slds-col" onupdateos={updateOmniscript} onselectcards={updateSelectedCards} onsetvalue={updateAction} onfireactionevent={actionEvtHandler}>
+      
+      </vlocity_ins-action>
+  
+            <vlocity_ins-action class="execute-action" re-render-flyout action-wrapperclass="slds-hide" onupdateos={updateOmniscript} onselectcards={updateSelectedCards} onsetvalue={updateAction} onfireactionevent={actionEvtHandler}>
+            
+            </vlocity_ins-action>
+            </div>
+          </template>

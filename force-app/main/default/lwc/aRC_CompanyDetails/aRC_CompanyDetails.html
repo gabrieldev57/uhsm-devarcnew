@@ -1,0 +1,58 @@
+<template>
+    <template if:true={showView}>
+        <div class="container">
+            <div class="header-container">
+                <div class="text-block">
+                    <div class="header">Company Details</div>
+                    <div>
+                        Manage your company information and account settings
+                    </div>
+                </div>
+                <template if:true={canEdit}>
+                    <template if:false={isEdit}>
+                        <button class="edit-cancel-button" onclick={editButtonHandle}>
+                            <lightning-icon icon-name="utility:edit" size="xx-small"></lightning-icon>Edit</button>
+                    </template>
+                </template>
+                <template if:true={isEdit}>
+                    <div class="button-group">
+                        <button class="edit-cancel-button" onclick={cancelButtonHandle} disabled={isSaving}>Cancel</button>
+                        <button class="save-button" onclick={saveButtonHandle} disabled={isSaving}>Save All</button>
+                    </div>
+                </template>
+            </div>
+            <template if:true={isSaving}>
+                <div class="exampleHolder">
+                    <lightning-spinner alternative-text="Saving" size="medium"></lightning-spinner>
+                </div>
+            </template>
+            <div class="grid">
+                <div class="cell"><c-a-r-c_-company-details_-company-details data-id="editable-company-details" id="1" is-edit={isEdit} data-section="editable"></c-a-r-c_-company-details_-company-details></div>
+                <div class="cell"><c-a-r-c_-company-details_-account-manager></c-a-r-c_-company-details_-account-manager></div>
+            </div>
+            <!-- <div class="grid">
+                <div class="cell"><c-a-r-c_-company-details_-company-point-of-contact data-id="editable-point-of-contact" id="2" is-edit={isEdit} data-section="editable"></c-a-r-c_-company-details_-company-point-of-contact></div>
+                <div class="cell"><c-a-r-c_-company-details_-payment-information data-id="editable-payment-information" id="3" can-edit={canEdit} is-edit={isEdit} data-section="editable"></c-a-r-c_-company-details_-payment-information></div>
+            </div> -->
+            <div class="grid">
+                <div class="cell">
+                    <c-a-r-c_-company-details_-company-point-of-contact
+                        record-id={recordId} 
+                        data-id="editable-point-of-contact" 
+                        id="2" is-edit={isEdit} 
+                        data-section="editable"
+                        full-contact-list={fullContactList}
+                        is-read-only={isReadOnly}>
+                    </c-a-r-c_-company-details_-company-point-of-contact>
+                </div>
+                <div class="cell">
+                    <c-a-r-c_-company-details_-payment-information 
+                        data-id="editable-payment-information" 
+                        id="3" can-edit={canEdit} is-edit={isEdit} 
+                        data-section="editable">
+                    </c-a-r-c_-company-details_-payment-information>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

@@ -1,0 +1,53 @@
+<template>
+    <template if:true={displayComponent}>
+        <div class="title-container">
+            <div class="title">
+                <lightning-icon 
+                    icon-name="standard:contact" 
+                    size="small"
+                    class="slds-m-right_small">
+                </lightning-icon>
+                Beneficiaries Information
+            </div>
+            <template if:true={isReadOnly}>
+                <lightning-button label="Edit" onclick={handleEdit}></lightning-button>
+            </template>
+        </div>
+        <template if:true={displayComponent}>
+            <div class="main-container">
+                <lightning-record-edit-form
+                    object-api-name="ARC_CoverageParticipant__c"
+                    record-id={coverageParticipantId}
+                    onsuccess={handleSuccess}
+                    class="form-container"
+                >
+                    <div class="columns-container">
+                        <div class="primary-container">
+                            <lightning-input-field field-name="ARC_PrimaryBeneficiaryName__c" disabled={isReadOnly}></lightning-input-field>
+                            <lightning-input-field field-name="ARC_PrimaryBeneficiaryBirthdate__c" disabled={isReadOnly}></lightning-input-field>
+                            <lightning-input-field field-name="ARC_PrimaryBeneficiaryRelationship__c" disabled={isReadOnly}></lightning-input-field>
+                            <lightning-input-field field-name="ARC_PrimaryBeneficiaryOther__c" disabled={isReadOnly}></lightning-input-field>
+                            <lightning-input-field field-name="ARC_PrimaryBeneficiaryPhone__c" disabled={isReadOnly}></lightning-input-field>
+                        </div>
+
+                        <div class="secondary-container">
+                            <lightning-input-field field-name="ARC_SecondaryBeneficiaryName__c" disabled={isReadOnly}></lightning-input-field>
+                            <lightning-input-field field-name="ARC_SecondaryBeneficiaryBirthdate__c" disabled={isReadOnly}></lightning-input-field>
+                            <lightning-input-field field-name="ARC_SecondaryBeneficiaryRelationship__c" disabled={isReadOnly}></lightning-input-field>
+                            <lightning-input-field field-name="ARC_SecondaryBeneficiaryOther__c" disabled={isReadOnly}></lightning-input-field>
+                            <lightning-input-field field-name="ARC_SecondaryBeneficiaryPhone__c" disabled={isReadOnly}></lightning-input-field>
+                        </div>
+                    </div>
+                    
+                    <template if:false={isReadOnly}>
+                        <div class="buttons-container">
+                            <lightning-button type="submit" variant="brand" label="Save"></lightning-button>
+                            <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+                        </div>
+                    </template>
+
+                </lightning-record-edit-form>
+            </div>
+        </template>
+    </template>
+</template>

@@ -65,11 +65,9 @@ global  with sharing class ARC_PTSElegibilityFileBatch implements Database.Batch
         
         string s = '';
         for (Case r : refulfillmentCases) s += '\n' + r;
-        system.debug(s);
         
         for ( Case c : this.refulfillmentCases ) {  
             this.reFulfillmentCensusIds.add(c.ARC_CensusMember__r.vlocity_ins__CensusId__c);
-            system.debug('Case Id:' + c.Id);
         }
         for ( Case c : this.dentalCases ) {  
             this.dentalCensusIds.add(c.ARC_CensusMember__r.vlocity_ins__CensusId__c);
@@ -98,7 +96,6 @@ global  with sharing class ARC_PTSElegibilityFileBatch implements Database.Batch
     
     global void execute(Database.BatchableContext BC, List<vlocity_ins__GroupCensus__c> censuses) {
         //Get all the "Awaiting Activation" and "Activated" Contracts related to the `vlocity_ins__GroupCensus__c`.
-        System.debug('Execute');
         List<Contract> contracts_nonFiltered = [ 
             SELECT Id,vlocity_ins__EnrollmentCensusId__c,ARC_EffectiveDate__c,Status, vlocity_ins__LastDocuSignEnvelopeId__c,
                 ARC_ContractReason__c,ARC_SingleReasonForPC__c,ARC_Case__c,ARC_AwaitingActivationDate__c,
@@ -264,35 +261,16 @@ global  with sharing class ARC_PTSElegibilityFileBatch implements Database.Batch
         }
 
         //GENERATE RE-FULFILLMENT FILES
-        System.debug('refulfillmentContracts:' + refulfillmentContracts.size());
         //System.debug('vlocity_ins__LastDocuSignEnvelopeId__c:' + refulfillmentContracts[0].vlocity_ins__LastDocuSignEnvelopeId__c);
         for ( Contract contract : reFulfillmentContracts ) {
-            System.debug('refulfillment contract vlocity_ins__LastDocuSignEnvelopeId__c:' + contract.vlocity_ins__LastDocuSignEnvelopeId__c);
-            System.debug('vlocity_ins__ProductCode__c: ' + contract_medicalProduct.get(contract.Id).vlocity_ins__ProductCode__c);
              if (contract_medicalProduct.get(contract.Id).vlocity_ins__ProductCode__c.contains('Legacy')) {
                 //LEGACY            	
                 if (contract_sendWelcomeKit.get(contract.Id)) {
-                    System.debug('ARCSONA DEBUG: LEGACY CONTRACT_SENDWELCOMEKIT ');
                     //WELCOME KIT
                     this.Legacy_reFulfillmentStringTXT = ARC_UHSMFulfillment.generate(this.Legacy_reFulfillmentStringTXT, contract,
                         contract_medicalProduct.get(contract.Id),contractMembers.get(contract.Id), smartProductMap.get(contract.Id),
                         aiddProductMap.get(contract.Id), contract_AMCS.get(contract.Id)); 
                 }else{
-                    System.debug('ARCSONA DEBUG: LEGACY NO WELCOMEKIT- ID CARD ');
-                    System.debug('ARCSONA DEBUG: this.Legacy_reFulfillment_IDcardStringTXT: '+this.Legacy_reFulfillment_IDcardStringTXT);
-                    System.debug('ARCSONA DEBUG: contract: '+contract);
-                    System.debug('ARCSONA DEBUG: contract: '+contract);
-                    System.debug('ARCSONA DEBUG: contract_medicalProduct: '+contract_medicalProduct);
-                    System.debug('ARCSONA DEBUG: contract_medicalProductgetContractId: '+contract_medicalProduct.get(contract.Id));
-                    System.debug('ARCSONA DEBUG: contractMembers: '+contractMembers);
-                    System.debug('ARCSONA DEBUG: contractMembersgetContractId: '+contractMembers.get(contract.Id));
-                    System.debug('ARCSONA DEBUG: smartProductMap: '+smartProductMap);
-                    System.debug('ARCSONA DEBUG: aiddProductMap: '+aiddProductMap);
-                    System.debug('ARCSONA DEBUG: contract_AMCS: '+contract_AMCS);
-                    System.debug('ARCSONA DEBUG: smartProductMapgetId: '+smartProductMap.get(contract.Id));
-                    System.debug('ARCSONA DEBUG: aiddProductMapgetContractId: '+aiddProductMap.get(contract.Id));
-                    System.debug('ARCSONA DEBUG: contract_AMCSGetContractID: '+contract_AMCS.get(contract.Id));
-
                     //NO WELCOME KIT
                     this.Legacy_reFulfillment_IDcardStringTXT = ARC_UHSMFulfillment.generate(this.Legacy_reFulfillment_IDcardStringTXT, contract, 
                         contract_medicalProduct.get(contract.Id), contractMembers.get(contract.Id), smartProductMap.get(contract.Id),
@@ -308,11 +286,6 @@ global  with sharing class ARC_PTSElegibilityFileBatch implements Database.Batch
                         aiddProductMap.get(contract.Id), contract_AMCS.get(contract.Id)); 
                 }else{
                     //NO WELCOME KIT
-                    System.debug('contract_medicalProduct size: '+contract_medicalProduct.size());
-                    System.debug('contractMembers size: '+contractMembers.size());
-                    System.debug('smartProductMap size: '+smartProductMap.size());
-                    System.debug('aiddProductMap size: '+aiddProductMap.size());
-                    System.debug('contract_AMCS size: '+contract_AMCS.size());
                     this.WeShare_reFullfillment_IDcardStringTXT = ARC_UHSMFulfillment.generate(this.WeShare_reFullfillment_IDcardStringTXT, contract, 
                         contract_medicalProduct.get(contract.Id), contractMembers.get(contract.Id), smartProductMap.get(contract.Id),
                         aiddProductMap.get(contract.Id), contract_AMCS.get(contract.Id));
@@ -580,7 +553,6 @@ global  with sharing class ARC_PTSElegibilityFileBatch implements Database.Batch
     }
 
     private static Map<Id, List<vlocity_ins__GroupCensusMember__c>> getContractMembers(Set<Id> contractIds){
-        System.debug('getContractMembers.contractIds size: '+ contractIds.size());
         Map<Id, List<vlocity_ins__GroupCensusMember__c>> contractMembers = new Map<Id, List<vlocity_ins__GroupCensusMember__c>>();
         List<vlocity_ins__GroupCensusMemberPlan__c> memberPlans = [ 
             SELECT Id,
@@ -604,16 +576,17 @@ global  with sharing class ARC_PTSElegibilityFileBatch implements Database.Batch
             vlocity_ins__GroupCensusMemberId__r.e123_member_id__c,
             vlocity_ins__GroupCensusMemberId__r.ARC_ActiveMember__c,
             vlocity_ins__GroupCensusMemberId__r.e123_member_id_from_policy__c, 
+            vlocity_ins__GroupCensusMemberId__r.ARC_DependentRelationship__c,
             vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c,
             vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c
             FROM vlocity_ins__GroupCensusMemberPlan__c 
             WHERE vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c IN :contractIds 
             	AND (vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c = 'Medical'
                      OR
-                     vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c = 'Ancillary')
+                     vlocity_ins__ContractLineId__r.vlocity_ins__ProductType__c = 'Ancillary') 
+            	AND vlocity_ins__GroupCensusMemberId__r.ARC_DependentRelationship__c != 'Temporary Newborn'
         ];
         
-        System.debug('getContractMembers.memberPlans size: '+ memberPlans.size());
         for (vlocity_ins__GroupCensusMemberPlan__c memberPlan : memberPlans) {            
             if (contractMembers.get(memberPlan.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c) == null) {
                 contractMembers.put(memberPlan.vlocity_ins__ContractLineId__r.vlocity_ins__ContractId__c, new List<vlocity_ins__GroupCensusMember__c>());
@@ -628,7 +601,6 @@ global  with sharing class ARC_PTSElegibilityFileBatch implements Database.Batch
 
     private void sendFiles(List<String> fileNames, String path, List<String> bodies){
         for (Integer i = 0; i < fileNames.size(); i++) {
-            system.debug('filename:' + fileNames[i]);
             FTP2SF.FTP.put('UHSM',path+fileNames[i], Blob.valueOf(bodies[i]));
         }
     }

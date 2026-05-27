@@ -1,0 +1,64 @@
+.master-container{
+    border: 2px solid #dfdfdf;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: white;
+    position: relative;
+    gap: 5px;
+    display: flex;
+    flex-flow: column;
+}
+.header{
+    display: flex;
+    gap: 10px;
+}
+.header h2{
+    font-size: 18px;
+    font-weight: bold;
+    color: #141415;
+    font-family: Aktiv Grotesk Ex;
+    
+    /* margin: 0 0 16px 0; */
+}
+.user-card{
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.user-photo {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+.user-detail{
+    display: flex;
+    flex-direction: column;
+}
+.user-detail p:first-of-type{
+    font-weight: bold;
+    margin: 0;
+    color: #141415;
+}
+.user-contact-info{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.user-availability{
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f6f6f6;
+    border-radius: 4px;
+    display: flex;
+    flex-flow: row;
+    gap: 5px;
+    align-items: center;
+}
+.user-contact-info a{
+    color: inherit;
+    text-decoration: none;
+    
+}

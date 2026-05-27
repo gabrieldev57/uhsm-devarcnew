@@ -1,0 +1,46 @@
+.master-container{
+    border: 2px solid #dfdfdf;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: white;
+    position: relative;
+    gap: 10px;
+    display: flex;
+    flex-flow: column;
+}
+.header{
+    display: flex;
+    gap: 10px;
+}
+.header h2{
+    font-size: 18px;
+    font-weight: bold;
+    color: #141415;
+    font-family: Aktiv Grotesk Ex;
+    
+    /* margin: 0 0 16px 0; */
+}
+.call-center-info, .online-resources-info{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.call-center-info a{
+    color: inherit;
+    text-decoration: none;
+
+}
+.online-resources-info p,.call-center-info p{
+    display: flex;
+    align-items: center;
+    flex-flow: row;
+    gap: 10px;
+}
+.online-resources-info p:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+.online-resources-info p:first-of-type{
+    cursor:default;
+    text-decoration: none;
+}

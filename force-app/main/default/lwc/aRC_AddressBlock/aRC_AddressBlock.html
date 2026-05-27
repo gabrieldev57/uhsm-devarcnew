@@ -1,0 +1,68 @@
+<template>
+    <div class="address-block">
+        <template lwc:if={showLabel}>
+            <div class="slds-form-element__label slds-m-bottom_x-small">
+                <template lwc:if={required}>
+                    <abbr class="slds-required" title="required">*</abbr>
+                </template>
+                <span class="address-label">{label}</span>
+            </div>
+        </template>
+
+        <div class="slds-grid slds-wrap slds-gutters_small">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="text"
+                    label="Street Address"
+                    name="street"
+                    value={streetValue}
+                    placeholder="Enter street address"
+                    required={required}
+                    disabled={readOnly}
+                    onchange={handleStreetChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="text"
+                    label="City"
+                    name="city"
+                    value={cityValue}
+                    placeholder="Enter city"
+                    required={required}
+                    disabled={readOnly}
+                    onchange={handleCityChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-combobox
+                    label="State"
+                    name="state"
+                    value={stateValue}
+                    placeholder="Select State"
+                    options={stateOptions}
+                    required={required}
+                    disabled={readOnly}
+                    onchange={handleStateChange}>
+                </lightning-combobox>
+            </div>
+
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                <lightning-input
+                    type="text"
+                    label="Zip Code"
+                    name="zipCode"
+                    value={zipValue}
+                    placeholder="12345"
+                    pattern={zipPattern}
+                    message-when-pattern-mismatch="Please enter a valid ZIP code (e.g., 12345 or 12345-6789)"
+                    required={required}
+                    disabled={readOnly}
+                    onchange={handleZipChange}>
+                </lightning-input>
+            </div>
+        </div>
+    </div>
+</template>

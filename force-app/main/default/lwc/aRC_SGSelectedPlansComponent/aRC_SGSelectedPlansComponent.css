@@ -1,0 +1,79 @@
+.program-details-text {
+    color: #F2BC30;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.program-details-icon {
+    --sds-c-icon-color-foreground-default: #F2BC30;
+    margin-right: 0.25rem;
+}
+
+.program-details-container {
+    display: flex;
+    align-items: center;
+    margin-top: 0.15rem;
+    cursor: pointer;
+    text-decoration: none;
+    width: fit-content;
+}
+.program-details-box {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 1px solid #F2BC30;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.25rem;
+}
+.program-details-container:hover .program-details-text {
+    color: #e4b02d;
+    text-decoration: none;
+}
+.program-details-box:hover {
+    color: #e4b02d;
+    text-decoration: none;
+}
+.mini-plus-icon {
+    --sds-c-icon-color-foreground-default: #F2BC30;
+    transform: scale(0.50); 
+    display: block; 
+    line-height: 0;
+}
+
+.selPlans-totalRow {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: #f3f3f3;
+    border-radius: 0 0 0.25rem 0.25rem;
+    margin: 0;
+    padding: 1rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+.selPlans-tab {
+    background-color: #f3f3f3;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
+    color: #8c8c8c;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.selPlans-DivTabs {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0 !important;
+}
+
+.selPlans-Plan {
+    padding-right: 1rem;
+    padding-left: 1rem;
+}
